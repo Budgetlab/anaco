@@ -1,0 +1,118 @@
+<header role="banner" class="fr-header">
+    <div class="fr-header__body">
+        <div class="fr-container">
+            <div class="fr-header__body-row">
+                <div class="fr-header__brand fr-enlarge-link">
+                    <div class="fr-header__brand-top">
+                        <div class="fr-header__logo">
+                            <p class="fr-logo">
+                                Ministère
+                                <br>de l'économie,<br>des finances<br>et de la souveraineté<br> industrielle et numérique
+                            </p>
+                        </div>
+                        <div class="fr-header__navbar">
+                            <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="fr-menu-modal" aria-haspopup="menu" id="button-477" title="Menu">
+                                Menu
+                            </button>
+                        </div>
+                    </div>
+                    <div class="fr-header__service">
+                        <a href="/" title="Accueil ">
+                          <p class="fr-header__service-title">[NOM] <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
+                        </a>
+                        <p class="fr-header__service-tagline">[Intitulé]</p>
+                    </div>
+                </div>
+                <% if user_signed_in? %>
+                <div class="fr-header__tools">
+                    <div class="fr-header__tools-links ">
+                        <ul class="fr-btns-group">                                                    
+                                <li>
+                                    <%= link_to "Se déconnecter", destroy_user_session_path, data: { "turbo-method": :delete }, class:"fr-btn fr-fi-logout-box-r-line" %>
+                                </li>
+                                  
+                        </ul>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+ 
+    <% if user_signed_in? %>
+    <div class="fr-header__menu fr-modal" id="modal-530" aria-labelledby="button-531">
+        <div class="fr-container">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-530" title="Fermer">
+                Fermer
+            </button>
+            <div class="fr-header__menu-links"></div>
+            <nav class="fr-nav" id="fr-navigation" role="navigation" aria-label="Menu principal">
+                <ul class="fr-nav__list">
+                    <li class="fr-nav__item">
+                        <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'],['accueil']] do%>Accueil<%end%>
+                    </li>                   
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <% end %>
+</header>
+
+
+<dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+    <div class="fr-container fr-container--fluid fr-container-md">
+        <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                <div class="fr-modal__body fr-scroll-shadow">
+                    <div class="fr-modal__header">
+                        <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal">Fermer</button>
+                    </div>
+                    <div class="fr-modal__content">
+                        <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                            Paramètres d’affichage
+                        </h1>
+                        <div id="fr-display" class="fr-form-group fr-display">
+                            <div class="fr-form-group">
+                                <fieldset class="fr-fieldset">
+                                    <legend class="fr-fieldset__legend fr-text--regular" id='-legend'>
+                                        Choisissez un thème pour personnaliser l’apparence du site.
+                                    </legend>
+                                    <div class="fr-fieldset__content">
+                                        <div class="fr-radio-group fr-radio-rich">
+                                            <input value="light" type="radio" id="fr-radios-theme-light" name="fr-radios-theme">
+                                            <label class="fr-label" for="fr-radios-theme-light">Thème clair
+                                            </label>
+                                            <div class="fr-radio-rich__img" data-fr-inject-svg>
+                                                <%= image_tag "light.svg", alt:"", class:"fr-artwork" %>
+                                                <!-- L’alternative de l’image (attribut alt) doit rester vide car l’image est illustrative et ne doit pas être restituée aux technologies d’assistance -->
+                                            </div>
+                                        </div>
+                                        <div class="fr-radio-group fr-radio-rich">
+                                            <input value="dark" type="radio" id="fr-radios-theme-dark" name="fr-radios-theme">
+                                            <label class="fr-label" for="fr-radios-theme-dark">Thème sombre
+                                            </label>
+                                            <div class="fr-radio-rich__img" data-fr-inject-svg>
+                                                <%= image_tag "dark.svg", alt: "" %>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="fr-radio-group fr-radio-rich">
+                                            <input value="system" type="radio" id="fr-radios-theme-system" name="fr-radios-theme">
+                                            <label class="fr-label" for="fr-radios-theme-system">Système
+                                                <span class="fr-hint-text">Utilise les paramètres système.</span>
+                                            </label>
+                                            <div class="fr-radio-rich__img" data-fr-inject-svg>
+                                                <%= image_tag "system.svg", alt: "" %>
+                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</dialog>

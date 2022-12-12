@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+html{
+  height: 100%;
+}
+
+body div{
+  font-family: Marianne, sans-serif;
+}
+a{
+  &:hover{
+  cursor:pointer;
+  }
+}
+
+.fr-header__brand:hover, .fr-footer__brand:hover{
+  background-color:transparent !important;
+}
+.fr-text-lg{
+  font-size:1.125rem;
+}
+h1, h2{
+  position:relative;
+}
+.background{
+	background-image: image-url("background.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.titre{
+	margin-top:20%;
+	
+}
+.titre span, .soustitre span{
+	background-color: var(--text-inverted-grey);
+}
