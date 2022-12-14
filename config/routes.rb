@@ -8,6 +8,10 @@ Rails.application.routes.draw do
 		get 'utilisateurs' => "users#index"
     	post 'import_users' => "users#import"
     	post '/select_nom' => 'users#select_nom'
+    	resources :bops, only: [:index, :show]
+    	
+    	get '/ajout_bops' => "bops#new"
+    	post 'import_bops' => "bops#import"
 	  	get '/mentions-legales', to: 'pages#mentions_legales'
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'
 	    get '/accessibilite', to: 'pages#accessibilite'

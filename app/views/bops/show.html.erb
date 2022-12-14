@@ -1,0 +1,79 @@
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+          <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
+          <div class="fr-collapse" id="breadcrumb-1">
+              <ol class="fr-breadcrumb__list">
+                  <li>
+                      <a class="fr-breadcrumb__link" href="/avisbop">Accueil </a>
+                  </li>
+                  <li>
+                      <a class="fr-breadcrumb__link" href="/avisbop/bops"">bop n°</a>
+                  </li>
+                  <li>
+                      <a class="fr-breadcrumb__link" aria-current="page">bop n°<%= @bop.code%></a>
+                  </li>
+              </ol>
+          </div>
+    </nav>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mb-3w">BOP n°<%= @bop.code%></h1>
+      </div>
+    </div>
+
+    <div class="fr-card fr-card--horizontal fr-card--shadow">
+          <div class="fr-card__body">
+              <div class="fr-card__content">
+                  <div class="fr-card__start">
+                    <ul class="fr-badges-group">
+                        <li>
+                           <p class="fr-tag"> Ministere <%= @bop.ministere%></p>
+                        </li>
+                    </ul>
+                    <p class="fr-card__detail fr-icon-arrow-right-line">Consulté par <%= User.where(id: @bop.consultant).first.nom%></p>
+                  </div>
+                  <h3 class="fr-card__title">
+                      BOP n°<%= @bop.code%>
+                  </h3>
+                  <p class="fr-card__desc">Programme n°<%= @bop.numero_programme%> <br> <%= @bop.nom_programme%></p>
+                  
+              </div>
+              
+          </div>        
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h2 class="fr-my-3w">Historique des avis</h2>
+
+        <div class="fr-table fr-table--no-caption">
+          <table>
+              <caption>Historique des avis</caption>
+              <thead>
+                  <tr>
+                      <th scope="col">Date avis </th>
+                      <th scope="col">Programme </th>
+                      <th scope="col">Phase </th>
+                      <th scope="col">Statut </th>
+                      <th scope="col">Etat </th>
+                      <th scope="col"> </th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>Lorem </td>
+                      <td>Lorem [...] elit ut.</td>
+                      <td>Lorem </td>
+                      <td>Lorem [...] elit ut.</td>
+                      <td>Lorem [...] elit ut.</td>
+                      <td>Lorem [...] elit</td>
+                  </tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>

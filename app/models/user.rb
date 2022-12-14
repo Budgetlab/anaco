@@ -4,6 +4,8 @@ class User < ApplicationRecord
   	devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+     has_many :bops
+
     def self.import(file)
 	    User.destroy_all 
 

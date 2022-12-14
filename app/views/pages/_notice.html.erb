@@ -1,0 +1,31 @@
+
+<% if Date.today <= Date.new(2023,3,15)%>
+<div class="fr-notice fr-notice--info">
+    <div class="fr-container">
+        <div class="fr-notice__body">
+            <p class="fr-notice__title">Nous sommes en phase de <% if Date.today <= Date.new(2023,4,30)%>début de gestion <%elsif Date.new(2023,4,30) < Date.today && Date.today <= Date.new(2023,8,31) %>CRG1<%else%>CRG2<%end%>. Vous pouvez remplir vos avis depuis la page <%= link_to bops_path, rel:'noopener' do%>BOP et avis<%end%></p>
+            <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)">
+                Masquer le message
+            </button>
+        </div>
+    </div>
+</div>
+<% end %>
+<% if Date.today > Date.new(2023,3,15) && Date.today <= Date.new(2023,4,30)%>
+<div class="fr-notice notice--warning">
+    <div class="fr-container">
+        <div class="fr-notice__body">
+            <p class="fr-notice__title">Attention, la phase de début de gestion est bientôt terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+        </div>
+	</div>
+</div>
+<% end%>
+<% if Date.today > Date.new(2023,4,30)%>
+<div class="fr-notice notice--red">
+    <div class="fr-container">
+        <div class="fr-notice__body">
+            <p class="fr-notice__title">Attention, la phase de début de gestion est terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+        </div>
+	</div>
+</div>
+<% end %>

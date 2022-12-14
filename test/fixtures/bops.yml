@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  consultant: 1
+  ministere: MyString
+  numero_programme: 1
+  nom_programme: MyString
+  code: MyString
+
+two:
+  user: two
+  consultant: 1
+  ministere: MyString
+  numero_programme: 1
+  nom_programme: MyString
+  code: MyString

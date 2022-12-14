@@ -35,3 +35,33 @@ h1, h2{
 .titre span, .soustitre span{
 	background-color: var(--text-inverted-grey);
 }
+.cbleu{
+  color: var(--text-action-high-blue-france) !important;
+}
+
+.crouge{
+	color: var(--background-flat-error) !important;
+}
+
+.notice--warning {
+  color: var(--text-default-warning) !important;
+  background-color: var(--background-contrast-warning) !important;
+
+  --idle: transparent;
+  --hover: var(--background-contrast-warning-hover);
+  --active: var(--background-contrast-warning-active);
+}
+.notice--warning .fr-notice__body::before, .notice--red .fr-notice__body::before{
+  -webkit-mask-image: image-url("icons/Systeme/fr--warning-fill.svg") !important;
+  mask-image: image-url("icons/Systeme/fr--warning-fill.svg") !important;
+  content: "";
+}
+
+.notice--red {
+	color: var(--text-default-error) !important;
+  background-color: var(--background-contrast-error) !important;
+
+  --idle: transparent;
+  --hover: var(--background-contrast-error-hover);
+  --active: var(--background-contrast-error-active);
+}

@@ -1,0 +1,27 @@
+<main role="main" class="containtAll">
+  <div class="fr-container fr-mt-7w">
+    <div class="fr-col-lg-10 fr-col-offset-lg-1">
+      <h1>Ajouter un nouveau document</h1>
+      <div class="d24"></div>
+
+     <div>
+      <%= form_tag import_bops_path, multipart: true do %>
+      	<div class="fr-upload-group">
+		    <label class="fr-label" for="file-upload">Ajouter des fichiers
+		        <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : xlsx. </span>
+		    </label>
+		    <%= file_field_tag  :file, accept: '.xlsx', class: "fr-upload", id: "file-upload" %>
+		</div>
+
+
+        
+        <div class="fr-my-4w"><%= submit_tag "Transmettre", class:"fr-btn" %></div>
+
+        <% end %>
+    </div>
+   
+
+    <div class="fr-my-4w"><%= Bop.all.count%> bops</div>
+</div>
+</div>
+</main>

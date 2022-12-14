@@ -1,0 +1,2 @@
+module BopsHelper
+end
