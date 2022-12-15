@@ -1,0 +1,149 @@
+<div class="fr-container" data-controller="form">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-mt-6w">Formulaire Début de gestion 2023</h1>
+      <div class="fr-h3 fr-mb-4w">BOP n°<%= @bop.code%></div>
+    </div>
+  </div>
+
+  
+    <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange"}) do |f|%>
+    <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="datereception" class="fr-label">Date de réception BOP initial*</label>
+        <%= f.text_field :date_reception, {data: { 'form-target': 'datereception', controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "datereception",class:"fr-select", placeholder: "- sélectionner -"} %>
+      </div>
+      <div class="fr-select-group">
+        <label for="dateenvoi" class="fr-label">Date de réception BOP initial*</label>
+        <%= f.text_field :date_envoi, {data: { 'form-target': 'dateenvoi', controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "dateenvoi",class:"fr-select", placeholder: "- sélectionner -"} %>
+      </div>
+
+      <fieldset class="fr-fieldset ">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id='radio-inline-legend'>
+              Avis donné après interruption du délai*
+          </legend>
+          
+          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                  <%= f.radio_button :is_delai, true, id: "radio-delai1", checked: false  %>
+                  <label class="fr-label" for="radio-delai1">Oui</label>
+              </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                  <%= f.radio_button :is_delai, false, checked: true, id:"radio-delai" %>
+                  <label class="fr-label" for="radio-delai">Non</label>
+              </div>
+          </div>
+          
+      </fieldset>
+
+      <fieldset class="fr-fieldset">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id='radio-inline-legend'>
+              CRG1 programmé*
+          </legend>
+          
+          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                  <%= f.radio_button :is_crg1, true, id: "radio-crg11", checked: false  %>
+                  <label class="fr-label" for="radio-crg11">Oui</label>
+              </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                  <%= f.radio_button :is_crg1, false, checked: true, id:"radio-crg1" %>
+                  <label class="fr-label" for="radio-crg1">Non</label>
+              </div>
+          </div>
+          
+      </fieldset>
+
+      <div class="fr-select-group">
+          <label for="statut" class="fr-label">Sens de l'avis*</label>
+          <%= f.select :statut,[['Favorable','Favorable'],['Favorable avec réserve','Favorable avec réserve'],['Défavorable','Défavorable'],],{prompt: "- sélectionner -"}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+      </div>  
+    </div>
+    <div class="fr-col-12 fr-col-lg-8">
+      <div></div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="aei">
+                AE HT2 initial 2023*
+            </label>
+            <%= f.number_field :ae_i, class:"fr-input", id:"aei"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="cpi">
+                CP HT2 initial 2023*
+            </label>
+            <%= f.number_field :cp_i, class:"fr-input", id:"cpi"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="t2i">
+                AE/CP T2 initial 2023* 
+            </label>
+            <%= f.number_field :t2_i, class:"fr-input", id:"t2i"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="etpti">
+                ETPT initial 2023*
+            </label>
+            <%= f.number_field :etpt_i, class:"fr-input", id:"etpti"%>
+          </div>
+        </div>
+      </div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="aef">
+                AE HT2 final 2023*
+            </label>
+            <%= f.number_field :ae_f, class:"fr-input", id:"aef"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="cpf">
+                CP HT2 final 2023*
+            </label>
+            <%= f.number_field :cp_f, class:"fr-input", id:"cpf"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="t2i">
+                AE/CP T2 final 2023* 
+            </label>
+            <%= f.number_field :t2_f, class:"fr-input", id:"t2f"%>
+          </div>
+        </div>
+        <div class="fr-col-3">
+          <div class="fr-input-group">
+            <label class="fr-label" for="etptf">
+                ETPT final 2023*
+            </label>
+            <%= f.number_field :etpt_f, class:"fr-input", id:"etptf"%>
+          </div>
+        </div>
+      </div>
+      <div class="fr-input-group">
+        <label class="fr-label" for="commentaire">
+            Développements synthétiques sur l’avis (destinés à un usage interne)*
+        </label>
+        <%= f.text_area :commentaire, class:"fr-input", id:"commentaire"%>
+
+    </div>
+      <div><%= f.submit "Valider", class: "fr-btn fr-hidden", data: {'form-target': "submitBouton"}, aria: { label: "Valider"} %></div>
+    </div>
+    </div>
+    <% end %>
+  
+</div>

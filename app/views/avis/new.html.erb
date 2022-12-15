@@ -1,0 +1,18 @@
+<main role="main" class="containtAll">
+  <% if Date.today <= Date.new(2023,4,30) %>
+    <%= render 'form_debut'%>
+  <% end %>
+  <% if Date.new(2023,4,30) < Date.today && Date.today <= Date.new(2023,8,31) %>
+    <% if @bop.avis.where(phase: "debut").count == 0 %>
+      <%= render 'form_debut'%>
+    <% else %>
+    <% end %>
+  <% end %>
+  <% if Date.today > Date.new(2023,8,31) %>
+    <% if @bop.avis.where(phase: "debut").count == 0 %>
+      <%= render 'form_debut'%>
+    <% elsif @bop.avis.where(phase: "crg1", is_crg1: true).count == 0 %>
+    <% else %>
+    <% end %>
+  <% end %>
+</main>

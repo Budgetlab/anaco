@@ -1,0 +1,2 @@
+module AvisHelper
+end
