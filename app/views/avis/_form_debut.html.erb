@@ -8,6 +8,8 @@
 
   
     <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange"}) do |f|%>
+    <%= f.hidden_field :bop, value: @bop.id%>
+    <%= f.hidden_field :phase, value: "debut"%>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-select-group">
@@ -15,13 +17,13 @@
           <span class="fr-hint-text">Indiquer ici la date de réception des documents finalisés</span>
         </label>
         <%= f.text_field :date_reception, {data: { 'form-target': 'datereception',action: "change->form#changeDate1", controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "datereception",class:"fr-select", placeholder: "- sélectionner -"} %>
-        <p class="fr-message fr-message--info fr-hidden" data-form-target="datealerte1"></p>
+        <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte1">Vous avez sélectionné une date supérieure au 1er mars.</p>
       </div>
       <div class="fr-select-group">
         <label for="dateenvoi" class="fr-label">Date de réception BOP initial*
         <span class="fr-hint-text">Indiquer ici la date du courrier de l’envoi de l’avis</span></label>
         <%= f.text_field :date_envoi, {data: { 'form-target': 'dateenvoi',action: "change->form#changeDate2", controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "dateenvoi",class:"fr-select", placeholder: "- sélectionner -"} %>
-        <p class="fr-message fr-message--info fr-hidden" data-form-target="datealerte2"></p>
+        <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mars.</p>
       </div>
 
       <fieldset class="fr-fieldset fr-mb-3w">
@@ -184,18 +186,83 @@
             <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
         </label>
         <%= f.text_area :commentaire, data: {'form-target': 'commentaire', action: "input->form#count" }, class:"fr-input", id:"commentaire", rows: 10%>
-        <p class="fr-message fr-message--info" data-form-target="count"> caractères</p>
+        <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
       </div>
 
-      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+      <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
         <li>
-          <button data-action="form#save" data-form-target="Btnsave" class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" title="Enregistrer"> Enregistrer</button>
+          <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123"> Enregistrer</button>
         </li>
         <li>
-          <button data-action="form#save" data-form-target="Btnvalidate" class="fr-btn bouton_inactive" title="Valider"> Valider</button>
-          <%= f.submit "Valider", class: "fr-btn fr-hidden", data: {'form-target': "submitBouton"}, aria: { label: "Valider"} %>                 
+          <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122">Valider</button>                 
         </li>
       </ul>
+      <dialog id="modal-1123" class="fr-modal" role="dialog" aria-labelledby="modal-1123-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="modal-1123-title" class="fr-modal__title">
+                                <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                                Enregistrer le brouillon
+                            </h1>
+                            <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider définitivement votre avis afin qu'il soit transmis définitivement au DCB.</p>
+                            <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+                              <li>
+                                <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer">
+                                  Annuler
+                                </button>
+                              </li>
+                              <li>
+                                <button data-action="form#save" data-form-target="Btnsave" class="fr-btn" title="Valider"> Enregistrer</button>              
+                              </li>
+                            </ul>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </dialog>
+      <dialog id="modal-1122" class="fr-modal" role="dialog" aria-labelledby="modal-1122-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="modal-1122-title" class="fr-modal__title">
+                                <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                                Valider l’avis 
+                            </h1>
+                            <p>En cliquant sur valider, vous confirmez votre avis/note et vous ne pourrez plus le modifier.</p>
+                            <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+                              <li>
+                                <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer">
+                                  Annuler
+                                </button>
+                              </li>
+                              <li>
+                                <%= f.submit "Valider", class: "fr-btn", data: {'form-target': "submitBouton"}, aria: { label: "Valider"} %>               
+                              </li>
+                            </ul>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </dialog>
     </div>
     </div>
     <% end %>

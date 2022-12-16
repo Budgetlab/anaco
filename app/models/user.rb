@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
      has_many :bops
+     has_many :avis
 
     def self.import(file)
 	    User.destroy_all 

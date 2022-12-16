@@ -1,8 +1,36 @@
 <div class="fr-container" >    
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w">Historique des avis</h1>
+      <h1 class="fr-my-6w">Historique des avis [<%=@avis.count%>]</h1>
     </div>
   </div>
+
+  <div class="fr-table fr-table--no-caption">
+          <table>
+              <caption>Historique des avis</caption>
+              <thead>
+                  <tr>
+                      <th scope="col">Date avis </th>
+                      <th scope="col">BOP </th>
+                      <th scope="col">Programme </th>
+                      <th scope="col">Avis </th>
+                      <th scope="col">Statut </th>
+                      <th scope="col"> </th>
+                  </tr>
+              </thead>
+              <tbody>
+              	<% @avis.each do |avis|%>
+                  <tr>
+                      <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+                      <td><%= avis.bop.code %></td>
+                      <td><%= avis.bop.numero_programme %> </td>
+                      <td><%= avis.statut %></td>
+                      <td><%= avis.etat%></td>
+                      <td></td>
+                  </tr>
+                <% end %>
+              </tbody>
+          </table>
+        </div>
 
 </div>

@@ -42,7 +42,9 @@ h1, h2{
 .crouge{
 	color: var(--background-flat-error) !important;
 }
-
+.cwarning{
+  color: var(--text-default-warning) !important;
+}
 .notice--warning {
   color: var(--text-default-warning) !important;
   background-color: var(--background-contrast-warning) !important;
@@ -89,3 +91,4 @@ h1, h2{
 .flatpickr-input::placeholder{
   color: var(--text-title-grey) !important;
 }
+
