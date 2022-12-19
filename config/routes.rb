@@ -15,7 +15,7 @@ Rails.application.routes.draw do
 
     	get 'historique' => "avis#index"
     	get 'avis/nouveau/:bop_id' => "avis#new"
-    	resources :avis, only: [:create, :update]
+    	resources :avis, only: [:create, :update, :destroy]
 
 	  	get '/mentions-legales', to: 'pages#mentions_legales'
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'

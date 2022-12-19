@@ -1,5 +1,6 @@
 class Bop < ApplicationRecord
   belongs_to :user
+  has_many :avis
 
   def self.import(file)
 	    Bop.destroy_all 

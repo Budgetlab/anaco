@@ -4,17 +4,27 @@ export default class extends Controller {
   static get targets() {
   return ['form','submitBouton',
   'datereception','dateenvoi','statut','aei','cpi','t2i','etpti','aef','cpf','t2f','etptf','aeresult','cpresult','t2result','etptresult','commentaire',
-  'Btnvalidate','Btnsave','count','datealerte1','datealerte2',
+  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat',
   ];
   }
   connect() {
-    
+    this.getEcart();
   }
 
   formChange(e){
     e.preventDefault();
     let isValid = this.validateForm(this.formTarget);
 
+    this.getEcart();
+
+    if (isValid == true){
+      this.BtnvalidateTarget.classList.remove('bouton_inactive');
+    } else {
+      this.BtnvalidateTarget.classList.add('bouton_inactive');
+    }
+  }
+
+  getEcart(){
     if (this.aeiTarget.value > 0 && this.aefTarget.value > 0 ){
       this.aeresultTarget.innerHTML = (this.aefTarget.value - this.aeiTarget.value).toString()+"€"
     }
@@ -26,13 +36,7 @@ export default class extends Controller {
     }
     if (this.etptiTarget.value > 0 && this.etptfTarget.value > 0 ){
       this.etptresultTarget.innerHTML = (this.etptfTarget.value - this.etptiTarget.value).toString()+"€"
-    }
-
-    if (isValid == true){
-      this.BtnvalidateTarget.classList.remove('bouton_inactive');
-    } else {
-      this.BtnvalidateTarget.classList.add('bouton_inactive');
-    }
+    } 
   }
 
   count(e){
@@ -42,8 +46,8 @@ export default class extends Controller {
 
   changeDate1(e){
     e.preventDefault();
-    const date_max = new Date(2023, 2, 1);  
-    if (new Date(this.datereceptionTarget.value) >= date_max){
+    const date_max = new Date(2023, 2, 1); 
+    if (new Date(this.datereceptionTarget.value.split('/').reverse().join('/')) > date_max){
       this.datealerte1Target.classList.remove('fr-hidden');
     }else{
       this.datealerte1Target.classList.add('fr-hidden');
@@ -54,13 +58,12 @@ export default class extends Controller {
   changeDate2(e){
     e.preventDefault();
     const date_max = new Date(2023, 2, 15)  
-    if (new Date(this.dateenvoiTarget.value) >= date_max){
+    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
       this.datealerte2Target.classList.remove('fr-hidden');
     }else{
       this.datealerte2Target.classList.add('fr-hidden');
     }
   }
-
 
   validateForm(){
     let isValid = true;
@@ -71,9 +74,14 @@ export default class extends Controller {
 
     return isValid
   }
+  
+  open(e){
+    e.preventDefault(); 
+    this.etatTarget.value = "En attente de lecture";   
+  }
   save(e){
-    e.preventDefault();
-    
+    e.preventDefault(); 
+    this.etatTarget.value = "Brouillon";   
   }
 
 }

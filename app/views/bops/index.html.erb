@@ -1,7 +1,8 @@
 <div class="fr-container" >    
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w">Liste des <%= @bops.count %> BOP</h1>
+      <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @bops.count %> BOP</h1>
+      <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
     </div>
   </div>
 
@@ -16,20 +17,55 @@
         </li>
     </ul>
     <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
-      
-        
+        <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note')%> à rédiger</p>      
         <% @bops.each do |bop|%>
           <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-            <div class="fr-col-2"><ul><li><a href="#">BOP <%= bop.code%></a></li></ul></div> 
-            <div class="fr-col-2"><p class="fr-badge fr-badge--warning fr-badge fr-badge--warning">1 avis à rédiger</p></div>
-            <div class="fr-col-2"> <a class="fr-btn" href="#">Rédiger mon avis</a></div>
+            <div class="fr-col-2"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end%></li></ul></div> 
+            
+            <div class="fr-col-3">
+                <% if bop.avis.count == 0%><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
+                <% elsif bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p>
+                <%elsif bop.avis.where(phase: "Début de gestion").first.etat != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--success">Avis début de gestion</p>
+                <%end%></div>
+
+            <div class="fr-col-2">
+                <% if Date.today <= @date1 || bop.avis.where(phase: "Début de gestion").count == 0 || bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%>
+                    <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                <% elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true %>
+                    <% if bop.avis.where(phase: "CRG1").first.etat != "Brouillon"%>
+                        <p class="fr-badge fr-badge--info fr-badge--success">Note CRG1</p>
+                    <%else%>
+                        <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                    <%end%>
+                <% end %>
+            </div>
+
+            <div class="fr-col-2">
+                <% if Date.today <= @date2 || bop.avis.where(phase: "Début de gestion").count == 0 || (bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (bop.avis.where(phase: "CRG1").count == 0 || bop.avis.where(phase: "CRG1").first.etat == "Brouillon"))%>
+                    <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
+                <% elsif @date2 < Date.today %>
+                    <% if bop.avis.where(phase: "CRG2").first.etat != "Brouillon"%>
+                        <p class="fr-badge fr-badge--info fr-badge--success">Note CRG2</p>
+                    <%else%>
+                        <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Note CRG2</p>
+                    <% end %>
+                <% end %>
+            </div>
+
+            <div class="fr-col-3"> 
+                <% if bop.avis.count == 0 || bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%>
+                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger l'avis</a>
+                <%elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (bop.avis.where(phase: "CRG1").count == 0 || bop.avis.where(phase: "CRG1").first.etat == "Brouillon")%>
+                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG1</a>
+                <%elsif Date.today > @date2 && (bop.avis.where(phase: "CRG2").count == 0 || bop.avis.where(phase: "CRG2").first.etat == "Brouillon")%>
+                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG2</a>
+                <% end%>
+            </div>
           </div>
-        <% end %>
-        
-      
+        <% end %>    
     </div>
     <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
-        <!-- données de test -->
+       
     </div>
 </div>
 

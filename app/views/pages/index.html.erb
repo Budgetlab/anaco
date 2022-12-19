@@ -30,7 +30,7 @@
 									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.bops.count - current_user.avis.where('phase = ? AND statut != ?', "Début de gestion",'Brouillon').count %>/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
 								</div>
 							</div>
@@ -39,7 +39,7 @@
 									<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where(phase: "Début de gestion", is_delai: true).count %>/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">avis donnés après suspension</p>
 								</div>
 							</div>
@@ -48,7 +48,7 @@
 									<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %>/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
 								</div>
 							</div>
@@ -85,7 +85,7 @@
 									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
 									<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
 								</div>
 							</div>
@@ -94,7 +94,7 @@
 									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
 									<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
 								</div>
 							</div>
@@ -103,7 +103,7 @@
 									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
 									<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
 								</div>
 							</div>
@@ -148,7 +148,7 @@
 									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
 								</div>
 							</div>
@@ -157,7 +157,7 @@
 									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
 								</div>
 							</div>
@@ -166,7 +166,7 @@
 									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 								</div>
 								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/XX </h3>
+									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
 									<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
 								</div>
 							</div>

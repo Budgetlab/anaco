@@ -6,265 +6,271 @@
     </div>
   </div>
 
-  
+  <% if @bop.avis.where(phase: "Début de gestion").count > 1 && @bop.avis.where(phase: "Début de gestion").etat != "Brouillon"%>
+    <div class="fr-alert fr-alert--success">
+      <h3 class="fr-alert__title">Avis Début de gestion transmis avec succès</h3>
+      <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
+    </div>
+  <%else%>
     <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange"}) do |f|%>
     <%= f.hidden_field :bop, value: @bop.id%>
-    <%= f.hidden_field :phase, value: "debut"%>
+    <%= f.hidden_field :phase, value: "Début de gestion"%>
+    <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%> 
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
-    <div class="fr-col-12 fr-col-lg-4">
-      <div class="fr-select-group">
-        <label for="datereception" class="fr-label">Date de réception BOP initial*
-          <span class="fr-hint-text">Indiquer ici la date de réception des documents finalisés</span>
-        </label>
-        <%= f.text_field :date_reception, {data: { 'form-target': 'datereception',action: "change->form#changeDate1", controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "datereception",class:"fr-select", placeholder: "- sélectionner -"} %>
-        <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte1">Vous avez sélectionné une date supérieure au 1er mars.</p>
-      </div>
-      <div class="fr-select-group">
-        <label for="dateenvoi" class="fr-label">Date de réception BOP initial*
-        <span class="fr-hint-text">Indiquer ici la date du courrier de l’envoi de l’avis</span></label>
-        <%= f.text_field :date_envoi, {data: { 'form-target': 'dateenvoi',action: "change->form#changeDate2", controller: "flatpickr",flatpickr_date_format: "d-m-Y",flatpickr_min_date: Date.new(Date.today.year,1,1), flatpickr_max_date: Date.new(Date.today.year,12,31)}, id: "dateenvoi",class:"fr-select", placeholder: "- sélectionner -"} %>
-        <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mars.</p>
-      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="datereception" class="fr-label">Date de réception BOP initial*
+            <span class="fr-hint-text">Indiquer ici la date de réception des documents finalisés</span>
+          </label>
+          <%= f.text_field :date_reception, {data: { 'form-target': 'datereception',action: "change->form#changeDate1", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(2023,1,1), flatpickr_max_date: Date.new(2023,12,31), flatpickr_default_date: @avis.date_reception}, id: "datereception",class:"fr-select", placeholder: "- sélectionner -"}%>
+          <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte1">Vous avez sélectionné une date supérieure au 1er mars.</p>
+        </div>
+        <div class="fr-select-group">
+          <label for="dateenvoi" class="fr-label">Date de réception BOP initial*
+          <span class="fr-hint-text">Indiquer ici la date du courrier de l’envoi de l’avis</span></label>
+          <%= f.text_field :date_envoi, {data: { 'form-target': 'dateenvoi',action: "change->form#changeDate2", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(2023,1,1), flatpickr_max_date: Date.new(2023,12,31), flatpickr_default_date: @avis.date_envoi}, id: "dateenvoi",class:"fr-select", placeholder: "- sélectionner -"}%>
+          <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mars.</p>
+        </div>
 
-      <fieldset class="fr-fieldset fr-mb-3w">
-          <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w" id='radio-inline-legend'>
-              Avis donné après interruption du délai*
-          </legend>
-          
-          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
-              <div class="fr-radio-group">
-                  <%= f.radio_button :is_delai, true, id: "radio-delai1", checked: false  %>
-                  <label class="fr-label" for="radio-delai1">Oui</label>
-              </div>
-          </div>
-          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
-              <div class="fr-radio-group">
-                  <%= f.radio_button :is_delai, false, checked: true, id:"radio-delai" %>
-                  <label class="fr-label" for="radio-delai">Non</label>
-              </div>
-          </div>
-          
-      </fieldset>
-
-      <fieldset class="fr-fieldset fr-mb-3w">
-          <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w" id='radio-inline-legend'>
-              CRG1 programmé*
-          </legend>
-          
-          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
-              <div class="fr-radio-group">
-                  <%= f.radio_button :is_crg1, true, id: "radio-crg11", checked: false  %>
-                  <label class="fr-label" for="radio-crg11">Oui</label>
-              </div>
-          </div>
-          <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
-              <div class="fr-radio-group">
-                  <%= f.radio_button :is_crg1, false, checked: true, id:"radio-crg1" %>
-                  <label class="fr-label" for="radio-crg1">Non</label>
-              </div>
-          </div>
-          
-      </fieldset>
-
-      <div class="fr-select-group">
-          <label for="statut" class="fr-label">Sens de l'avis*</label>
-          <%= f.select :statut,[['Favorable','Favorable'],['Favorable avec réserve','Favorable avec réserve'],['Défavorable','Défavorable'],],{prompt: "- sélectionner -"}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
-      </div>  
-    </div>
-    <div class="fr-col-12 fr-col-lg-8">
-      <div class="fr-accordion__title">Ressources allouées initiales 2023</div>
-      <hr class="fr-col_12">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="aei">
-                AE HT2 initial 2023*
-            </label>
-            <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei" %>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="cpi">
-                CP HT2 initial 2023*
-            </label>
-            <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi"%>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="t2i">
-                AE/CP T2 initial 2023* 
-            </label>
-            <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i"%>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="etpti">
-                ETPT initial 2023*
-            </label>
-            <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti"%>
-          </div>
-        </div>
-      </div>
-      <div class="fr-accordion__title fr-mt-3w">Prévisions de consommation à fin décembre</div>
-      <hr class="fr-col_12">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="aef">
-                AE HT2 final 2023*
-            </label>
-            <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef"%>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="cpf">
-                CP HT2 final 2023*
-            </label>
-            <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf"%>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="t2i">
-                AE/CP T2 final 2023* 
-            </label>
-            <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f"%>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-input-group">
-            <label class="fr-label" for="etptf">
-                ETPT final 2023*
-            </label>
-            <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf"%>
-          </div>
-        </div>
-      </div>
-      <div class="fr-accordion__title fr-mt-3w">Ecarts ressources/prévisions d’exécution 2023</div>
-      <hr class="fr-col_12">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="aeresult">-</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="cpresult">-</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="t2result">-</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="etptresult">-</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="fr-input-group fr-mt-3w">
-        <label class="fr-label" for="commentaire">
-            Développements synthétiques sur l’avis (destinés à un usage interne)*
-            <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
-        </label>
-        <%= f.text_area :commentaire, data: {'form-target': 'commentaire', action: "input->form#count" }, class:"fr-input", id:"commentaire", rows: 10%>
-        <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
-      </div>
-
-      <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-        <li>
-          <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123"> Enregistrer</button>
-        </li>
-        <li>
-          <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122">Valider</button>                 
-        </li>
-      </ul>
-      <dialog id="modal-1123" class="fr-modal" role="dialog" aria-labelledby="modal-1123-title">
-        <div class="fr-container fr-container--fluid fr-container-md">
-            <div class="fr-grid-row fr-grid-row--center">
-                <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                    <div class="fr-modal__body">
-                        <div class="fr-modal__header">
-                            <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer">
-                                Fermer
-                            </button>
-                        </div>
-                        <div class="fr-modal__content">
-                            <h1 id="modal-1123-title" class="fr-modal__title">
-                                <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                                Enregistrer le brouillon
-                            </h1>
-                            <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider définitivement votre avis afin qu'il soit transmis définitivement au DCB.</p>
-                            <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
-                              <li>
-                                <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer">
-                                  Annuler
-                                </button>
-                              </li>
-                              <li>
-                                <button data-action="form#save" data-form-target="Btnsave" class="fr-btn" title="Valider"> Enregistrer</button>              
-                              </li>
-                            </ul>
-                            
-                        </div>
-                    </div>
+        <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w" id='radio-inline-legend'>
+                Avis donné après interruption du délai*
+            </legend>
+            
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                    <%= f.radio_button :is_delai, true, id: "radio-delai1", checked: false  %>
+                    <label class="fr-label" for="radio-delai1">Oui</label>
                 </div>
             </div>
-        </div>
-      </dialog>
-      <dialog id="modal-1122" class="fr-modal" role="dialog" aria-labelledby="modal-1122-title">
-        <div class="fr-container fr-container--fluid fr-container-md">
-            <div class="fr-grid-row fr-grid-row--center">
-                <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                    <div class="fr-modal__body">
-                        <div class="fr-modal__header">
-                            <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer">
-                                Fermer
-                            </button>
-                        </div>
-                        <div class="fr-modal__content">
-                            <h1 id="modal-1122-title" class="fr-modal__title">
-                                <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                                Valider l’avis 
-                            </h1>
-                            <p>En cliquant sur valider, vous confirmez votre avis/note et vous ne pourrez plus le modifier.</p>
-                            <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
-                              <li>
-                                <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer">
-                                  Annuler
-                                </button>
-                              </li>
-                              <li>
-                                <%= f.submit "Valider", class: "fr-btn", data: {'form-target': "submitBouton"}, aria: { label: "Valider"} %>               
-                              </li>
-                            </ul>
-                            
-                        </div>
-                    </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                    <%= f.radio_button :is_delai, false, checked: true, id:"radio-delai" %>
+                    <label class="fr-label" for="radio-delai">Non</label>
                 </div>
             </div>
+            
+        </fieldset>
+
+        <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w" id='radio-inline-legend'>
+                CRG1 programmé*
+            </legend>
+            
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                    <%= f.radio_button :is_crg1, true, id: "radio-crg11", checked: false  %>
+                    <label class="fr-label" for="radio-crg11">Oui</label>
+                </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                    <%= f.radio_button :is_crg1, false, checked: true, id:"radio-crg1" %>
+                    <label class="fr-label" for="radio-crg1">Non</label>
+                </div>
+            </div>
+            
+        </fieldset>
+
+        <div class="fr-select-group">
+            <label for="statut" class="fr-label">Sens de l'avis*</label>
+            <%= f.select :statut,[['Favorable','Favorable'],['Favorable avec réserve','Favorable avec réserve'],['Défavorable','Défavorable'],],{prompt: "- sélectionner -", selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+        </div>  
+      </div>
+      <div class="fr-col-12 fr-col-lg-8">
+        <div class="fr-accordion__title">Ressources allouées début 2023</div>
+        <hr class="fr-col_12">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="aei">
+                  AE HT2 début 2023*
+              </label>
+              <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i %>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="cpi">
+                  CP HT2 début 2023*
+              </label>
+              <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i%>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="t2i">
+                  AE/CP T2 début 2023* 
+              </label>
+              <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i%>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="etpti">
+                  ETPT début 2023*
+              </label>
+              <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i%>
+            </div>
+          </div>
         </div>
-      </dialog>
-    </div>
+        <div class="fr-accordion__title fr-mt-3w">Prévisions de consommation à fin décembre</div>
+        <hr class="fr-col_12">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="aef">
+                  AE HT2 fin 2023*
+              </label>
+              <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f%>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="cpf">
+                  CP HT2 fin 2023*
+              </label>
+              <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f%>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="t2i">
+                  AE/CP T2 fin 2023* 
+              </label>
+              <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f%>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-input-group">
+              <label class="fr-label" for="etptf">
+                  ETPT fin 2023*
+              </label>
+              <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f%>
+            </div>
+          </div>
+        </div>
+        <div class="fr-accordion__title fr-mt-3w">Ecarts ressources/prévisions d’exécution 2023</div>
+        <hr class="fr-col_12">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-3">
+            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+              <div class="fr-cart__body">
+                <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="aeresult">-</p>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+              <div class="fr-cart__body">
+                <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="cpresult">-</p>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+              <div class="fr-cart__body">
+                <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="t2result">-</p>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-3">
+            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+              <div class="fr-cart__body">
+                <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="etptresult">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fr-input-group fr-mt-3w">
+          <label class="fr-label" for="commentaire">
+              Développements synthétiques sur l’avis (destinés à un usage interne)*
+              <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
+          </label>
+          <%= f.text_area :commentaire, data: {'form-target': 'commentaire', action: "input->form#count" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
+          <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
+        </div>
+
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li>
+            <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123" data-action="click->form#save" > Enregistrer</button>
+          </li>
+          <li>
+            <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122" data-action="click->form#open">Valider</button>                 
+          </li>
+        </ul>
+        <dialog id="modal-1123" class="fr-modal" role="dialog" aria-labelledby="modal-1123-title">
+          <div class="fr-container fr-container--fluid fr-container-md">
+              <div class="fr-grid-row fr-grid-row--center">
+                  <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                      <div class="fr-modal__body">
+                          <div class="fr-modal__header">
+                              <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer">
+                                  Fermer
+                              </button>
+                          </div>
+                          <div class="fr-modal__content">
+                              <h1 id="modal-1123-title" class="fr-modal__title">
+                                  <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                                  Enregistrer le brouillon
+                              </h1>
+                              <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider définitivement votre avis afin qu'il soit transmis définitivement au DCB.</p>
+                              <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+                                <li>
+                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer">
+                                    Annuler
+                                  </button>
+                                </li>
+                                <li>
+                                  <button data-form-target="Btnsave" class="fr-btn" title="Enregistrer"> Enregistrer</button>              
+                                </li>
+                              </ul>
+                              
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </dialog>
+        <dialog id="modal-1122" class="fr-modal" role="dialog" aria-labelledby="modal-1122-title">
+          <div class="fr-container fr-container--fluid fr-container-md">
+              <div class="fr-grid-row fr-grid-row--center">
+                  <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                      <div class="fr-modal__body">
+                          <div class="fr-modal__header">
+                              <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer">
+                                  Fermer
+                              </button>
+                          </div>
+                          <div class="fr-modal__content">
+                              <h1 id="modal-1122-title" class="fr-modal__title">
+                                  <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                                  Valider l’avis 
+                              </h1>
+                              <p>En cliquant sur valider, vous confirmez votre avis/note et vous ne pourrez plus le modifier.</p>
+                              <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+                                <li>
+                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer">
+                                    Annuler
+                                  </button>
+                                </li>
+                                <li>
+                                  <%= f.submit "Valider", class: "fr-btn", data: {'form-target': "submitBouton"}, aria: { label: "Valider"} %>               
+                                </li>
+                              </ul>
+                              
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </dialog>
+      </div>
     </div>
     <% end %>
-  
+  <% end %>
 </div>

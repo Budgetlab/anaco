@@ -76,6 +76,22 @@ h1, h2{
   --active: var(--background-contrast-info-active);
   color: var(--background-action-high-blue-france);
 }
+.fr-card--green {
+  background-color: var(--background-contrast-green-menthe) !important;
+
+  --idle: transparent;
+  --hover: var(--background-contrast-green-menthe);
+  --active: var(--background-contrast-green-menthe);
+  color: var(--text-label-green-menthe);
+}
+.fr-card--orange {
+  background-color: var(--background-contrast-orange-terre-battue) !important;
+
+  --idle: transparent;
+  --hover: var(--background-contrast-orange-terre-battue);
+  --active: var(--background-contrast-orange-terre-battue);
+  color: var(--text-label-orange-terre-battue);
+}
 .text_center{
   text-align:center
 }
@@ -92,3 +108,6 @@ h1, h2{
   color: var(--text-title-grey) !important;
 }
 
+.fr-badge .fr-icon--sm {
+  margin-right: 0.25rem;
+}
