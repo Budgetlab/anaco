@@ -44,11 +44,20 @@ class AvisController < ApplicationController
 	def create
 		@bop = Bop.where(id: params[:bop]).first
 		if @bop.user == current_user
-			@avis = current_user.avis.new(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception], 
+			if @bop.avis.where(phase: params[:phase]).count == 0 
+				@avis = current_user.avis.new(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception], 
 				date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
 				ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
 				t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
-			@avis.save
+				@avis.save
+			else
+				@avis = @bop.avis.where(phase: params[:phase]).first
+				@avis = @avis.update(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception], 
+				date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
+				ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
+				t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
+			end
+			
 			if params[:etat] == "Brouillon"
 				@message = "Avis sauvegardé en tant que Brouillon"
 			else 

@@ -24,7 +24,7 @@
             
             <div class="fr-col-3">
                 <% if bop.avis.count == 0%><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
-                <% elsif bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p>
+                <% elsif bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
                 <%elsif bop.avis.where(phase: "Début de gestion").first.etat != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--success">Avis début de gestion</p>
                 <%end%></div>
 
