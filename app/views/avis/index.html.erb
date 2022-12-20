@@ -6,7 +6,7 @@
 	    </div>
   	</div>
 
-  	<h2 class="fr-h3">Phase de début de Gestion </h1>
+  	<h2 class="fr-h3">Phase de début de Gestion </h2>
   	<div class="fr-table fr-table--no-caption">
         <table>
             <caption>Historique des avis</caption>
@@ -55,107 +55,107 @@
 					                            <p>Avis donné après suspension du délai : <% if avis.is_delai == true %>Oui<%else%>Non<% end %></p>
 					                            <p class="fr-my-1w">CRG1 programmé : <% if avis.is_crg1 == true%>Oui<%else%>Non<%end%></p>
 					                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											    </div>
-											    <div class="fr-grid-row fr-grid-row--gutters">
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											    </div>
-											    <div class="fr-grid-row fr-grid-row--gutters">
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f - avis.ae_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f - avis.cp_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f - avis.t2_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											        <div class="fr-col-3">
-											          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-											            <div class="fr-cart__body">
-											              <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-											              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
-											            </div>
-											          </div>
-											        </div>
-											    </div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																			</div>
+																			<div class="fr-grid-row fr-grid-row--gutters">
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																			</div>
+																			<div class="fr-grid-row fr-grid-row--gutters">
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f - avis.ae_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f - avis.cp_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f - avis.t2_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																					<div class="fr-col-3">
+																						<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+																							<div class="fr-cart__body">
+																								<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
+																								<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
+																							</div>
+																						</div>
+																					</div>
+																			</div>
 					                            <p class="fr-my-2w">Commentaire : <%= avis.commentaire%></p>
 					                            
 					                        </div>

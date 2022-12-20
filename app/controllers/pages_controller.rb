@@ -2,6 +2,15 @@ class PagesController < ApplicationController
 	before_action :authenticate_user!  
   
 	def index
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
+		if Date.today <= @date1
+			@phase = "début de gestion"
+		elsif @date1 < Date.today && Date.today <= @date2
+			@phase = "CRG1"
+		elsif Date.today > @date2
+			@phase = "CRG2"
+		end
 	end
 
 	def error_404

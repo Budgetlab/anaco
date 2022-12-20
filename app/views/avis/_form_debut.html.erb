@@ -26,7 +26,7 @@
           <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte1">Vous avez sélectionné une date supérieure au 1er mars.</p>
         </div>
         <div class="fr-select-group">
-          <label for="dateenvoi" class="fr-label">Date de réception BOP initial*
+          <label for="dateenvoi" class="fr-label">Date de l’avis*
           <span class="fr-hint-text">Indiquer ici la date du courrier de l’envoi de l’avis</span></label>
           <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'dateenvoi',action: "change->form#changeDate2", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(2023,1,1), flatpickr_max_date: Date.new(2023,12,31), flatpickr_default_date: format_date(@avis.date_envoi)}, id: "dateenvoi", placeholder: "- sélectionner -"%>
           <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mars.</p>
@@ -52,10 +52,8 @@
                  
                   <% if @avis.is_delai.nil? || @avis.is_delai.blank? %>
                     <%= f.radio_button :is_delai, false, checked: true, id:"radio-delai" %>
-                    <%= kiki%>
                   <%else%>
                     <%= f.radio_button :is_delai, false, checked: @avis.is_delai == false, id:"radio-delai" %>
-
                   <%end%>
                     <label class="fr-label" for="radio-delai">Non</label>
                 </div>
@@ -93,7 +91,7 @@
 
         <div class="fr-select-group">
             <label for="statut" class="fr-label">Sens de l'avis*</label>
-            <%= f.select :statut,[['Favorable','Favorable'],['Favorable avec réserve','Favorable avec réserve'],['Défavorable','Défavorable'],],{prompt: "- sélectionner -", selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+            <%= f.select :statut,[['Favorable','Favorable'],['Favorable avec réserve','Favorable avec réserve'],['Défavorable','Défavorable']],{prompt: "- sélectionner -", selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
         </div>  
       </div>
       <div class="fr-col-12 fr-col-lg-8">
@@ -222,13 +220,13 @@
             <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122" data-action="click->form#open">Valider</button>                 
           </li>
         </ul>
-        <dialog id="modal-1123" class="fr-modal" role="dialog" aria-labelledby="modal-1123-title">
+        <dialog id="modal-1123" class="fr-modal" aria-labelledby="modal-1123-title">
           <div class="fr-container fr-container--fluid fr-container-md">
               <div class="fr-grid-row fr-grid-row--center">
                   <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
                       <div class="fr-modal__body">
                           <div class="fr-modal__header">
-                              <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer">
+                              <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer" data-action="click->form#save" >
                                   Fermer
                               </button>
                           </div>
@@ -240,7 +238,7 @@
                               <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider définitivement votre avis afin qu'il soit transmis définitivement au DCB.</p>
                               <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
                                 <li>
-                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer">
+                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer" data-action="click->form#save" >
                                     Annuler
                                   </button>
                                 </li>
@@ -255,13 +253,13 @@
               </div>
           </div>
         </dialog>
-        <dialog id="modal-1122" class="fr-modal" role="dialog" aria-labelledby="modal-1122-title">
+        <dialog id="modal-1122" class="fr-modal" aria-labelledby="modal-1122-title">
           <div class="fr-container fr-container--fluid fr-container-md">
               <div class="fr-grid-row fr-grid-row--center">
                   <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
                       <div class="fr-modal__body">
                           <div class="fr-modal__header">
-                              <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer">
+                              <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer" data-action="click->form#save" >
                                   Fermer
                               </button>
                           </div>
@@ -273,7 +271,7 @@
                               <p>En cliquant sur valider, vous confirmez votre avis/note et vous ne pourrez plus le modifier.</p>
                               <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
                                 <li>
-                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer">
+                                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer" data-action="click->form#save" >
                                     Annuler
                                   </button>
                                 </li>

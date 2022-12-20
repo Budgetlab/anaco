@@ -5,10 +5,10 @@
           <div class="fr-collapse" id="breadcrumb-1">
               <ol class="fr-breadcrumb__list">
                   <li>
-                      <a class="fr-breadcrumb__link" href="/avisbop">Accueil </a>
+                      <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
                   </li>
                   <li>
-                      <a class="fr-breadcrumb__link" href="/avisbop/bops"">BOP et avis</a>
+                      <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
                   </li>
                   <li>
                       <a class="fr-breadcrumb__link" aria-current="page">bop n°<%= @bop.code%></a>
@@ -31,7 +31,7 @@
                            <p class="fr-tag"> Ministere <%= @bop.ministere%></p>
                         </li>
                     </ul>
-                    <p class="fr-card__detail fr-icon-arrow-right-line">Consulté par <%= User.where(id: @bop.consultant).first.nom%></p>
+                    <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= User.where(id: @bop.consultant).first.nom%></p>
                   </div>
                   <h3 class="fr-card__title">
                       BOP n°<%= @bop.code%>
@@ -66,7 +66,7 @@
                       <td><%= avis.phase%> </td>
                       <td><%= avis.statut%></td>
                       <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-                      <td><% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-1123"> Consulter</button><%end%></td>
+                      <td><% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop_id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-1123"> Consulter</button><%end%></td>
                   </tr>
                   <% if avis.etat != "Brouillon"%>
                     <dialog id="modal-1123" class="fr-modal" role="dialog" aria-labelledby="modal-1123-title">
