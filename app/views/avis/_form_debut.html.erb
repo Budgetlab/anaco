@@ -12,7 +12,7 @@
       <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
     </div>
   <%else%>
-    <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange"}) do |f|%>
+    <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm"}) do |f|%>
     <%= f.hidden_field :bop, value: @bop.id%>
     <%= f.hidden_field :phase, value: "Début de gestion"%>
     <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%> 

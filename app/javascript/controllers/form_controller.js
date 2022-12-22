@@ -64,6 +64,15 @@ export default class extends Controller {
       this.datealerte2Target.classList.add('fr-hidden');
     }
   }
+  changeDate3(e){
+    e.preventDefault();
+    const date_max = new Date(2023, 4, 15)
+    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
+      this.datealerte2Target.classList.remove('fr-hidden');
+    }else{
+      this.datealerte2Target.classList.add('fr-hidden');
+    }
+  }
 
   validateForm(){
     let isValid = true;
@@ -82,6 +91,13 @@ export default class extends Controller {
   save(e){
     e.preventDefault(); 
     this.etatTarget.value = "Brouillon";   
+  }
+
+  submitForm(event) {
+    let isValid = this.validateForm(this.formTarget);
+    if (!isValid) {
+      event.preventDefault();
+    }
   }
 
 }

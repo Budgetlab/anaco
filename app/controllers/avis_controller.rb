@@ -2,7 +2,9 @@ class AvisController < ApplicationController
 	before_action :authenticate_user!	
 	
 	def index
-		@avis = current_user.avis
+		@avis_debut = current_user.avis.where(phase: "Début de gestion")
+		@avis_crg1 = current_user.avis.where(phase: "CRG1")
+		@avis_crg2 = current_user.avis.where(phase: "CRG2")
 	end 
 
 	def new

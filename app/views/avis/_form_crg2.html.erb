@@ -1,30 +1,30 @@
 <div class="fr-container" data-controller="form">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w">Formulaire CRG1 2023</h1>
+      <h1 class="fr-mt-6w">Formulaire CRG2 2023</h1>
       <div class="fr-h3 fr-mb-4w">BOP n°<%= @bop.code%></div>
     </div>
   </div>
 
-  <% if @bop.avis.where(phase: "CRG1").count > 1 && @bop.avis.where(phase: "CRG1").etat != "Brouillon"%>
+  <% if @bop.avis.where(phase: "CRG2").count > 1 && @bop.avis.where(phase: "CRG2").etat != "Brouillon"%>
     <div class="fr-alert fr-alert--success">
-      <h3 class="fr-alert__title">Avis CRG1 transmis avec succès</h3>
+      <h3 class="fr-alert__title">Avis CRG2 transmis avec succès</h3>
       <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
     </div>
   <%else%>
     <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
       <%= f.hidden_field :bop, value: @bop.id%>
-      <%= f.hidden_field :phase, value: "CRG1"%>
+      <%= f.hidden_field :phase, value: "CRG2"%>
       <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%>
       <%= f.hidden_field :date_reception, value: Date.today, data: {'form-target': 'datereception'}%>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
         <div class="fr-col-12 fr-col-lg-4">
 
           <div class="fr-select-group">
-            <label for="dateenvoi" class="fr-label">Date de la note d’analyse du CRG1*
+            <label for="dateenvoi" class="fr-label">Date de la note d’analyse du CRG2*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
             <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'dateenvoi',action: "change->form#changeDate3", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(2023,1,1), flatpickr_max_date: Date.new(2023,12,31), flatpickr_default_date: format_date(@avis.date_envoi)}, id: "dateenvoi", placeholder: "- sélectionner -"%>
-            <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mai.</p>
+            <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 septembre.</p>
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
@@ -32,10 +32,11 @@
           </div>
         </div>
         <div class="fr-col-12 fr-col-lg-8">
+          <% if @bop.avis.where(phase: "CRG1").count > 0 %>
 
             <section class="fr-accordion">
               <h3 class="fr-accordion__title">
-                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-79" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion</p> Ressources allouées début 2023</button>
+                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-79" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel CRG1</p> Ressources allouées début 2023</button>
               </h3>
               <div class="fr-collapse" id="accordion-79">
                 <div class="fr-grid-row fr-grid-row--gutters">
@@ -43,7 +44,7 @@
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_i)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.ae_i)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -51,7 +52,7 @@
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_i)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.cp_i)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -59,7 +60,7 @@
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_i)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.t2_i)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -67,7 +68,7 @@
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_i)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.etpt_i)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -76,7 +77,7 @@
             </section>
             <section class="fr-accordion">
               <h3 class="fr-accordion__title">
-                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-80" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion</p> Prévision de consommation à fin 2023</button>
+                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-80" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel CRG1</p> Prévision de consommation à fin 2023</button>
               </h3>
               <div class="fr-collapse" id="accordion-80">
                 <div class="fr-grid-row fr-grid-row--gutters">
@@ -84,7 +85,7 @@
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_f)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.ae_f)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -92,7 +93,7 @@
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_f)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.cp_f)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -100,7 +101,7 @@
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_f)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.t2_f)%>€</p>
                       </div>
                     </div>
                   </div>
@@ -108,22 +109,23 @@
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
-                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_f)%>€</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.etpt_f)%>€</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
+          <% end  %>
 
 
-          <div class="fr-accordion__title fr-mt-3w">Ressources allouées CRG1 2023</div>
+          <div class="fr-accordion__title fr-mt-3w">Ressources allouées CRG2 2023</div>
           <hr class="fr-col_12">
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="aei">
-                    AE HT2 CRG1 2023*
+                    AE HT2 CRG2 2023*
                 </label>
                 <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i %>
               </div>
@@ -131,7 +133,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="cpi">
-                    CP HT2 CRG1 2023*
+                    CP HT2 CRG2 2023*
                 </label>
                 <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i%>
               </div>
@@ -139,7 +141,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="t2i">
-                    AE/CP T2 CRG1 2023*
+                    AE/CP T2 CRG2 2023*
                 </label>
                 <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i%>
               </div>
@@ -147,13 +149,13 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="etpti">
-                    ETPT CRG1 2023*
+                    ETPT CRG2 2023*
                 </label>
                 <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i%>
               </div>
             </div>
           </div>
-          <div class="fr-accordion__title fr-mt-3w">Prévision de consommation à fin décembre CRG1</div>
+          <div class="fr-accordion__title fr-mt-3w">Prévision de consommation à fin décembre CRG2</div>
           <hr class="fr-col_12">
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-3">
