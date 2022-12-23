@@ -111,3 +111,23 @@ h1, h2{
 .fr-badge .fr-icon--sm {
   margin-right: 0.25rem;
 }
+
+.highcharts-credits{
+  color:var(--background-default-grey)!important;
+  fill: var(--background-default-grey) !important;
+  opacity:0 !important;
+}
+.highcharts-tooltip, .highcharts-tooltip-box {
+  z-index: 100 !important;
+}
+.highcharts-container, .highcharts-root{
+  width:100% !important;
+}
+.highcharts-background{
+  fill: var(--background-default-grey) !important;
+}
+.highcharts-title, .highcharts-subtitle, .highcharts-no-data, .btn-plus{
+  color:var(--text-title-grey) !important;
+  fill:var(--text-title-grey) !important;
+  font-size: 1rem;
+}

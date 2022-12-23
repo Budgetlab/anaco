@@ -1,7 +1,7 @@
 <% content_for :title do %>Accueil  <% end %>
 <main>
 	<%= render 'notice'%> 
-<div class="fr-container fr-mb-4w">
+	<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-notes1="<%=@notes1 %>" data-highcharts-notes2="<%=@notes2 %>">
 	<div class="fr-grid-row fr-grid-row--gutters">
 		<div class="fr-col-12 fr-col-lg-12">
 			<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom%></h1>
@@ -10,7 +10,7 @@
 	</div>
 	<div class="fr-grid-row fr-grid-row--gutters">
 		<div class="fr-col-12 fr-col-lg-4">
-	        <div class="fr-card  fr-card--shadow">
+			<div class="fr-card  fr-card--shadow">
 			    <div class="fr-card__body">
 			        <div class="fr-card__content">
 			        	<div class="fr-card__start">
@@ -21,38 +21,36 @@
 	                        </ul>
 	                         <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 Janvier au 30 avril</p>
 	                    </div>
-			            <h3 class="fr-card__title">
-			                Phase de début de gestion
-			            </h3>
+			            <h3 class="fr-card__title">Phase de début de gestion</h3>
 			            <div class="fr-card__desc">
-			            	<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-								<div class="fr-col-2">
-									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.bops.count - current_user.avis.where('phase = ? AND etat != ?', "Début de gestion",'Brouillon').count %>/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_delai = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">avis donnés après suspension</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_crg1 = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
-								</div>
-							</div>
-			            	
+										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
+											<div class="fr-col-2">
+												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_vide %>/<%= current_user.bops.count%> </h3>
+												<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
+											</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_delai = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
+												<p class="fr-text--sm fr-mb-3w">avis donnés après suspension</p>
+											</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_crg1 = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
+												<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
+											</div>
+										</div>
+										<div data-highcharts-target="canvasAvis"></div>
 			            </div>
 			            
 			        </div>
@@ -70,54 +68,53 @@
 			</div>
 		</div>
 		<div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-card fr-card--shadow">
+			<div class="fr-card fr-card--shadow">
 			    <div class="fr-card__body">
 			        <div class="fr-card__content">
-			            <h3 class="fr-card__title">
-			                Phase de CRG1
-			            </h3>
-			            <% if Date.today <= @date1%>
-			            	<p class="fr-card__desc">Données ouvertes à partir du 1er mai.</p>
-			            <% else %>
+								<h3 class="fr-card__title">Phase de CRG1</h3>
+								<% if Date.today <= @date1%>
+									<p class="fr-card__desc">Données ouvertes à partir du 1er mai.</p>
+								<% else %>
 			            <div class="fr-card__desc">
 			            	<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-								<div class="fr-col-2">
-									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
-									<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
-									<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
-									<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
-								</div>
-							</div>
-						</div>
-			            <% end %>
-			            <div class="fr-card__start">
+											<div class="fr-col-2">
+											<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+										</div>
+											<div class="fr-col-10">
+											<h3 class="fr-text--lg fr-mb-2v"><%= @notes1_vide %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+											<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
+										</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_moyen %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+												<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
+											</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_risque %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+												<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
+											</div>
+										</div>
+										<div data-highcharts-target="canvasNotes1"></div>
+									</div>
+								<% end %>
+								<div class="fr-card__start">
 	                        <ul class="fr-badges-group">
 	                            <li>
-	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--purple-glycine">À venir </p><% elsif @date1 > Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
+	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 > Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
 	                            </li>
 	                        </ul>
 	                         <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
 	                    </div>
-			        </div>
+							</div>
 			        <% if Date.today > @date1%>
 			        <div class="fr-card__footer fr-btns-group--right">
 			            <ul class="fr-links-group">
@@ -136,46 +133,45 @@
 			<div class="fr-card fr-card--shadow">
 			    <div class="fr-card__body">
 			        <div class="fr-card__content">
-			            <h3 class="fr-card__title">
-			                Phase de CRG2
-			            </h3>
-			            <% if Date.today <= @date2%>
-			            	<p class="fr-card__desc">Données ouvertes à partir du 1er août.</p>
-			            <% else%>
+								<h3 class="fr-card__title">Phase de CRG2</h3>
+								<% if Date.today <= @date2%>
+									<p class="fr-card__desc">Données ouvertes à partir du 1er août.</p>
+								<% else%>
 			            <div class="fr-card__desc">
 			            	<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-								<div class="fr-col-2">
-									<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
-								</div>
-							</div>
-							<div class="fr-grid-row fr-grid-row--gutters">
-								<div class="fr-col-2">
-									<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-								</div>
-								<div class="fr-col-10">
-									<h3 class="fr-text--lg fr-mb-2v">XX/<%= current_user.bops.count%> </h3>
-									<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
-								</div>
-							</div>
-						</div>
-			            <% end %>
+											<div class="fr-col-2">
+											<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+										</div>
+											<div class="fr-col-10">
+											<h3 class="fr-text--lg fr-mb-2v"><%= @notes2_vide %>/<%= current_user.bops.count%> </h3>
+											<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
+										</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_moyen %>/<%= current_user.bops.count%> </h3>
+												<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
+											</div>
+										</div>
+										<div class="fr-grid-row fr-grid-row--gutters">
+											<div class="fr-col-2">
+												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+											</div>
+											<div class="fr-col-10">
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_risque %>/<%= current_user.bops.count%> </h3>
+												<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
+											</div>
+										</div>
+										<div data-highcharts-target="canvasNotes2"></div>
+									</div>
+								<% end %>
 			            <div class="fr-card__start">
 	                        <ul class="fr-badges-group">
 	                            <li>
-	                                <% if Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
+	                                <% if Date.today <= @date2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
 	                            </li>
 	                        </ul>
 	                        <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 septembre au 31 décembre</p>
@@ -197,7 +193,7 @@
 		</div>
 	</div>
 </div>
-<div class="fr-follow">
+	<div class="fr-follow">
         <div class="fr-container">
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
             <div class="fr-col-12">
