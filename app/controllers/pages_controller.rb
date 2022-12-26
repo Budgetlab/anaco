@@ -16,13 +16,13 @@ class PagesController < ApplicationController
 		@avis_defavorables = Avi.where('phase = ? AND etat != ? AND statut = ?', "Début de gestion",'Brouillon','Défavorable').count
 		@avis_vide = current_user.bops.count - @avis_favorables - @avis_reserves - @avis_defavorables
 		@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,@avis_vide]
-
+		@avis_crg1 = current_user.avis.where("phase = ? AND is_crg1 = ? AND etat != ?", "Début de gestion",  true, "Brouillon").count
 		@notes1 = []
 		if @date1 < Date.today
 			@notes1_sans_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon','Aucun risque').count
 			@notes1_moyen = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon',"Risques éventuels ou modérés").count
 			@notes1_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon','Risques certains ou significatifs').count
-			@notes1_vide = current_user.bops.count - @notes1_sans_risque - @notes1_moyen - @notes1_risque
+			@notes1_vide = @avis_crg1 - @notes1_sans_risque - @notes1_moyen - @notes1_risque
 			@notes1 = [@notes1_sans_risque,@notes1_moyen,@notes1_risque,@notes1_vide]
 		end
 		@notes2 = []

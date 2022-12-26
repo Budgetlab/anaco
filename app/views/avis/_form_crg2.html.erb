@@ -6,10 +6,10 @@
     </div>
   </div>
 
-  <% if @bop.avis.where(phase: "CRG2").count > 1 && @bop.avis.where(phase: "CRG2").etat != "Brouillon"%>
-    <div class="fr-alert fr-alert--success">
-      <h3 class="fr-alert__title">Avis CRG2 transmis avec succès</h3>
-      <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
+  <% if @is_completed%>
+    <div class="fr-alert fr-alert--success fr-mb-6w">
+      <h3 class="fr-alert__title">Note CRG2 transmise avec succès</h3>
+      <p>Vous avez déjà rempli la note CRG2 pour ce bop.</p>
     </div>
   <%else%>
     <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
@@ -28,7 +28,7 @@
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
-              <%= f.select :statut,[['Aucun risque','Aucun risque'],['Risques éventuels ou modérés','Risques éventuels ou modérés'],['Risques certains ou significatifs','Risques certains ou significatifs'],],{prompt: "- sélectionner -", selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+              <%= f.select :statut,[["- sélectionner -",""],['Aucun risque','Aucun risque'],['Risques éventuels ou modérés','Risques éventuels ou modérés'],['Risques certains ou significatifs','Risques certains ou significatifs'],],{selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
           </div>
         </div>
         <div class="fr-col-12 fr-col-lg-8">
@@ -110,6 +110,89 @@
                       <div class="fr-cart__body">
                         <p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "CRG1").first.etpt_f)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          <%else %>
+            <section class="fr-accordion">
+              <h3 class="fr-accordion__title">
+                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-79" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion</p> Ressources allouées début 2023</button>
+              </h3>
+              <div class="fr-collapse" id="accordion-79">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_i)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_i)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_i)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_i)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section class="fr-accordion">
+              <h3 class="fr-accordion__title">
+                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-80" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion</p> Prévision de consommation à fin 2023</button>
+              </h3>
+              <div class="fr-collapse" id="accordion-80">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_f)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_f)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_f)%>€</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-3">
+                    <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                      <div class="fr-cart__body">
+                        <p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
+                        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_f)%>€</p>
                       </div>
                     </div>
                   </div>

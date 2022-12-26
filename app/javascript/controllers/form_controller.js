@@ -8,11 +8,12 @@ export default class extends Controller {
   ];
   }
   connect() {
-    this.getEcart();
+    //this.getEcart();
+    this.formChange()
   }
 
-  formChange(e){
-    e.preventDefault();
+  formChange(){
+    //e.preventDefault();
     let isValid = this.validateForm(this.formTarget);
 
     this.getEcart();
@@ -76,11 +77,9 @@ export default class extends Controller {
 
   validateForm(){
     let isValid = true;
-
     if (this.datereceptionTarget.value == "" || this.dateenvoiTarget.value == "" || this.statutTarget.selectedIndex == 0 || this.aeiTarget.value == "" || this.aefTarget.value == "" || this.cpiTarget.value == "" || this.cpfTarget.value == "" || this.t2iTarget.value == "" || this.t2fTarget.value == "" || this.etptiTarget.value == "" || this.etptfTarget.value == "" || this.commentaireTarget.value == ""){
       isValid = false;
     }
-
     return isValid
   }
   
@@ -94,9 +93,11 @@ export default class extends Controller {
   }
 
   submitForm(event) {
-    let isValid = this.validateForm(this.formTarget);
-    if (!isValid) {
-      event.preventDefault();
+    if (this.etatTarget.value == "En attente de lecture"){
+      let isValid = this.validateForm(this.formTarget);
+      if (!isValid) {
+        event.preventDefault();
+      }
     }
   }
 

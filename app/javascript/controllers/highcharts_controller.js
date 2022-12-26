@@ -109,7 +109,7 @@ export default class extends Controller {
   }
 
     syntheseNote1(){
-        const data = JSON.parse(this.data.get("note1"));
+        const data = JSON.parse(this.data.get("notes1"));
         const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--artwork-minor-pink-macaron)", "var(--background-contrast-pink-macaron)"]
         const options = {
             chart: {
@@ -183,12 +183,12 @@ export default class extends Controller {
                 ]
             }]
         }
-        this.chart = new Highcharts.chart(this.canvasNote1Target, options);
+        this.chart = new Highcharts.chart(this.canvasNotes1Target, options);
         this.chart.reflow();
     }
 
     syntheseNote2(){
-        const data = JSON.parse(this.data.get("note2"));
+        const data = JSON.parse(this.data.get("notes2"));
         const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--artwork-minor-pink-macaron)", "var(--background-contrast-pink-macaron)"]
         const options = {
             chart: {
@@ -262,7 +262,7 @@ export default class extends Controller {
                 ]
             }]
         }
-        this.chart = new Highcharts.chart(this.canvasNote2Target, options);
+        this.chart = new Highcharts.chart(this.canvasNotes2Target, options);
         this.chart.reflow();
     }
 

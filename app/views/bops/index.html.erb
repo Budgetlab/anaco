@@ -29,27 +29,31 @@
                 <%end%></div>
 
             <div class="fr-col-2">
-                <% if Date.today <= @date1 || bop.avis.where(phase: "Début de gestion").count == 0 || bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%>
-                    <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                <% elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true %>
-                    <% if bop.avis.where(phase: "CRG1").first.etat != "Brouillon"%>
-                        <p class="fr-badge fr-badge--info fr-badge--success">Note CRG1</p>
-                    <%else%>
-                        <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                    <%end%>
-                <% end %>
+              <% if Date.today <= @date1 || bop.avis.where(phase: "Début de gestion").count == 0 || bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon"%>
+                <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+              <% elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true %>
+                <% if bop.avis.where(phase: "CRG1").count > 0 && bop.avis.where(phase: "CRG1").first.etat != "Brouillon"%>
+                  <p class="fr-badge fr-badge--info fr-badge--success">Note CRG1</p>
+                <% elsif bop.avis.where(phase: "CRG1").count > 0 && bop.avis.where(phase: "CRG1").first.etat == "Brouillon"%>
+                  <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                <%else%>
+                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                <%end%>
+              <% end %>
             </div>
 
             <div class="fr-col-2">
-                <% if Date.today <= @date2 || bop.avis.where(phase: "Début de gestion").count == 0 || (bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (bop.avis.where(phase: "CRG1").count == 0 || bop.avis.where(phase: "CRG1").first.etat == "Brouillon"))%>
-                    <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                <% elsif @date2 < Date.today %>
-                    <% if bop.avis.where(phase: "CRG2").first.etat != "Brouillon"%>
-                        <p class="fr-badge fr-badge--info fr-badge--success">Note CRG2</p>
-                    <%else%>
-                        <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Note CRG2</p>
-                    <% end %>
+              <% if Date.today <= @date2 || bop.avis.where(phase: "Début de gestion").count == 0 || bop.avis.where(phase: "Début de gestion").first.etat == "Brouillon" || (bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (bop.avis.where(phase: "CRG1").count == 0 || bop.avis.where(phase: "CRG1").first.etat == "Brouillon"))%>
+                <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
+              <% elsif @date2 < Date.today %>
+                <% if bop.avis.where(phase: "CRG2").count > 0 && bop.avis.where(phase: "CRG2").first.etat != "Brouillon"%>
+                  <p class="fr-badge fr-badge--info fr-badge--success">Note CRG2</p>
+                <% elsif bop.avis.where(phase: "CRG2").count > 0 && bop.avis.where(phase: "CRG2").first.etat == "Brouillon"%>
+                  <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                <%else%>
+                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Note CRG2</p>
                 <% end %>
+              <% end %>
             </div>
 
             <div class="fr-col-3"> 

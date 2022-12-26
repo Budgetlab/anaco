@@ -6,8 +6,9 @@
 		</div>
 	</div>
 
-	<h2 class="fr-h3">Phase CRG2 </h2>
-	<div class="fr-table fr-table--no-caption">
+	<% if Date.today > @date2 %>
+		<h2 class="fr-h3">Phase CRG2 </h2>
+		<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique des avis</caption>
 			<thead>
@@ -47,10 +48,10 @@
 										<div class="fr-modal__content">
 											<h1 id="modal-1123-title" class="fr-modal__title">
 												<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-												Note d’analyse CRG1 du BOP n°<%= avis.bop.code%>
+												Note d’analyse CRG2 du BOP n°<%= avis.bop.code%>
 											</h1>
 											<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
-											<p>Date de la note d’analyse du CRG1 : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
+											<p>Date de la note d’analyse du CRG2 : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
 
 											<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
 												<div class="fr-col-3">
@@ -167,9 +168,10 @@
 			</tbody>
 		</table>
 	</div>
-
-	<h2 class="fr-h3">Phase CRG1 </h2>
-	<div class="fr-table fr-table--no-caption">
+	<%end %>
+	<% if Date.today > @date1 %>
+		<h2 class="fr-h3">Phase CRG1 </h2>
+		<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique des avis</caption>
 			<thead>
@@ -329,6 +331,7 @@
 			</tbody>
 		</table>
 	</div>
+	<%end %>
 
 	<h2 class="fr-h3">Phase de début de Gestion </h2>
 	<div class="fr-table fr-table--no-caption">

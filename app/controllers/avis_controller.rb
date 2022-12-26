@@ -2,9 +2,11 @@ class AvisController < ApplicationController
 	before_action :authenticate_user!	
 	
 	def index
-		@avis_debut = current_user.avis.where(phase: "Début de gestion")
-		@avis_crg1 = current_user.avis.where(phase: "CRG1")
-		@avis_crg2 = current_user.avis.where(phase: "CRG2")
+		@avis_debut = current_user.avis.where(phase: "Début de gestion").order(created_at: :desc)
+		@avis_crg1 = current_user.avis.where(phase: "CRG1").order(created_at: :desc)
+		@avis_crg2 = current_user.avis.where(phase: "CRG2").order(created_at: :desc)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 	end 
 
 	def new
@@ -12,30 +14,54 @@ class AvisController < ApplicationController
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 
+		@is_completed = false
 		if @bop.user != current_user
 			redirect_to bops_path
 		else
 			if Date.today <= @date1 
-				if @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
+				if @bop.avis.where("phase = ? AND etat != ?", "Début de gestion", "Brouillon").count > 0
+					@is_completed = true
+				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
 				else
 					@avis = Avi.new
 				end
+				@form = "Début de gestion"
 			elsif @date1 < Date.today && Date.today <= @date2
-				if @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
+				@form = "CRG1"
+				if @bop.avis.where(phase: "Début de gestion").count == 0
+					@avis = Avi.new
+					@form = "Début de gestion"
+				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
+					@form = "Début de gestion"
+				elsif @bop.avis.where("phase = ? AND etat != ?", "CRG1", "Brouillon").count > 0
+					@is_completed = true
 				elsif @bop.avis.where(phase: "CRG1", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "CRG1", etat: "Brouillon").first
-				else
+				elsif @bop.avis.where(phase: "Début de gestion", is_crg1: true).count > 0
 					@avis = Avi.new
+				else
+					@form = "no CRG1" #pas de crg1 programmé
 				end
 			elsif Date.today > @date2
-				if @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
+				@form = "CRG2"
+				if @bop.avis.where(phase: "Début de gestion").count == 0
+					@avis = Avi.new
+					@form = "Début de gestion"
+				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
+					@form = "Début de gestion"
 				elsif @bop.avis.where(phase: "CRG1", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "CRG1", etat: "Brouillon").first
+					@form = "CRG1"
+				elsif @bop.avis.where(phase: "Début de gestion", is_crg1: true).count > 0 && @bop.avis.where(phase: "CRG1").count == 0
+					@avis = Avi.new
+					@form = "CRG1"
 				elsif @bop.avis.where(phase: "CRG2", etat: "Brouillon").count > 0
 					@avis = @bop.avis.where(phase: "CRG2", etat: "Brouillon").first
+				elsif @bop.avis.where("phase = ? AND etat != ?", "CRG2", "Brouillon").count > 0
+					@is_completed = true
 				else
 					@avis = Avi.new
 				end

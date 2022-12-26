@@ -1,18 +1,17 @@
 <main role="main" class="containtAll">
-  <% if Date.today <= @date1 %>
+  <% if  @form == "Début de gestion" %>
+    <%= render 'form_debut'%>
+  <%elsif @form == "CRG1" %>
     <%= render 'form_crg1'%>
-  <% end %>
-  <% if @date1 < Date.today && Date.today <= @date2 %>
-    <% if @bop.avis.where(phase: "debut").count == 0 %>
-      <%= render 'form_debut'%>
-    <% else %>
-    <% end %>
-  <% end %>
-  <% if Date.today > @date2 %>
-    <% if @bop.avis.where(phase: "debut").count == 0 %>
-      <%= render 'form_debut'%>
-    <% elsif @bop.avis.where(phase: "crg1", is_crg1: true).count == 0 %>
-    <% else %>
-    <% end %>
+  <%elsif @form == "no CRG1" %>
+    <div class="fr-container" >
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-12">
+          <div class="fr-h3 fr-my-4w">Pas de CRG1 programmé pour ce BOP</div>
+        </div>
+      </div>
+    </div>
+  <%elsif @form == "CRG2"%>
+    <%= render 'form_crg2'%>
   <% end %>
 </main>

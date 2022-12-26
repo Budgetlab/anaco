@@ -6,10 +6,10 @@
     </div>
   </div>
 
-  <% if @bop.avis.where(phase: "CRG1").count > 1 && @bop.avis.where(phase: "CRG1").etat != "Brouillon"%>
-    <div class="fr-alert fr-alert--success">
-      <h3 class="fr-alert__title">Avis CRG1 transmis avec succès</h3>
-      <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
+  <% if @is_completed%>
+    <div class="fr-alert fr-alert--success fr-mb-6w">
+      <h3 class="fr-alert__title">Note CRG1 transmise avec succès</h3>
+      <p>Vous avez déjà rempli la note CRG1 pour ce bop.</p>
     </div>
   <%else%>
     <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
@@ -28,7 +28,7 @@
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
-              <%= f.select :statut,[['Aucun risque','Aucun risque'],['Risques éventuels ou modérés','Risques éventuels ou modérés'],['Risques certains ou significatifs','Risques certains ou significatifs'],],{prompt: "- sélectionner -", selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+              <%= f.select :statut,[["- sélectionner -",""],['Aucun risque','Aucun risque'],['Risques éventuels ou modérés','Risques éventuels ou modérés'],['Risques certains ou significatifs','Risques certains ou significatifs'],],{selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
           </div>
         </div>
         <div class="fr-col-12 fr-col-lg-8">

@@ -38,7 +38,7 @@
 											</div>
 											<div class="fr-col-10">
 												<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_delai = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
-												<p class="fr-text--sm fr-mb-3w">avis donnés après suspension</p>
+												<p class="fr-text--sm fr-mb-3w">avis donnés après interruption du délai</p>
 											</div>
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
@@ -81,7 +81,7 @@
 											<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 										</div>
 											<div class="fr-col-10">
-											<h3 class="fr-text--lg fr-mb-2v"><%= @notes1_vide %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+											<h3 class="fr-text--lg fr-mb-2v"><%= @notes1_vide %>/<%= @avis_crg1 %> </h3>
 											<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
 										</div>
 										</div>
@@ -90,7 +90,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_moyen %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_moyen %>/<%= @avis_crg1 %> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
 											</div>
 										</div>
@@ -99,7 +99,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_risque %>/<%= current_user.avis.where(phase: "Début de gestion", is_crg1: true).count %> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1_risque %>/<%= @avis_crg1 %> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
 											</div>
 										</div>
@@ -109,7 +109,7 @@
 								<div class="fr-card__start">
 	                        <ul class="fr-badges-group">
 	                            <li>
-	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 > Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
+	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 < Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
 	                            </li>
 	                        </ul>
 	                         <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
