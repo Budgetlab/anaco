@@ -35,134 +35,7 @@
 					</td>
 				</tr>
 				<% if avis.etat != "Brouillon"%>
-					<dialog id="modal-<%=avis.id %>" class="fr-modal" role="dialog" aria-labelledby="modal-<%=avis.id %>-title">
-						<div class="fr-container fr-container--fluid fr-container-md">
-							<div class="fr-grid-row fr-grid-row--center">
-								<div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
-									<div class="fr-modal__body">
-										<div class="fr-modal__header">
-											<button class="fr-btn--close fr-btn" aria-controls="modal-<%=avis.id %>" title="Fermer">
-												Fermer
-											</button>
-										</div>
-										<div class="fr-modal__content">
-											<h1 id="modal-1123-title" class="fr-modal__title">
-												<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-												Note d’analyse CRG2 du BOP n°<%= avis.bop.code%>
-											</h1>
-											<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
-											<p>Date de la note d’analyse du CRG2 : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
-
-											<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="fr-grid-row fr-grid-row--gutters">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="fr-grid-row fr-grid-row--gutters">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f - avis.ae_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f - avis.cp_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f - avis.t2_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<p class="fr-my-2w">Commentaire : <%= avis.commentaire%></p>
-
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</dialog>
+					<%= render partial: 'avis/dialog_crg2',locals: {avis: avis} %>
 				<% end %>
 			<% end %>
 			</tbody>
@@ -198,134 +71,7 @@
 					</td>
 				</tr>
 				<% if avis.etat != "Brouillon"%>
-					<dialog id="modal-<%=avis.id %>" class="fr-modal" role="dialog" aria-labelledby="modal-<%=avis.id %>-title">
-						<div class="fr-container fr-container--fluid fr-container-md">
-							<div class="fr-grid-row fr-grid-row--center">
-								<div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
-									<div class="fr-modal__body">
-										<div class="fr-modal__header">
-											<button class="fr-btn--close fr-btn" aria-controls="modal-<%=avis.id %>" title="Fermer">
-												Fermer
-											</button>
-										</div>
-										<div class="fr-modal__content">
-												<h1 id="modal-1123-title" class="fr-modal__title">
-													<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-													Note d’analyse CRG1 du BOP n°<%= avis.bop.code%>
-												</h1>
-												<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
-												<p>Date de la note d’analyse du CRG1 : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
-
-											<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="fr-grid-row fr-grid-row--gutters">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<div class="fr-grid-row fr-grid-row--gutters">
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f - avis.ae_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f - avis.cp_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f - avis.t2_i)%>€</p>
-														</div>
-													</div>
-												</div>
-												<div class="fr-col-3">
-													<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-														<div class="fr-cart__body">
-															<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-															<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
-														</div>
-													</div>
-												</div>
-											</div>
-											<p class="fr-my-2w">Commentaire : <%= avis.commentaire%></p>
-
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</dialog>
+					<%= render partial: 'avis/dialog_crg1',locals: {avis: avis} %>
 				<% end %>
 			<% end %>
 			</tbody>
@@ -335,166 +81,36 @@
 
 	<h2 class="fr-h3">Phase de début de Gestion </h2>
 	<div class="fr-table fr-table--no-caption">
-        <table>
-            <caption>Historique des avis</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Date de saisie </th>
-                    <th scope="col">BOP </th>
-                    <th scope="col">Programme </th>
-                    <th scope="col">Avis </th>
-                    <th scope="col">Statut </th>
-                    <th scope="col"> </th>
-                </tr>
-            </thead>
-            <tbody>
-              	<% @avis_debut.each do |avis|%>
-                  	<tr>
-                      <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-                      <td><%= avis.bop.code %></td>
-                      <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
-                      <td><%= avis.statut %></td>
-                      <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-                      <td>
-                      	<% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
-                      	<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
-                      </td>
-                  	</tr>
-                  	<% if avis.etat != "Brouillon"%>
-	                  	<dialog id="modal-<%=avis.id %>" class="fr-modal" role="dialog" aria-labelledby="modal-<%=avis.id %>-title">
-												<div class="fr-container fr-container--fluid fr-container-md">
-														<div class="fr-grid-row fr-grid-row--center">
-																<div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
-																		<div class="fr-modal__body">
-																				<div class="fr-modal__header">
-																						<button class="fr-btn--close fr-btn" aria-controls="modal-<%=avis.id %>" title="Fermer">
-																								Fermer
-																						</button>
-																				</div>
-																				<div class="fr-modal__content">
-																						<h1 id="modal-1123-title" class="fr-modal__title">
-																								<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-																								Avis <%= avis.phase%> du BOP n°<%= avis.bop.code%>
-																						</h1>
-																						<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <%= avis.statut%></p>
-																						<p>Date de réception du BOP initial : <%= l(avis.date_reception,format: "%e/%m/%y")%></p>
-																						<p class="fr-my-1w">Date de l’avis au BOP initial : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
-																						<p>Avis donné après suspension du délai : <% if avis.is_delai == true %>Oui<%else%>Non<% end %></p>
-																						<p class="fr-my-1w">CRG1 programmé : <% if avis.is_crg1 == true%>Oui<%else%>Non<%end%></p>
-
-																						<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																						</div>
-																						<div class="fr-grid-row fr-grid-row--gutters">
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																						</div>
-																						<div class="fr-grid-row fr-grid-row--gutters">
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f - avis.ae_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f - avis.cp_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f - avis.t2_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																								<div class="fr-col-3">
-																									<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-																										<div class="fr-cart__body">
-																											<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-																											<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
-																										</div>
-																									</div>
-																								</div>
-																						</div>
-																						<p class="fr-my-2w">Commentaire : <%= avis.commentaire%></p>
-
-																				</div>
-																		</div>
-																</div>
-														</div>
-												</div>
-											</dialog>
-			      				<% end %>
-                <% end %>
-            </tbody>
-        </table>
-    </div>
+		<table>
+			<caption>Historique des avis</caption>
+			<thead>
+			<tr>
+				<th scope="col">Date de saisie </th>
+				<th scope="col">BOP </th>
+				<th scope="col">Programme </th>
+				<th scope="col">Avis </th>
+				<th scope="col">Statut </th>
+				<th scope="col"> </th>
+			</tr>
+			</thead>
+			<tbody>
+			<% @avis_debut.each do |avis|%>
+				<tr>
+					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+					<td><%= avis.bop.code %></td>
+					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+					<td><%= avis.statut %></td>
+					<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<td>
+						<% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
+					</td>
+				</tr>
+				<% if avis.etat != "Brouillon"%>
+					<%= render partial: 'avis/dialog_debut',locals: {avis: avis} %>
+				<% end %>
+			<% end %>
+			</tbody>
+		</table>
+	</div>
 </div>

@@ -17,6 +17,8 @@ Rails.application.routes.draw do
     	get 'avis/nouveau/:bop_id' => "avis#new"
     	resources :avis, only: [:create, :update, :destroy]
 
+      get '/restitutions', to: "pages#restitutions"
+			get '/restitutions/:programme', to: "pages#restitution_programme"
 	  	get '/mentions-legales', to: 'pages#mentions_legales'
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'
 	    get '/accessibilite', to: 'pages#accessibilite'

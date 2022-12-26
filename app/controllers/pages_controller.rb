@@ -4,6 +4,7 @@ class PagesController < ApplicationController
 	def index
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
+		@date_alert1 = Date.new(2023,3,15)
 		if Date.today <= @date1
 			@phase = "début de gestion"
 		elsif @date1 < Date.today && Date.today <= @date2
@@ -35,6 +36,42 @@ class PagesController < ApplicationController
 		end
 	end
 
+	def restitutions
+		if current_user.statut == "admin"
+			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
+		elsif current_user.statut == "DCB"
+			@programmes = Bop.order(numero_programme: :asc).where(consultant: current_user.id).pluck(:numero_programme, :nom_programme).uniq
+		elsif current_user.statut == "CBR"
+			@programmes = current_user.bops.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
+		else
+			redirect_to root_path
+		end
+	end
+	def restitution_programme
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
+		if Date.today <= @date1
+			@phase = "début de gestion"
+		elsif @date1 < Date.today && Date.today <= @date2
+			@phase = "CRG1"
+		elsif Date.today > @date2
+			@phase = "CRG2"
+		end
+		@numero = params[:programme]
+		@bops = Bop.where(numero_programme: @numero)
+		@ministere = Bop.where(numero_programme: @numero).first.ministere
+		@bops_id = Bop.where(numero_programme: @numero).pluck(:id)
+		@avis = Avi.where(bop_id: @bops_id, phase: @phase).where("etat != ?","Brouillon")
+		@ae_i = @avis.sum(:ae_i)
+		@cp_i = @avis.sum(:cp_i)
+		@t2_i = @avis.sum(:t2_i)
+		@etpt_i = @avis.sum(:etpt_i)
+		@ae_f = @avis.sum(:ae_f)
+		@cp_f = @avis.sum(:cp_f)
+		@t2_f = @avis.sum(:t2_f)
+		@etpt_f = @avis.sum(:etpt_f)
+
+	end
 	def error_404
 	    if params[:path] && params[:path] == "500"
 	      render 'error_500'
