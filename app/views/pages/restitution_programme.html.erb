@@ -21,7 +21,7 @@
       <p class="fr-tag">Ministère <%=@ministere %></p>
     </div>
   </div>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-grid-row fr-grid-row--gutters" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-notes1="<%=@notes1 %>" data-highcharts-notes2="<%=@notes2 %>">
     <div class="fr-col-12 fr-col-lg-8">
       <div class="fr-accordion__title">Ressources allouées initiales</div>
       <hr class="fr-col_12">
@@ -133,6 +133,19 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+
+          <div data-highcharts-target="canvasAvis"></div>
+
+          <% if Date.today > @date1%>
+            <div data-highcharts-target="canvasNotes1"></div>
+          <%end %>
+
+          <% if Date.today > @date2%>
+            <div data-highcharts-target="canvasNotes2"></div>
+          <%end %>
+
     </div>
   </div>
   <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
