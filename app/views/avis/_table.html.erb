@@ -1,0 +1,141 @@
+
+
+  <% if Date.today > @date2 %>
+    <h2 class="fr-h3">Phase CRG2 </h2>
+    <div class="fr-table fr-table--no-caption">
+      <table>
+        <caption>Historique des avis</caption>
+        <thead>
+        <tr>
+          <th scope="col">CBR </th>
+          <th scope="col">Date de saisie </th>
+          <th scope="col">BOP </th>
+          <th scope="col">Programme </th>
+          <th scope="col">Note </th>
+          <th scope="col">Statut </th>
+          <th scope="col"> </th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @avis_crg2.each do |avis|%>
+          <tr>
+            <td><%= avis.user.nom %> </td>
+            <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+            <td><%= avis.bop.code %></td>
+            <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+            <td><%= avis.statut %></td>
+            <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+            <td>
+              <button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button>
+            </td>
+          </tr>
+          <%= render partial: 'avis/dialog_crg2',locals: {avis: avis} %>
+        <% end %>
+        <% @bops_vide_crg2.each do |code| %>
+          <tr>
+            <td><%= bop.user.nom %></td>
+            <td></td>
+            <td><%= bop.code %></td>
+            <td></td>
+            <td>Non renseigné</td>
+            <td></td>
+            <td></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <%end %>
+
+  <% if Date.today > @date1 %>
+    <h2 class="fr-h3">Phase CRG1 </h2>
+    <div class="fr-table fr-table--no-caption">
+      <table>
+        <caption>Historique des avis</caption>
+        <thead>
+        <tr>
+          <th scope="col">CBR </th>
+          <th scope="col">Date de saisie </th>
+          <th scope="col">BOP </th>
+          <th scope="col">Programme </th>
+          <th scope="col">Note </th>
+          <th scope="col">Statut</th>
+          <th scope="col"> </th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @avis_crg1.each do |avis|%>
+          <tr>
+            <td><%= avis.user.nom %></td>
+            <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+            <td><%= avis.bop.code %></td>
+            <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+            <td><%= avis.statut %></td>
+            <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+            <td>
+              <button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button>
+            </td>
+          </tr>
+          <%= render partial: 'avis/dialog_crg1',locals: {avis: avis} %>
+        <% end %>
+        <% @bops_vide_crg1.each do |code| %>
+          <tr>
+            <td><%= bop.user.nom %></td>
+            <td></td>
+            <td><%= bop.code %></td>
+            <td></td>
+            <td>Non renseigné</td>
+            <td></td>
+            <td></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <%end %>
+
+  <h2 class="fr-h3">Phase de début de Gestion </h2>
+  <div class="fr-table fr-table--no-caption">
+    <table>
+      <caption>Historique des avis</caption>
+      <thead>
+      <tr>
+        <th scope="col">CBR </th>
+        <th scope="col">Date de saisie </th>
+        <th scope="col">BOP </th>
+        <th scope="col">Programme </th>
+        <th scope="col">Avis </th>
+        <th scope="col">Statut </th>
+        <th scope="col"> </th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @avis_debut.each do |avis|%>
+        <tr>
+          <td><%= avis.user.nom %></td>
+          <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+          <td><%= avis.bop.code %></td>
+          <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+          <td><%= avis.statut %></td>
+          <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+          <td>
+            <button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button>
+          </td>
+        </tr>
+        <%= render partial: 'avis/dialog_debut',locals: {avis: avis} %>
+
+      <% end %>
+      <% @bops_vide_debut.each do |bop| %>
+        <tr>
+          <td><%= bop.user.nom %></td>
+          <td></td>
+          <td><%= bop.code %></td>
+          <td></td>
+          <td>Non renseigné</td>
+          <td></td>
+          <td></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>

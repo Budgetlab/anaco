@@ -1,34 +1,36 @@
-<% content_for :title do %>Accueil  <% end %>
+<% content_for :title do %>Accueil<% end %>
 <main>
-	<%= render 'notice'%> 
-	<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-notes1="<%=@notes1 %>" data-highcharts-notes2="<%=@notes2 %>">
-	<div class="fr-grid-row fr-grid-row--gutters">
-		<div class="fr-col-12 fr-col-lg-12">
-			<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom%></h1>
-			<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
-		</div>
-	</div>
-	<div class="fr-grid-row fr-grid-row--gutters">
-		<div class="fr-col-12 fr-col-lg-4">
-			<div class="fr-card  fr-card--shadow">
-			    <div class="fr-card__body">
-			        <div class="fr-card__content">
-			        	<div class="fr-card__start">
-	                        <ul class="fr-badges-group">
-	                            <li>
-	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
-	                            </li>
-	                        </ul>
-	                         <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 Janvier au 30 avril</p>
-	                    </div>
-			            <h3 class="fr-card__title">Phase de début de gestion</h3>
-			            <div class="fr-card__desc">
+	<% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
+		<%= render 'notice'%>
+	<%end %>
+		<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-notes1="<%=@notes1 %>" data-highcharts-notes2="<%=@notes2 %>">
+			<div class="fr-grid-row fr-grid-row--gutters">
+				<div class="fr-col-12 fr-col-lg-12">
+					<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom%></h1>
+					<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
+				</div>
+			</div>
+			<div class="fr-grid-row fr-grid-row--gutters">
+				<div class="fr-col-12 fr-col-lg-4">
+					<div class="fr-card  fr-card--shadow">
+							<div class="fr-card__body">
+								<div class="fr-card__content">
+									<div class="fr-card__start">
+										<ul class="fr-badges-group">
+											<li>
+												<% if Date.today <= @date1 %><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
+											</li>
+										</ul>
+										<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 Janvier au 30 avril</p>
+									</div>
+									<h3 class="fr-card__title">Phase de début de gestion</h3>
+									<div class="fr-card__desc">
 										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
 											<div class="fr-col-2">
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_vide %>/<%= current_user.bops.count%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_vide %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
 											</div>
 										</div>
@@ -37,7 +39,7 @@
 												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_delai = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis donnés après interruption du délai</p>
 											</div>
 										</div>
@@ -46,44 +48,43 @@
 												<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= current_user.avis.where('phase = ? AND is_crg1 = ? AND etat != ?',"Début de gestion",true,"Brouillon").count %>/<%= current_user.bops.count%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_crg1 %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
 											</div>
 										</div>
 										<div data-highcharts-target="canvasAvis"></div>
-			            </div>
-			            
-			        </div>
-			        <div class="fr-card__footer fr-btns-group--right">
-			            <ul class="fr-links-group">
-			                <li>
-			                    <%= link_to bops_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-			                        Accéder aux avis
-			                    <%end%>
-			                </li>
-			            </ul>
-			        </div>
-			    </div>
-			    
-			</div>
-		</div>
-		<div class="fr-col-12 fr-col-lg-4">
-			<div class="fr-card fr-card--shadow">
-			    <div class="fr-card__body">
-			        <div class="fr-card__content">
+									</div>
+
+								</div>
+								<div class="fr-card__footer fr-btns-group--right">
+									<ul class="fr-links-group">
+										<li>
+											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
+												Consulter les avis
+											<%end%>
+										</li>
+									</ul>
+								</div>
+							</div>
+					</div>
+				</div>
+				<div class="fr-col-12 fr-col-lg-4">
+					<div class="fr-card fr-card--shadow">
+						<div class="fr-card__body">
+							<div class="fr-card__content">
 								<h3 class="fr-card__title">Phase de CRG1</h3>
 								<% if Date.today <= @date1%>
 									<p class="fr-card__desc">Données ouvertes à partir du 1er mai.</p>
 								<% else %>
-			            <div class="fr-card__desc">
-			            	<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
+									<div class="fr-card__desc">
+										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
 											<div class="fr-col-2">
-											<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-										</div>
+												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+											</div>
 											<div class="fr-col-10">
-											<h3 class="fr-text--lg fr-mb-2v"><%= @notes1_vide %>/<%= @avis_crg1 %> </h3>
-											<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
-										</div>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @notes1_vide %>/<%= @avis_crg1 %> </h3>
+												<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
+											</div>
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
 											<div class="fr-col-2">
@@ -107,52 +108,52 @@
 									</div>
 								<% end %>
 								<div class="fr-card__start">
-	                        <ul class="fr-badges-group">
-	                            <li>
-	                                <% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 < Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminé</p><%end%>
-	                            </li>
-	                        </ul>
-	                         <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
-	                    </div>
+									<ul class="fr-badges-group">
+										<li>
+											<% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 < Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
+										</li>
+									</ul>
+									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
+								</div>
 							</div>
-			        <% if Date.today > @date1%>
-			        <div class="fr-card__footer fr-btns-group--right">
-			            <ul class="fr-links-group">
-			                <li>
-			                    <%= link_to bops_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-			                        Accéder aux notes
-			                    <%end%>
-			                </li>
-			            </ul>
-			        </div>
-			        <% end%>
-			    </div>
-			</div>
-		</div>
-		<div class="fr-col-12 fr-col-lg-4">
-			<div class="fr-card fr-card--shadow">
-			    <div class="fr-card__body">
-			        <div class="fr-card__content">
+							<% if Date.today > @date1%>
+								<div class="fr-card__footer fr-btns-group--right">
+									<ul class="fr-links-group">
+										<li>
+											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
+												Consulter les avis
+											<%end%>
+										</li>
+									</ul>
+								</div>
+							<% end%>
+						</div>
+					</div>
+				</div>
+				<div class="fr-col-12 fr-col-lg-4">
+					<div class="fr-card fr-card--shadow">
+						<div class="fr-card__body">
+							<div class="fr-card__content">
 								<h3 class="fr-card__title">Phase de CRG2</h3>
 								<% if Date.today <= @date2%>
 									<p class="fr-card__desc">Données ouvertes à partir du 1er août.</p>
 								<% else%>
-			            <div class="fr-card__desc">
-			            	<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
+									<div class="fr-card__desc">
+										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
 											<div class="fr-col-2">
-											<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-										</div>
+												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
+											</div>
 											<div class="fr-col-10">
-											<h3 class="fr-text--lg fr-mb-2v"><%= @notes2_vide %>/<%= current_user.bops.count%> </h3>
-											<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
-										</div>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @notes2_vide %>/<%= @avis_total%> </h3>
+												<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
+											</div>
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
 											<div class="fr-col-2">
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_moyen %>/<%= current_user.bops.count%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_moyen %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
 											</div>
 										</div>
@@ -161,45 +162,46 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_risque %>/<%= current_user.bops.count%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2_risque %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
 											</div>
 										</div>
 										<div data-highcharts-target="canvasNotes2"></div>
 									</div>
 								<% end %>
-			            <div class="fr-card__start">
-	                        <ul class="fr-badges-group">
-	                            <li>
-	                                <% if Date.today <= @date2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
-	                            </li>
-	                        </ul>
-	                        <p class="fr-card__detail fr-icon-arrow-right-line">Du 1 septembre au 31 décembre</p>
-	                    </div>
-			        </div>
-			        <% if Date.today > @date2%>
-			        <div class="fr-card__footer fr-btns-group--right">
-			            <ul class="fr-links-group">
-			                <li>
-			                    <%= link_to bops_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-			                        Accéder aux notes
-			                    <%end%>
-			                </li>
-			            </ul>
-			        </div>
-			        <% end%>
-			    </div>
+								<div class="fr-card__start">
+									<ul class="fr-badges-group">
+										<li>
+											<% if Date.today <= @date2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
+										</li>
+									</ul>
+									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 septembre au 31 décembre</p>
+								</div>
+							</div>
+							<% if Date.today > @date2%>
+								<div class="fr-card__footer fr-btns-group--right">
+									<ul class="fr-links-group">
+										<li>
+											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
+												Consulter les avis
+											<%end%>
+										</li>
+									</ul>
+								</div>
+							<% end%>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-</div>
+
 	<div class="fr-follow">
         <div class="fr-container">
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
             <div class="fr-col-12">
                 <div class="fr-follow__newsletter">
                     <div>
-                        <h5 class="fr-h5 fr-follow__title">Une question concernant [NOM] ?</h5>
+                        <h5 class="fr-h5 fr-follow__title">Une question concernant ANACO ?</h5>
                         <p class="fr-text--sm fr-follow__desc">Si vous rencontrez un problème dans l'utilisation de l'outil, vous pouvez nous envoyer un mail à l'adresse budget.lab@finances.gouv.fr ou en cliquant sur le bouton ci-contre.</p>
                     </div>
                     <div>

@@ -29,7 +29,7 @@ class BopsController < ApplicationController
 
 	def new
 		if current_user.statut != "admin"
-			#redirect_to root_path
+			redirect_to root_path
 		end 
 	end 
 	def import

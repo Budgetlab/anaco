@@ -5,6 +5,7 @@ class PagesController < ApplicationController
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 		@date_alert1 = Date.new(2023,3,15)
+		@date_alert2 = Date.new(2023,6,15)
 		if Date.today <= @date1
 			@phase = "début de gestion"
 		elsif @date1 < Date.today && Date.today <= @date2
@@ -12,35 +13,45 @@ class PagesController < ApplicationController
 		elsif Date.today > @date2
 			@phase = "CRG2"
 		end
-		@avis_favorables = Avi.where('phase = ? AND etat != ? AND statut = ?', "Début de gestion",'Brouillon','Favorable').count
-		@avis_reserves = Avi.where('phase = ? AND etat != ? AND statut = ?', "Début de gestion",'Brouillon',"Favorable avec réserve").count
-		@avis_defavorables = Avi.where('phase = ? AND etat != ? AND statut = ?', "Début de gestion",'Brouillon','Défavorable').count
-		@avis_vide = current_user.bops.count - @avis_favorables - @avis_reserves - @avis_defavorables
-		@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,@avis_vide]
-		@avis_crg1 = current_user.avis.where("phase = ? AND is_crg1 = ? AND etat != ?", "Début de gestion",  true, "Brouillon").count
-		@notes1 = []
-		if @date1 < Date.today
-			@notes1_sans_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon','Aucun risque').count
-			@notes1_moyen = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon',"Risques éventuels ou modérés").count
-			@notes1_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG1",'Brouillon','Risques certains ou significatifs').count
-			@notes1_vide = @avis_crg1 - @notes1_sans_risque - @notes1_moyen - @notes1_risque
-			@notes1 = [@notes1_sans_risque,@notes1_moyen,@notes1_risque,@notes1_vide]
+		if current_user.statut == "CBR" || current_user.statut == "DCB"
+			@avis = current_user.avis
+			@avis_total = current_user.bops.count
+		else
+			@avis = Avi.all
+			@avis_total = Bop.all.count
 		end
-		@notes2 = []
-		if @date2 < Date.today
-			@notes2_sans_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG2",'Brouillon','Aucun risque').count
-			@notes2_moyen = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG2",'Brouillon',"Risques éventuels ou modérés").count
-			@notes2_risque = Avi.where('phase = ? AND etat != ? AND statut = ?', "CRG2",'Brouillon','Risques certains ou significatifs').count
-			@notes2_vide = current_user.bops.count - @notes2_sans_risque - @notes2_moyen - @notes2_risque
-			@notes2 = [@notes2_sans_risque,@notes2_moyen,@notes2_risque,@notes2_vide]
-		end
+			@avis_valid = @avis.where('phase = ? AND etat != ?',"Début de gestion",'Brouillon')
+			@avis_favorables = @avis_valid.where(statut: 'Favorable').count
+			@avis_reserves = @avis_valid.where(statut: "Favorable avec réserve").count
+			@avis_defavorables = @avis_valid.where(statut: 'Défavorable').count
+			@avis_vide = @avis_total - @avis_favorables - @avis_reserves - @avis_defavorables
+			@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,@avis_vide]
+			@avis_crg1 = @avis_valid.where(is_crg1:  true).count
+			@avis_delai = @avis_valid.where(is_delai: true).count
+			@notes1 = []
+			if @date1 < Date.today
+				@avis_valid_crg1 = @avis.where('phase = ? AND etat != ?',"CRG1",'Brouillon')
+				@notes1_sans_risque = @avis_valid_crg1.where(statut: 'Aucun risque').count
+				@notes1_moyen = @avis_valid_crg1.where(statut: "Risques éventuels ou modérés").count
+				@notes1_risque = @avis_valid_crg1.where(statut: 'Risques certains ou significatifs').count
+				@notes1_vide = @avis_crg1 - @notes1_sans_risque - @notes1_moyen - @notes1_risque
+				@notes1 = [@notes1_sans_risque,@notes1_moyen,@notes1_risque,@notes1_vide]
+			end
+			@notes2 = []
+			if @date2 < Date.today
+				@avis_valid_crg2 = @avis.where('phase = ? AND etat != ?',"CRG2",'Brouillon')
+				@notes2_sans_risque = @avis_valid_crg2.where(statut: 'Aucun risque').count
+				@notes2_moyen = @avis_valid_crg2.where(statut: "Risques éventuels ou modérés").count
+				@notes2_risque = @avis_valid_crg2.where(statut: 'Risques certains ou significatifs').count
+				@notes2_vide = @avis_total - @notes2_sans_risque - @notes2_moyen - @notes2_risque
+				@notes2 = [@notes2_sans_risque,@notes2_moyen,@notes2_risque,@notes2_vide]
+			end
+
 	end
 
 	def restitutions
-		if current_user.statut == "admin"
+		if current_user.statut == "admin" || current_user.statut == "DCB"
 			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
-		elsif current_user.statut == "DCB"
-			@programmes = Bop.order(numero_programme: :asc).where(consultant: current_user.id).pluck(:numero_programme, :nom_programme).uniq
 		elsif current_user.statut == "CBR"
 			@programmes = current_user.bops.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
 		else
@@ -104,18 +115,17 @@ class PagesController < ApplicationController
 	    else 
 	      render status: 404
 	    end 
-  	end 
-
-  	def error_500
-    	render status: 500
   	end
+	def error_500
+		render status: 500
+	end
 
-  	def mentions_legales
-  	end 
+	def mentions_legales
+	end
   
-  	def accessibilite
-  	end
+	def accessibilite
+	end
 
-  	def donnees_personnelles
-  	end
+	def donnees_personnelles
+	end
 end

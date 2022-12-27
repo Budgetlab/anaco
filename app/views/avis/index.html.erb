@@ -13,24 +13,36 @@
 			<caption>Historique des avis</caption>
 			<thead>
 			<tr>
+				<% if current_user.statut =="admin" %>
+					<th scope="col">CBR/DCB </th>
+				<%end %>
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Note </th>
-				<th scope="col">Statut </th>
+				<% if current_user.statut != "DCB" %>
+					<th scope="col">DCB responsable</th>
+					<th scope="col">Statut </th>
+				<%end %>
 				<th scope="col"> </th>
 			</tr>
 			</thead>
 			<tbody>
 			<% @avis_crg2.each do |avis|%>
 				<tr>
+					<% if current_user.statut =="admin" %>
+						<td><%= avis.user.nom %> </td>
+					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
 					<td><%= avis.bop.code %></td>
 					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
 					<td><%= avis.statut %></td>
-					<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<% if current_user.statut != "DCB" %>
+						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<% end %>
 					<td>
-						<% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon"%><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>
@@ -49,24 +61,37 @@
 			<caption>Historique des avis</caption>
 			<thead>
 			<tr>
+				<% if current_user.statut =="admin" %>
+					<th scope="col">CBR/DCB </th>
+					<th scope="col">DCB responsable</th>
+				<%end %>
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Note </th>
-				<th scope="col">Statut </th>
+				<% if current_user.statut != "DCB" %>
+					<th scope="col">DCB responsable</th>
+					<th scope="col">Statut </th>
+				<%end %>
 				<th scope="col"> </th>
 			</tr>
 			</thead>
 			<tbody>
 			<% @avis_crg1.each do |avis|%>
 				<tr>
+					<% if current_user.statut =="admin" %>
+						<td><%= avis.user.nom %> </td>
+					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
 					<td><%= avis.bop.code %></td>
 					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
 					<td><%= avis.statut %></td>
-					<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<% if current_user.statut != "DCB" %>
+						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<%end %>
 					<td>
-						<% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon" %><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>
@@ -85,24 +110,36 @@
 			<caption>Historique des avis</caption>
 			<thead>
 			<tr>
+				<% if current_user.statut =="admin" %>
+					<th scope="col">CBR/DCB </th>
+				<%end %>
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Avis </th>
-				<th scope="col">Statut </th>
+				<% if current_user.statut != "DCB" %>
+					<th scope="col">DCB responsable</th>
+					<th scope="col">Statut </th>
+				<%end %>
 				<th scope="col"> </th>
 			</tr>
 			</thead>
 			<tbody>
 			<% @avis_debut.each do |avis|%>
 				<tr>
+					<% if current_user.statut =="admin" %>
+						<td><%= avis.user.nom %> </td>
+					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
 					<td><%= avis.bop.code %></td>
 					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
 					<td><%= avis.statut %></td>
-					<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<% if current_user.statut != "DCB" %>
+						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+					<%end %>
 					<td>
-						<% if avis.etat == "Brouillon"%><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon"%><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>

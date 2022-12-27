@@ -4,15 +4,15 @@
         <div class="fr-grid-row fr-grid-row-gutters">
             <div class="fr-col-0 fr-col-md-4 fr-col-lg-7 background">
               <div class="fr-hidden fr-unhidden-md">
-                <h1 class="fr-ml-6w titre"><span>[NOM]</span></h1>
-                <h2 class="fr-ml-6w soustitre"><span>[Intituté]</span></h2>
+                <h1 class="fr-ml-6w titre"><span>ANACO</span></h1>
+                <h2 class="fr-ml-6w soustitre"><span>Analyses et avis du contrôle budgétaire</span></h2>
               </div>
             </div>
             <div class="fr-col-12 fr-col-md-8 fr-col-lg-5">
                 <div class="fr-container fr-background-alt--grey fr-px-md-0 fr-pt-10v fr-pt-md-14v fr-pb-6v fr-pb-md-10v">
                     <div class="fr-grid-row fr-grid-row-gutters fr-grid-row--center">
                         <div class="fr-col-12 fr-col-md-9 fr-col-lg-8">
-                            <h4>Connexion à [NOM]</h4>
+                            <h4>Connexion à ANACO</h4>
                             
                             <div>
                               <%= form_for(resource, as: resource_name, url: session_path(resource_name),data: {'session-target': "form", action: "turbo:before-fetch-request->session#submitForm turbo:submit-end->session#resultForm change->session#changeForm input->session#changeForm"}) do |f| %>

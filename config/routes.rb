@@ -14,7 +14,9 @@ Rails.application.routes.draw do
     	post 'import_bops' => "bops#import"
 
     	get 'historique' => "avis#index"
+      get 'consultation' => "avis#consultation"
     	get 'avis/nouveau/:bop_id' => "avis#new"
+      post 'read_avis' => "avis#readAvis"
     	resources :avis, only: [:create, :update, :destroy]
 
       get '/restitutions', to: "pages#restitutions"

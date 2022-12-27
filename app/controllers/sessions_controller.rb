@@ -2,7 +2,7 @@ class SessionsController < Devise::SessionsController
   
   def create
 	  if params[:user][:statut] == "admin"
-     resource = User.find_for_database_authentication(statut: params[:user][:statut])
+      resource = User.find_for_database_authentication(statut: params[:user][:statut])
     elsif params[:user][:statut] == "CBR" || params[:user][:statut] == "DCB"
       resource = User.find_for_database_authentication(statut: params[:user][:statut],nom: params[:user][:nom])
     end

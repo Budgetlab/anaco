@@ -1,22 +1,35 @@
-
-
 <% if Date.today > @date_alert1 && Date.today <= @date1 && @avis_vide > 0%>
-<div class="fr-notice notice--warning">
-    <div class="fr-container">
-        <div class="fr-notice__body">
-            <p class="fr-notice__title">Attention, la phase de début de gestion est bientôt terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
-        </div>
-	</div>
-</div>
-
+  <div class="fr-notice notice--warning">
+      <div class="fr-container">
+          <div class="fr-notice__body">
+              <p class="fr-notice__title">Attention, la phase de début de gestion est bientôt terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+          </div>
+    </div>
+  </div>
 <% elsif Date.today > @date1 && @avis_vide > 0%>
-<div class="fr-notice notice--red">
+  <div class="fr-notice notice--red">
+      <div class="fr-container">
+          <div class="fr-notice__body">
+              <p class="fr-notice__title">Attention, la phase de début de gestion est terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+          </div>
+    </div>
+  </div>
+<% elsif Date.today > @date_alert2 && Date.today <= @date2 && @notes1_vide > 0%>
+  <div class="fr-notice notice--warning">
     <div class="fr-container">
-        <div class="fr-notice__body">
-            <p class="fr-notice__title">Attention, la phase de début de gestion est terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
-        </div>
-	</div>
-</div>
+      <div class="fr-notice__body">
+        <p class="fr-notice__title">Attention, la phase de CRG1 est bientôt terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to bops_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
+      </div>
+    </div>
+  </div>
+<% elsif Date.today > @date2 && @notes1_vide > 0%>
+  <div class="fr-notice notice--red">
+    <div class="fr-container">
+      <div class="fr-notice__body">
+        <p class="fr-notice__title">Attention, la phase de CRG1 est terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to bops_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
+      </div>
+    </div>
+  </div>
 <%else %>
   <div class="fr-notice fr-notice--info">
     <div class="fr-container">

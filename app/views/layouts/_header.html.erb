@@ -18,9 +18,9 @@
                     </div>
                     <div class="fr-header__service">
                         <a href="/" title="Accueil ">
-                          <p class="fr-header__service-title">[NOM] <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
+                          <p class="fr-header__service-title">ANACO <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
                         </a>
-                        <p class="fr-header__service-tagline">[Intitulé]</p>
+                        <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
                     </div>
                 </div>
                 <% if user_signed_in? %>
@@ -50,13 +50,20 @@
                 <ul class="fr-nav__list">
                     <li class="fr-nav__item">
                         <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'],['index']] do%>Accueil<%end%>
-                    </li>  
-                    <li class="fr-nav__item">
+                    </li>
+                    <% if current_user.statut != "admin" %>
+                      <li class="fr-nav__item">
                         <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do%>BOP et avis<%end%>
-                    </li>   
+                      </li>
+                    <%end %>
                     <li class="fr-nav__item">
                         <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do%>Historique<%end%>
                     </li>
+                    <% if current_user.statut == "DCB" %>
+                    <li class="fr-nav__item">
+                      <%= active_link_to consultation_path, class: "fr-nav__link", target: "_self" do%>Consultation<%end%>
+                    </li>
+                    <%end %>
                     <li class="fr-nav__item">
                       <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions<%end%>
                     </li>

@@ -1,0 +1,46 @@
+<div class="fr-container fr-mb-4w">
+    <div class="fr-accordions-group fr-mb-4w">
+      <% @users.each do |user| %>
+        <section class="fr-accordion">
+          <h3 class="fr-accordion__title">
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%=user.id %>"><%= user.nom %>
+              <p class="fr-badge fr-badge--info fr-badge--no-icon fr-ml-2w"><%= user.avis.where(phase: "Début de gestion").count %>/<%= user.bops.count %> avis début de gestion </p>
+              <% if Date.today > @date1 %>
+                <p class="fr-badge fr-badge--green-menthe fr-ml-2w"><%= user.avis.where(phase: "CRG1").count %>/<%= user.avis.where(phase: "Début de gestion", is_crg1: true).count %> notes CRG1 </p>
+              <%end %>
+              <% if Date.today > @date2 %>
+                <p class="fr-badge fr-badge--purple-glycine  fr-ml-2w"><%= user.avis.where(phase: "CRG2").count %>/<%= user.bops.count %> notes CRG2 </p>
+              <%end %>
+            </button>
+          </h3>
+          <div class="fr-collapse" id="accordion-<%=user.id %>">
+            <div class="fr-table fr-table--no-caption">
+              <table>
+                <caption>Historique des avis</caption>
+                <thead>
+                <tr>
+                  <th scope="col">BOP </th>
+                  <th scope="col">DCB responsable </th>
+                  <th scope="col">Avis début de gestion </th>
+                  <th scope="col">Note CRG1  </th>
+                  <th scope="col">Note CRG2   </th>
+                </tr>
+                </thead>
+                <tbody>
+                <% user.bops.order(code: :asc).each do |bop| %>
+                <tr>
+                  <td><%= bop.code %></td>
+                  <td><%= User.find(bop.consultant).nom %></td>
+                  <td><% if bop.avis.where(phase: "Début de gestion").where.not(etat: "Brouillon").count > 0 %><%= bop.avis.where(phase: "Début de gestion").where.not(etat: "Brouillon").first.statut %><% end %></td>
+                  <td><% if bop.avis.where(phase: "CRG1").where.not(etat: "Brouillon").count > 0 %><%= bop.avis.where(phase: "CRG1").where.not(etat: "Brouillon").first.statut %><% end %></td>
+                  <td><% if bop.avis.where(phase: "CRG2").where.not(etat: "Brouillon").count > 0 %><%= bop.avis.where(phase: "CRG2").where.not(etat: "Brouillon").first.statut %><% end %></td>
+                </tr>
+                <%end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      <% end %>
+    </div>
+</div>

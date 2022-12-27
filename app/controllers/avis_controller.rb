@@ -2,12 +2,58 @@ class AvisController < ApplicationController
 	before_action :authenticate_user!	
 	
 	def index
-		@avis_debut = current_user.avis.where(phase: "Début de gestion").order(created_at: :desc)
-		@avis_crg1 = current_user.avis.where(phase: "CRG1").order(created_at: :desc)
-		@avis_crg2 = current_user.avis.where(phase: "CRG2").order(created_at: :desc)
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
-	end 
+		if current_user.statut == "admin"
+			@avis_debut = Avi.where(phase: "Début de gestion").order(created_at: :desc)
+			@avis_crg1 = Avi.where(phase: "CRG1").order(created_at: :desc)
+			@avis_crg2 = Avi.where(phase: "CRG2").order(created_at: :desc)
+		else
+			@avis_debut = current_user.avis.where(phase: "Début de gestion").order(created_at: :desc)
+			@avis_crg1 = current_user.avis.where(phase: "CRG1").order(created_at: :desc)
+			@avis_crg2 = current_user.avis.where(phase: "CRG2").order(created_at: :desc)
+		end
+	end
+
+	def consultation
+		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+		@bops_consultation_id = @bops_consultation.pluck(:id)
+		@avis = Avi.where(bop_id: @bops_consultation_id).where("etat != ?","Brouillon")
+		@avis_debut = @avis.where(phase: "Début de gestion").order(created_at: :desc)
+		@bops_vide_debut = @bops_consultation.where.not(id: @avis_debut.pluck(:bop_id))
+		@avis_crg1 = @avis.where(phase: "CRG1").order(created_at: :desc)
+		@bops_vide_crg1 = @bops_consultation.where.not(id: @avis_crg1.pluck(:bop_id))
+		@avis_crg2 = @avis.where(phase: "CRG2").order(created_at: :desc)
+		@bops_vide_crg2 = @bops_consultation.where.not(id: @avis_crg2.pluck(:bop_id))
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
+	end
+
+	def readAvis
+		@avis = Avi.find(params[:id])
+		@avis.etat = "Lu"
+		@avis.save
+
+		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+		@bops_consultation_id = @bops_consultation.pluck(:id)
+		@avis = Avi.where(bop_id: @bops_consultation_id).where("etat != ?","Brouillon")
+		@avis_debut = @avis.where(phase: "Début de gestion").order(created_at: :desc)
+		@bops_vide_debut = @bops_consultation.where.not(id: @avis_debut.pluck(:bop_id))
+		@avis_crg1 = @avis.where(phase: "CRG1").order(created_at: :desc)
+		@bops_vide_crg1 = @bops_consultation.where.not(id: @avis_crg1.pluck(:bop_id))
+		@avis_crg2 = @avis.where(phase: "CRG2").order(created_at: :desc)
+		@bops_vide_crg2 = @bops_consultation.where.not(id: @avis_crg2.pluck(:bop_id))
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
+
+		respond_to do |format|
+			format.turbo_stream do
+				render turbo_stream: [
+					turbo_stream.update('table', partial: "avis/table"),
+				]
+			end
+		end
+	end
 
 	def new
 		@bop = Bop.where(id: params[:bop_id]).first
