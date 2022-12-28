@@ -31,24 +31,25 @@
 			<% @avis_crg2.each do |avis|%>
 				<tr>
 					<% if current_user.statut =="admin" %>
-						<td><%= avis.user.nom %> </td>
+						<td><%= @avis_users[avis.id]%> </td>
 					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= avis.bop.code %></td>
-					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+					<td><%= @bops_data[avis.id][0]%></td>
+					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
 					<% if current_user.statut != "DCB" %>
-						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><%= @users[@bops_data[avis.id][3]] %></td>
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-					<% end %>
+					<%end %>
 					<td>
-						<% if avis.etat == "Brouillon"%><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon"%>
+							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+						<%else%>
+							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+						<%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>
-				<% if avis.etat != "Brouillon"%>
-					<%= render partial: 'avis/dialog_crg2',locals: {avis: avis} %>
-				<% end %>
 			<% end %>
 			</tbody>
 		</table>
@@ -80,24 +81,25 @@
 			<% @avis_crg1.each do |avis|%>
 				<tr>
 					<% if current_user.statut =="admin" %>
-						<td><%= avis.user.nom %> </td>
+						<td><%= @avis_users[avis.id]%> </td>
 					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= avis.bop.code %></td>
-					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+					<td><%= @bops_data[avis.id][0]%></td>
+					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
 					<% if current_user.statut != "DCB" %>
-						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><%= @users[@bops_data[avis.id][3]] %></td>
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
 					<%end %>
 					<td>
-						<% if avis.etat == "Brouillon" %><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon"%>
+							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+						<%else%>
+							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+						<%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>
-				<% if avis.etat != "Brouillon"%>
-					<%= render partial: 'avis/dialog_crg1',locals: {avis: avis} %>
-				<% end %>
 			<% end %>
 			</tbody>
 		</table>
@@ -110,7 +112,7 @@
 			<caption>Historique des avis</caption>
 			<thead>
 			<tr>
-				<% if current_user.statut =="admin" %>
+				<% if current_user.statut == "admin" %>
 					<th scope="col">CBR/DCB </th>
 				<%end %>
 				<th scope="col">Date de saisie </th>
@@ -128,26 +130,33 @@
 			<% @avis_debut.each do |avis|%>
 				<tr>
 					<% if current_user.statut =="admin" %>
-						<td><%= avis.user.nom %> </td>
+						<td><%= @avis_users[avis.id]%> </td>
 					<%end %>
 					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= avis.bop.code %></td>
-					<td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+					<td><%= @bops_data[avis.id][0]%></td>
+					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
 					<% if current_user.statut != "DCB" %>
-						<td><%= User.find(avis.bop.consultant).nom %></td>
+						<td><%= @users[@bops_data[avis.id][3]] %></td>
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
 					<%end %>
 					<td>
-						<% if avis.etat == "Brouillon"%><%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %><%else%><button class="fr-btn" data-fr-opened="false" aria-controls="modal-<%=avis.id %>"> Consulter</button><%end%>
+						<% if avis.etat == "Brouillon"%>
+							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+						<%else%>
+							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+						<%end%>
 						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
 					</td>
 				</tr>
-				<% if avis.etat != "Brouillon"%>
-					<%= render partial: 'avis/dialog_debut',locals: {avis: avis} %>
-				<% end %>
 			<% end %>
 			</tbody>
 		</table>
 	</div>
+
+	<dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
+		<div id="debut">
+			<%= render partial: 'avis/dialog_debut',locals: {avis: @avis_default} %>
+		</div>
+	</dialog>
 </div>

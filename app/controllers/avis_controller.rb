@@ -5,28 +5,48 @@ class AvisController < ApplicationController
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 		if current_user.statut == "admin"
-			@avis_debut = Avi.where(phase: "Début de gestion").order(created_at: :desc)
-			@avis_crg1 = Avi.where(phase: "CRG1").order(created_at: :desc)
-			@avis_crg2 = Avi.where(phase: "CRG2").order(created_at: :desc)
+			@avis_all = Avi.order(created_at: :desc)
 		else
-			@avis_debut = current_user.avis.where(phase: "Début de gestion").order(created_at: :desc)
-			@avis_crg1 = current_user.avis.where(phase: "CRG1").order(created_at: :desc)
-			@avis_crg2 = current_user.avis.where(phase: "CRG2").order(created_at: :desc)
+			@avis_all = current_user.avis.order(created_at: :desc)
+		end
+		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
+		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
+		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :consultant)
+		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+		@avis_default = @avis_all.first
+		@users = User.pluck(:id,:nom).to_h
+	end
+
+	def openModal
+		@avis_default = Avi.find(params[:id])
+		respond_to do |format|
+			format.turbo_stream do
+				render turbo_stream: [
+					turbo_stream.update('debut', partial: "avis/dialog_debut",locals: {avis: @avis_default}),
+				]
+			end
 		end
 	end
 
 	def consultation
-		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-		@bops_consultation_id = @bops_consultation.pluck(:id)
-		@avis = Avi.where(bop_id: @bops_consultation_id).where("etat != ?","Brouillon")
-		@avis_debut = @avis.where(phase: "Début de gestion").order(created_at: :desc)
-		@bops_vide_debut = @bops_consultation.where.not(id: @avis_debut.pluck(:bop_id))
-		@avis_crg1 = @avis.where(phase: "CRG1").order(created_at: :desc)
-		@bops_vide_crg1 = @bops_consultation.where.not(id: @avis_crg1.pluck(:bop_id))
-		@avis_crg2 = @avis.where(phase: "CRG2").order(created_at: :desc)
-		@bops_vide_crg2 = @bops_consultation.where.not(id: @avis_crg2.pluck(:bop_id))
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
+		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+		@bops_consultation_id = @bops_consultation.pluck(:id)
+		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
+		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@bops_vide_debut = @bops_consultation.select { |a| a.id != @avis_debut.pluck(:bop_id) }
+		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
+		@bops_vide_crg1 = @bops_consultation.select { |a| a.id != @avis_crg1.pluck(:bop_id) }
+		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
+		@bops_vide_crg2 = @bops_consultation.select { |a| a.id != @avis_crg2.pluck(:bop_id) }
+		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme)
+		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..3]]}]
+		@avis_default = @avis_all.first
+		@users = User.pluck(:id,:nom).to_h
 	end
 
 	def readAvis
@@ -34,17 +54,22 @@ class AvisController < ApplicationController
 		@avis.etat = "Lu"
 		@avis.save
 
-		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-		@bops_consultation_id = @bops_consultation.pluck(:id)
-		@avis = Avi.where(bop_id: @bops_consultation_id).where("etat != ?","Brouillon")
-		@avis_debut = @avis.where(phase: "Début de gestion").order(created_at: :desc)
-		@bops_vide_debut = @bops_consultation.where.not(id: @avis_debut.pluck(:bop_id))
-		@avis_crg1 = @avis.where(phase: "CRG1").order(created_at: :desc)
-		@bops_vide_crg1 = @bops_consultation.where.not(id: @avis_crg1.pluck(:bop_id))
-		@avis_crg2 = @avis.where(phase: "CRG2").order(created_at: :desc)
-		@bops_vide_crg2 = @bops_consultation.where.not(id: @avis_crg2.pluck(:bop_id))
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
+		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+		@bops_consultation_id = @bops_consultation.pluck(:id)
+		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
+		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@bops_vide_debut = @bops_consultation.select { |a| a.id != @avis_debut.pluck(:bop_id) }
+		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
+		@bops_vide_crg1 = @bops_consultation.select { |a| a.id != @avis_crg1.pluck(:bop_id) }
+		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
+		@bops_vide_crg2 = @bops_consultation.select { |a| a.id != @avis_crg2.pluck(:bop_id) }
+		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme)
+		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..3]]}]
+		@avis_default = @avis_all.first
+		@users = User.pluck(:id,:nom).to_h
 
 		respond_to do |format|
 			format.turbo_stream do
@@ -64,52 +89,56 @@ class AvisController < ApplicationController
 		if @bop.user != current_user
 			redirect_to bops_path
 		else
-			if Date.today <= @date1 
-				if @bop.avis.where("phase = ? AND etat != ?", "Début de gestion", "Brouillon").count > 0
-					@is_completed = true
-				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
-				else
+			@avis_debut = @bop.avis.where(phase: "Début de gestion").first
+			@avis_crg1 = @bop.avis.where(phase: "CRG1").first
+			@avis_crg2 = @bop.avis.where(phase: "CRG2").first
+			if Date.today <= @date1
+				if @avis_debut.nil?
 					@avis = Avi.new
+				else
+					@avis = @avis_debut
+					if @avis.etat != "Brouillon"
+						@is_completed = true
+					end
 				end
 				@form = "Début de gestion"
 			elsif @date1 < Date.today && Date.today <= @date2
 				@form = "CRG1"
-				if @bop.avis.where(phase: "Début de gestion").count == 0
+				if @avis_debut.nil?
 					@avis = Avi.new
 					@form = "Début de gestion"
-				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
+				elsif @avis_debut.etat == "Brouillon"
+					@avis = @avis_debut
 					@form = "Début de gestion"
-				elsif @bop.avis.where("phase = ? AND etat != ?", "CRG1", "Brouillon").count > 0
-					@is_completed = true
-				elsif @bop.avis.where(phase: "CRG1", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "CRG1", etat: "Brouillon").first
-				elsif @bop.avis.where(phase: "Début de gestion", is_crg1: true).count > 0
-					@avis = Avi.new
-				else
+				elsif @avis_debut.is_crg1 == false
 					@form = "no CRG1" #pas de crg1 programmé
+				elsif @avis_crg1.nil?
+					@avis = Avi.new
+				elsif @avis_crg1.etat == "Brouillon"
+					@avis = @avis_crg1
+				elsif @avis_crg1.etat != "Brouillon"
+					@is_completed = true
 				end
 			elsif Date.today > @date2
 				@form = "CRG2"
-				if @bop.avis.where(phase: "Début de gestion").count == 0
+				if @avis_debut.nil?
 					@avis = Avi.new
 					@form = "Début de gestion"
-				elsif @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "Début de gestion", etat: "Brouillon").first
+				elsif @avis_debut.etat == "Brouillon"
+					@avis = @avis_debut
 					@form = "Début de gestion"
-				elsif @bop.avis.where(phase: "CRG1", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "CRG1", etat: "Brouillon").first
-					@form = "CRG1"
-				elsif @bop.avis.where(phase: "Début de gestion", is_crg1: true).count > 0 && @bop.avis.where(phase: "CRG1").count == 0
+				elsif @avis_debut.is_crg1 == true && @avis_crg1.nil?
 					@avis = Avi.new
 					@form = "CRG1"
-				elsif @bop.avis.where(phase: "CRG2", etat: "Brouillon").count > 0
-					@avis = @bop.avis.where(phase: "CRG2", etat: "Brouillon").first
-				elsif @bop.avis.where("phase = ? AND etat != ?", "CRG2", "Brouillon").count > 0
+				elsif @avis_debut.is_crg1 == true && @avis_crg1.etat == "Brouillon"
+					@avis = @avis_crg1
+					@form = "CRG1"
+				elsif @avis_crg2.nil?
+					@avis = Avi.new
+				elsif @avis_crg2.etat == "Brouillon"
+					@avis = @avis_crg2
+				elsif @avis_crg2.etat != "Brouillon"
 					@is_completed = true
-				else
-					@avis = Avi.new
 				end
 			end
 		end 
@@ -139,8 +168,8 @@ class AvisController < ApplicationController
 			end
 		end
 		respond_to do |format|      
-	      format.all { redirect_to historique_path, notice: @message}       
-	    end 
+			format.all { redirect_to historique_path, notice: @message}
+		end
 	end 
 
 	def update
@@ -148,9 +177,9 @@ class AvisController < ApplicationController
 
 	def destroy
 		Avi.where(id: params[:id]).destroy_all 
-	    respond_to do |format|
-	      format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }       
-	    end 
+		respond_to do |format|
+			format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
+		end
 	end 
 
 end

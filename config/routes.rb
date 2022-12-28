@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     	get 'avis/nouveau/:bop_id' => "avis#new"
       post 'read_avis' => "avis#readAvis"
     	resources :avis, only: [:create, :update, :destroy]
+      post 'open_modal' => "avis#openModal"
 
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"

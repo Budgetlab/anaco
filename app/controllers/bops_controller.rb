@@ -6,21 +6,26 @@ class BopsController < ApplicationController
 		@bops = current_user.bops.order(code: :asc)
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
+		@avis = current_user.avis
+		@bops = current_user.bops
 		if Date.today <= @date1
 			@phase = "début de gestion"
-			@count_reste = current_user.bops.count - current_user.avis.where('phase = ? AND etat != ?', "Début de gestion",'Brouillon').count
+			@count_reste = @bops.count - @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon'}.length
 		elsif @date1 < Date.today && Date.today <= @date2
 			@phase = "CRG1"
-			@count_reste_debut = current_user.bops.count - current_user.avis.where('phase = ? AND etat != ?', "Début de gestion",'Brouillon').count
-			@count_reste_crg1 = current_user.avis.where('phase = ? AND etat != ? AND is_crg1 = ?', "Début de gestion",'Brouillon',true).count - current_user.avis.where('phase = ? AND etat != ?', "CRG1",'Brouillon').count
+			@count_reste_debut = @bops.count - @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon'}.length
+			@count_reste_crg1 = @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
 			@count_reste = @count_reste_debut + @count_reste_crg1
 		elsif Date.today > @date2 
 			@phase = "CRG2"
-			@count_reste_debut = current_user.bops.count - current_user.avis.where('phase = ? AND etat != ?', "Début de gestion",'Brouillon').count
-			@count_reste_crg1 = current_user.avis.where('phase = ? AND etat != ? AND is_crg1 = ?', "Début de gestion",'Brouillon',true).count - current_user.avis.where('phase = ? AND etat != ?', "CRG1",'Brouillon').count
-			@count_reste_crg2 = current_user.avis.where('phase = ? AND etat != ? AND is_crg1 = ?', "Début de gestion",'Brouillon',false).count + current_user.avis.where('phase = ? AND etat != ?', "CRG1",'Brouillon').count - current_user.avis.where('phase = ? AND etat != ?', "CRG2",'Brouillon').count
+			@count_reste_debut = @bops.count - @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon'}.length
+			@count_reste_crg1 =  @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
+			@count_reste_crg2 = @avis.select{ |a| a.phase == "Début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == false }.length + @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length - @avis.select{ |a| a.phase == "CRG2" && a.etat != 'Brouillon'}.length
 			@count_reste = @count_reste_debut + @count_reste_crg1 + @count_reste_crg2
-		end 
+		end
+		@bops_avis_debut = @bops.joins(:avis).where(avis: {phase: "Début de gestion"}).pluck(:id, :etat).to_h
+		@bops_avis_crg1 = @bops.joins(:avis).where(avis: {phase: "CRG1"}).pluck(:id, :etat).to_h
+		@bops_avis_crg2 = @bops.joins(:avis).where(avis: {phase: "CRG2"}).pluck(:id, :etat).to_h
 	end 
 
 	def show
