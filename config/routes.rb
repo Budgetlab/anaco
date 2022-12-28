@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  	scope(:path => '/avisbop') do
+  	scope(:path => '/anaco') do
 	    devise_for :users, :path => "",
 	      :path_names =>  {:sign_in => "connexion", :sign_out => "logout"},
 	      controllers: {sessions: 'sessions'}
@@ -31,7 +31,7 @@ Rails.application.routes.draw do
 	    match "/500", to: 'pages#error_500', via: :all
 	    get "/422", to: 'pages#error_404'
 	end
-	get '/', to: redirect('/avisbop')
-  	get '/500', to: redirect('/avisbop/500')
-  	get '/*path', to: redirect('/avisbop')
+	get '/', to: redirect('/anaco')
+  	get '/500', to: redirect('/anaco/500')
+  	get '/*path', to: redirect('/anaco')
 end

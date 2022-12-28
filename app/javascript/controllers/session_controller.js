@@ -21,7 +21,7 @@ export default class extends Controller {
       // mettre à jour les valeurs dans nom 
       const statut = this.statutTarget.value;
       const token = document.querySelector('meta[name="csrf-token"]').content;
-      const url = "/avisbop/select_nom";
+      const url = "/anaco/select_nom";
       const body = { statut }
       fetch(url, { 
           method: 'POST', 

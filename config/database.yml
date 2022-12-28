@@ -81,6 +81,10 @@ test:
 #
 production:
   <<: *default
-  database: avisbop_production
-  username: avisbop
-  password: <%= ENV["AVISBOP_DATABASE_PASSWORD"] %>
+  #database: avisbop_production
+  #username: avisbop
+  #password: <%= ENV["AVISBOP_DATABASE_PASSWORD"] %>
+  database: <%= ENV["PRODUCTION_DB_NAME"] %>
+  username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
+  password: <%= Rails.application.credentials.gcp[:db_password] %>
+  host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
