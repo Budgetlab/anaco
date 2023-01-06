@@ -42,7 +42,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2 initial</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_i)%>€</p>
                       </div>
                     </div>
@@ -50,7 +50,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2 initial</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_i)%>€</p>
                       </div>
                     </div>
@@ -58,7 +58,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 initial</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_i)%>€</p>
                       </div>
                     </div>
@@ -66,7 +66,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">ETPT initial</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_i)%>€</p>
                       </div>
                     </div>
@@ -83,7 +83,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2 fin 2023</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.ae_f)%>€</p>
                       </div>
                     </div>
@@ -91,7 +91,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2 fin 2023</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.cp_f)%>€</p>
                       </div>
                     </div>
@@ -99,7 +99,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 fin 2023</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.t2_f)%>€</p>
                       </div>
                     </div>
@@ -107,7 +107,7 @@
                   <div class="fr-col-3">
                     <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
                       <div class="fr-cart__body">
-                        <p class="fr-text--lg fr-mb-0 text_center">ETPT fin 2023</p>
+                        <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
                         <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@bop.avis.where(phase: "Début de gestion").first.etpt_f)%>€</p>
                       </div>
                     </div>
@@ -123,7 +123,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="aei">
-                    AE HT2 CRG1 2023*
+                    AE HT2*
                 </label>
                 <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i %>
               </div>
@@ -131,7 +131,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="cpi">
-                    CP HT2 CRG1 2023*
+                    CP HT2*
                 </label>
                 <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i%>
               </div>
@@ -139,7 +139,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="t2i">
-                    AE/CP T2 CRG1 2023*
+                    AE/CP T2*
                 </label>
                 <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i%>
               </div>
@@ -147,7 +147,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="etpti">
-                    ETPT CRG1 2023*
+                    ETPT*
                 </label>
                 <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i%>
               </div>
@@ -159,7 +159,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="aef">
-                    AE HT2 fin 2023*
+                    AE HT2*
                 </label>
                 <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f%>
               </div>
@@ -167,7 +167,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="cpf">
-                    CP HT2 fin 2023*
+                    CP HT2*
                 </label>
                 <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f%>
               </div>
@@ -175,7 +175,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="t2i">
-                    AE/CP T2 fin 2023*
+                    AE/CP T2*
                 </label>
                 <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f%>
               </div>
@@ -183,7 +183,7 @@
             <div class="fr-col-3">
               <div class="fr-input-group">
                 <label class="fr-label" for="etptf">
-                    ETPT fin 2023*
+                    ETPT*
                 </label>
                 <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f%>
               </div>

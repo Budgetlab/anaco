@@ -1,10 +1,26 @@
 <main>
-  <div class="fr-container fr-mb-4w">
+  <div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-avisdate="<%=@avis_date %>" data-highcharts-notesbar="<%= @notesbar %>">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-6w fr-mb-2w">Liste des programmes</h1>
+        <h1 class="fr-mt-6w fr-mb-2w">Restitutions nationales</h1>
       </div>
     </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasAvisDate"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasAvis"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasNotesBar"></div>
+      </div>
+    </div>
+    <% if current_user.statut == "admin" %>
+      <h2 class="fr-mt-6w fr-mb-2w">Les programmes [<%= @programmes.length %>]</h2>
+    <%else  %>
+      <h2 class="fr-mt-6w fr-mb-2w">Mes programmes [<%= @programmes.length %>]</h2>
+    <%end %>
 
     <div class="fr-grid-row fr-grid-row--gutters">
       <% @programmes.each do |programme| %>

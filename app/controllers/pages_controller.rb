@@ -6,13 +6,7 @@ class PagesController < ApplicationController
 		@date2 = Date.new(2023,8,31)
 		@date_alert1 = Date.new(2023,3,15)
 		@date_alert2 = Date.new(2023,6,15)
-		if Date.today <= @date1
-			@phase = "début de gestion"
-		elsif @date1 < Date.today && Date.today <= @date2
-			@phase = "CRG1"
-		elsif Date.today > @date2
-			@phase = "CRG2"
-		end
+		@phase = returnPhase(@date1,@date2)
 		if current_user.statut == "CBR" || current_user.statut == "DCB"
 			@avis = current_user.avis
 			@avis_total = current_user.bops.count
@@ -21,94 +15,89 @@ class PagesController < ApplicationController
 			@avis_total = Bop.all.count
 		end
 			@avis_valid = @avis.where('phase = ? AND etat != ?',"Début de gestion",'Brouillon')
-			@avis_favorables = @avis_valid.select{|a| a.statut == 'Favorable'}.count
-			@avis_reserves = @avis_valid.select{|a| a.statut ==  "Favorable avec réserve"}.count
-			@avis_defavorables = @avis_valid.select{|a| a.statut == 'Défavorable'}.count
-			@avis_vide = @avis_total - @avis_favorables - @avis_reserves - @avis_defavorables
-			@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,@avis_vide]
+			@avis_vide = @avis_total - @avis_valid.count
+			@avis = avisRepartition(@avis_valid,@avis_vide)
 			@avis_crg1 = @avis_valid.select{|a| a.is_crg1 == true}.count
 			@avis_delai = @avis_valid.select{|a| a.is_delai == true}.count
 			@notes1 = []
 			if @date1 < Date.today
 				@avis_valid_crg1 = @avis.where('phase = ? AND etat != ?',"CRG1",'Brouillon')
-				@notes1_sans_risque = @avis_valid_crg1.select{|a| a.statut == 'Aucun risque'}.count
-				@notes1_moyen = @avis_valid_crg1.select{|a| a.statut == "Risques éventuels ou modérés"}.count
-				@notes1_risque = @avis_valid_crg1.select{|a| a.statut =='Risques certains ou significatifs'}.count
-				@notes1_vide = @avis_crg1 - @notes1_sans_risque - @notes1_moyen - @notes1_risque
-				@notes1 = [@notes1_sans_risque,@notes1_moyen,@notes1_risque,@notes1_vide]
+				@notes1 = notesRepartition(@avis_valid_crg1, @avis_crg1)
 			end
 			@notes2 = []
 			if @date2 < Date.today
 				@avis_valid_crg2 = @avis.where('phase = ? AND etat != ?',"CRG2",'Brouillon')
-				@notes2_sans_risque = @avis_valid_crg2.select{|a| a.statut =='Aucun risque'}.count
-				@notes2_moyen = @avis_valid_crg2.select{|a| a.statut == "Risques éventuels ou modérés"}.count
-				@notes2_risque = @avis_valid_crg2.select{|a| a.statut == 'Risques certains ou significatifs'}.count
-				@notes2_vide = @avis_total - @notes2_sans_risque - @notes2_moyen - @notes2_risque
-				@notes2 = [@notes2_sans_risque,@notes2_moyen,@notes2_risque,@notes2_vide]
+				@notes2 = notesRepartition(@avis_valid_crg2, @avis_total)
 			end
 
 	end
 
 	def restitutions
-		if current_user.statut == "admin" || current_user.statut == "DCB"
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
+		if current_user.statut == "admin"
 			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
+		elsif	current_user.statut == "DCB"
+			@programmes = Bop.where("user_id = ? OR consultant = ?",current_user.id, current_user.id).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
 		elsif current_user.statut == "CBR"
 			@programmes = current_user.bops.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
 		else
 			redirect_to root_path
 		end
+		@bops_count = Bop.all.count
+		@avis_d = Avi.where(phase: "Début de gestion").where.not(etat: "Brouillon")
+		@avis_vide = @bops_count - @avis_d.count
+		@avis = avisRepartition(@avis_d,@avis_vide)
+		@avis_date = avisDateRepartition(@avis_d,@avis_vide)
+		@avis_iscrg1 = @avis_d.select{|a| a.is_crg1 == true}.length
+		@notes1 = [0,0,0,@avis_iscrg1]
+		if @date1 < Date.today
+			@avis_crg1 = Avi.where(phase: "CRG1").where.not(etat: "Brouillon")
+			@notes1 = notesRepartition(@avis_crg1, @avis_iscrg1)
+		end
+		@notes2 = [0,0,0,@bops_count]
+		if @date2 < Date.today
+			@avis_crg2 = Avi.where(phase: "CRG2").where.not(etat: "Brouillon")
+			@notes2 = notesRepartition(@avis_crg2, @bops_count)
+		end
+		@notesbar = [[@notes1[0],@notes2[0]],[@notes1[1],@notes2[1]],[@notes1[2],@notes2[2]],[@notes1[3],@notes2[3]]]
+
 	end
 	def restitution_programme
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
-		if Date.today <= @date1
-			@phase = "début de gestion"
-		elsif @date1 < Date.today && Date.today <= @date2
-			@phase = "CRG1"
-		elsif Date.today > @date2
-			@phase = "CRG2"
-		end
+		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
 		@bops = Bop.where(numero_programme: @numero)
-		@bops_count = @bops.count
-		@ministere = @bops.first.ministere
 		@bops_id = @bops.pluck(:id)
+		@bops_count = @bops_id.length
+		@ministere = @bops.first.ministere
+
 		@avis = Avi.where(bop_id: @bops_id, phase: @phase).where("etat != ?","Brouillon")
-		@ae_i = @avis.sum(:ae_i)
-		@cp_i = @avis.sum(:cp_i)
-		@t2_i = @avis.sum(:t2_i)
-		@etpt_i = @avis.sum(:etpt_i)
-		@ae_f = @avis.sum(:ae_f)
-		@cp_f = @avis.sum(:cp_f)
-		@t2_f = @avis.sum(:t2_f)
-		@etpt_f = @avis.sum(:etpt_f)
+		@array = @avis.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+		@data = [@array.sum { |a,b,c,d,e,f,g,h| a}, @array.sum { |a,b,c,d,e,f,g,h| b},@array.sum { |a,b,c,d,e,f,g,h| c},@array.sum { |a,b,c,d,e,f,g,h| d},@array.sum { |a,b,c,d,e,f,g,h| e}, @array.sum { |a,b,c,d,e,f,g,h| f}, @array.sum { |a,b,c,d,e,f,g,h| g},@array.sum { |a,b,c,d,e,f,g,h| h}]
 
 		@avis_d = Avi.where(bop_id: @bops_id, phase: "Début de gestion").where.not(etat: "Brouillon")
+		@array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+		@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
 		@avis_default = @avis_d.first
-		@avis_favorables = @avis_d.select{|a| a.statut == 'Favorable'}.length
-		@avis_reserves = @avis_d.select{|a| a.statut =="Favorable avec réserve"}.length
-		@avis_defavorables = @avis_d.select{|a| a.statut =='Défavorable'}.length
-		@avis_vide = @bops_count - @avis_favorables - @avis_reserves - @avis_defavorables
-		@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,@avis_vide]
+		@avis_vide = @bops_count - @avis_d.count
+		@avis = avisRepartition(@avis_d,@avis_vide)
+		@avis_date = avisDateRepartition(@avis_d,@avis_vide)
 		@avis_iscrg1 = @avis_d.select{|a| a.is_crg1 == true}.length
-		@notes1 = []
+		@notes1 = [0,0,0,@avis_iscrg1]
 		if @date1 < Date.today
 			@avis_crg1 = Avi.where(bop_id: @bops_id, phase: "CRG1").where.not(etat: "Brouillon")
-			@notes1_sans_risque = @avis_crg1.select{|a| a.statut =='Aucun risque'}.length
-			@notes1_moyen = @avis_crg1.select{|a| a.statut =="Risques éventuels ou modérés"}.length
-			@notes1_risque = @avis_crg1.select{|a| a.statut == 'Risques certains ou significatifs'}.length
-			@notes1_vide = @avis_iscrg1 - @notes1_sans_risque - @notes1_moyen - @notes1_risque
-			@notes1 = [@notes1_sans_risque,@notes1_moyen,@notes1_risque,@notes1_vide]
+			@notes1 = notesRepartition(@avis_crg1, @avis_iscrg1)
 		end
-		@notes2 = []
+		@notes2 = [0,0,0,@bops_count]
 		if @date2 < Date.today
 			@avis_crg2 = Avi.where(bop_id: @bops_id, phase: "CRG2").where.not(etat: "Brouillon")
-			@notes2_sans_risque = @avis_crg2.select{|a| a.statut =='Aucun risque'}.length
-			@notes2_moyen = @avis_crg2.select{|a| a.statut =="Risques éventuels ou modérés"}.length
-			@notes2_risque = @avis_crg2.select{|a| a.statut == 'Risques certains ou significatifs'}.length
-			@notes2_vide = @bops_count - @notes2_sans_risque - @notes2_moyen - @notes2_risque
-			@notes2 = [@notes2_sans_risque,@notes2_moyen,@notes2_risque,@notes2_vide]
+			@notes2 = notesRepartition(@avis_crg2, @bops_count)
+			@array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+			@data_c = [@array_c.sum { |a,b,c,d,e,f,g,h| a}, @array_c.sum { |a,b,c,d,e,f,g,h| b},@array_c.sum { |a,b,c,d,e,f,g,h| c},@array_c.sum { |a,b,c,d,e,f,g,h| d},@array_c.sum { |a,b,c,d,e,f,g,h| e}, @array_c.sum { |a,b,c,d,e,f,g,h| f}, @array_c.sum { |a,b,c,d,e,f,g,h| g},@array_c.sum { |a,b,c,d,e,f,g,h| h}]
 		end
+		@notesbar = [[@notes1[0],@notes2[0]],[@notes1[1],@notes2[1]],[@notes1[2],@notes2[2]],[@notes1[3],@notes2[3]]]
 		@bops_avis_debut_arr = @bops.joins(:avis).where(avis: {phase: "Début de gestion"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
 		@bops_avis_debut = Hash[@bops_avis_debut_arr.collect {|a| [a[0],a[1..2]]}]
 		@bops_avis_crg1_arr = @bops.joins(:avis).where(avis: {phase: "CRG1"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
@@ -135,5 +124,43 @@ class PagesController < ApplicationController
 	end
 
 	def donnees_personnelles
+	end
+
+	private
+	def returnPhase(date1,date2)
+		if Date.today <= date1
+			@phase = "début de gestion"
+		elsif date1 < Date.today && Date.today <= date2
+			@phase = "CRG1"
+		elsif Date.today > date2
+			@phase = "CRG2"
+		end
+		return @phase
+	end
+
+	def avisRepartition(avis, avis_vide)
+		@avis_favorables = avis.select{|a| a.statut == 'Favorable'}.length
+		@avis_reserves = avis.select{|a| a.statut =="Favorable avec réserve"}.length
+		@avis_defavorables = avis.select{|a| a.statut =='Défavorable'}.length
+		@avis = [@avis_favorables,@avis_reserves,@avis_defavorables,avis_vide]
+		return @avis
+	end
+
+	def avisDateRepartition(avis,avis_vide)
+		@avis_date_1 = avis.select{|a| a.date_reception <= Date.new(2023,3,1)}.length
+		@avis_date_2 = avis.select{|a| a.date_reception > Date.new(2023,3,1) && a.date_reception <= Date.new(2023,3,15)}.length
+		@avis_date_3 = avis.select{|a| a.date_reception > Date.new(2023,3,15) && a.date_reception <= Date.new(2023,3,31)}.length
+		@avis_date_4 = avis.select{|a| a.date_reception > Date.new(2023,4,1)}.length
+		@avis_date = [@avis_date_1,@avis_date_2,@avis_date_3,@avis_date_4,avis_vide]
+		return @avis_date
+	end
+
+	def notesRepartition(avis, avis_total)
+		@notes_sans_risque = avis.select{|a| a.statut =='Aucun risque'}.length
+		@notes_moyen = avis.select{|a| a.statut =="Risques éventuels ou modérés"}.length
+		@notes_risque = avis.select{|a| a.statut == 'Risques certains ou significatifs'}.length
+		@notes_vide = avis_total - @notes_sans_risque - @notes_moyen - @notes_risque
+		@notes = [@notes_sans_risque,@notes_moyen,@notes_risque,@notes_vide]
+		return @notes
 	end
 end
