@@ -1,7 +1,23 @@
 <div class="fr-container" data-controller="form">
+  <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+    <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
+    <div class="fr-collapse" id="breadcrumb-1">
+      <ol class="fr-breadcrumb__list">
+        <li>
+          <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
+        </li>
+        <li>
+          <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
+        </li>
+        <li>
+          <a class="fr-breadcrumb__link" aria-current="page">Formulaire CRG2</a>
+        </li>
+      </ol>
+    </div>
+  </nav>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w">Formulaire CRG2 2023</h1>
+      <h1>Formulaire CRG2 2023</h1>
       <div class="fr-h3 fr-mb-4w">BOP n°<%= @bop.code%></div>
     </div>
   </div>
@@ -202,7 +218,7 @@
           <% end  %>
 
 
-          <div class="fr-accordion__title fr-mt-3w">Ressources allouées CRG2 2023</div>
+          <div class="fr-accordion__title fr-mt-3w">Ressources allouées</div>
           <hr class="fr-col_12">
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-3">
@@ -238,7 +254,7 @@
               </div>
             </div>
           </div>
-          <div class="fr-accordion__title fr-mt-3w">Prévision de consommation à fin décembre CRG2</div>
+          <div class="fr-accordion__title fr-mt-3w">Prévision d'exécution</div>
           <hr class="fr-col_12">
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-3">
@@ -274,7 +290,7 @@
               </div>
             </div>
           </div>
-          <div class="fr-accordion__title fr-mt-3w">Ecarts ressources/prévisions d’exécution 2023</div>
+          <div class="fr-accordion__title fr-mt-3w">Ecarts ressources/prévisions d’exécution</div>
           <hr class="fr-col_12">
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-3">
@@ -342,7 +358,7 @@
                                     <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
                                     Enregistrer le brouillon
                                 </h1>
-                                <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider définitivement votre avis afin qu'il soit transmis définitivement au DCB.</p>
+                                <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider votre avis afin qu'il soit transmis définitivement au DCB.</p>
                                 <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
                                   <li>
                                     <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer" data-action="click->form#save" >

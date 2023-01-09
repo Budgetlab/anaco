@@ -13,7 +13,7 @@
 							<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
 							Avis <%= avis.phase%> du BOP n°<%= avis.bop.code%>
 						</h1>
-						<% if avis.phase == "Début de gestion" %>
+						<% if avis.phase == "début de gestion" %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <%= avis.statut%></p>
 							<p>Date de réception du BOP initial : <%= l(avis.date_reception,format: "%e/%m/%y")%></p>
 							<p class="fr-my-1w">Date de l’avis au BOP initial : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
@@ -52,7 +52,7 @@
 								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
 										<p class="fr-text--lg fr-mb-0 text_center">ETPT alloué</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%>€</p>
+										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%></p>
 									</div>
 								</div>
 							</div>
@@ -86,7 +86,7 @@
 								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
 										<p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%>€</p>
+										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%></p>
 									</div>
 								</div>
 							</div>
@@ -120,7 +120,7 @@
 								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
 										<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%>€</p>
+										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f - avis.etpt_i)%></p>
 									</div>
 								</div>
 							</div>

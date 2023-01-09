@@ -26,23 +26,29 @@ export default class extends Controller {
   }
 
   getEcart(){
-    if (this.aeiTarget.value > 0 && this.aefTarget.value > 0 ){
+    if (this.aeiTarget.value >= 0 && this.aefTarget.value >= 0 ){
       this.aeresultTarget.innerHTML = (this.aefTarget.value - this.aeiTarget.value).toString()+"€"
     }
-    if (this.cpiTarget.value > 0 && this.cpfTarget.value > 0 ){
+    if (this.cpiTarget.value >= 0 && this.cpfTarget.value >= 0 ){
       this.cpresultTarget.innerHTML = (this.cpfTarget.value - this.cpiTarget.value).toString()+"€"
     }
-    if (this.t2iTarget.value > 0 && this.t2fTarget.value > 0 ){
+    if (this.t2iTarget.value >= 0 && this.t2fTarget.value >= 0 ){
       this.t2resultTarget.innerHTML = (this.t2fTarget.value - this.t2iTarget.value).toString()+"€"
     }
-    if (this.etptiTarget.value > 0 && this.etptfTarget.value > 0 ){
-      this.etptresultTarget.innerHTML = (this.etptfTarget.value - this.etptiTarget.value).toString()+"€"
+    if (this.etptiTarget.value >= 0 && this.etptfTarget.value >= 0 ){
+      this.etptresultTarget.innerHTML = (this.etptfTarget.value - this.etptiTarget.value).toString()
     } 
   }
 
   count(e){
     e.preventDefault();
     this.countTarget.innerHTML = this.commentaireTarget.value.length.toString()
+
+    if (this.commentaireTarget.value.length > 800){
+      this.countTarget.parentElement.classList.add('cwarning')
+    }else {
+      this.countTarget.parentElement.classList.remove('cwarning')
+    }
   }
 
   changeDate1(e){

@@ -19,10 +19,10 @@
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
-				<th scope="col">Note </th>
+				<th scope="col">Statut note </th>
 				<% if current_user.statut != "DCB" %>
 					<th scope="col">DCB responsable</th>
-					<th scope="col">Statut </th>
+					<th scope="col">État </th>
 				<%end %>
 				<th scope="col"> </th>
 			</tr>
@@ -69,10 +69,10 @@
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
-				<th scope="col">Note </th>
+				<th scope="col">Statut note </th>
 				<% if current_user.statut != "DCB" %>
 					<th scope="col">DCB responsable</th>
-					<th scope="col">Statut </th>
+					<th scope="col">État </th>
 				<%end %>
 				<th scope="col"> </th>
 			</tr>
@@ -106,7 +106,7 @@
 	</div>
 	<%end %>
 
-	<h2 class="fr-h3">Phase de début de Gestion </h2>
+	<h2 class="fr-h3">Phase de début de gestion </h2>
 	<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique des avis</caption>
@@ -118,10 +118,10 @@
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
-				<th scope="col">Avis </th>
+				<th scope="col">Statut avis </th>
 				<% if current_user.statut != "DCB" %>
 					<th scope="col">DCB responsable</th>
-					<th scope="col">Statut </th>
+					<th scope="col">État </th>
 				<%end %>
 				<th scope="col"> </th>
 			</tr>

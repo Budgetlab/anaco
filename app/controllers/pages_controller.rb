@@ -14,7 +14,7 @@ class PagesController < ApplicationController
 			@avis = Avi.all
 			@avis_total = Bop.all.count
 		end
-			@avis_valid = @avis.where('phase = ? AND etat != ?',"Début de gestion",'Brouillon')
+			@avis_valid = @avis.where('phase = ? AND etat != ?',"début de gestion",'Brouillon')
 			@avis_vide = @avis_total - @avis_valid.count
 			@avis = avisRepartition(@avis_valid,@avis_vide)
 			@avis_crg1 = @avis_valid.select{|a| a.is_crg1 == true}.count
@@ -45,7 +45,7 @@ class PagesController < ApplicationController
 			redirect_to root_path
 		end
 		@bops_count = Bop.all.count
-		@avis_d = Avi.where(phase: "Début de gestion").where.not(etat: "Brouillon")
+		@avis_d = Avi.where(phase: "début de gestion").where.not(etat: "Brouillon")
 		@avis_vide = @bops_count - @avis_d.count
 		@avis = avisRepartition(@avis_d,@avis_vide)
 		@avis_date = avisDateRepartition(@avis_d,@avis_vide)
@@ -77,7 +77,7 @@ class PagesController < ApplicationController
 		@array = @avis.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
 		@data = [@array.sum { |a,b,c,d,e,f,g,h| a}, @array.sum { |a,b,c,d,e,f,g,h| b},@array.sum { |a,b,c,d,e,f,g,h| c},@array.sum { |a,b,c,d,e,f,g,h| d},@array.sum { |a,b,c,d,e,f,g,h| e}, @array.sum { |a,b,c,d,e,f,g,h| f}, @array.sum { |a,b,c,d,e,f,g,h| g},@array.sum { |a,b,c,d,e,f,g,h| h}]
 
-		@avis_d = Avi.where(bop_id: @bops_id, phase: "Début de gestion").where.not(etat: "Brouillon")
+		@avis_d = Avi.where(bop_id: @bops_id, phase: "début de gestion").where.not(etat: "Brouillon")
 		@array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
 		@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
 		@avis_default = @avis_d.first
@@ -98,7 +98,7 @@ class PagesController < ApplicationController
 			@data_c = [@array_c.sum { |a,b,c,d,e,f,g,h| a}, @array_c.sum { |a,b,c,d,e,f,g,h| b},@array_c.sum { |a,b,c,d,e,f,g,h| c},@array_c.sum { |a,b,c,d,e,f,g,h| d},@array_c.sum { |a,b,c,d,e,f,g,h| e}, @array_c.sum { |a,b,c,d,e,f,g,h| f}, @array_c.sum { |a,b,c,d,e,f,g,h| g},@array_c.sum { |a,b,c,d,e,f,g,h| h}]
 		end
 		@notesbar = [[@notes1[0],@notes2[0]],[@notes1[1],@notes2[1]],[@notes1[2],@notes2[2]],[@notes1[3],@notes2[3]]]
-		@bops_avis_debut_arr = @bops.joins(:avis).where(avis: {phase: "Début de gestion"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
+		@bops_avis_debut_arr = @bops.joins(:avis).where(avis: {phase: "début de gestion"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
 		@bops_avis_debut = Hash[@bops_avis_debut_arr.collect {|a| [a[0],a[1..2]]}]
 		@bops_avis_crg1_arr = @bops.joins(:avis).where(avis: {phase: "CRG1"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
 		@bops_avis_crg1 = Hash[@bops_avis_crg1_arr.collect {|a| [a[0],a[1..2]]}]

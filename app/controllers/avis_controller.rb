@@ -9,7 +9,7 @@ class AvisController < ApplicationController
 		else
 			@avis_all = current_user.avis.order(created_at: :desc)
 		end
-		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@avis_debut = @avis_all.select { |a| a.phase == "début de gestion" }
 		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
 		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
@@ -36,7 +36,7 @@ class AvisController < ApplicationController
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@avis_debut = @avis_all.select { |a| a.phase == "début de gestion" }
 		@bops_vide_debut = @bops_consultation.select { |a| a.id != @avis_debut.pluck(:bop_id) }
 		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
 		@bops_vide_crg1 = @bops_consultation.select { |a| a.id != @avis_crg1.pluck(:bop_id) }
@@ -59,7 +59,7 @@ class AvisController < ApplicationController
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_debut = @avis_all.select { |a| a.phase == "Début de gestion" }
+		@avis_debut = @avis_all.select { |a| a.phase == "début de gestion" }
 		@bops_vide_debut = @bops_consultation.select { |a| a.id != @avis_debut.pluck(:bop_id) }
 		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
 		@bops_vide_crg1 = @bops_consultation.select { |a| a.id != @avis_crg1.pluck(:bop_id) }
@@ -89,7 +89,7 @@ class AvisController < ApplicationController
 		if @bop.user != current_user
 			redirect_to bops_path
 		else
-			@avis_debut = @bop.avis.where(phase: "Début de gestion").first
+			@avis_debut = @bop.avis.where(phase: "début de gestion").first
 			@avis_crg1 = @bop.avis.where(phase: "CRG1").first
 			@avis_crg2 = @bop.avis.where(phase: "CRG2").first
 			if Date.today <= @date1
@@ -101,15 +101,15 @@ class AvisController < ApplicationController
 						@is_completed = true
 					end
 				end
-				@form = "Début de gestion"
+				@form = "début de gestion"
 			elsif @date1 < Date.today && Date.today <= @date2
 				@form = "CRG1"
 				if @avis_debut.nil?
 					@avis = Avi.new
-					@form = "Début de gestion"
+					@form = "début de gestion"
 				elsif @avis_debut.etat == "Brouillon"
 					@avis = @avis_debut
-					@form = "Début de gestion"
+					@form = "début de gestion"
 				elsif @avis_debut.is_crg1 == false
 					@form = "no CRG1" #pas de crg1 programmé
 				elsif @avis_crg1.nil?
@@ -123,10 +123,10 @@ class AvisController < ApplicationController
 				@form = "CRG2"
 				if @avis_debut.nil?
 					@avis = Avi.new
-					@form = "Début de gestion"
+					@form = "début de gestion"
 				elsif @avis_debut.etat == "Brouillon"
 					@avis = @avis_debut
-					@form = "Début de gestion"
+					@form = "début de gestion"
 				elsif @avis_debut.is_crg1 == true && @avis_crg1.nil?
 					@avis = Avi.new
 					@form = "CRG1"
@@ -162,7 +162,7 @@ class AvisController < ApplicationController
 			end
 			
 			if params[:etat] == "Brouillon"
-				@message = "Avis sauvegardé en tant que Brouillon"
+				@message = "Avis sauvegardé en tant que brouillon"
 			else 
 				@message = "Avis transmis avec succès"
 			end

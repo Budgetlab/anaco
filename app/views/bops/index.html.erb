@@ -12,9 +12,6 @@
         <li role="presentation">
             <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @bops.count %>)</button>
         </li>
-        <li role="presentation">
-            <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP archivés (0)</button>
-        </li>
     </ul>
     <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
         <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note')%> à rédiger</p>      
@@ -67,9 +64,6 @@
             </div>
           </div>
         <% end %>    
-    </div>
-    <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
-       
     </div>
 </div>
 
