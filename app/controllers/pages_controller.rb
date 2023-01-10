@@ -35,6 +35,7 @@ class PagesController < ApplicationController
 	def restitutions
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
+		@total_programmes = Bop.pluck(:numero_programme).uniq.length
 		if current_user.statut == "admin"
 			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
 		elsif	current_user.statut == "DCB"

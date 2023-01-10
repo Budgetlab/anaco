@@ -24,7 +24,7 @@
 
   <% if @is_completed%>
     <div class="fr-alert fr-alert--success fr-mb-6w">
-      <h3 class="fr-alert__title">Avis Début de gestion transmis avec succès</h3>
+      <h3 class="fr-alert__title">Avis début de gestion transmis avec succès</h3>
       <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
     </div>
   <%else%>
@@ -144,7 +144,7 @@
                   <label class="fr-label" for="etpti">
                       ETPT*
                   </label>
-                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i%>
+                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i, min: 0%>
                 </div>
               </div>
             </div>
@@ -234,7 +234,7 @@
                 <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123" data-action="click->form#save" > Enregistrer</button>
               </li>
               <li>
-                <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122" data-action="click->form#open">Valider</button>
+                <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122" data-action="click->form#open" disabled>Valider</button>
               </li>
             </ul>
             <dialog id="modal-1123" class="fr-modal" aria-labelledby="modal-1123-title">

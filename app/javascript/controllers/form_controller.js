@@ -20,8 +20,10 @@ export default class extends Controller {
 
     if (isValid == true){
       this.BtnvalidateTarget.classList.remove('bouton_inactive');
+      this.BtnvalidateTarget.disabled = false;
     } else {
       this.BtnvalidateTarget.classList.add('bouton_inactive');
+      this.BtnvalidateTarget.disabled = true;
     }
   }
 

@@ -15,15 +15,19 @@
 						</h1>
 						<% if avis.phase == "début de gestion" %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <%= avis.statut%></p>
-							<p>Date de réception du BOP initial : <%= l(avis.date_reception,format: "%e/%m/%y")%></p>
-							<p class="fr-my-1w">Date de l’avis au BOP initial : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
-							<p>Avis donné après suspension du délai : <% if avis.is_delai == true %>Oui<%else%>Non<% end %></p>
-							<p class="fr-my-1w">CRG1 programmé : <% if avis.is_crg1 == true%>Oui<%else%>Non<%end%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Développement synthétique sur l'avis:</span> <%= simple_format(avis.commentaire)%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Date de réception du BOP initial :</span> <%= l(avis.date_reception,format: "%e/%m/%y")%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Date de l’avis au BOP initial :</span> <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Avis donné après suspension du délai :</span> <% if avis.is_delai == true %>Oui<%else%>Non<% end %></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">CRG1 programmé :</span> <% if avis.is_crg1 == true%>Oui<%else%>Non<%end%></p>
 						<%else %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
-							<p>Date de la note d’analyse du <%= avis.phase %> : <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Observations :</span> <%= simple_format(avis.commentaire)%></p>
+							<p class="fr-my-1w"><span class="fr-text--bold">Date de la note d’analyse du <%= avis.phase %> :</span> <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
 						<%end %>
-						<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+
+						<% if current_user.statut != "CBR" || avis.user_id == current_user.id %>
+							<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
@@ -57,11 +61,11 @@
 								</div>
 							</div>
 						</div>
-						<div class="fr-grid-row fr-grid-row--gutters">
+							<div class="fr-grid-row fr-grid-row--gutters">
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+										<p class="fr-text--lg fr-mb-0 text_center">AE HT2 prév.</p>
 										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
 									</div>
 								</div>
@@ -69,7 +73,7 @@
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+										<p class="fr-text--lg fr-mb-0 text_center">CP HT2 prév.</p>
 										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
 									</div>
 								</div>
@@ -77,7 +81,7 @@
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+										<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 prév.</p>
 										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
 									</div>
 								</div>
@@ -85,13 +89,13 @@
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+										<p class="fr-text--lg fr-mb-0 text_center">ETPT prév.</p>
 										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%></p>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div class="fr-grid-row fr-grid-row--gutters">
+							<div class="fr-grid-row fr-grid-row--gutters">
 							<div class="fr-col-3">
 								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
 									<div class="fr-cart__body">
@@ -125,7 +129,8 @@
 								</div>
 							</div>
 						</div>
-						<p class="fr-my-2w">Commentaire : <%= avis.commentaire%></p>
+						<% end %>
+
 						<% if avis.user != current_user && current_user.statut == "DCB" && avis.etat == "En attente de lecture"%>
 							<%= link_to read_avis_path(id: avis.id), data: { "turbo_method": :post}, class: "fr-btn fr-btn--secondary" do %> Afficher comme Lu et fermer<%end %>
 						<%end %>

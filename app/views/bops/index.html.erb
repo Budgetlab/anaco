@@ -28,7 +28,7 @@
             <div class="fr-col-2">
               <% if Date.today <= @date1 || @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon"%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-              <% elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true %>
+              <% elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true %>
                 <% if @bops_avis_crg1[bop.id].nil? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
                 <%elsif @bops_avis_crg1[bop.id] != "Brouillon"%>
@@ -40,7 +40,7 @@
             </div>
 
             <div class="fr-col-2">
-              <% if Date.today <= @date2 || @bops_avis_debut[bop.id].nil?  || @bops_avis_debut[bop.id] == "Brouillon" || (bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon"))%>
+              <% if Date.today <= @date2 || @bops_avis_debut[bop.id].nil?  || @bops_avis_debut[bop.id] == "Brouillon" || (bop.avis.where(phase: "début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon"))%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
                 <% if @bops_avis_crg2[bop.id].nil? %>
@@ -56,7 +56,7 @@
             <div class="fr-col-3"> 
                 <% if @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon"%>
                     <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger l'avis</a>
-                <%elsif @date1 < Date.today && bop.avis.where(phase: "Début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon")%>
+                <%elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon")%>
                     <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG1</a>
                 <%elsif Date.today > @date2 && (@bops_avis_crg2[bop.id].nil?|| @bops_avis_crg2[bop.id] == "Brouillon")%>
                     <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG2</a>

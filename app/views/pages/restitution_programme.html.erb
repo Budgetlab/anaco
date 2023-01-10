@@ -23,52 +23,11 @@
     </div>
   </div>
   <h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %></h2>
-  <h3 class="fr-mt-3w">Ressources allouées initiales</h3>
-  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-    <div class="fr-col-12 fr-col-lg-1">
-      <%= @phase %>
-    </div>
-    <div class="fr-col-12 fr-col-lg-9">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[0])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[1])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[2])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[3])%>€</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <% if Date.today >= @date2 %>
+  <% if current_user.statut != "CBR" %>
+    <h3 class="fr-mt-3w">Ressources allouées initiales</h3>
     <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
       <div class="fr-col-12 fr-col-lg-1">
-        CRG1
+        <%= @phase %>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
         <div class="fr-grid-row fr-grid-row--gutters">
@@ -76,7 +35,7 @@
             <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[0])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[0])%>€</p>
               </div>
             </div>
           </div>
@@ -84,7 +43,7 @@
             <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[1])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[1])%>€</p>
               </div>
             </div>
           </div>
@@ -92,7 +51,7 @@
             <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[2])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[2])%>€</p>
               </div>
             </div>
           </div>
@@ -100,146 +59,103 @@
             <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[3])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[3])%>€</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <% end %>
-  <% if Date.today >= @date1 %>
+    <% if Date.today >= @date2 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          CRG1
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[0])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[1])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[2])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[3])%>€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <% if Date.today >= @date1 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          Début de gestion
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2 </p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[0])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2 </p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[1])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 </p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[2])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[3])%>€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <h3 class="fr-mt-3w">Prévision d’exécution</h3>
     <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
       <div class="fr-col-12 fr-col-lg-1">
-        Début de gestion
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE HT2 </p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[0])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">CP HT2 </p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[1])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 </p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[2])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[3])%>€</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-  <h3 class="fr-mt-3w">Prévision d’exécution</h3>
-  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-    <div class="fr-col-12 fr-col-lg-1">
-      <%= @phase %>
-    </div>
-    <div class="fr-col-12 fr-col-lg-9">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[4])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[5])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[6])%>€</p>
-            </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[7])%>€</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <% if Date.today >= @date2 %>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        CRG1
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[4])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[5])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[6])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[7])%>€</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-  <% if Date.today >= @date1 %>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        Début de gestion
+        <%= @phase %>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
         <div class="fr-grid-row fr-grid-row--gutters">
@@ -247,7 +163,7 @@
             <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[4])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[4])%>€</p>
               </div>
             </div>
           </div>
@@ -255,7 +171,7 @@
             <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[5])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[5])%>€</p>
               </div>
             </div>
           </div>
@@ -263,7 +179,7 @@
             <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[6])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[6])%>€</p>
               </div>
             </div>
           </div>
@@ -271,60 +187,103 @@
             <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[7])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[7])%>€</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <% end %>
-  <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
-  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-    <div class="fr-col-12 fr-col-lg-1">
-      <%= @phase %>
-    </div>
-    <div class="fr-col-12 fr-col-lg-9">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[4] - @data[0])%>€</p>
-            </div>
-          </div>
+    <% if Date.today >= @date2 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          CRG1
         </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[5] - @data[1])%>€</p>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[4])%>€</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[6] - @data[2])%>€</p>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[5])%>€</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="fr-col-3">
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[7] - @data[3])%>€</p>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[6])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[7])%>€</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <% if Date.today >= @date2 %>
+    <% end %>
+    <% if Date.today >= @date1 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          Début de gestion
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[4])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[5])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[6])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[7])%>€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
     <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
       <div class="fr-col-12 fr-col-lg-1">
-        CRG1
+        <%= @phase %>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
         <div class="fr-grid-row fr-grid-row--gutters">
@@ -332,7 +291,7 @@
             <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[4] - @data_c[0])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[4] - @data[0])%>€</p>
               </div>
             </div>
           </div>
@@ -340,7 +299,7 @@
             <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[5] - @data_c[1])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[5] - @data[1])%>€</p>
               </div>
             </div>
           </div>
@@ -348,7 +307,7 @@
             <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[6] - @data_c[2])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[6] - @data[2])%>€</p>
               </div>
             </div>
           </div>
@@ -356,56 +315,99 @@
             <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
               <div class="fr-cart__body">
                 <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[7] - @data_c[3])%>€</p>
+                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data[7] - @data[3])%>€</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <% end %>
-  <% if Date.today >= @date1 %>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        Début de gestion
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[4] - @data_d[0])%>€</p>
+    <% if Date.today >= @date2 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          CRG1
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[4] - @data_c[0])%>€</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[5] - @data_d[1])%>€</p>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[5] - @data_c[1])%>€</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[6] - @data_d[2])%>€</p>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[6] - @data_c[2])%>€</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[7] - @data_d[3])%>€</p>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_c[7] - @data_c[3])%>€</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    <% end %>
+    <% if Date.today >= @date1 %>
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
+        <div class="fr-col-12 fr-col-lg-1">
+          Début de gestion
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[4] - @data_d[0])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[5] - @data_d[1])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[6] - @data_d[2])%>€</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-3">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@data_d[7] - @data_d[3])%>€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
   <% end %>
   <h2 class="fr-mb-2w fr-mt-4w">Statistiques sur le programme</h2>
   <div class="fr-grid-row fr-grid-row--gutters" >
