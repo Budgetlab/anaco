@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
-	before_action :authenticate_user!  
-  
+	before_action :authenticate_user!
+	require 'axlsx'
 	def index
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
@@ -10,6 +10,11 @@ class PagesController < ApplicationController
 		if current_user.statut == "CBR" || current_user.statut == "DCB"
 			@avis = current_user.avis
 			@avis_total = current_user.bops.count
+			if current_user.statut == "DCB"
+				@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+				@bops_consultation_id = @bops_consultation.pluck(:id)
+				@avis_to_read = Avi.where(bop_id: @bops_consultation_id).where(etat: "En attente de lecture").count
+			end
 		else
 			@avis = Avi.all
 			@avis_total = Bop.all.count
@@ -18,7 +23,7 @@ class PagesController < ApplicationController
 			@avis_vide = @avis_total - @avis_valid.count
 			@avis = avisRepartition(@avis_valid,@avis_vide)
 			@avis_crg1 = @avis_valid.select{|a| a.is_crg1 == true}.count
-			@avis_delai = @avis_valid.select{|a| a.is_delai == true}.count
+			@avis_delai = @avis_valid.select{|a| a.is_delai == false}.count
 			@notes1 = []
 			if @date1 < Date.today
 				@avis_valid_crg1 = @avis.where('phase = ? AND etat != ?',"CRG1",'Brouillon')
@@ -69,7 +74,7 @@ class PagesController < ApplicationController
 		@date2 = Date.new(2023,8,31)
 		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
-		@bops = Bop.where(numero_programme: @numero)
+		@bops = Bop.where(numero_programme: @numero).order(code: :asc)
 		@bops_id = @bops.pluck(:id)
 		@bops_count = @bops_id.length
 		@ministere = @bops.first.ministere
@@ -87,6 +92,8 @@ class PagesController < ApplicationController
 		@avis_date = avisDateRepartition(@avis_d,@avis_vide)
 		@avis_iscrg1 = @avis_d.select{|a| a.is_crg1 == true}.length
 		@notes1 = [0,0,0,@avis_iscrg1]
+		@avis_crg1 = []
+		@avis_crg2 = []
 		if @date1 < Date.today
 			@avis_crg1 = Avi.where(bop_id: @bops_id, phase: "CRG1").where.not(etat: "Brouillon")
 			@notes1 = notesRepartition(@avis_crg1, @avis_iscrg1)
@@ -106,6 +113,10 @@ class PagesController < ApplicationController
 		@bops_avis_crg2_arr = @bops.joins(:avis).where(avis: {phase: "CRG2"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
 		@bops_avis_crg2 = Hash[@bops_avis_crg2_arr.collect {|a| [a[0],a[1..2]]}]
 		@bops_user = @bops.joins(:user).pluck(:id, :nom).to_h
+		respond_to do |format|
+			format.html
+			format.xlsx
+		end
 	end
 	def error_404
 	    if params[:path] && params[:path] == "500"

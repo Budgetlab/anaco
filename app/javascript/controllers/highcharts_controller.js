@@ -39,7 +39,7 @@ export default class extends Controller {
   }
     syntheseAvis(){
     const data = JSON.parse(this.data.get("avis"));
-    const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--background-disabled-grey)", "var(--background-contrast-pink-macaron)"]
+    const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-contrast-pink-macaron)","var(--background-disabled-grey)"]
     const options = {
           chart: {
                 height:'100%',
@@ -118,7 +118,7 @@ export default class extends Controller {
 
     syntheseAvisDate(){
         const data = JSON.parse(this.data.get("avisdate"));
-        const colors = ["var(--background-action-low-blue-france)","var(--background-action-low-green-tilleul-verveine-hover)","var(--background-disabled-grey)", "var(--background-contrast-green-menthe)","var(--background-action-low-purple-glycine-hover)"]
+        const colors = ["var(--background-contrast-green-menthe)","var(--background-action-low-blue-france)","var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-low-purple-glycine-hover)","var(--background-disabled-grey)"]
         const options = {
             chart: {
                 height:'100%',
@@ -198,7 +198,7 @@ export default class extends Controller {
 
     syntheseNotesBar(){
         const data = JSON.parse(this.data.get("notesbar"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--background-disabled-grey)", "var(--background-contrast-pink-macaron)"];
+        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-contrast-pink-macaron)","var(--background-disabled-grey)"];
         const options = {
             chart: {
                 height:'100%',
@@ -248,6 +248,7 @@ export default class extends Controller {
             plotOptions: {
                 series: {
                     stacking: 'normal',
+                    pointWidth: 15,
                 },
             },
             series: [{
@@ -269,7 +270,8 @@ export default class extends Controller {
     }
     syntheseNote1(){
         const data = JSON.parse(this.data.get("notes1"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--artwork-minor-pink-macaron)", "var(--background-contrast-pink-macaron)"]
+        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-contrast-pink-macaron)","var(--background-disabled-grey)"]
+
         const options = {
             chart: {
                 height:'100%',
@@ -348,7 +350,7 @@ export default class extends Controller {
 
     syntheseNote2(){
         const data = JSON.parse(this.data.get("notes2"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)","var(--artwork-minor-pink-macaron)", "var(--background-contrast-pink-macaron)"]
+        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-contrast-pink-macaron)","var(--background-disabled-grey)"]
         const options = {
             chart: {
                 height:'100%',

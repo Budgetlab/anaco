@@ -130,3 +130,15 @@ h1, h2{
   fill:var(--text-title-grey) !important;
   font-size: 1rem;
 }
+
+.fr-nav .fr-fieldset{
+  padding: 0.75rem 1rem !important;
+
+}
+.fr-nav .fr-fieldset .fr-label, .fr-nav .fr-fieldset .fr-fieldset__legend {
+  font-size: 0.875rem !important;
+}
+
+.fr-translate .fr-translate__btn::before {
+  --icon-size: 0rem !important;
+}

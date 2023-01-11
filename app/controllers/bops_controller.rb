@@ -7,7 +7,7 @@ class BopsController < ApplicationController
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 		@avis = current_user.avis
-		@bops = current_user.bops
+		@bops = current_user.bops.order(code: :asc)
 		if Date.today <= @date1
 			@phase = "début de gestion"
 			@count_reste = @bops.count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length

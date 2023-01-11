@@ -86,7 +86,7 @@
                 <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                     <div class="fr-radio-group">
                       <% if @avis.is_crg1.nil? || @avis.is_crg1.blank? %>
-                        <%= f.radio_button :is_crg1, true, checked: false, id: "radio-crg11" %>
+                        <%= f.radio_button :is_crg1, true, checked: true, id: "radio-crg11" %>
                       <%else%>
                         <%= f.radio_button :is_crg1, true, checked: @avis.is_crg1, id: "radio-crg11"  %>
                       <%end%>
@@ -96,7 +96,7 @@
                 <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
                     <div class="fr-radio-group">
                       <% if @avis.is_crg1.nil? || @avis.is_crg1.blank? %>
-                        <%= f.radio_button :is_crg1, false, checked: true, id:"radio-crg1" %>
+                        <%= f.radio_button :is_crg1, false, checked: false, id:"radio-crg1" %>
                       <%else%>
                         <%= f.radio_button :is_crg1, false, checked: @avis.is_crg1 == false, id:"radio-crg1" %>
                       <%end%>
@@ -120,7 +120,7 @@
                   <label class="fr-label" for="aei">
                       AE HT2*
                   </label>
-                  <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i %>
+                  <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i,min: 0, step: 0.1 %>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -128,7 +128,7 @@
                   <label class="fr-label" for="cpi">
                       CP HT2*
                   </label>
-                  <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i%>
+                  <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i,min: 0, step: 0.1%>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -136,7 +136,7 @@
                   <label class="fr-label" for="t2i">
                       AE/CP T2*
                   </label>
-                  <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i%>
+                  <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i,min: 0, step: 0.1%>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -144,7 +144,7 @@
                   <label class="fr-label" for="etpti">
                       ETPT*
                   </label>
-                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i, min: 0%>
+                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i, min: 0,step: 0.01%>
                 </div>
               </div>
             </div>
@@ -156,7 +156,7 @@
                   <label class="fr-label" for="aef">
                       AE HT2*
                   </label>
-                  <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f%>
+                  <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f, min: 0,step: 0.1%>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -164,7 +164,7 @@
                   <label class="fr-label" for="cpf">
                       CP HT2*
                   </label>
-                  <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f%>
+                  <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f, min: 0,step: 0.1%>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -172,7 +172,7 @@
                   <label class="fr-label" for="t2i">
                       AE/CP T2*
                   </label>
-                  <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f%>
+                  <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f, min: 0,step: 0.1%>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -180,7 +180,7 @@
                   <label class="fr-label" for="etptf">
                       ETPT*
                   </label>
-                  <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f%>
+                  <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f, min: 0,step: 0.01%>
                 </div>
               </div>
             </div>

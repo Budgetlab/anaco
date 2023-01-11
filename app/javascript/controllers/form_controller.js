@@ -29,16 +29,36 @@ export default class extends Controller {
 
   getEcart(){
     if (this.aeiTarget.value >= 0 && this.aefTarget.value >= 0 ){
-      this.aeresultTarget.innerHTML = (this.aefTarget.value - this.aeiTarget.value).toString()+"€"
+      this.aeresultTarget.innerHTML = (parseFloat(Number(this.aeiTarget.value - this.aefTarget.value).toFixed(2))).toString()+"€"
+      if (this.aeiTarget.value - this.aefTarget.value < 0){
+        this.aeresultTarget.classList.add('crouge')
+      }else{
+        this.aeresultTarget.classList.remove('crouge')
+      }
     }
     if (this.cpiTarget.value >= 0 && this.cpfTarget.value >= 0 ){
-      this.cpresultTarget.innerHTML = (this.cpfTarget.value - this.cpiTarget.value).toString()+"€"
+      this.cpresultTarget.innerHTML = (parseFloat(Number(this.cpiTarget.value - this.cpfTarget.value).toFixed(2))).toString()+"€"
+      if (this.cpiTarget.value - this.cpfTarget.value < 0){
+        this.cpresultTarget.classList.add('crouge')
+      }else{
+        this.cpresultTarget.classList.remove('crouge')
+      }
     }
     if (this.t2iTarget.value >= 0 && this.t2fTarget.value >= 0 ){
-      this.t2resultTarget.innerHTML = (this.t2fTarget.value - this.t2iTarget.value).toString()+"€"
+      this.t2resultTarget.innerHTML = (parseFloat(Number(this.t2iTarget.value - this.t2fTarget.value).toFixed(2))).toString()+"€"
+      if (this.t2iTarget.value - this.t2fTarget.value < 0){
+        this.t2resultTarget.classList.add('crouge')
+      }else{
+        this.t2resultTarget.classList.remove('crouge')
+      }
     }
     if (this.etptiTarget.value >= 0 && this.etptfTarget.value >= 0 ){
-      this.etptresultTarget.innerHTML = (this.etptfTarget.value - this.etptiTarget.value).toString()
+      this.etptresultTarget.innerHTML = (parseFloat(Number(this.etptiTarget.value - this.etptfTarget.value).toFixed(2))).toString()
+      if (this.etptiTarget.value - this.etptfTarget.value < 0){
+        this.etptresultTarget.classList.add('crouge')
+      }else{
+        this.etptresultTarget.classList.remove('crouge')
+      }
     } 
   }
 

@@ -1,6 +1,6 @@
 <div class="fr-container fr-mb-4w">
     <div class="fr-accordions-group fr-mb-4w">
-      <% @users.each do |user| %>
+      <% User.all.each do |user| %>
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
             <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%=user.id %>"><%= user.nom %>

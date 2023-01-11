@@ -12574,8 +12574,8 @@ input[type=button].fr-tag:disabled {
   height: var(--icon-size);
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
-  -webkit-mask-image: image-url("icons/Systeme/download-line.svg");
-  mask-image: image-url("icons/Systeme/download-line.svg");
+  -webkit-mask-image: image-url("icons/Systeme/download-fill.svg");
+  mask-image: image-url("icons/Systeme/download-fill.svg");
   content: "";
 }
 

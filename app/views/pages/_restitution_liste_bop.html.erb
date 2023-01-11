@@ -1,0 +1,80 @@
+<div class="fr-accordions-group fr-mb-4w">
+  <% @bops.each do |bop| %>
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%=bop.id %>">BOP n°<%= bop.code %>
+          <% unless @bops_avis_debut[bop.id].nil?%>
+            <% if @bops_avis_debut[bop.id][0] == "Favorable" %>
+              <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">Avis Favorable</p>
+            <% elsif @bops_avis_debut[bop.id][0] == "Favorable avec réserve" %>
+              <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">Avis Favorable avec réserve</p>
+            <% elsif @bops_avis_debut[bop.id][0] == "Défavorable" %>
+              <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">Avis Défavorable</p>
+            <% end %>
+          <%end %>
+          <% unless @bops_avis_crg1[bop.id].nil? %>
+            <% if @bops_avis_crg1[bop.id][0] == "Aucun risque" %>
+              <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">BOP avec capacité contributive</p>
+            <% elsif @bops_avis_crg1[bop.id][0] == "Risques éventuels ou modérés" %>
+              <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">BOP avec consommation à la ressource</p>
+            <% elsif @bops_avis_crg1[bop.id][0] == "Risques certains ou significatifs" %>
+              <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">BOP avec besoin de financement</p>
+            <% end %>
+          <%end %>
+          <% unless @bops_avis_crg2[bop.id].nil? %>
+            <% if @bops_avis_crg2[bop.id][0] == "Aucun risque" %>
+              <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">BOP avec capacité contributive</p>
+            <% elsif @bops_avis_crg2[bop.id][0] == "Risques éventuels ou modérés" %>
+              <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">BOP avec consommation à la ressource</p>
+            <% elsif @bops_avis_crg2[bop.id][0] == "Risques certains ou significatifs" %>
+              <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">BOP avec besoin de financement</p>
+            <% end %>
+          <%end %>
+        </button>
+      </h3>
+      <div class="fr-collapse" id="accordion-<%=bop.id %>">
+        <p class="fr-tag fr-mb-2w"><%= @bops_user[bop.id]%></p>
+        <ul class="fr-btns-group fr-btns-group--inline">
+          <% if @bops_avis_debut[bop.id].nil? %>
+            <li>
+              <button class="fr-btn" disabled>
+                Avis début de gestion
+              </button>
+            </li>
+          <%else %>
+            <li>
+              <%= link_to open_modal_path(id: @bops_avis_debut[bop.id][1]), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Avis début de gestion<%end %>
+            </li>
+          <%end %>
+          <% if @bops_avis_crg1[bop.id].nil? %>
+            <li>
+              <button class="fr-btn" disabled>
+                Note CRG1
+              </button>
+            </li>
+          <%else %>
+            <li>
+              <%= link_to open_modal_path(id: @bops_avis_crg1[bop.id][1]), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Note CRG1<%end %>
+            </li>
+          <%end %>
+          <% if @bops_avis_crg2[bop.id].nil?%>
+            <li>
+              <button class="fr-btn" disabled>
+                Note CRG2
+              </button>
+            </li>
+          <%else %>
+            <li>
+              <%= link_to open_modal_path(id: @bops_avis_crg2[bop.id][1]), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Note CRG2<%end %>
+            </li>
+          <%end %>
+        </ul>
+      </div>
+    </section>
+  <%end  %>
+</div>
+<dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
+  <div id="debut">
+    <%= render partial: 'avis/dialog_debut',locals: {avis: @avis_default} %>
+  </div>
+</dialog>

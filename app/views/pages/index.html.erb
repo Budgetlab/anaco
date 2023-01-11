@@ -10,6 +10,17 @@
 					<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
 				</div>
 			</div>
+			<% if current_user.statut == "DCB" %>
+				<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+					<div class="fr-col-1"><%= image_tag "pictograms/document/document-download.svg", alt: "" %></div>
+					<div class="fr-col-11">
+						<h4 class="fr-mb-1w">Vous avez <%= @avis_to_read %> avis/notes en attente de lecture</h4>
+						<%= link_to consultation_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
+							Consulter les avis transmis par les CBR
+						<%end %>
+					</div>
+				</div>
+			<% end  %>
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-4">
 					<div class="fr-card  fr-card--shadow">
@@ -39,8 +50,8 @@
 												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total%> </h3>
-												<p class="fr-text--sm fr-mb-3w">avis donnés après interruption du délai</p>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis_vide%> </h3>
+												<p class="fr-text--sm fr-mb-3w">avis donnés sans interruption du délai</p>
 											</div>
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
@@ -60,7 +71,7 @@
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter les avis
+												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>
@@ -121,7 +132,7 @@
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter les avis
+												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>
@@ -183,7 +194,7 @@
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter les avis
+												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>

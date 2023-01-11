@@ -53,6 +53,8 @@ gem 'dotenv-rails', "~> 2.7", ">= 2.7.6"
 gem 'devise'
 gem 'rails-i18n'
 gem 'active_link_to'
+gem 'caxlsx'
+gem 'caxlsx_rails'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
