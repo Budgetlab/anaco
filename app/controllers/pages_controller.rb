@@ -112,10 +112,47 @@ class PagesController < ApplicationController
 		@bops_avis_crg1 = Hash[@bops_avis_crg1_arr.collect {|a| [a[0],a[1..2]]}]
 		@bops_avis_crg2_arr = @bops.joins(:avis).where(avis: {phase: "CRG2"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
 		@bops_avis_crg2 = Hash[@bops_avis_crg2_arr.collect {|a| [a[0],a[1..2]]}]
-		@bops_user = @bops.joins(:user).pluck(:id, :nom).to_h
+		@bops_user = @bops.joins(:user).pluck(:id, :nom).uniq.to_h
+		@bops_user_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
 		respond_to do |format|
 			format.html
 			format.xlsx
+		end
+	end
+
+	def filter_restitution
+		@bops = Bop.where(numero_programme: 143).order(code: :asc)
+		@bops_user = @bops.joins(:user).pluck(:user_id).uniq
+		if params[:avis].length != 3 ||  params[:users].length != @bops_user.count
+			@avis_select = Avi.where(bop_id: @bops.pluck(:id))
+			if params[:avis].length != 3
+				@statut = params[:avis]
+				@avis_select = @avis_select.select{ |a| @statut.include?(a.statut) }
+			end
+
+			if params[:users].length != @bops_user.count
+				@users = params[:users].map(&:to_i)
+				@avis_select = @avis_select.select{ |a| @users.include?(a.user_id) }
+			end
+
+			@bops_arr = @avis_select.pluck(:bop_id)
+			@bops = @bops.where(id: @bops_arr)
+		end
+
+		@bops_avis_debut_arr = @bops.joins(:avis).where(avis: {phase: "début de gestion"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
+		@bops_avis_debut = Hash[@bops_avis_debut_arr.collect {|a| [a[0],a[1..2]]}]
+		@bops_avis_crg1_arr = @bops.joins(:avis).where(avis: {phase: "CRG1"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
+		@bops_avis_crg1 = Hash[@bops_avis_crg1_arr.collect {|a| [a[0],a[1..2]]}]
+		@bops_avis_crg2_arr = @bops.joins(:avis).where(avis: {phase: "CRG2"}).where.not(avis: {etat: "Brouillon"}).pluck(:id, :statut, "avis.id")
+		@bops_avis_crg2 = Hash[@bops_avis_crg2_arr.collect {|a| [a[0],a[1..2]]}]
+		@bops_user = @bops.joins(:user).pluck(:id, :nom).to_h
+
+		respond_to do |format|
+			format.turbo_stream do
+				render turbo_stream: [
+					turbo_stream.update('liste_bops', partial: "pages/restitution_liste_bop")
+				]
+			end
 		end
 	end
 	def error_404

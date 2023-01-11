@@ -2,18 +2,13 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static get targets() {
-  return ['controleur',"avis",
-  ];
+    return ['form'];
   }
   connect() {
 
   }
-
-  filterAvis(){
-    const avis = [this.avisTargets[0].checked, this.avisTargets[1].checked,this.avisTargets[2].checked]
+  submitFilter(){
+    this.formTarget.requestSubmit()
   }
 
 }
-function getSelectedValues(event) {
-        return [...event.target.selectedOptions].map(option => option.value)
-    }

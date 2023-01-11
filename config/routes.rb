@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"
+      post 'filter_restitution', to: "pages#filter_restitution"
 	  	get '/mentions-legales', to: 'pages#mentions_legales'
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'
 	    get '/accessibilite', to: 'pages#accessibilite'
