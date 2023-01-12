@@ -11,4 +11,8 @@ export default class extends Controller {
     this.formTarget.requestSubmit()
   }
 
+  Dropdown(e){
+    e.preventDefault();
+  }
+
 }

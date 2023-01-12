@@ -8,7 +8,7 @@ class PagesController < ApplicationController
 		@date_alert2 = Date.new(2023,6,15)
 		@phase = returnPhase(@date1,@date2)
 		if current_user.statut == "CBR" || current_user.statut == "DCB"
-			@avis = current_user.avis
+			@avis_remplis = current_user.avis
 			@avis_total = current_user.bops.count
 			if current_user.statut == "DCB"
 				@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
@@ -16,10 +16,10 @@ class PagesController < ApplicationController
 				@avis_to_read = Avi.where(bop_id: @bops_consultation_id).where(etat: "En attente de lecture").count
 			end
 		else
-			@avis = Avi.all
+			@avis_remplis = Avi.all
 			@avis_total = Bop.all.count
 		end
-			@avis_valid = @avis.where('phase = ? AND etat != ?',"début de gestion",'Brouillon')
+			@avis_valid = @avis_remplis.where('phase = ? AND etat != ?',"début de gestion",'Brouillon')
 			@avis_vide = @avis_total - @avis_valid.count
 			@avis = avisRepartition(@avis_valid,@avis_vide)
 			@avis_crg1 = @avis_valid.select{|a| a.is_crg1 == true}.count
@@ -121,7 +121,7 @@ class PagesController < ApplicationController
 	end
 
 	def filter_restitution
-		@bops = Bop.where(numero_programme: 143).order(code: :asc)
+		@bops = Bop.where(numero_programme: params[:numero].to_i).order(code: :asc)
 		@bops_user = @bops.joins(:user).pluck(:user_id).uniq
 		if params[:avis].length != 3 ||  params[:users].length != @bops_user.count
 			@avis_select = Avi.where(bop_id: @bops.pluck(:id))
