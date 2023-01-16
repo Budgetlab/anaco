@@ -44,7 +44,7 @@
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
                 <% if @bops_avis_crg2[bop.id].nil? %>
-                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
                 <%elsif @bops_avis_crg2[bop.id] != "Brouillon"%>
                   <p class="fr-badge fr-badge--info fr-badge--success">Note CRG2</p>
                 <% elsif @bops_avis_crg2[bop.id] == "Brouillon"%>

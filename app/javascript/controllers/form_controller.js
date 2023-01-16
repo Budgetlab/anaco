@@ -86,7 +86,7 @@ export default class extends Controller {
   }
   changeDate2(e){
     e.preventDefault();
-    const date_max = new Date(2023, 2, 15)  
+    const date_max = new Date(2023, 2, 15)
     if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
       this.datealerte2Target.classList.remove('fr-hidden');
     }else{
@@ -96,6 +96,15 @@ export default class extends Controller {
   changeDate3(e){
     e.preventDefault();
     const date_max = new Date(2023, 4, 15)
+    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
+      this.datealerte2Target.classList.remove('fr-hidden');
+    }else{
+      this.datealerte2Target.classList.add('fr-hidden');
+    }
+  }
+  changeDate4(e){
+    e.preventDefault();
+    const date_max = new Date(2023, 8, 15)
     if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
       this.datealerte2Target.classList.remove('fr-hidden');
     }else{

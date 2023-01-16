@@ -340,7 +340,7 @@ export default class extends Controller {
                     { name: 'BOP avec capacité contributive', y: data[0] },
                     { name: 'BOP avec consommation à la ressource', y: data[1] },
                     { name: 'BOP avec besoin de financement', y: data[2] },
-                    { name: 'Notes non renseignés', y: data[3] }
+                    { name: 'Notes non renseignées', y: data[3] }
                 ]
             }]
         }
@@ -419,7 +419,7 @@ export default class extends Controller {
                     { name: 'BOP avec capacité contributive', y: data[0] },
                     { name: 'BOP avec consommation à la ressource', y: data[1] },
                     { name: 'BOP avec besoin de financement', y: data[2] },
-                    { name: 'Notes non renseignés', y: data[3] }
+                    { name: 'Notes non renseignées', y: data[3] }
                 ]
             }]
         }

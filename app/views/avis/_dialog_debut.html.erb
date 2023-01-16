@@ -11,7 +11,7 @@
 					<div class="fr-modal__content">
 						<h1 id="modal-1-title" class="fr-modal__title">
 							<span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-							Avis <%= avis.phase%> du BOP n°<%= avis.bop.code%>
+							<% if avis.phase == "début de gestion" %>Avis<%else %>Note<%end %> <%= avis.phase%> du BOP n°<%= avis.bop.code%>
 						</h1>
 						<% if avis.phase == "début de gestion" %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <%= avis.statut%></p>

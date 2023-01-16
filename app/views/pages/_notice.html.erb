@@ -14,7 +14,7 @@
           </div>
     </div>
   </div>
-<% elsif Date.today > @date_alert2 && Date.today <= @date2 && @notes1_vide > 0%>
+<% elsif Date.today > @date_alert2 && Date.today <= @date2 && @notes1[3] > 0%>
   <div class="fr-notice notice--warning">
     <div class="fr-container">
       <div class="fr-notice__body">
@@ -22,7 +22,7 @@
       </div>
     </div>
   </div>
-<% elsif Date.today > @date2 && @notes1_vide > 0%>
+<% elsif Date.today > @date2 && @notes1[3]  > 0%>
   <div class="fr-notice notice--red">
     <div class="fr-container">
       <div class="fr-notice__body">

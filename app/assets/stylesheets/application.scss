@@ -145,3 +145,8 @@ h1, h2{
 .fr-translate__menu{
   margin: -0.25rem -1rem 0 !important;
 }
+
+.fr-table {
+  max-height: 30rem;
+  overflow: scroll;
+}

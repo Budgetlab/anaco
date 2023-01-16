@@ -99,7 +99,7 @@
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
 											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
 												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1[1] %>/<%= @avis_crg1 %> </h3>
@@ -147,7 +147,7 @@
 							<div class="fr-card__content">
 								<h3 class="fr-card__title">Phase de CRG2</h3>
 								<% if Date.today <= @date2%>
-									<p class="fr-card__desc">Données ouvertes à partir du 1er août.</p>
+									<p class="fr-card__desc">Données ouvertes à partir du 1er septembre.</p>
 								<% else%>
 									<div class="fr-card__desc">
 										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
@@ -155,16 +155,16 @@
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @notes1[3] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @notes2[3] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
 											</div>
 										</div>
 										<div class="fr-grid-row fr-grid-row--gutters">
 											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
+												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1[1] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2[1] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec consommation à la ressource</p>
 											</div>
 										</div>
@@ -173,7 +173,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1[2] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2[2] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec besoin de financement</p>
 											</div>
 										</div>

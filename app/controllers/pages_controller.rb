@@ -3,7 +3,7 @@ class PagesController < ApplicationController
 	require 'axlsx'
 	def index
 		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2023,8,31)
+		@date2 = Date.new(2022,8,31)
 		@date_alert1 = Date.new(2023,3,15)
 		@date_alert2 = Date.new(2023,6,15)
 		@phase = returnPhase(@date1,@date2)
@@ -39,7 +39,7 @@ class PagesController < ApplicationController
 
 	def restitutions
 		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2023,8,31)
+		@date2 = Date.new(2022,8,31)
 		@total_programmes = Bop.pluck(:numero_programme).uniq.length
 		if current_user.statut == "admin"
 			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
@@ -71,7 +71,7 @@ class PagesController < ApplicationController
 	end
 	def restitution_programme
 		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2023,8,31)
+		@date2 = Date.new(2022,8,31)
 		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
 		@bops = Bop.where(numero_programme: @numero).order(code: :asc)
@@ -81,12 +81,13 @@ class PagesController < ApplicationController
 
 		@avis = Avi.where(bop_id: @bops_id, phase: @phase).where("etat != ?","Brouillon")
 		@array = @avis.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+		#@data = @array.transpose.map(&:sum)
 		@data = [@array.sum { |a,b,c,d,e,f,g,h| a}, @array.sum { |a,b,c,d,e,f,g,h| b},@array.sum { |a,b,c,d,e,f,g,h| c},@array.sum { |a,b,c,d,e,f,g,h| d},@array.sum { |a,b,c,d,e,f,g,h| e}, @array.sum { |a,b,c,d,e,f,g,h| f}, @array.sum { |a,b,c,d,e,f,g,h| g},@array.sum { |a,b,c,d,e,f,g,h| h}]
 
 		@avis_d = Avi.where(bop_id: @bops_id, phase: "début de gestion").where.not(etat: "Brouillon")
 		@array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
-		@data_d = @array_d.transpose.map(&:sum)
-		#@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
+		#@data_d = @array_d.transpose.map(&:sum)
+		@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
 		@avis_default = @avis_d.first
 		@avis_vide = @bops_count - @avis_d.count
 		@avis = avisRepartition(@avis_d,@avis_vide)
@@ -104,6 +105,7 @@ class PagesController < ApplicationController
 			@avis_crg2 = Avi.where(bop_id: @bops_id, phase: "CRG2").where.not(etat: "Brouillon")
 			@notes2 = notesRepartition(@avis_crg2, @bops_count)
 			@array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+			#@data_c = @array_c.transpose.map(&:sum)
 			@data_c = [@array_c.sum { |a,b,c,d,e,f,g,h| a}, @array_c.sum { |a,b,c,d,e,f,g,h| b},@array_c.sum { |a,b,c,d,e,f,g,h| c},@array_c.sum { |a,b,c,d,e,f,g,h| d},@array_c.sum { |a,b,c,d,e,f,g,h| e}, @array_c.sum { |a,b,c,d,e,f,g,h| f}, @array_c.sum { |a,b,c,d,e,f,g,h| g},@array_c.sum { |a,b,c,d,e,f,g,h| h}]
 		end
 		@notesbar = [[@notes1[0],@notes2[0]],[@notes1[1],@notes2[1]],[@notes1[2],@notes2[2]],[@notes1[3],@notes2[3]]]
