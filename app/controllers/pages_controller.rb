@@ -2,7 +2,7 @@ class PagesController < ApplicationController
 	before_action :authenticate_user!
 	require 'axlsx'
 	def index
-		@date1 = Date.new(2023,4,30)
+		@date1 = Date.new(2022,4,30)
 		@date2 = Date.new(2023,8,31)
 		@date_alert1 = Date.new(2023,3,15)
 		@date_alert2 = Date.new(2023,6,15)
@@ -26,19 +26,19 @@ class PagesController < ApplicationController
 			@avis_delai = @avis_valid.select{|a| a.is_delai == false}.count
 			@notes1 = []
 			if @date1 < Date.today
-				@avis_valid_crg1 = @avis.where('phase = ? AND etat != ?',"CRG1",'Brouillon')
+				@avis_valid_crg1 = @avis_remplis.where('phase = ? AND etat != ?',"CRG1",'Brouillon')
 				@notes1 = notesRepartition(@avis_valid_crg1, @avis_crg1)
 			end
 			@notes2 = []
 			if @date2 < Date.today
-				@avis_valid_crg2 = @avis.where('phase = ? AND etat != ?',"CRG2",'Brouillon')
+				@avis_valid_crg2 = @avis_remplis.where('phase = ? AND etat != ?',"CRG2",'Brouillon')
 				@notes2 = notesRepartition(@avis_valid_crg2, @avis_total)
 			end
 
 	end
 
 	def restitutions
-		@date1 = Date.new(2023,4,30)
+		@date1 = Date.new(2022,4,30)
 		@date2 = Date.new(2023,8,31)
 		@total_programmes = Bop.pluck(:numero_programme).uniq.length
 		if current_user.statut == "admin"
@@ -70,7 +70,7 @@ class PagesController < ApplicationController
 
 	end
 	def restitution_programme
-		@date1 = Date.new(2023,4,30)
+		@date1 = Date.new(2022,4,30)
 		@date2 = Date.new(2023,8,31)
 		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
@@ -85,7 +85,8 @@ class PagesController < ApplicationController
 
 		@avis_d = Avi.where(bop_id: @bops_id, phase: "début de gestion").where.not(etat: "Brouillon")
 		@array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
-		@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
+		@data_d = @array_d.transpose.map(&:sum)
+		#@data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
 		@avis_default = @avis_d.first
 		@avis_vide = @bops_count - @avis_d.count
 		@avis = avisRepartition(@avis_d,@avis_vide)

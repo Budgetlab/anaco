@@ -21,10 +21,11 @@
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Statut note </th>
-				<% if current_user.statut != "DCB" %>
+
 					<th scope="col">DCB responsable</th>
+
 					<th scope="col">État </th>
-				<%end %>
+
 				<th scope="col"> </th>
 			</tr>
 			</thead>
@@ -38,10 +39,11 @@
 					<td><%= @bops_data[avis.id][0]%></td>
 					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
-					<% if current_user.statut != "DCB" %>
+
 						<td><%= @users[@bops_data[avis.id][3]] %></td>
+
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-					<%end %>
+
 					<td>
 						<% if avis.etat == "Brouillon"%>
 							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
@@ -71,10 +73,10 @@
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Statut note </th>
-				<% if current_user.statut != "DCB" %>
+
 					<th scope="col">DCB responsable</th>
+
 					<th scope="col">État </th>
-				<%end %>
 				<th scope="col"> </th>
 			</tr>
 			</thead>
@@ -88,10 +90,10 @@
 					<td><%= @bops_data[avis.id][0]%></td>
 					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
-					<% if current_user.statut != "DCB" %>
+
 						<td><%= @users[@bops_data[avis.id][3]] %></td>
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-					<%end %>
+
 					<td>
 						<% if avis.etat == "Brouillon"%>
 							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
@@ -120,10 +122,10 @@
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
 				<th scope="col">Statut avis </th>
-				<% if current_user.statut != "DCB" %>
+
 					<th scope="col">DCB responsable</th>
 					<th scope="col">État </th>
-				<%end %>
+
 				<th scope="col"> </th>
 			</tr>
 			</thead>
@@ -137,10 +139,9 @@
 					<td><%= @bops_data[avis.id][0]%></td>
 					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
 					<td><%= avis.statut %></td>
-					<% if current_user.statut != "DCB" %>
 						<td><%= @users[@bops_data[avis.id][3]] %></td>
 						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-					<%end %>
+
 					<td>
 						<% if avis.etat == "Brouillon"%>
 							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>

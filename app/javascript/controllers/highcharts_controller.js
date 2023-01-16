@@ -198,7 +198,7 @@ export default class extends Controller {
 
     syntheseNotesBar(){
         const data = JSON.parse(this.data.get("notesbar"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-contrast-pink-macaron)","var(--background-disabled-grey)"];
+        const colors = ["var(--background-disabled-grey)","var(--background-contrast-pink-macaron)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
         const options = {
             chart: {
                 height:'100%',
@@ -252,17 +252,17 @@ export default class extends Controller {
                 },
             },
             series: [{
-                name: 'BOP avec capacité contributive',
-                data: data[0],
-            },{
-                name: 'BOP avec consommation à la ressource',
-                data: data[1],
+                name: 'Notes non reçues',
+                data: data[3],
             },{
                 name: 'BOP avec besoin de financement',
                 data: data[2],
             },{
-                name: 'Notes non reçues',
-                data: data[3],
+                name: 'BOP avec consommation à la ressource',
+                data: data[1],
+            },{
+                name: 'BOP avec capacité contributive',
+                data: data[0],
             },]
         }
         this.chart = new Highcharts.chart(this.canvasNotesBarTarget, options);

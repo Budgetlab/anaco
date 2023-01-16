@@ -14,10 +14,10 @@ export default class extends Controller {
 
   formChange(){
     //e.preventDefault();
+    this.count();
     let isValid = this.validateForm(this.formTarget);
 
     this.getEcart();
-
     if (isValid == true){
       this.BtnvalidateTarget.classList.remove('bouton_inactive');
       this.BtnvalidateTarget.disabled = false;
@@ -62,8 +62,8 @@ export default class extends Controller {
     } 
   }
 
-  count(e){
-    e.preventDefault();
+  count(){
+    //e.preventDefault();
     this.countTarget.innerHTML = this.commentaireTarget.value.length.toString()
 
     if (this.commentaireTarget.value.length > 800){
