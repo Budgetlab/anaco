@@ -3,7 +3,7 @@ class Bop < ApplicationRecord
   has_many :avis
 
   def self.import(file)
-	    Bop.destroy_all 
+		#Bop.destroy_all
 
 	    data = Roo::Spreadsheet.open(file.path)
 	    headers = data.row(1) # get header row
