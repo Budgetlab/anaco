@@ -2,8 +2,8 @@ class PagesController < ApplicationController
 	before_action :authenticate_user!
 	require 'axlsx'
 	def index
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@date_alert1 = Date.new(2023,3,15)
 		@date_alert2 = Date.new(2023,6,15)
 		@phase = returnPhase(@date1,@date2)
@@ -38,8 +38,8 @@ class PagesController < ApplicationController
 	end
 
 	def restitutions
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@total_programmes = Bop.pluck(:numero_programme).uniq.length
 		if current_user.statut == "admin"
 			@programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
@@ -70,8 +70,8 @@ class PagesController < ApplicationController
 
 	end
 	def restitution_programme
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
 		@bops = Bop.where(numero_programme: @numero).order(code: :asc)

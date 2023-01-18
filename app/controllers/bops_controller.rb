@@ -4,8 +4,8 @@ class BopsController < ApplicationController
 	
 	def index
 		@bops = current_user.bops.order(code: :asc)
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@avis = current_user.avis
 		@bops = current_user.bops.order(code: :asc)
 		if Date.today <= @date1

@@ -8,7 +8,7 @@ class User < ApplicationRecord
      has_many :avis
 
     def self.import(file)
-	    User.destroy_all 
+			#User.destroy_all
 
 	    data = Roo::Spreadsheet.open(file.path)
 	    headers = data.row(1) # get header row
@@ -26,6 +26,19 @@ class User < ApplicationRecord
       		
 	      
 	    end
-  	end
+		end
+
+	def self.import2(file)
+		data = Roo::Spreadsheet.open(file.path)
+		headers = data.row(1) # get header row
+		data.each_with_index do |row, idx|
+			next if idx == 0 # skip header
+			row_data = Hash[[headers, row].transpose]
+			@user = User.where(nom: row_data['Ancien']).first
+			@user.nom = row_data['Nouveau']
+			@user.save
+		end
+	end
+
 
 end

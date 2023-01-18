@@ -18,17 +18,18 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1>Formulaire début de gestion 2023</h1>
-      <div class="fr-h3 fr-mb-4w">BOP n°<%= @bop.code%></div>
+      <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%></div>
     </div>
   </div>
 
   <% if @is_completed%>
-    <div class="fr-alert fr-alert--success fr-mb-6w">
+    <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-6w">
       <h3 class="fr-alert__title">Avis début de gestion transmis avec succès</h3>
       <p>Vous avez déjà rempli l'avis de début de gestion pour ce bop.</p>
     </div>
   <%else%>
-    <div data-controller="form">
+    <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+    <div class="fr-mt-4w" data-controller="form">
       <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm"}) do |f|%>
         <%= f.hidden_field :bop, value: @bop.id%>
         <%= f.hidden_field :phase, value: "début de gestion"%>

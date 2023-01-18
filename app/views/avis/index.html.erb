@@ -9,7 +9,7 @@
 
 	<% if Date.today > @date2 %>
 		<h2 class="fr-h3">Phase CRG2 </h2>
-		<div class="fr-table fr-table--no-caption">
+		<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
 		<table>
 			<caption>Historique des avis</caption>
 			<thead>
@@ -60,14 +60,13 @@
 	<%end %>
 	<% if Date.today > @date1 %>
 		<h2 class="fr-h3">Phase CRG1 </h2>
-		<div class="fr-table fr-table--no-caption">
+		<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
 		<table>
 			<caption>Historique des avis</caption>
 			<thead>
 			<tr>
 				<% if current_user.statut =="admin" %>
 					<th scope="col">Contrôleur </th>
-					<th scope="col">DCB responsable</th>
 				<%end %>
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
@@ -110,7 +109,7 @@
 	<%end %>
 
 	<h2 class="fr-h3">Phase de début de gestion </h2>
-	<div class="fr-table fr-table--no-caption">
+	<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
 		<table>
 			<caption>Historique des avis</caption>
 			<thead>

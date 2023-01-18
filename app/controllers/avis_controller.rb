@@ -2,8 +2,8 @@ class AvisController < ApplicationController
 	before_action :authenticate_user!	
 	
 	def index
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		if current_user.statut == "admin"
 			@avis_all = Avi.order(created_at: :desc)
 		else
@@ -31,8 +31,8 @@ class AvisController < ApplicationController
 	end
 
 	def consultation
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
@@ -54,8 +54,8 @@ class AvisController < ApplicationController
 		@avis.etat = "Lu"
 		@avis.save
 
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
@@ -82,8 +82,8 @@ class AvisController < ApplicationController
 
 	def new
 		@bop = Bop.where(id: params[:bop_id]).first
-		@date1 = Date.new(2022,4,30)
-		@date2 = Date.new(2022,8,31)
+		@date1 = Date.new(2023,4,30)
+		@date2 = Date.new(2023,8,31)
 
 		@is_completed = false
 		if @bop.user != current_user

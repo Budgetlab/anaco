@@ -8,8 +8,7 @@ export default class extends Controller {
   ];
   }
   connect() {
-    //this.getEcart();
-    this.formChange()
+    this.formChange();
   }
 
   formChange(){
@@ -29,7 +28,7 @@ export default class extends Controller {
 
   getEcart(){
     if (this.aeiTarget.value >= 0 && this.aefTarget.value >= 0 ){
-      this.aeresultTarget.innerHTML = (parseFloat(Number(this.aeiTarget.value - this.aefTarget.value).toFixed(2))).toString()+"€"
+      this.aeresultTarget.innerHTML =  new Intl.NumberFormat('fr').format((parseFloat(Number(this.aeiTarget.value - this.aefTarget.value).toFixed(2))))+"€"
       if (this.aeiTarget.value - this.aefTarget.value < 0){
         this.aeresultTarget.classList.add('crouge')
       }else{
@@ -37,7 +36,7 @@ export default class extends Controller {
       }
     }
     if (this.cpiTarget.value >= 0 && this.cpfTarget.value >= 0 ){
-      this.cpresultTarget.innerHTML = (parseFloat(Number(this.cpiTarget.value - this.cpfTarget.value).toFixed(2))).toString()+"€"
+      this.cpresultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.cpiTarget.value - this.cpfTarget.value).toFixed(2))))+"€"
       if (this.cpiTarget.value - this.cpfTarget.value < 0){
         this.cpresultTarget.classList.add('crouge')
       }else{
@@ -45,7 +44,7 @@ export default class extends Controller {
       }
     }
     if (this.t2iTarget.value >= 0 && this.t2fTarget.value >= 0 ){
-      this.t2resultTarget.innerHTML = (parseFloat(Number(this.t2iTarget.value - this.t2fTarget.value).toFixed(2))).toString()+"€"
+      this.t2resultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.t2iTarget.value - this.t2fTarget.value).toFixed(2))))+"€"
       if (this.t2iTarget.value - this.t2fTarget.value < 0){
         this.t2resultTarget.classList.add('crouge')
       }else{
@@ -53,7 +52,7 @@ export default class extends Controller {
       }
     }
     if (this.etptiTarget.value >= 0 && this.etptfTarget.value >= 0 ){
-      this.etptresultTarget.innerHTML = (parseFloat(Number(this.etptiTarget.value - this.etptfTarget.value).toFixed(2))).toString()
+      this.etptresultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.etptiTarget.value - this.etptfTarget.value).toFixed(2))))
       if (this.etptiTarget.value - this.etptfTarget.value < 0){
         this.etptresultTarget.classList.add('crouge')
       }else{

@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 		root "pages#index"
 		get 'utilisateurs' => "users#index"
     	post 'import_users' => "users#import"
+			post 'import2_users' => "users#import2"
     	post '/select_nom' => 'users#select_nom'
 
     	resources :bops, only: [:index, :show]    	

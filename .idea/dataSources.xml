@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/avisbop_development</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="anaco@127.0.0.1" uuid="ce16f1f3-ca33-4acb-8c8a-55ac53b03f9f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://127.0.0.1:3306/anaco</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
