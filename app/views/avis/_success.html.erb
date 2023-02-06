@@ -1,7 +1,12 @@
-
 <% if flash.any? %>
   <% flash.each do |type, msg| %>
-  <% if msg[0..3] == "Avis"%>
+		<% if msg == "transmis" %>
+			<div class="fr-alert fr-alert--success fr-mb-2w">
+				<h3 class="fr-alert__title">
+				Avis transmis avec succès. Vous pouvez déposer votre avis complet sur Resana en cliquant <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank">ici</a>.
+				</h3>
+			</div>
+  <% elsif msg[0..3] == "Avis"%>
 	<div class="fr-alert fr-alert--success fr-mb-2w">
 		<h3 class="fr-alert__title"> <%= msg %></h3>
 	</div>

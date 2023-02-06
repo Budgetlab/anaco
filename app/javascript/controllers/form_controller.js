@@ -4,7 +4,7 @@ export default class extends Controller {
   static get targets() {
   return ['form','submitBouton',
   'datereception','dateenvoi','statut','aei','cpi','t2i','etpti','aef','cpf','t2f','etptf','aeresult','cpresult','t2result','etptresult','commentaire',
-  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat',
+  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat','aeiresult','cpiresult','t2iresult','etptiresult','aefresult','cpfresult','t2fresult','etptfresult',
   ];
   }
   connect() {
@@ -24,6 +24,13 @@ export default class extends Controller {
       this.BtnvalidateTarget.classList.add('bouton_inactive');
       this.BtnvalidateTarget.disabled = true;
     }
+    const numberTargets = [this.aeiTarget.value,this.cpiTarget.value,this.t2iTarget.value,this.etptiTarget.value,this.aefTarget.value,this.cpfTarget.value,this.t2fTarget.value,this.etptfTarget.value ];
+    const resultNumberTargets = [this.aeiresultTarget,this.cpiresultTarget,this.t2iresultTarget,this.etptiresultTarget,this.aefresultTarget,this.cpfresultTarget,this.t2fresultTarget,this.etptfresultTarget ];
+    [0,1,2,3,4,5,6,7].forEach((indice) =>{
+      if (numberTargets[indice] > 0){
+        resultNumberTargets[indice].innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(numberTargets[indice]).toFixed(2))))
+      }
+    })
   }
 
   getEcart(){

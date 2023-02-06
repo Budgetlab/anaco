@@ -163,8 +163,11 @@ class AvisController < ApplicationController
 			
 			if params[:etat] == "Brouillon"
 				@message = "Avis sauvegardé en tant que brouillon"
-			else 
-				@message = "Avis transmis avec succès"
+			else
+				if @bop.user_id == @bop.consultant
+					@avis = @avis.update(etat: "Lu") #si DCB lui même en consultation
+				end
+				@message = "transmis"
 			end
 		end
 		respond_to do |format|      

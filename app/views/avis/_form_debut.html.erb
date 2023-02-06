@@ -113,7 +113,7 @@
             </div>
           </div>
           <div class="fr-col-12 fr-col-lg-8">
-            <div class="fr-accordion__title">Ressources allouées</div>
+            <div class="fr-accordion__title">Ressources allouées (en €)</div>
             <hr class="fr-col_12">
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-3">
@@ -121,7 +121,8 @@
                   <label class="fr-label" for="aei">
                       AE HT2*
                   </label>
-                  <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i,min: 0, step: 0.1 %>
+                  <%= f.number_field :ae_i, data: {'form-target': 'aei' }, class:"fr-input", id:"aei",value: @avis.ae_i,min: 0, step: 1 %>
+                  <p class="fr-message" data-form-target="aeiresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -129,7 +130,8 @@
                   <label class="fr-label" for="cpi">
                       CP HT2*
                   </label>
-                  <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i,min: 0, step: 0.1%>
+                  <%= f.number_field :cp_i,  data: {'form-target': 'cpi' }, class:"fr-input", id:"cpi",value: @avis.cp_i,min: 0, step: 1%>
+                  <p class="fr-message" data-form-target="cpiresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -137,7 +139,8 @@
                   <label class="fr-label" for="t2i">
                       AE/CP T2*
                   </label>
-                  <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i,min: 0, step: 0.1%>
+                  <%= f.number_field :t2_i,  data: {'form-target': 't2i' }, class:"fr-input", id:"t2i",value: @avis.t2_i,min: 0, step: 1%>
+                  <p class="fr-message" data-form-target="t2iresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -145,11 +148,12 @@
                   <label class="fr-label" for="etpti">
                       ETPT*
                   </label>
-                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i, min: 0,step: 0.01%>
+                  <%= f.number_field :etpt_i, data: {'form-target': 'etpti' }, class:"fr-input", id:"etpti",value: @avis.etpt_i, min: 0,step: 0.1%>
+                  <p class="fr-message" data-form-target="etptiresult"></p>
                 </div>
               </div>
             </div>
-            <div class="fr-accordion__title fr-mt-3w">Prévisions d'exécution</div>
+            <div class="fr-accordion__title fr-mt-3w">Prévisions d'exécution (en €)</div>
             <hr class="fr-col_12">
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-3">
@@ -157,7 +161,8 @@
                   <label class="fr-label" for="aef">
                       AE HT2*
                   </label>
-                  <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f, min: 0,step: 0.1%>
+                  <%= f.number_field :ae_f, data: {'form-target': 'aef' }, class:"fr-input", id:"aef", value: @avis.ae_f, min: 0,step: 1%>
+                  <p class="fr-message" data-form-target="aefresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -165,7 +170,8 @@
                   <label class="fr-label" for="cpf">
                       CP HT2*
                   </label>
-                  <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f, min: 0,step: 0.1%>
+                  <%= f.number_field :cp_f, data: {'form-target': 'cpf' }, class:"fr-input", id:"cpf",value: @avis.cp_f, min: 0,step: 1%>
+                  <p class="fr-message " data-form-target="cpfresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -173,7 +179,8 @@
                   <label class="fr-label" for="t2i">
                       AE/CP T2*
                   </label>
-                  <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f, min: 0,step: 0.1%>
+                  <%= f.number_field :t2_f, data: {'form-target': 't2f' },class:"fr-input", id:"t2f",value: @avis.t2_f, min: 0,step: 1%>
+                  <p class="fr-message " data-form-target="t2fresult"></p>
                 </div>
               </div>
               <div class="fr-col-3">
@@ -181,7 +188,8 @@
                   <label class="fr-label" for="etptf">
                       ETPT*
                   </label>
-                  <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f, min: 0,step: 0.01%>
+                  <%= f.number_field :etpt_f, data: {'form-target': 'etptf' },class:"fr-input", id:"etptf",value: @avis.etpt_f, min: 0,step: 0.1%>
+                  <p class="fr-message" data-form-target="etptfresult"></p>
                 </div>
               </div>
             </div>

@@ -26,7 +26,7 @@
                 <%end%></div>
 
             <div class="fr-col-2">
-              <% if Date.today <= @date1 || @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon"%>
+              <% if @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon" || ( Date.today < @date1 && bop.avis.where(phase: "début de gestion").first.is_crg1 == true )%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
               <% elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true %>
                 <% if @bops_avis_crg1[bop.id].nil? %>
