@@ -7,18 +7,22 @@ class BopsController < ApplicationController
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 		@avis = current_user.avis
-		@bops = current_user.bops.order(code: :asc)
+
+		@bops_inactifs = current_user.bops.where(dotation: "aucune").order(code: :asc)
+		@bops_inactifs_count = @bops_inactifs.count
+		@bops = current_user.bops.where(dotation: [nil, "complete","T2","HT2"]).order(code: :asc)
+		@bops_actifs_count = @bops.count
 		if Date.today <= @date1
 			@phase = "début de gestion"
-			@count_reste = @bops.count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
+			@count_reste = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 		elsif @date1 < Date.today && Date.today <= @date2
 			@phase = "CRG1"
-			@count_reste_debut = @bops.count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
+			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 			@count_reste_crg1 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
 			@count_reste = @count_reste_debut + @count_reste_crg1
 		elsif Date.today > @date2 
 			@phase = "CRG2"
-			@count_reste_debut = @bops.count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
+			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 			@count_reste_crg1 =  @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
 			@count_reste_crg2 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == false }.length + @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length - @avis.select{ |a| a.phase == "CRG2" && a.etat != 'Brouillon'}.length
 			@count_reste = @count_reste_debut + @count_reste_crg1 + @count_reste_crg2
@@ -30,6 +34,20 @@ class BopsController < ApplicationController
 
 	def show
 		@bop = Bop.where(id: params[:id]).first
+	end
+
+	def update
+		@bop = Bop.find(params[:id])
+		@bop.update(dotation: params[:dotation])
+		if @bop.dotation == "aucune"
+			respond_to do |format|
+				format.turbo_stream { redirect_to bops_path  }
+			end
+		else
+			respond_to do |format|
+				format.turbo_stream { redirect_to new_bop_avi_path(@bop.id)  }
+			end
+		end
 	end
 
 	def new

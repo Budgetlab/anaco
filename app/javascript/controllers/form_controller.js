@@ -4,7 +4,7 @@ export default class extends Controller {
   static get targets() {
   return ['form','submitBouton',
   'datereception','dateenvoi','statut','aei','cpi','t2i','etpti','aef','cpf','t2f','etptf','aeresult','cpresult','t2result','etptresult','commentaire',
-  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat','aeiresult','cpiresult','t2iresult','etptiresult','aefresult','cpfresult','t2fresult','etptfresult',
+  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat','aeiresult','cpiresult','t2iresult','etptiresult','aefresult','cpfresult','t2fresult','etptfresult','dotation',
   ];
   }
   connect() {
@@ -141,6 +141,16 @@ export default class extends Controller {
       if (!isValid) {
         event.preventDefault();
       }
+    }
+  }
+
+  changeDotation(){
+    if (this.dotationTarget.value != ""){
+      this.submitBoutonTarget.classList.remove('bouton_inactive');
+      this.submitBoutonTarget.disabled = false;
+    } else {
+      this.submitBoutonTarget.classList.add('bouton_inactive');
+      this.submitBoutonTarget.disabled = true;
     }
   }
 

@@ -10,13 +10,15 @@ Rails.application.routes.draw do
 			post 'import2_users' => "users#import2"
     	post '/select_nom' => 'users#select_nom'
 
-    	resources :bops, only: [:index, :show]    	
-    	get '/ajout_bops' => "bops#new"
+    	resources :bops do
+        resources :avis, only: [:new]
+			end
+      #get '/ajout_bops' => "bops#new"
     	post 'import_bops' => "bops#import"
 
     	get 'historique' => "avis#index"
       get 'consultation' => "avis#consultation"
-    	get 'avis/nouveau/:bop_id' => "avis#new"
+      #get 'avis/nouveau/:bop_id' => "avis#new"
       post 'read_avis' => "avis#readAvis"
     	resources :avis, only: [:create, :update, :destroy]
       post 'open_modal' => "avis#openModal"

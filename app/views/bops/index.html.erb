@@ -8,10 +8,13 @@
 
 
 <div class="fr-tabs fr-mb-2w">
-    <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
         <li role="presentation">
-            <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @bops.count %>)</button>
+            <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @bops_actifs_count %>)</button>
         </li>
+      <li role="presentation">
+        <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP inactifs (<%= @bops_inactifs_count %>)</button>
+      </li>
     </ul>
     <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
         <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note')%> à rédiger</p>      
@@ -55,15 +58,23 @@
 
             <div class="fr-col-3"> 
                 <% if @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon"%>
-                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger l'avis</a>
+                    <%= link_to new_bop_avi_path(bop.id), class: "fr-btn" do %>Rédiger l'avis<%end %>
                 <%elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon")%>
-                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG1</a>
+                  <%= link_to new_bop_avi_path(bop.id), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
                 <%elsif Date.today > @date2 && (@bops_avis_crg2[bop.id].nil?|| @bops_avis_crg2[bop.id] == "Brouillon")%>
-                    <a class="fr-btn" href="avis/nouveau/<%=bop.id%>">Rédiger la note CRG2</a>
+                  <%= link_to new_bop_avi_path(bop.id), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
                 <% end%>
             </div>
           </div>
         <% end %>    
+    </div>
+    <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
+      <p class="fr-h3">BOP inactifs (<%= @bops_inactifs_count %>)</p>
+      <% @bops_inactifs.each do |bop|%>
+        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+          <div class="fr-col-2"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end %></li></ul></div>
+        </div>
+      <%end %>
     </div>
 </div>
 

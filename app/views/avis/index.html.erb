@@ -46,7 +46,7 @@
 
 					<td>
 						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
 						<%else%>
 							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
 						<%end%>
@@ -95,7 +95,7 @@
 
 					<td>
 						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
 						<%else%>
 							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
 						<%end%>
@@ -143,7 +143,7 @@
 
 					<td>
 						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><a class="fr-btn" href="avis/nouveau/<%=avis.bop.id%>">Reprendre</a><%end %>
+							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
 						<%else%>
 							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
 						<%end%>

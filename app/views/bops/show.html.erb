@@ -68,7 +68,7 @@
                       <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
                       <td>
                         <% if avis.etat == "Brouillon"%>
-                          <a class="fr-btn" href="avis/nouveau/<%=avis.bop_id%>">Reprendre</a>
+                          <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
                         <%else%>
                           <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
                         <%end%></td>

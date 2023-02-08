@@ -1,17 +1,21 @@
 <main role="main" class="containtAll">
-  <% if  @form == "début de gestion" %>
-    <%= render 'form_debut'%>
-  <%elsif @form == "CRG1" %>
-    <%= render 'form_crg1'%>
-  <%elsif @form == "no CRG1" %>
-    <div class="fr-container" >
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-12 fr-col-lg-12">
-          <div class="fr-h3 fr-my-4w">Pas de CRG1 programmé pour ce BOP</div>
+  <% if @bop.dotation.nil? %>
+    <%= render 'form_bop_dotation'%>
+  <% elsif @bop.dotation != "aucune"  %>
+    <% if  @form == "début de gestion" %>
+      <%= render 'form_debut'%>
+    <%elsif @form == "CRG1" %>
+      <%= render 'form_crg1'%>
+    <%elsif @form == "no CRG1" %>
+      <div class="fr-container" >
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-12">
+            <div class="fr-h3 fr-my-4w">Pas de CRG1 programmé pour ce BOP</div>
+          </div>
         </div>
       </div>
-    </div>
-  <%elsif @form == "CRG2"%>
-    <%= render 'form_crg2'%>
-  <% end %>
+    <%elsif @form == "CRG2"%>
+      <%= render 'form_crg2'%>
+    <% end %>
+  <%end %>
 </main>
