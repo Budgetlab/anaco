@@ -1,4 +1,4 @@
-<div class="fr-container" >    
+<div class="fr-container" data-controller="filter">
 	<div class="fr-grid-row fr-grid-row--gutters">
 		<div class="fr-col-12 fr-col-lg-12">
 			<h1 class="fr-my-6w">Historique des avis et des notes</h1>
@@ -111,47 +111,86 @@
 	<h2 class="fr-h3">Phase de début de gestion </h2>
 	<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
 		<table>
-			<caption>Historique des avis</caption>
+			<caption>Historique</caption>
+			<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
 			<thead>
-			<tr>
-				<% if current_user.statut == "admin" %>
-					<th scope="col">Contrôleur </th>
-				<%end %>
-				<th scope="col">Date de saisie </th>
-				<th scope="col">BOP </th>
-				<th scope="col">Programme </th>
-				<th scope="col">Statut avis </th>
+
+				<%= f.hidden_field :phase, value: "début de gestion" %>
+				<tr>
+					<% if current_user.statut == "admin" %>
+						<th scope="col">Contrôleur </th>
+					<%end %>
+					<th scope="col">Date de saisie </th>
+					<th scope="col">BOP </th>
+					<th scope="col">Programme </th>
+					<th scope="col">
+						<div class="fr-translate fr-nav">
+							<button class="fr-translate__btn filter-table-btn" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
+								Statut</button>
+							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1294">
+								<ul class="fr-menu__list filter-table-list">
+									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
+										<legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
+											Filtrer sur un ou plusieurs statuts
+										</legend>
+										<div class="fr-fieldset__element">
+											<% ["Favorable","Favorable avec réserve","Défavorable"].each_with_index do |statut,i| %>
+												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+													<%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
+													<label class="fr-label" for="checkboxes-<%=i %>">
+														<%= statut %>
+													</label>
+													<div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
+													</div>
+												</div>
+											<%end %>
+										</div>
+										<div class="fr-messages-group" id="checkboxes-small-messages" aria-live="assertive">
+										</div>
+									</fieldset></li>
+								</ul>
+							</div>
+						</div></th>
 
 					<th scope="col">DCB responsable</th>
-					<th scope="col">État </th>
+					<th scope="col"><div class="fr-translate fr-nav">
+						<button class="fr-translate__btn filter-table-btn" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
+							État</button>
+						<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
+							<ul class="fr-menu__list filter-table-list">
+								<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
+									<legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
+										Filtrer sur un ou plusieurs états
+									</legend>
+									<div class="fr-fieldset__element">
+										<% ["Brouillon","En attente de lecture","Lu"].each_with_index do |etat,i| %>
+											<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+												<%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
+												<label class="fr-label" for="checkboxes-etat-<%=i %>">
+													<%= etat %>
+												</label>
+												<div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
+												</div>
+											</div>
+										<%end %>
+									</div>
+									<div class="fr-messages-group" id="checkboxes-etat-messages" aria-live="assertive">
+									</div>
+								</fieldset></li>
+							</ul>
+						</div>
+					</div></th>
 
-				<th scope="col"> </th>
-			</tr>
-			</thead>
-			<tbody>
-			<% @avis_debut.each do |avis|%>
-				<tr>
-					<% if current_user.statut =="admin" %>
-						<td><%= @avis_users[avis.id]%> </td>
-					<%end %>
-					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= @bops_data[avis.id][0]%></td>
-					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-					<td><%= avis.statut %></td>
-						<td><%= @users[@bops_data[avis.id][3]] %></td>
-						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-
-					<td>
-						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
-						<%else%>
-							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-						<%end%>
-						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
-					</td>
+					<th scope="col"> </th>
 				</tr>
-			<% end %>
+
+			</thead>
+			<%end %>
+
+			<tbody id="table_historique">
+	<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_debut, avis_users: @avis_users, bops_data: @bops_data, users: @users} %>
 			</tbody>
+
 		</table>
 	</div>
 

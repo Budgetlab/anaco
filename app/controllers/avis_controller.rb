@@ -183,6 +183,34 @@ class AvisController < ApplicationController
 		respond_to do |format|
 			format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
 		end
-	end 
+	end
+
+	def filter_historique
+		if current_user.statut == "admin"
+			@avis_all = Avi.order(created_at: :desc)
+		else
+			@avis_all = current_user.avis.order(created_at: :desc)
+		end
+		@avis = @avis_all.select { |a| a.phase == params[:phase] }
+		if params[:statuts].length != 3
+			@avis = @avis.select { |a| params[:statuts].include?(a.statut) }
+		end
+		if params[:etats].length != 3
+			@avis = @avis.select { |a| params[:etats].include?(a.etat) }
+		end
+		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :consultant)
+		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+		@avis_default = @avis_all.first
+		@users = User.pluck(:id,:nom).to_h
+
+		respond_to do |format|
+			format.turbo_stream do
+				render turbo_stream: [
+					turbo_stream.update('table_historique', partial: "avis/table_historique", locals: {liste_avis: @avis, avis_users: @avis_users, bops_data: @bops_data, users: @users})
+				]
+			end
+		end
+	end
 
 end

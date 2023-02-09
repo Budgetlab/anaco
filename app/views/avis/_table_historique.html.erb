@@ -1,0 +1,23 @@
+
+    <% liste_avis.each do |avis|%>
+      <tr>
+        <% if current_user.statut =="admin" %>
+          <td><%= avis_users[avis.id]%> </td>
+        <%end %>
+        <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+        <td><%= bops_data[avis.id][0]%></td>
+        <td><%= bops_data[avis.id][1] %> - <%= bops_data[avis.id][2] %> </td>
+        <td><%= avis.statut %></td>
+        <td><%= users[bops_data[avis.id][3]] %></td>
+        <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+
+        <td>
+          <% if avis.etat == "Brouillon"%>
+            <%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
+          <%else%>
+            <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+          <%end%>
+          <%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
+        </td>
+      </tr>
+    <% end %>

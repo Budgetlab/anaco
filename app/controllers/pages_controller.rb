@@ -184,6 +184,9 @@ class PagesController < ApplicationController
 	def plan
 	end
 
+	def faq
+	end
+
 	private
 	def returnPhase(date1,date2)
 		if Date.today <= date1

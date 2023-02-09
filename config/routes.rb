@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       post 'read_avis' => "avis#readAvis"
     	resources :avis, only: [:create, :update, :destroy]
       post 'open_modal' => "avis#openModal"
+			post 'filter_historique', to: "avis#filter_historique"
 
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"
@@ -30,6 +31,7 @@ Rails.application.routes.draw do
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'
 	    get '/accessibilite', to: 'pages#accessibilite'
 			get '/plan', to: 'pages#plan'
+			get '/faq', to: 'pages#faq'
 	    get '/*path', to: 'pages#error_404'
 	    get '/page_introuvable', to: 'pages#error_404'
 	    match "/404", to: 'pages#error_404', via: :all
