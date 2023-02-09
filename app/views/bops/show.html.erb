@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="fr-card fr-card--horizontal fr-card--shadow">
+    <div class="fr-card fr-card--horizontal fr-card--shadow fr-mb-4w">
           <div class="fr-card__body">
               <div class="fr-card__content">
                   <div class="fr-card__start">
@@ -36,16 +36,18 @@
                   <h3 class="fr-card__title">
                       BOP n°<%= @bop.code%>
                   </h3>
-                  <p class="fr-card__desc">Programme n°<%= @bop.numero_programme%> <br> <%= @bop.nom_programme%></p>
+                  <div class="fr-card__desc">Programme n°<%= @bop.numero_programme%> <br> <%= @bop.nom_programme%><br>
+                    <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
+                  </div>
                   
               </div>
               
           </div>        
     </div>
-
+   <% unless @bop.dotation == "aucune" %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-my-3w">Historique des avis</h2>
+        <h2 class="fr-mb-3w">Historique des avis</h2>
 
         <div class="fr-table fr-table--no-caption">
           <table>
@@ -84,5 +86,6 @@
         <%= render partial: 'avis/dialog_debut',locals: {avis: @bop.avis.first} %>
       </div>
     </dialog>
+    <%end %>
   </div>
 </main>

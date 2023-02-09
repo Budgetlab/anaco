@@ -9,7 +9,7 @@ class PagesController < ApplicationController
 		@phase = returnPhase(@date1,@date2)
 		if current_user.statut == "CBR" || current_user.statut == "DCB"
 			@avis_remplis = current_user.avis
-			@avis_total = current_user.bops.count
+			@avis_total = current_user.bops.where(dotation: [nil, "complete","T2","HT2"]).count
 			if current_user.statut == "DCB"
 				@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
 				@bops_consultation_id = @bops_consultation.pluck(:id)
@@ -17,7 +17,7 @@ class PagesController < ApplicationController
 			end
 		else
 			@avis_remplis = Avi.all
-			@avis_total = Bop.all.count
+			@avis_total = Bop.where(dotation: [nil, "complete","T2","HT2"]).count
 		end
 			@avis_valid = @avis_remplis.where('phase = ? AND etat != ?',"début de gestion",'Brouillon')
 			@avis_vide = @avis_total - @avis_valid.count
@@ -50,7 +50,7 @@ class PagesController < ApplicationController
 		else
 			redirect_to root_path
 		end
-		@bops_count = Bop.all.count
+		@bops_count = Bop.where(dotation: [nil, "complete","T2","HT2"]).count
 		@avis_d = Avi.where(phase: "début de gestion").where.not(etat: "Brouillon")
 		@avis_vide = @bops_count - @avis_d.count
 		@avis = avisRepartition(@avis_d,@avis_vide)
@@ -75,7 +75,10 @@ class PagesController < ApplicationController
 		@phase = returnPhase(@date1,@date2)
 		@numero = params[:programme]
 		@bops = Bop.where(numero_programme: @numero).order(code: :asc)
-		@bops_id = @bops.pluck(:id)
+		@bops_actifs = @bops.where(dotation: [nil, "complete","T2","HT2"])
+		@bops_id_all = @bops.pluck(:id)
+		@bops_count_all = @bops_id_all.length
+		@bops_id = @bops_actifs.pluck(:id)
 		@bops_count = @bops_id.length
 		@ministere = @bops.first.ministere
 
@@ -176,6 +179,9 @@ class PagesController < ApplicationController
 	end
 
 	def donnees_personnelles
+	end
+
+	def plan
 	end
 
 	private

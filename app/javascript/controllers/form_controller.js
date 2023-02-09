@@ -29,6 +29,8 @@ export default class extends Controller {
     [0,1,2,3,4,5,6,7].forEach((indice) =>{
       if (numberTargets[indice] > 0){
         resultNumberTargets[indice].innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(numberTargets[indice]).toFixed(2))))
+      }else{
+        resultNumberTargets[indice].innerHTML = '';
       }
     })
   }

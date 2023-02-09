@@ -1,0 +1,20 @@
+<% content_for :title do %>Plan du site - ANACO <% end %>
+<main role="main" class="fr-container fr-py-16v">
+  <div class="fr-grid-row">
+    <div class="fr-col-12 fr-col-md-8">
+      <h1>Plan du site</h1>
+      <div>
+        <ul>
+          <li><%= link_to root_path do %>Accueil<%end %></li>
+          <li><%= link_to bops_path do %>BOP et avis<%end %></li>
+          <li><%= link_to historique_path do %>Historique<%end %></li>
+          <li><%= link_to restitutions_path do %>Restitutions<%end %></li>
+          <li><%= link_to plan_path do %>Plan du site<%end %></li>
+          <li><%= link_to accessibilite_path do %>Déclaration d'accessibilité<%end %></li>
+          <li><%= link_to mentions_legales_path do %>Mentions légales<%end %></li>
+          <li><%= link_to donnees_personnelles_path do %>Gestion des données personnelles et cookies<%end %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>

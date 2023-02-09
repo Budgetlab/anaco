@@ -13,8 +13,7 @@ Rails.application.routes.draw do
     	resources :bops do
         resources :avis, only: [:new]
 			end
-      #get '/ajout_bops' => "bops#new"
-    	post 'import_bops' => "bops#import"
+      post 'import_bops' => "bops#import"
 
     	get 'historique' => "avis#index"
       get 'consultation' => "avis#consultation"
@@ -26,9 +25,11 @@ Rails.application.routes.draw do
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"
       post 'filter_restitution', to: "pages#filter_restitution"
-	  	get '/mentions-legales', to: 'pages#mentions_legales'
+
+      get '/mentions-legales', to: 'pages#mentions_legales'
 	    get '/donnees-personnelles', to: 'pages#donnees_personnelles'
 	    get '/accessibilite', to: 'pages#accessibilite'
+			get '/plan', to: 'pages#plan'
 	    get '/*path', to: 'pages#error_404'
 	    get '/page_introuvable', to: 'pages#error_404'
 	    match "/404", to: 'pages#error_404', via: :all

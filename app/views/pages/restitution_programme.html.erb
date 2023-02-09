@@ -19,7 +19,7 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mb-2w">Restitution du programme n°<%= @numero %></h1>
       <p class="fr-tag">Ministère <%=@ministere %></p>
-      <p class="fr-card__detail fr-icon-arrow-right-line fr-mt-1w"><%= @bops_count %> BOP</p>
+      <p class="fr-card__detail fr-icon-arrow-right-line fr-mt-1w"><%= @bops_count_all %> BOP (<%= pluralize(@bops_count_all-@bops_count,'BOP inactif')  %>)</p>
     </div>
   </div>
   <h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %></h2>
@@ -409,7 +409,7 @@
       </div>
     <% end %>
   <% end %>
-  <h2 class="fr-mb-2w fr-mt-4w">Statistiques sur le programme</h2>
+  <h2 class="fr-mb-2w fr-mt-4w">Statistiques sur les <%= @bops_count %> BOP actifs du programme</h2>
   <div class="fr-grid-row fr-grid-row--gutters" >
     <div class="fr-col-12 fr-col-lg-4">
       <div data-highcharts-target="canvasAvisDate"></div>
@@ -423,7 +423,7 @@
   </div>
   <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
     <div class="fr-col-12 fr-col-lg-12">
-      <h2 class="fr-mb-2w">Liste des <%= @bops_count %> BOP du programme</h2>
+      <h2 class="fr-mb-2w">Liste des <%= @bops_count_all %> BOP du programme</h2>
     </div>
   </div>
   <div class="fr-download">
