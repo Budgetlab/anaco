@@ -91,7 +91,7 @@ class AvisController < ApplicationController
 		@users_id = @bops_consultation.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
 		@avis = @avis_all.select { |a| a.phase == params[:phase] }
-		if @avis.count > 0
+
 		if params[:statuts].length != 3
 			@avis = @avis.select { |a| params[:statuts].include?(a.statut) }
 			@bops_consultation = []
@@ -112,7 +112,7 @@ class AvisController < ApplicationController
 			@avis = @avis.select{ |a| @users_arr.include?(a.user_id) }
 			@bops_consultation = @bops_consultation.select{ |b| @users_arr.include?(b.user_id)}
 		end
-		end
+
 		@bops_vide = @bops_consultation.select { |a| a.id != @avis.pluck(:bop_id) }
 
 		respond_to do |format|
@@ -151,7 +151,7 @@ class AvisController < ApplicationController
 			@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
 			@avis = @avis.select { |a| @bops_id.include?(a.bop_id) }
 		end
-		if params[:users].length != @users_id.length
+		if params[:users] && params[:users].length != @users_id.length
 			@users = params[:users].map(&:to_i)
 			@avis = @avis.select{ |a| @users.include?(a.user_id) }
 		end
