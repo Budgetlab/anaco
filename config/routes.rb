@@ -18,10 +18,12 @@ Rails.application.routes.draw do
     	get 'historique' => "avis#index"
       get 'consultation' => "avis#consultation"
       #get 'avis/nouveau/:bop_id' => "avis#new"
-      post 'read_avis' => "avis#readAvis"
-    	resources :avis, only: [:create, :update, :destroy]
+      #post 'read_avis' => "avis#readAvis"
+    	resources :avis, only: [:create, :update, :destroy, :update]
       post 'open_modal' => "avis#openModal"
+			post 'filter_consultation', to: "avis#filter_consultation"
 			post 'filter_historique', to: "avis#filter_historique"
+      post 'reset', to: "avis#reset"
 
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"

@@ -6,7 +6,6 @@
 		</div>
 	</div>
 
-
 	<% if Date.today > @date2 %>
 		<h2 class="fr-h3">Phase CRG2 </h2>
 		<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
@@ -20,7 +19,7 @@
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
-				<th scope="col">Statut note </th>
+				<th scope="col">Statut </th>
 
 					<th scope="col">DCB responsable</th>
 
@@ -71,7 +70,7 @@
 				<th scope="col">Date de saisie </th>
 				<th scope="col">BOP </th>
 				<th scope="col">Programme </th>
-				<th scope="col">Statut note </th>
+				<th scope="col">Statut </th>
 
 					<th scope="col">DCB responsable</th>
 
@@ -108,7 +107,7 @@
 	</div>
 	<%end %>
 
-	<h2 class="fr-h3">Phase de début de gestion </h2>
+	<h2 class="fr-h3">Phase de début de gestion [<%= @avis_debut.count %>]</h2>
 	<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
 		<table>
 			<caption>Historique</caption>
@@ -118,21 +117,71 @@
 				<%= f.hidden_field :phase, value: "début de gestion" %>
 				<tr>
 					<% if current_user.statut == "admin" %>
-						<th scope="col">Contrôleur </th>
+						<th scope="col">CBR/DCB
+							<div class="fr-translate fr-nav fr-nav-filter">
+								<button class="filter-table-btn2" aria-controls="translate-1292" aria-expanded="false" title="Filtrer par controleur" data-action="click->filter#Dropdown">
+									</button>
+								<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1292">
+									<ul class="fr-menu__list filter-table-list">
+										<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
+
+											<div class="fr-fieldset__element">
+												<% @users_id.values.sort.each_with_index do |name,i| %>
+													<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+														<%= f.check_box "users[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-controleur-#{i}"}, @users_id.key(name)%>
+														<label class="fr-label" for="checkboxes-controleur-<%=i %>">
+															<%= name %>
+														</label>
+														<div class="fr-messages-group" id="checkboxes-controleur-<%=i %>-messages" aria-live="assertive">
+														</div>
+													</div>
+												<%end %>
+											</div>
+											<div class="fr-messages-group" id="checkboxes-controleur-messages" aria-live="assertive">
+											</div>
+										</fieldset></li>
+									</ul>
+								</div>
+							</div>
+						</th>
 					<%end %>
 					<th scope="col">Date de saisie </th>
 					<th scope="col">BOP </th>
-					<th scope="col">Programme </th>
-					<th scope="col">
-						<div class="fr-translate fr-nav">
-							<button class="fr-translate__btn filter-table-btn" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
-								Statut</button>
+					<th scope="col">Programme
+						<div class="fr-translate fr-nav fr-nav-filter">
+							<button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
+								</button>
+							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1293">
+								<ul class="fr-menu__list filter-table-list">
+									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-prog-legend checkboxes-prog-messages">
+
+										<div class="fr-fieldset__element">
+											<% @numeros_programmes.each_with_index do |numero,i| %>
+												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+													<%= f.check_box "numeros[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-prog-#{i}"}, numero%>
+													<label class="fr-label" for="checkboxes-prog-<%=i %>">
+														<%= numero %>
+													</label>
+													<div class="fr-messages-group" id="checkboxes-prog-<%=i %>-messages" aria-live="assertive">
+													</div>
+												</div>
+											<%end %>
+										</div>
+										<div class="fr-messages-group" id="checkboxes-prog-messages" aria-live="assertive">
+										</div>
+									</fieldset></li>
+								</ul>
+							</div>
+						</div>
+					</th>
+					<th scope="col">Statut
+						<div class="fr-translate fr-nav fr-nav-filter">
+							<button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
+								</button>
 							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1294">
 								<ul class="fr-menu__list filter-table-list">
 									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
-										<legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
-											Filtrer sur un ou plusieurs statuts
-										</legend>
+
 										<div class="fr-fieldset__element">
 											<% ["Favorable","Favorable avec réserve","Défavorable"].each_with_index do |statut,i| %>
 												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
@@ -153,15 +202,14 @@
 						</div></th>
 
 					<th scope="col">DCB responsable</th>
-					<th scope="col"><div class="fr-translate fr-nav">
-						<button class="fr-translate__btn filter-table-btn" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
-							État</button>
-						<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
+					<th scope="col">État
+						<div class="fr-translate fr-nav fr-nav-filter">
+							<button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
+							</button>
+							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
 							<ul class="fr-menu__list filter-table-list">
 								<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
-									<legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
-										Filtrer sur un ou plusieurs états
-									</legend>
+
 									<div class="fr-fieldset__element">
 										<% ["Brouillon","En attente de lecture","Lu"].each_with_index do |etat,i| %>
 											<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
@@ -179,7 +227,8 @@
 								</fieldset></li>
 							</ul>
 						</div>
-					</div></th>
+						</div>
+					</th>
 
 					<th scope="col"> </th>
 				</tr>

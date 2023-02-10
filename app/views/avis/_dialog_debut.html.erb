@@ -130,7 +130,7 @@
 						</div>
 
 						<% if avis.user != current_user && current_user.statut == "DCB" && avis.etat == "En attente de lecture"%>
-							<%= link_to read_avis_path(id: avis.id), data: { "turbo_method": :post}, class: "fr-btn fr-btn--secondary" do %> Afficher comme Lu et fermer<%end %>
+							<%= link_to avi_path(avis.id), data: { "turbo_method": :patch}, class: "fr-btn fr-btn--secondary",aria: {controls: "modal-1"} do %> Afficher comme Lu et fermer<%end %>
 						<%end %>
 					</div>
 				</div>

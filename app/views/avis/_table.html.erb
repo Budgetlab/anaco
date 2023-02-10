@@ -1,140 +1,24 @@
-<% if Date.today > @date2 %>
-    <h2 class="fr-h3">Phase CRG2 </h2>
-    <div class="fr-table fr-table--no-caption">
-      <table>
-        <caption>Historique des avis</caption>
-        <thead>
-        <tr>
-          <th scope="col">CBR </th>
-          <th scope="col">Date de saisie </th>
-          <th scope="col">BOP </th>
-          <th scope="col">Programme </th>
-          <th scope="col">Statut note </th>
-          <th scope="col">État </th>
-          <th scope="col"> </th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @avis_crg2.each do |avis|%>
-          <tr>
-            <td><%= @avis_users[avis.id]%></td>
-            <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-            <td><%= @bops_data[avis.id][0]%></td>
-            <td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-            <td><%= avis.statut %></td>
-            <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-            <td>
-              <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-            </td>
-          </tr>
-        <% end %>
-        <% @bops_vide_crg2.each do |bop| %>
-          <tr>
-            <td><%= @users[bop.user_id] %></td>
-            <td></td>
-            <td><%= bop.code %></td>
-            <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
-            <td></td>
-            <td><p class="fr-badge">Non renseigné</p></td>
-            <td></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-  <%end %>
-
-<% if Date.today > @date1 %>
-    <h2 class="fr-h3">Phase CRG1 </h2>
-    <div class="fr-table fr-table--no-caption">
-      <table>
-        <caption>Historique des avis</caption>
-        <thead>
-        <tr>
-          <th scope="col">CBR </th>
-          <th scope="col">Date de saisie </th>
-          <th scope="col">BOP </th>
-          <th scope="col">Programme </th>
-          <th scope="col">Statut note </th>
-          <th scope="col">État</th>
-          <th scope="col"> </th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @avis_crg1.each do |avis|%>
-          <tr>
-            <td><%= @avis_users[avis.id]%></td>
-            <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-            <td><%= @bops_data[avis.id][0]%></td>
-            <td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-            <td><%= avis.statut %></td>
-            <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-            <td>
-              <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-            </td>
-          </tr>
-        <% end %>
-        <% @bops_vide_crg1.each do |bop| %>
-          <tr>
-            <td><%=  @users[bop.user_id] %></td>
-            <td></td>
-            <td><%= bop.code %></td>
-            <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
-            <td></td>
-            <td><p class="fr-badge">Non renseigné</p></td>
-            <td></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-  <%end %>
-
-  <h2 class="fr-h3">Phase de début de Gestion </h2>
-  <div class="fr-table fr-table--no-caption">
-    <table>
-      <caption>Historique des avis</caption>
-      <thead>
-      <tr>
-        <th scope="col">CBR </th>
-        <th scope="col">Date de saisie </th>
-        <th scope="col">BOP </th>
-        <th scope="col">Programme </th>
-        <th scope="col">Satut avis </th>
-        <th scope="col">État </th>
-        <th scope="col"> </th>
-      </tr>
-      </thead>
-      <tbody>
-      <% @avis_debut.each do |avis|%>
-        <tr>
-          <td><%= @avis_users[avis.id]%></td>
-          <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-          <td><%= @bops_data[avis.id][0]%></td>
-          <td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-          <td><%= avis.statut %></td>
-          <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-          <td>
-            <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-          </td>
-        </tr>
-      <% end %>
-      <% @bops_vide_debut.each do |bop| %>
-        <tr>
-          <td><%=  @users[bop.user_id] %></td>
-          <td></td>
-          <td><%= bop.code %></td>
-          <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
-          <td></td>
-          <td><p class="fr-badge">Non renseigné</p></td>
-          <td></td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-    <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
-      <div id="debut">
-        <%= render partial: 'avis/dialog_debut',locals: {avis: @avis_default} %>
-      </div>
-    </dialog>
-  </div>
+<% liste_avis.each do |avis|%>
+  <tr>
+    <td><%= avis_users[avis.id]%></td>
+    <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
+    <td><%= bops_data[avis.id][0]%></td>
+    <td><%= bops_data[avis.id][1] %> - <%= bops_data[avis.id][2] %> </td>
+    <td><%= avis.statut %></td>
+    <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+    <td>
+      <%= link_to open_modal_path(id: avis.id), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+    </td>
+  </tr>
+<% end %>
+<% bops_vide.each do |bop| %>
+  <tr>
+    <td><%=  users[bop.user_id] %></td>
+    <td></td>
+    <td><%= bop.code %></td>
+    <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
+    <td></td>
+    <td><p class="fr-badge">Non renseigné</p></td>
+    <td></td>
+  </tr>
+<% end %>
