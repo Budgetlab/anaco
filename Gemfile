@@ -55,6 +55,7 @@ gem 'rails-i18n'
 gem 'active_link_to'
 gem 'caxlsx'
 gem 'caxlsx_rails'
+gem 'rails_autolink'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
