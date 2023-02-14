@@ -148,8 +148,10 @@ h1, h2{
 
 .fr-table {
   max-height: 30rem;
-  min-height: 18rem;
   overflow: auto;
+}
+.fr-table table {
+  min-height: 18rem !important;
 }
 .fr-table thead th {
   position: sticky;
@@ -159,6 +161,7 @@ h1, h2{
   background-position: bottom;
   background-repeat: no-repeat;
   background-image: linear-gradient(0deg, var(--border-plain-grey), var(--border-plain-grey));
+  min-width:8rem !important;
 }
 .fr-input-group .fr-message {
   font-size: 0.85rem !important;
@@ -166,21 +169,17 @@ h1, h2{
 .fr-input-group .fr-message--info{
   font-size: 1rem !important;
 }
-.filter-table-btn{
-  margin-bottom: 0 !important;
-  padding: 0.25rem 0.2rem !important;
-}
-.filter-table-list {
-  margin-top: 1rem !important;
-  min-width: 8rem !important;
-}
+
+
 .filter-table-list .fr-fieldset {
   max-height: 10rem;
   overflow: auto;
   margin-bottom: 0rem !important;
   padding: 0.75rem 1rem !important;
 }
-
+.filter-table-list .fr-checkbox-group{
+  margin-right: 0.5rem !important;
+}
 .fr-nav-filter{
   position:absolute !important;
   right:0 !important;
@@ -197,7 +196,7 @@ h1, h2{
   margin-bottom: 1rem;
   font-size: 0.875rem;
   line-height: 1.5rem;
-  padding: 0.25rem 0.75rem;
+  padding: 0.25rem 0.25rem;
 }
 .filter-table-btn2[aria-expanded=true]::after {
   transform: rotate(-180deg);

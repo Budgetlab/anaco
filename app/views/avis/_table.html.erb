@@ -1,5 +1,6 @@
 <% liste_avis.each do |avis|%>
   <tr>
+    <td><% if avis.phase =="début de gestion" %><%= avis.phase.capitalize %><%else %><%= avis.phase %><%end %></td>
     <td><%= avis_users[avis.id]%></td>
     <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
     <td><%= bops_data[avis.id][0]%></td>
@@ -9,16 +10,5 @@
     <td>
       <%= link_to open_modal_path(id: avis.id), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
     </td>
-  </tr>
-<% end %>
-<% bops_vide.each do |bop| %>
-  <tr>
-    <td><%=  users[bop.user_id] %></td>
-    <td></td>
-    <td><%= bop.code %></td>
-    <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
-    <td></td>
-    <td><p class="fr-badge">Non renseigné</p></td>
-    <td></td>
   </tr>
 <% end %>

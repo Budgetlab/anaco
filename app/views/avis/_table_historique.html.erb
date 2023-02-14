@@ -1,6 +1,7 @@
 
     <% liste_avis.each do |avis|%>
       <tr>
+        <td><% if avis.phase =="début de gestion" %><%= avis.phase.capitalize %><%else %><%= avis.phase %><%end %></td>
         <% if current_user.statut =="admin" %>
           <td><%= avis_users[avis.id]%> </td>
         <%end %>

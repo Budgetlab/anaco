@@ -2,16 +2,12 @@ class AvisController < ApplicationController
 	before_action :authenticate_user!	
 	
 	def index
-		@date1 = Date.new(2023,4,30)
-		@date2 = Date.new(2023,8,31)
 		if current_user.statut == "admin"
 			@avis_all = Avi.order(created_at: :desc)
 		else
 			@avis_all = current_user.avis.order(created_at: :desc)
 		end
-		@avis_debut = @avis_all.select { |a| a.phase == "début de gestion" }
-		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
-		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
+
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :consultant)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
@@ -33,17 +29,9 @@ class AvisController < ApplicationController
 	end
 
 	def consultation
-		@date1 = Date.new(2023,4,30)
-		@date2 = Date.new(2023,8,31)
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_debut = @avis_all.select { |a| a.phase == "début de gestion" }
-		@bops_vide_debut = @bops_consultation.select { |a| a.id != @avis_debut.pluck(:bop_id) }
-		@avis_crg1 = @avis_all.select { |a| a.phase == "CRG1" }
-		@bops_vide_crg1 = @bops_consultation.select { |a| a.id != @avis_crg1.pluck(:bop_id) }
-		@avis_crg2 = @avis_all.select { |a| a.phase == "CRG2" }
-		@bops_vide_crg2 = @bops_consultation.select { |a| a.id != @avis_crg2.pluck(:bop_id) }
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..3]]}]
@@ -60,22 +48,19 @@ class AvisController < ApplicationController
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis = @avis_all.select { |a| a.phase == @avis.phase }
-		@bops_vide = @bops_consultation.select { |a| a.id != @avis.pluck(:bop_id) }
-
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..3]]}]
-		@avis_default = @avis_all.first
 		@users = User.pluck(:id,:nom).to_h
 
 		respond_to do |format|
 			format.turbo_stream do
 				render turbo_stream: [
-					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis, avis_users: @avis_users, bops_data: @bops_data, users: @users, bops_vide: @bops_vide}),
+					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users}),
 				]
 			end
 		end
+
 	end
 
 	def filter_consultation
@@ -90,35 +75,31 @@ class AvisController < ApplicationController
 		@numeros_programmes = @bops_consultation.pluck(:numero_programme).uniq
 		@users_id = @bops_consultation.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
-		@avis = @avis_all.select { |a| a.phase == params[:phase] }
 
-		if params[:statuts].length != 3
-			@avis = @avis.select { |a| params[:statuts].include?(a.statut) }
-			@bops_consultation = []
+		if params[:phases] && params[:phases].length != 3
+			@avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
 		end
-		if params[:etats].length != 3
-			@avis = @avis.select { |a| params[:etats].include?(a.etat) }
-			@bops_consultation = []
+		if params[:statuts] && params[:statuts].length != 3
+			@avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
 		end
-		if params[:numeros].length != @numeros_programmes.length
+		if params[:etats] && params[:etats].length != 3
+			@avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
+		end
+		if params[:numeros] && params[:numeros].length != @numeros_programmes.length
 			@bops = Bop.where(id: @avis_all.pluck(:bop_id))
 			@num = params[:numeros].map(&:to_i)
 			@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
-			@avis = @avis.select { |a| @bops_id.include?(a.bop_id) }
-			@bops_consultation = @bops_consultation.select{ |b| @num.include?(b.numero_programme)}
+			@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
 		end
-		if params[:users].length != @users_id.length
+		if params[:users] && params[:users].length != @users_id.length
 			@users_arr = params[:users].map(&:to_i)
-			@avis = @avis.select{ |a| @users_arr.include?(a.user_id) }
-			@bops_consultation = @bops_consultation.select{ |b| @users_arr.include?(b.user_id)}
+			@avis_all = @avis_all.select{ |a| @users_arr.include?(a.user_id) }
 		end
-
-		@bops_vide = @bops_consultation.select { |a| a.id != @avis.pluck(:bop_id) }
 
 		respond_to do |format|
 			format.turbo_stream do
 				render turbo_stream: [
-					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis, avis_users: @avis_users, bops_data: @bops_data, users: @users, bops_vide: @bops_vide}),
+					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users}),
 				]
 			end
 		end
@@ -137,30 +118,32 @@ class AvisController < ApplicationController
 		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
-		@avis = @avis_all.select { |a| a.phase == params[:phase] }
-		if @avis.count > 0
-		if params[:statuts].length != 3
-			@avis = @avis.select { |a| params[:statuts].include?(a.statut) }
-		end
-		if params[:etats].length != 3
-			@avis = @avis.select { |a| params[:etats].include?(a.etat) }
-		end
-		if params[:numeros].length != @numeros_programmes.length
-			@bops = Bop.where(id: @avis_all.pluck(:bop_id))
-			@num = params[:numeros].map(&:to_i)
-			@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
-			@avis = @avis.select { |a| @bops_id.include?(a.bop_id) }
-		end
-		if params[:users] && params[:users].length != @users_id.length
-			@users = params[:users].map(&:to_i)
-			@avis = @avis.select{ |a| @users.include?(a.user_id) }
-		end
+		if @avis_all.count > 0
+			if params[:phases].length != 3
+				@avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
+			end
+			if params[:statuts].length != 3
+				@avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
+			end
+			if params[:etats].length != 3
+				@avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
+			end
+			if params[:numeros].length != @numeros_programmes.length
+				@bops = Bop.where(id: @avis_all.pluck(:bop_id))
+				@num = params[:numeros].map(&:to_i)
+				@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
+				@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
+			end
+			if params[:users] && params[:users].length != @users_id.length
+				@users = params[:users].map(&:to_i)
+				@avis_all = @avis_all.select{ |a| @users.include?(a.user_id) }
+			end
 		end
 
 		respond_to do |format|
 			format.turbo_stream do
 				render turbo_stream: [
-					turbo_stream.update('table_historique', partial: "avis/table_historique", locals: {liste_avis: @avis, avis_users: @avis_users, bops_data: @bops_data, users: @users})
+					turbo_stream.update('table_historique', partial: "avis/table_historique", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users})
 				]
 			end
 		end

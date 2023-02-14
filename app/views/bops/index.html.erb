@@ -1,7 +1,7 @@
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @bops.count %> BOP</h1>
+      <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @bops_actifs_count + @bops_inactifs_count%> BOP</h1>
       <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-lg-1 fr-col-2"><%= image_tag "pictograms/document/document-download.svg", alt: "" %></div>

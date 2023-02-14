@@ -1,127 +1,48 @@
 <div class="fr-container" data-controller="filter">
 	<div class="fr-grid-row fr-grid-row--gutters">
 		<div class="fr-col-12 fr-col-lg-12">
-			<h1 class="fr-my-6w">Historique des avis et des notes</h1>
+			<h1 class="fr-my-6w">Historique des avis et des notes [<%= @avis_all.count %>]</h1>
 			<%= render 'avis/success'%>
 		</div>
 	</div>
 
-	<% if Date.today > @date2 %>
-		<h2 class="fr-h3">Phase CRG2 </h2>
-		<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
-		<table>
-			<caption>Historique des avis</caption>
-			<thead>
-			<tr>
-				<% if current_user.statut =="admin" %>
-					<th scope="col">Contrôleur </th>
-				<%end %>
-				<th scope="col">Date de saisie </th>
-				<th scope="col">BOP </th>
-				<th scope="col">Programme </th>
-				<th scope="col">Statut </th>
-
-					<th scope="col">DCB responsable</th>
-
-					<th scope="col">État </th>
-
-				<th scope="col"> </th>
-			</tr>
-			</thead>
-			<tbody>
-			<% @avis_crg2.each do |avis|%>
-				<tr>
-					<% if current_user.statut =="admin" %>
-						<td><%= @avis_users[avis.id]%> </td>
-					<%end %>
-					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= @bops_data[avis.id][0]%></td>
-					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-					<td><%= avis.statut %></td>
-
-						<td><%= @users[@bops_data[avis.id][3]] %></td>
-
-						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-
-					<td>
-						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
-						<%else%>
-							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-						<%end%>
-						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
-					</td>
-				</tr>
-			<% end %>
-			</tbody>
-		</table>
-	</div>
-	<%end %>
-	<% if Date.today > @date1 %>
-		<h2 class="fr-h3">Phase CRG1 </h2>
-		<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
-		<table>
-			<caption>Historique des avis</caption>
-			<thead>
-			<tr>
-				<% if current_user.statut =="admin" %>
-					<th scope="col">Contrôleur </th>
-				<%end %>
-				<th scope="col">Date de saisie </th>
-				<th scope="col">BOP </th>
-				<th scope="col">Programme </th>
-				<th scope="col">Statut </th>
-
-					<th scope="col">DCB responsable</th>
-
-					<th scope="col">État </th>
-				<th scope="col"> </th>
-			</tr>
-			</thead>
-			<tbody>
-			<% @avis_crg1.each do |avis|%>
-				<tr>
-					<% if current_user.statut =="admin" %>
-						<td><%= @avis_users[avis.id]%> </td>
-					<%end %>
-					<td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-					<td><%= @bops_data[avis.id][0]%></td>
-					<td><%= @bops_data[avis.id][1] %> - <%= @bops_data[avis.id][2] %> </td>
-					<td><%= avis.statut %></td>
-
-						<td><%= @users[@bops_data[avis.id][3]] %></td>
-						<td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-
-					<td>
-						<% if avis.etat == "Brouillon"%>
-							<%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %><%end %>
-						<%else%>
-							<%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-						<%end%>
-						<%= link_to avi_path(avis.id),data: {"turbo-method": :delete}, class: "fr-btn fr-btn--secondary" do %>Supprimer<% end%>
-					</td>
-				</tr>
-			<% end %>
-			</tbody>
-		</table>
-	</div>
-	<%end %>
-
-	<h2 class="fr-h3">Phase de début de gestion [<%= @avis_debut.count %>]</h2>
 	<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique</caption>
 			<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
 			<thead>
-
-				<%= f.hidden_field :phase, value: "début de gestion" %>
 				<tr>
+					<th scope="col">Phase <div class="fr-translate fr-nav fr-nav-filter">
+						<button class="filter-table-btn2" aria-controls="translate-1291" aria-expanded="false" title="Filtrer par phase" data-action="click->filter#Dropdown">
+						</button>
+						<div class="fr-collapse fr-menu" id="translate-1291">
+							<ul class="fr-menu__list filter-table-list">
+								<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-phase" aria-labelledby="checkboxes-phase-legend checkboxes-phase-messages">
+
+									<div class="fr-fieldset__element">
+										<% ["début de gestion","CRG1","CRG2"].each_with_index do |phase,i| %>
+											<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+												<%= f.check_box "phases[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-phase-#{i}"}, phase%>
+												<label class="fr-label" for="checkboxes-phase-<%=i %>">
+													<%= phase %>
+												</label>
+												<div class="fr-messages-group" id="checkboxes-phase-<%=i %>-messages" aria-live="assertive">
+												</div>
+											</div>
+										<%end %>
+									</div>
+									<div class="fr-messages-group" id="checkboxes-phase-messages" aria-live="assertive">
+									</div>
+								</fieldset></li>
+							</ul>
+						</div>
+					</div></th>
 					<% if current_user.statut == "admin" %>
 						<th scope="col">CBR/DCB
 							<div class="fr-translate fr-nav fr-nav-filter">
 								<button class="filter-table-btn2" aria-controls="translate-1292" aria-expanded="false" title="Filtrer par controleur" data-action="click->filter#Dropdown">
 									</button>
-								<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1292">
+								<div class="fr-collapse fr-menu" id="translate-1292">
 									<ul class="fr-menu__list filter-table-list">
 										<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
 
@@ -151,7 +72,7 @@
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
 								</button>
-							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1293">
+							<div class="fr-collapse fr-menu" id="translate-1293">
 								<ul class="fr-menu__list filter-table-list">
 									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-prog-legend checkboxes-prog-messages">
 
@@ -178,7 +99,7 @@
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
 								</button>
-							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1294">
+							<div class="fr-collapse fr-menu" id="translate-1294">
 								<ul class="fr-menu__list filter-table-list">
 									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
 
@@ -206,7 +127,7 @@
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
 							</button>
-							<div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
+							<div class="fr-collapse fr-menu" id="translate-1295">
 							<ul class="fr-menu__list filter-table-list">
 								<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
 
@@ -237,7 +158,7 @@
 			<%end %>
 
 			<tbody id="table_historique">
-			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_debut, avis_users: @avis_users, bops_data: @bops_data, users: @users} %>
+			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users} %>
 			</tbody>
 
 		</table>

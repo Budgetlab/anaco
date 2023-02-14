@@ -12,12 +12,13 @@
 			</div>
 			<% if current_user.statut == "DCB" %>
 				<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-					<div class="fr-col-lg-1 fr-col-2"><%= image_tag "pictograms/document/document-download.svg", alt: "" %></div>
+					<div class="fr-col-lg-1 fr-col-2"><%= image_tag "pictograms/system/notification.svg", alt: "" %></div>
 					<div class="fr-col-lg-11 fr-col-10">
-						<h4 class="fr-mb-1w">Vous avez <%= @avis_to_read %> avis/notes en attente de lecture</h4>
-						<%= link_to consultation_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
+						<div class="fr-text--lg fr-mt-1w">Vous avez <%= @avis_to_read %> avis/notes en attente de lecture<br>
+						<%= link_to consultation_path, class:"fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
 							Consulter les avis transmis par les CBR et DCB
-						<%end %>
+							<%end %>
+						</div>
 					</div>
 				</div>
 			<% end  %>
