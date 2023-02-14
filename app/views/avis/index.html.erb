@@ -108,7 +108,7 @@
 	<%end %>
 
 	<h2 class="fr-h3">Phase de début de gestion [<%= @avis_debut.count %>]</h2>
-	<div class="fr-table fr-table--no-caption fr-table--layout-fixed">
+	<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique</caption>
 			<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>

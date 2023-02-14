@@ -26,8 +26,8 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
           <label for="dotation" class="fr-label">Dotation du BOP*
-            <span class="fr-hint-text">Si le BOP est non doté, il n'y aura alors pas d'avis sur celui-ci et sera considéré comme un BOP archivé.</span></label>
-          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','complete'],['Bop doté uniquement en HT2','HT2'],['Bop doté uniquement en T2','T2'], ['Bop non doté','aucune']],{},{data: {'form2-target': 'dotation',action: "change->form2#changeDotation",  }, class:"fr-select", id:"dotation"} %>
+            <span class="fr-hint-text">Si le BOP est non doté, il n'y aura alors pas d'avis sur celui-ci et sera considéré comme un BOP inactif.</span></label>
+          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','complete'],['BOP doté uniquement en HT2','HT2'],['BOP doté uniquement en T2','T2'], ['BOP non doté','aucune']],{selected: @bop.dotation},{data: {'form2-target': 'dotation',action: "change->form2#changeDotation",  }, class:"fr-select", id:"dotation"} %>
         </div>
         <div><%= f.submit "Valider et continuer", class: "fr-btn bouton_inactive",data: {'form2-target': "submitBouton"}, aria: { label: "Valider et continuer"}, disabled: true %></div>
       </div>

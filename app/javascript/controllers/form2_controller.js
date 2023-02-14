@@ -6,11 +6,14 @@ export default class extends Controller {
   ];
   }
   connect() {
-
+    this.validateForm();
   }
 
   changeDotation(e){
     e.preventDefault();
+    this.validateForm();
+  }
+  validateForm(){
     if (this.dotationTarget.value != ""){
       this.submitBoutonTarget.classList.remove('bouton_inactive');
       this.submitBoutonTarget.disabled = false;

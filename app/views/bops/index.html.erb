@@ -1,8 +1,25 @@
-<div class="fr-container" >    
+<div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @bops.count %> BOP</h1>
       <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-lg-1 fr-col-2"><%= image_tag "pictograms/document/document-download.svg", alt: "" %></div>
+        <div class="fr-col-lg-11 fr-col-10">
+          <div class="fr-text--lg fr-mt-1w">Les avis et notes CRG complets et adressés aux ordonnateurs sont à déposer sur Resana dans le dossier vous concernant.<br>
+            <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank" class="fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right">Cliquez ici pour y accéder</a></div>
+        </div>
+      </div>
+
+      <% if flash.any? %>
+        <% flash.each do |type, msg| %>
+          <% if msg == "suppression" %>
+            <div class="fr-alert fr-alert--success fr-mb-2w">
+              <h3 class="fr-alert__title">Votre BOP a bien été enregistré comme BOP non doté. Il est désormais à retrouver dans la liste des BOP inactifs et les avis associés (brouillon ou validés) sont supprimés.</h3>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 
@@ -73,6 +90,7 @@
       <% @bops_inactifs.each do |bop|%>
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
           <div class="fr-col-2"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end %></li></ul></div>
+          <div class="fr-col-3"><%= link_to edit_bop_path(bop), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<%end %></div>
         </div>
       <%end %>
     </div>

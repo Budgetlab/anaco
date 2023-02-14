@@ -33,15 +33,23 @@ class BopsController < ApplicationController
 	end 
 
 	def show
-		@bop = Bop.where(id: params[:id]).first
+		@bop = Bop.find(params[:id])
+	end
+
+	def edit
+		@bop = Bop.find(params[:id])
 	end
 
 	def update
 		@bop = Bop.find(params[:id])
 		@bop.update(dotation: params[:dotation])
 		if @bop.dotation == "aucune"
+			if @bop.avis.count > 0
+				@bop.avis.destroy_all
+			end
+			@message = "suppression"
 			respond_to do |format|
-				format.turbo_stream { redirect_to bops_path  }
+				format.turbo_stream { redirect_to bops_path, notice: @message  }
 			end
 		else
 			respond_to do |format|

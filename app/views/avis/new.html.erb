@@ -1,6 +1,6 @@
 <main role="main" class="containtAll">
   <% if @bop.dotation.nil? %>
-    <%= render 'form_bop_dotation'%>
+    <%= render 'bops/form_bop_dotation'%>
   <% elsif @bop.dotation != "aucune"  %>
     <% if  @form == "début de gestion" %>
       <%= render 'form_debut'%>
