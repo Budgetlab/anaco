@@ -37,15 +37,15 @@
         <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note')%> à rédiger</p>      
         <% @bops.each do |bop|%>
           <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-            <div class="fr-col-2"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end%></li></ul></div> 
+            <div class="fr-col-lg-2 fr-col-12"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end%></li></ul></div>
             
-            <div class="fr-col-3">
+            <div class="fr-col-lg-3 fr-col-4">
                 <% if @bops_avis_debut[bop.id].nil? %><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
                 <% elsif @bops_avis_debut[bop.id] == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
                 <%elsif @bops_avis_debut[bop.id]  != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--success">Avis début de gestion</p>
                 <%end%></div>
 
-            <div class="fr-col-2">
+            <div class="fr-col-lg-2 fr-col-4">
               <% if @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon" || ( Date.today < @date1 && bop.avis.where(phase: "début de gestion").first.is_crg1 == true )%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
               <% elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true %>
@@ -59,7 +59,7 @@
               <% end %>
             </div>
 
-            <div class="fr-col-2">
+            <div class="fr-col-lg-2 fr-col-4">
               <% if Date.today <= @date2 || @bops_avis_debut[bop.id].nil?  || @bops_avis_debut[bop.id] == "Brouillon" || (bop.avis.where(phase: "début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon"))%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
@@ -73,7 +73,7 @@
               <% end %>
             </div>
 
-            <div class="fr-col-3"> 
+            <div class="fr-col-lg-3 fr-col-12">
                 <% if @bops_avis_debut[bop.id].nil? || @bops_avis_debut[bop.id] == "Brouillon"%>
                     <%= link_to new_bop_avi_path(bop.id), class: "fr-btn" do %>Rédiger l'avis<%end %>
                 <%elsif @date1 < Date.today && bop.avis.where(phase: "début de gestion").first.is_crg1 == true && (@bops_avis_crg1[bop.id].nil? || @bops_avis_crg1[bop.id] == "Brouillon")%>
@@ -89,8 +89,8 @@
       <p class="fr-h3">BOP inactifs (<%= @bops_inactifs_count %>)</p>
       <% @bops_inactifs.each do |bop|%>
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-          <div class="fr-col-2"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end %></li></ul></div>
-          <div class="fr-col-3"><%= link_to edit_bop_path(bop), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<%end %></div>
+          <div class="fr-col-lg-2 fr-col-6"><ul><li><%= link_to bop_path(bop) do%>BOP <%= bop.code%><%end %></li></ul></div>
+          <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<%end %></div>
         </div>
       <%end %>
     </div>

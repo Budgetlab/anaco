@@ -15,7 +15,10 @@
     <%= favicon_link_tag 'favicon.ico' %>
     
     <link rel="stylesheet" href="https://ga.jspm.io/npm:flatpickr@4.6.13/dist/flatpickr.min.css">
-  </head>
+    <% if Rails.env.production? %>
+      <script async defer data-website-id="97878b97-16c9-4ee4-9d42-eb19a01864b2" src="https://s.abla.io/abla.js"></script>
+    <%end %>
+   </head>
 
   <body>
     <%= render 'layouts/header'%>
