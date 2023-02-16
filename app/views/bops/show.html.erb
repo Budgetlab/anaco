@@ -7,9 +7,11 @@
           <li>
             <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
           </li>
-          <li>
-            <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
-          </li>
+            <% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
+            <li>
+              <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
+            </li>
+            <%end %>
           <li>
             <a class="fr-breadcrumb__link" aria-current="page">BOP n°<%= @bop.code%></a>
           </li>
@@ -70,9 +72,9 @@
                       <td><%= avis.statut%></td>
                       <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
                       <td>
-                        <% if avis.etat == "Brouillon"%>
+                        <% if avis.etat == "Brouillon" && avis.user == current_user %>
                           <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
-                        <%else%>
+                        <%elsif avis.etat != "Brouillon"%>
                           <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
                         <%end%></td>
                   </tr>

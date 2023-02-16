@@ -73,7 +73,33 @@
 						</th>
 					<%end %>
 					<th scope="col">Date de saisie </th>
-					<th scope="col">BOP </th>
+					<th scope="col">BOP
+						<div class="fr-translate fr-nav fr-nav-filter">
+							<button class="filter-table-btn2" aria-controls="translate-1290" aria-expanded="false" title="Filtrer par BOP" data-action="click->filter#Dropdown">
+							</button>
+							<div class="fr-collapse fr-menu" id="translate-1290">
+								<ul class="fr-menu__list filter-table-list">
+									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-bop-legend checkboxes-bop-messages">
+
+										<div class="fr-fieldset__element">
+											<% @codes_bop.values.sort.each_with_index do |code,i| %>
+												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+													<%= f.check_box "bops[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-bop-#{i}"}, @codes_bop.key(code)%>
+													<label class="fr-label" for="checkboxes-bop-<%=i %>">
+														<%= code %>
+													</label>
+													<div class="fr-messages-group" id="checkboxes-bop-<%=i %>-messages" aria-live="assertive">
+													</div>
+												</div>
+											<%end %>
+										</div>
+										<div class="fr-messages-group" id="checkboxes-bop-messages" aria-live="assertive">
+										</div>
+									</fieldset></li>
+								</ul>
+							</div>
+						</div>
+					</th>
 					<th scope="col">Programme
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
@@ -128,7 +154,7 @@
 							</div>
 						</div></th>
 
-					<th scope="col">DCB responsable</th>
+
 					<th scope="col">État
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
@@ -164,7 +190,7 @@
 			<%end %>
 
 			<tbody id="table_historique">
-			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users} %>
+			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data} %>
 			</tbody>
 
 		</table>

@@ -6,10 +6,10 @@
           <td><%= avis_users[avis.id]%> </td>
         <%end %>
         <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-        <td><%= bops_data[avis.id][0]%></td>
+        <td><%= link_to bop_path(bops_data[avis.id][3]) do%><%= bops_data[avis.id][0]%><%end %></td>
         <td><%= bops_data[avis.id][1] %> - <%= bops_data[avis.id][2] %> </td>
         <td><%= avis.statut %></td>
-        <td><%= users[bops_data[avis.id][3]] %></td>
+
         <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
 
         <td>
