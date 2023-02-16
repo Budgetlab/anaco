@@ -3,6 +3,12 @@
 		<div class="fr-col-12 fr-col-lg-12">
 			<h1 class="fr-my-6w">Historique des avis et des notes [<%= @avis_all.count %>]</h1>
 			<%= render 'avis/success'%>
+			<div class="fr-download">
+				<p><%= link_to "/anaco/historique.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'historique des avis/notes transmis
+				<span class="fr-download__detail">
+          Format .xlsx
+        </span>
+					<%end %></p></div>
 		</div>
 	</div>
 

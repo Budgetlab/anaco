@@ -3,7 +3,6 @@ class BopsController < ApplicationController
 	protect_from_forgery with: :null_session
 	
 	def index
-		@bops = current_user.bops.order(code: :asc)
 		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 		@avis = current_user.avis

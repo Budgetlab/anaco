@@ -1,6 +1,6 @@
 class AvisController < ApplicationController
-	before_action :authenticate_user!	
-	
+	before_action :authenticate_user!
+	require 'axlsx'
 	def index
 		if current_user.statut == "admin"
 			@avis_all = Avi.order(created_at: :desc)
@@ -15,6 +15,13 @@ class AvisController < ApplicationController
 		@users = User.pluck(:id,:nom).to_h
 		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
+		@avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
+		@avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
+		respond_to do |format|
+			format.html
+			format.xlsx
+		end
 	end
 
 	def openModal
