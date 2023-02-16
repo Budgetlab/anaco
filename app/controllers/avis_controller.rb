@@ -46,6 +46,13 @@ class AvisController < ApplicationController
 		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
 		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
+		@avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
+		@avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
+		respond_to do |format|
+			format.html
+			format.xlsx
+		end
 	end
 
 	def update
@@ -130,16 +137,16 @@ class AvisController < ApplicationController
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
 		if @avis_all.count > 0
-			if params[:phases].length != 3
+			if params[:phases] && params[:phases].length != 3
 				@avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
 			end
-			if params[:statuts].length != 3
+			if params[:statuts] && params[:statuts].length != 3
 				@avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
 			end
-			if params[:etats].length != 3
+			if params[:etats] && params[:etats].length != 3
 				@avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
 			end
-			if params[:numeros].length != @numeros_programmes.length
+			if params[:numeros] && params[:numeros].length != @numeros_programmes.length
 				@bops = Bop.where(id: @avis_all.pluck(:bop_id))
 				@num = params[:numeros].map(&:to_i)
 				@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
@@ -149,7 +156,7 @@ class AvisController < ApplicationController
 				@users = params[:users].map(&:to_i)
 				@avis_all = @avis_all.select{ |a| @users.include?(a.user_id) }
 			end
-			if params[:bops].length != @codes_bop.length
+			if params[:bops] && params[:bops].length != @codes_bop.length
 				@bops_id = params[:bops].map(&:to_i)
 				@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
 			end
@@ -165,7 +172,7 @@ class AvisController < ApplicationController
 	end
 	def new
 		@bop = Bop.where(id: params[:bop_id]).first
-		@date1 = Date.new(2023,1,30)
+		@date1 = Date.new(2023,4,30)
 		@date2 = Date.new(2023,8,31)
 
 		@is_completed = false
@@ -254,7 +261,7 @@ class AvisController < ApplicationController
 			end
 		end
 		respond_to do |format|      
-			format.all { redirect_to historique_path, notice: @message}
+			format.all { redirect_to historique_path, status: :see_other, notice: @message}
 		end
 	end
 

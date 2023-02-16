@@ -2,6 +2,12 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-my-6w">Consultation des avis et notes émis par les CBR et DCB [<%= @avis_all.count %>]</h1>
+      <div class="fr-download">
+        <p><%= link_to "/anaco/consultation.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'historique des avis/notes reçus
+            <span class="fr-download__detail">
+          Format .xlsx
+        </span>
+          <%end %></p></div>
     </div>
   </div>
 

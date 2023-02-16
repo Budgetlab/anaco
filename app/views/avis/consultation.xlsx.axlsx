@@ -1,0 +1,38 @@
+
+    wb = xlsx_package.workbook
+  	wb.add_worksheet(name: "Début de gestion") do |sheet| 	
+    	sheet.add_row %W{ BOP Avis Date\ reception Date\ avis\ initial Delai CRG1\ programmé AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+
+      @avis_d.each do |avis|
+        if avis.is_delai == true 
+          is_delai = "oui"
+        else
+          is_delai = "non"
+        end
+        if avis.is_crg1 == true 
+          is_crg1 = "oui"
+        else
+          is_crg1 = "non"
+        end
+        sheet.add_row [avis.bop.code, avis.statut, avis.date_reception, avis.date_envoi, is_delai, is_crg1, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+           
+      end
+  	end
+  	wb.add_worksheet(name: "CRG1") do |sheet|
+    	sheet.add_row %W{ BOP Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+    
+    	
+      @avis_crg1.each do |avis|
+        sheet.add_row [avis.bop.code, avis.date_envoi, avis.statut, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+           
+      end
+  	end
+  	wb.add_worksheet(name: "CRG2") do |sheet|
+    	sheet.add_row %W{ BOP Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+    
+
+      @avis_crg2.each do |avis|
+        sheet.add_row [avis.bop.code, avis.date_envoi, avis.statut, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+           
+      end
+  	end

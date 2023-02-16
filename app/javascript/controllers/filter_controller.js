@@ -5,7 +5,6 @@ export default class extends Controller {
     return ['form'];
   }
   connect() {
-
   }
   submitFilter(){
     this.formTarget.requestSubmit()

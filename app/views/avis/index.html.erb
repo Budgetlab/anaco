@@ -11,13 +11,14 @@
 					<%end %></p></div>
 		</div>
 	</div>
-
+	<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
 	<div class="fr-table fr-table--no-caption">
 		<table>
 			<caption>Historique</caption>
-			<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
 			<thead>
+
 				<tr>
+
 					<th scope="col">Phase <div class="fr-translate fr-nav fr-nav-filter">
 						<button class="filter-table-btn2" aria-controls="translate-1291" aria-expanded="false" title="Filtrer par phase" data-action="click->filter#Dropdown">
 						</button>
@@ -153,8 +154,6 @@
 								</ul>
 							</div>
 						</div></th>
-
-
 					<th scope="col">État
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
@@ -182,12 +181,12 @@
 						</div>
 						</div>
 					</th>
-
 					<th scope="col"> </th>
+
 				</tr>
 
 			</thead>
-			<%end %>
+
 
 			<tbody id="table_historique">
 			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data} %>
@@ -195,7 +194,7 @@
 
 		</table>
 	</div>
-
+	<%end %>
 	<dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
 		<div id="debut">
 			<%= render partial: 'avis/dialog_debut',locals: {avis: @avis_default} %>
