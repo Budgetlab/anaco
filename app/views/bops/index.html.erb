@@ -42,7 +42,7 @@
             <div class="fr-col-lg-3 fr-col-4">
                 <% if @bops_avis_debut[bop.id].nil? %><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
                 <% elsif @bops_avis_debut[bop.id] == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                <%elsif @bops_avis_debut[bop.id]  != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--success">Avis début de gestion</p>
+                <%elsif @bops_avis_debut[bop.id]  != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
                 <%end%></div>
 
             <div class="fr-col-lg-2 fr-col-4">
@@ -52,7 +52,7 @@
                 <% if @bops_avis_crg1[bop.id].nil? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
                 <%elsif @bops_avis_crg1[bop.id] != "Brouillon"%>
-                  <p class="fr-badge fr-badge--info fr-badge--success">Note CRG1</p>
+                  <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
                 <% elsif @bops_avis_crg1[bop.id] == "Brouillon"%>
                   <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
                 <%end%>
@@ -66,7 +66,7 @@
                 <% if @bops_avis_crg2[bop.id].nil? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
                 <%elsif @bops_avis_crg2[bop.id] != "Brouillon"%>
-                  <p class="fr-badge fr-badge--info fr-badge--success">Note CRG2</p>
+                  <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
                 <% elsif @bops_avis_crg2[bop.id] == "Brouillon"%>
                   <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
                 <%end%>

@@ -129,7 +129,7 @@ class AvisController < ApplicationController
 			@avis_all = current_user.avis.order(created_at: :desc)
 		end
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :consultant)
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 		@avis_default = @avis_all.first
 		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
@@ -266,16 +266,16 @@ class AvisController < ApplicationController
 	end
 
 	def destroy
-		Avi.where(id: params[:id]).destroy_all 
+		#Avi.where(id: params[:id]).destroy_all
 		respond_to do |format|
 			format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
 		end
 	end
 
 	def reset
-		Avi.destroy_all
+		#Avi.destroy_all
 		Bop.all.each do |bop|
-			bop.update(dotation: nil)
+			#bop.update(dotation: nil)
 		end
 		respond_to do |format|
 			format.turbo_stream { redirect_to historique_path  }
