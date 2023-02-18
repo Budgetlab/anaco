@@ -169,7 +169,13 @@ h1, h2{
 .fr-input-group .fr-message--info{
   font-size: 1rem !important;
 }
-
+.filter-table-list{
+  background-color: var(--background-overlap-grey);
+  display: grid;
+  grid-template-rows: repeat(var(--rows), auto);
+  grid-auto-flow: column;
+  pointer-events: auto;
+}
 
 .filter-table-list .fr-fieldset {
   max-height: 10rem;
@@ -188,6 +194,11 @@ h1, h2{
 }
 .fr-nav-filter .fr-menu{
   right: 0 !important;
+  pointer-events: none;
+  position: absolute;
+  top: 100%;
+  z-index: calc(var(--ground) + 1000);
+
 
 }
 .filter-table-btn2{
