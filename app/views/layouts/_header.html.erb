@@ -50,11 +50,11 @@
                     <li class="fr-nav__item">
                         <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'],['index']] do%>Accueil<%end%>
                     </li>
-                    <% if current_user.statut != "admin" %>
+
                       <li class="fr-nav__item">
                         <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do%>BOP et avis<%end%>
                       </li>
-                    <%end %>
+
                     <li class="fr-nav__item">
                         <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do%>Historique<%end%>
                     </li>

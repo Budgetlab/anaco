@@ -7,7 +7,7 @@ export default class extends Controller {
   connect() {
   }
   submitFilter(){
-    this.formTarget.requestSubmit()
+    this.formTarget.requestSubmit();
   }
 
   Dropdown(e){

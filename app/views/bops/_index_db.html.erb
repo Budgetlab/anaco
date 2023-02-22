@@ -1,0 +1,142 @@
+<div class="fr-container" data-controller="filter">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @bops.count %> BOP</h1>
+      <div class="fr-download">
+        <p><%= link_to "/anaco/bops.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'ensemble des BOP
+            <span class="fr-download__detail">Format .xlsx</span>
+          <%end %></p>
+      </div>
+
+
+
+    </div>
+  </div>
+  <%= form_with(url: filter_bop_path, method: :post, data: { 'filter-target': "form"}) do |f|%>
+    <div class="fr-table fr-table--no-caption ">
+      <table>
+        <caption>BOP</caption>
+        <thead>
+
+        <tr>
+          <th scope="col">BOP
+            <div class="fr-translate fr-nav fr-nav-filter">
+              <button class="filter-table-btn2" aria-controls="translate-1290" aria-expanded="false" title="Filtrer par BOP" data-action="click->filter#Dropdown">
+              </button>
+              <div class="fr-collapse fr-menu" id="translate-1290">
+                <ul class="fr-menu__list filter-table-list">
+                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-bop-legend checkboxes-bop-messages">
+
+                    <div class="fr-fieldset__element">
+                      <% @codes_bop.each_with_index do |code,i| %>
+                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+                          <%= f.check_box "bops[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-bop-#{i}"}, code%>
+                          <label class="fr-label" for="checkboxes-bop-<%=i %>">
+                            <%= code %>
+                          </label>
+                          <div class="fr-messages-group" id="checkboxes-bop-<%=i %>-messages" aria-live="assertive">
+                          </div>
+                        </div>
+                      <%end %>
+                    </div>
+                    <div class="fr-messages-group" id="checkboxes-bop-messages" aria-live="assertive">
+                    </div>
+                  </fieldset></li>
+                </ul>
+              </div>
+            </div>
+          </th>
+          <th scope="col">Dotation
+            <div class="fr-translate fr-nav fr-nav-filter">
+              <button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
+              </button>
+              <div class="fr-collapse fr-menu" id="translate-1294">
+                <ul class="fr-menu__list filter-table-list">
+                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
+
+                    <div class="fr-fieldset__element">
+                      <% @dotations.values.each_with_index do |statut,i| %>
+                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+                          <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, @dotations.key(statut)%>
+                          <label class="fr-label" for="checkboxes-<%=i %>">
+                            <%= statut %> (<%= @dotations_total[i] %>)
+                          </label>
+                          <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
+                          </div>
+                        </div>
+                      <%end %>
+                    </div>
+                    <div class="fr-messages-group" id="checkboxes-small-messages" aria-live="assertive">
+                    </div>
+                  </fieldset></li>
+                </ul>
+              </div>
+            </div></th>
+          <th scope="col">Programme
+            <div class="fr-translate fr-nav fr-nav-filter">
+              <button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
+              </button>
+              <div class="fr-collapse fr-menu" id="translate-1293">
+                <ul class="fr-menu__list filter-table-list">
+                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-prog-legend checkboxes-prog-messages">
+
+                    <div class="fr-fieldset__element">
+                      <% @numeros_programmes.each_with_index do |numero,i| %>
+                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+                          <%= f.check_box "numeros[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-prog-#{i}"}, numero%>
+                          <label class="fr-label" for="checkboxes-prog-<%=i %>">
+                            <%= numero %> (<%= @bops.select{|b| b.numero_programme == numero}.count %>)
+                          </label>
+                          <div class="fr-messages-group" id="checkboxes-prog-<%=i %>-messages" aria-live="assertive">
+                          </div>
+                        </div>
+                      <%end %>
+                    </div>
+                    <div class="fr-messages-group" id="checkboxes-prog-messages" aria-live="assertive">
+                    </div>
+                  </fieldset></li>
+                </ul>
+              </div>
+            </div>
+          </th>
+
+          <th scope="col">Contrôleur
+            <div class="fr-translate fr-nav fr-nav-filter">
+              <button class="filter-table-btn2" aria-controls="translate-1292" aria-expanded="false" title="Filtrer par controleur" data-action="click->filter#Dropdown">
+              </button>
+              <div class="fr-collapse fr-menu" id="translate-1292">
+                <ul class="fr-menu__list filter-table-list">
+                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
+
+                    <div class="fr-fieldset__element">
+                      <% @users_id.values.sort.each_with_index do |name,i| %>
+                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+                          <%= f.check_box "users[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-controleur-#{i}"}, @users_id.key(name)%>
+                          <label class="fr-label" for="checkboxes-controleur-<%=i %>">
+                            <%= name %> (<%= @bops.select{|b| b.user_id == @users_id.key(name)}.count %>)
+                          </label>
+                          <div class="fr-messages-group" id="checkboxes-controleur-<%=i %>-messages" aria-live="assertive">
+                          </div>
+                        </div>
+                      <%end %>
+                    </div>
+                    <div class="fr-messages-group" id="checkboxes-controleur-messages" aria-live="assertive">
+                    </div>
+                  </fieldset></li>
+                </ul>
+              </div>
+            </div>
+          </th>
+        </tr>
+
+        </thead>
+
+
+        <tbody id="table_bops">
+        <%= render partial: 'bops/table_bops', locals: {bops: @bops, users: @users} %>
+        </tbody>
+
+      </table>
+    </div>
+  <%end %>
+</div>

@@ -146,12 +146,13 @@ h1, h2{
   margin: -0.25rem -1rem 0 !important;
 }
 
-.fr-table {
+.fr-table table {
   max-height: 30rem;
   overflow: auto;
-}
-.fr-table table {
   min-height: 18rem !important;
+}
+.fr-table td, .fr-table th {
+  max-width:20rem !important;
 }
 .fr-table thead th {
   position: sticky;

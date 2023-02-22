@@ -14,7 +14,7 @@
   <div class="fr-table fr-table--no-caption ">
     <table>
       <caption>Historique des avis</caption>
-      <%= form_with(url: filter_consultation_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
+      <%= form_with(url: filter_consultation_path, method: :post, data: {'filter-target': "form"}) do |f|%>
         <thead>
         <tr>
           <th scope="col">Phase

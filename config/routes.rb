@@ -25,6 +25,8 @@ Rails.application.routes.draw do
 			post 'filter_historique', to: "avis#filter_historique"
       post 'reset', to: "avis#reset"
 
+      post "filter_bop", to: "bops#filter_bop"
+
       get '/restitutions', to: "pages#restitutions"
 			get '/restitutions/:programme', to: "pages#restitution_programme"
       post 'filter_restitution', to: "pages#filter_restitution"

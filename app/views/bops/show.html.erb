@@ -7,11 +7,11 @@
           <li>
             <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
           </li>
-            <% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
+
             <li>
               <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
             </li>
-            <%end %>
+
           <li>
             <a class="fr-breadcrumb__link" aria-current="page">BOP n°<%= @bop.code%></a>
           </li>
