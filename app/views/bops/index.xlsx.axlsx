@@ -1,0 +1,19 @@
+
+    wb = xlsx_package.workbook
+  	wb.add_worksheet(name: "Liste BOP") do |sheet| 	
+    	sheet.add_row %W{ BOP Statut\ Dotation Programme Controleur}
+
+      @bops.each do |bop|
+        if bop.dotation == "complete" 
+          dotation = "T2/HT2"
+        elsif bop.dotation == "aucune"
+          dotation = "Inactif"       
+        elsif bop.dotation.nil? 
+          dotation = "Non renseigné"
+        else
+          dotation = bop.dotation
+        end
+        sheet.add_row [bop.code, dotation, bop.numero_programme, bop.user.nom]
+           
+      end
+  	end
