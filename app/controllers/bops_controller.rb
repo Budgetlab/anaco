@@ -9,7 +9,7 @@ class BopsController < ApplicationController
 			@numeros_programmes = @bops.pluck(:numero_programme).uniq
 			@users = @bops.joins(:user).pluck(:id,:nom).to_h
 			@users_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
-			@dotations =  {"complete"=>"T2/HT2","T2"=>"T2","HT2"=>"HT2","aucune"=>"INACTIF",nil=>"NON RENSEIGNÉ"}
+			@dotations =  {"complete"=>"T2/HT2","T2"=>"T2","HT2"=>"HT2","aucune"=>"INACTIF", "vide"=>"NON RENSEIGNÉ"}
 			@dotations_total = [@bops.select{|b| b.dotation == "complete"}.count,@bops.select{|b| b.dotation == "T2"}.count,@bops.select{|b| b.dotation == "HT2"}.count,@bops.select{|b| b.dotation == "aucune"}.count,@bops.select{|b| b.dotation == nil}.count ]
 			@bops.select(:code, :dotation, :numero_programme,:nom_programme, :user_id)
 		else
@@ -55,6 +55,9 @@ class BopsController < ApplicationController
 		@users_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
 		@bops.select(:code, :dotation, :numero_programme, :nom_programme, :user_id)
 		if params[:statuts] && params[:statuts].length != 5
+			if params[:statuts].include?("vide")
+				params[:statuts] = params[:statuts].append(nil)
+			end
 			@bops = @bops.select { |b| params[:statuts].include?(b.dotation) }
 		end
 		if params[:numeros] && params[:numeros].length != @numeros_programmes.length
