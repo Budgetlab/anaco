@@ -76,7 +76,12 @@
                           <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
                         <%elsif avis.etat != "Brouillon"%>
                           <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-                        <%end%></td>
+                          <% if current_user.statut == "admin" %>
+                            <button class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-modifiable">Rendre modifiable</button>
+                            <%= render partial: "avis/dialog_modifiable", locals: {avis: avis} %>
+                          <%end %>
+                        <%end%>
+                      </td>
                   </tr>
                 <% end %>
               </tbody>

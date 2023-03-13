@@ -63,19 +63,20 @@ class AvisController < ApplicationController
 		@bops_consultation_id = @bops_consultation.pluck(:id)
 		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
 		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..3]]}]
-		@users = User.pluck(:id,:nom).to_h
+		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 
 		respond_to do |format|
 			format.turbo_stream do
 				render turbo_stream: [
-					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data, users: @users}),
+					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data}),
 				]
 			end
 		end
 
 	end
+
+
 
 	def filter_consultation
 		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
@@ -266,14 +267,21 @@ class AvisController < ApplicationController
 	end
 
 	def destroy
-		#Avi.where(id: params[:id]).destroy_all
+		Avi.where(id: params[:id]).destroy_all
 		respond_to do |format|
 			format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
 		end
 	end
 
+	def reset_brouillon
+		@avis = Avi.find(params[:id])
+		@avis.update(etat: "Brouillon")
+		respond_to do |format|
+			format.turbo_stream { redirect_to bop_path(@avis.bop)  }
+		end
+	end
+
 	def reset
-		#Avi.destroy_all
 		Bop.all.each do |bop|
 			#bop.update(dotation: nil)
 		end

@@ -24,6 +24,7 @@ Rails.application.routes.draw do
 			post 'filter_consultation', to: "avis#filter_consultation"
 			post 'filter_historique', to: "avis#filter_historique"
       post 'reset', to: "avis#reset"
+      post 'reset_brouillon', to: "avis#reset_brouillon"
 
       post "filter_bop", to: "bops#filter_bop"
 
