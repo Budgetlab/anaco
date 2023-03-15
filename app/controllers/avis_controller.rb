@@ -12,7 +12,7 @@ class AvisController < ApplicationController
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
+		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
 		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
@@ -43,7 +43,7 @@ class AvisController < ApplicationController
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
+		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
 		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
@@ -86,7 +86,7 @@ class AvisController < ApplicationController
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
+		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
 		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
@@ -133,7 +133,7 @@ class AvisController < ApplicationController
 		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
 		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq
+		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
 		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
 		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
