@@ -224,7 +224,7 @@ export default class extends Controller {
                 },
             },
             xAxis: {
-                categories: ['CRG1', 'CRG2'],
+                categories: ["Début de gestion",'CRG1', 'CRG2'],
             },
             yAxis: {
                 min: 0,
@@ -337,9 +337,9 @@ export default class extends Controller {
             series: [{
                 name: 'Catégorie',
                 data: [
-                    { name: 'BOP avec capacité contributive', y: data[0] },
-                    { name: 'BOP avec consommation à la ressource', y: data[1] },
-                    { name: 'BOP avec besoin de financement', y: data[2] },
+                    { name: 'Aucun risque', y: data[0] },
+                    { name: 'Risques éventuels ou modérés', y: data[1] },
+                    { name: 'Risques certains ou significatifs', y: data[2] },
                     { name: 'Notes non renseignées', y: data[3] }
                 ]
             }]
@@ -416,9 +416,9 @@ export default class extends Controller {
             series: [{
                 name: 'Catégorie',
                 data: [
-                    { name: 'BOP avec capacité contributive', y: data[0] },
-                    { name: 'BOP avec consommation à la ressource', y: data[1] },
-                    { name: 'BOP avec besoin de financement', y: data[2] },
+                    { name: 'Aucun risque', y: data[0] },
+                    { name: 'Risques éventuels ou modérés', y: data[1] },
+                    { name: 'Risques certains ou significatifs', y: data[2] },
                     { name: 'Notes non renseignées', y: data[3] }
                 ]
             }]
