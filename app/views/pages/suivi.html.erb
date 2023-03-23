@@ -1,0 +1,76 @@
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-my-6w">Suivi des avis par contrôleur</h1>
+
+      <div class="fr-download">
+        <p><%= link_to "/anaco/suivi.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger les tableaux
+            <span class="fr-download__detail">
+          Format .xlsx
+        </span>
+          <%end %></p>
+      </div>
+
+      <div class="fr-table fr-table--blue-ecume">
+        <table>
+          <caption>Suivi du remplissage des avis</caption>
+          <thead>
+            <tr>
+              <th scope="col">CBR/DCB</th>
+              <th scope="col">BOP actifs</th>
+              <th scope="col">Avis en attente</th>
+              <th scope="col">Avis en brouillon</th>
+              <th scope="col">Avis favorable</th>
+              <th scope="col">Avis favorable avec réserve</th>
+              <th scope="col">Avis défavorable</th>
+              <th scope="col">Taux de remplissage</th>
+            </tr>
+          </thead>
+          <tbody>
+          <%  @users_array.each do |arr| %>
+            <tr>
+              <td><%= arr[0] %></td>
+              <td><%= arr[1] %></td>
+              <td><%= arr[2] %></td>
+              <td><%= arr[3] %></td>
+              <td><%= arr[4] %></td>
+              <td><%= arr[5] %></td>
+              <td><%= arr[6] %></td>
+              <td><%= arr[7] %>%</td>
+            </tr>
+          <%end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fr-table">
+        <table>
+          <caption>Suivi de lecture des avis par les DCB</caption>
+          <thead>
+          <tr>
+            <th scope="col">DCB responsable</th>
+            <th scope="col">BOP actifs / Avis à lire</th>
+            <th scope="col">Avis non reçus</th>
+            <th scope="col">Avis en attente de lecture</th>
+            <th scope="col">Avis lus</th>
+            <th scope="col">Taux de lecture</th>
+          </tr>
+          </thead>
+          <tbody>
+          <%  @dcb_array.each do |arr| %>
+            <tr>
+              <td><%= arr[0] %></td>
+              <td><%= arr[1] %></td>
+              <td><%= arr[2] %></td>
+              <td><%= arr[3] %></td>
+              <td><%= arr[4] %></td>
+              <td><%= arr[5] %>%</td>
+            </tr>
+          <%end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>

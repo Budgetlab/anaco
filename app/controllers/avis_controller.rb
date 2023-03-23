@@ -1,293 +1,293 @@
 class AvisController < ApplicationController
-	before_action :authenticate_user!
-	require 'axlsx'
-	def index
-		if current_user.statut == "admin"
-			@avis_all = Avi.order(created_at: :desc)
-		else
-			@avis_all = current_user.avis.order(created_at: :desc)
-		end
+  before_action :authenticate_user!
+  require 'axlsx'
+  def index
+    if current_user.statut == "admin"
+      @avis_all = Avi.order(created_at: :desc)
+    else
+      @avis_all = current_user.avis.order(created_at: :desc)
+    end
 
-		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
-		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
-		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
-		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
-		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
-		@avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
-		@avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
-		respond_to do |format|
-			format.html
-			format.xlsx
-		end
-	end
+    @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+    @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+    @bops_data = Hash[@bops_arr.collect { |a| [a[0], a[1..4]] }]
+    @avis_default = @avis_all.first
+    @numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
+    @codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
+    @users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+    @avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
+    @avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
+    @avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
 
-	def openModal
-		@avis_default = Avi.find(params[:id])
-		respond_to do |format|
-			format.turbo_stream do
-				render turbo_stream: [
-					turbo_stream.update('debut', partial: "avis/dialog_debut",locals: {avis: @avis_default}),
-				]
-			end
-		end
-	end
+  def openModal
+    @avis_default = Avi.find(params[:id])
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('debut', partial: "avis/dialog_debut",locals: {avis: @avis_default}),
+        ]
+      end
+    end
+  end
 
-	def consultation
-		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-		@bops_consultation_id = @bops_consultation.pluck(:id)
-		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
-		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
-		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
-		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
-		@avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
-		@avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
-		@avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
-		respond_to do |format|
-			format.html
-			format.xlsx
-		end
-	end
+  def consultation
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+    @bops_consultation_id = @bops_consultation.pluck(:id)
+    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
+    @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+    @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+    @bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+    @avis_default = @avis_all.first
+    @numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
+    @codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
+    @users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+    @avis_d = @avis_all.select{|a| a.phase == "début de gestion" && a.etat != "Brouillon"}
+    @avis_crg1 = @avis_all.select{|a| a.phase == "CRG1" && a.etat != "Brouillon"}
+    @avis_crg2 = @avis_all.select{|a| a.phase == "CRG2" && a.etat != "Brouillon"}
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
 
-	def update
-		@avis = Avi.find(params[:id])
-		@avis.update(etat: "Lu")
+  def update
+    @avis = Avi.find(params[:id])
+    @avis.update(etat: "Lu")
 
-		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-		@bops_consultation_id = @bops_consultation.pluck(:id)
-		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+    @bops_consultation_id = @bops_consultation.pluck(:id)
+    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
+    @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+    @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+    @bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
 
-		respond_to do |format|
-			format.turbo_stream do
-				render turbo_stream: [
-					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data}),
-				]
-			end
-		end
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data}),
+        ]
+      end
+    end
 
-	end
-
-
-
-	def filter_consultation
-		@bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-		@bops_consultation_id = @bops_consultation.pluck(:id)
-		@avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
-		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
-		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
-		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
-		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+  end
 
 
-		if params[:phases] && params[:phases].length != 3
-			@avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
-		end
-		if params[:statuts] && params[:statuts].length != 3
-			@avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
-		end
-		if params[:etats] && params[:etats].length != 3
-			@avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
-		end
-		if params[:numeros] && params[:numeros].length != @numeros_programmes.length
-			@bops = Bop.where(id: @avis_all.pluck(:bop_id))
-			@num = params[:numeros].map(&:to_i)
-			@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
-			@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
-		end
-		if params[:users] && params[:users].length != @users_id.length
-			@users_arr = params[:users].map(&:to_i)
-			@avis_all = @avis_all.select{ |a| @users_arr.include?(a.user_id) }
-		end
-		if params[:bops] && params[:bops].length != @codes_bop.length
-			@bops_id = params[:bops].map(&:to_i)
-			@avis_all = @avis_all.select{ |a| @bops_id.include?(a.bop_id) }
-		end
 
-		respond_to do |format|
-			format.turbo_stream do
-				render turbo_stream: [
-					turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data}),
-				]
-			end
-		end
-	end
-	def filter_historique
-		if current_user.statut == "admin"
-			@avis_all = Avi.order(created_at: :desc)
-		else
-			@avis_all = current_user.avis.order(created_at: :desc)
-		end
-		@avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
-		@bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
-		@bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
-		@avis_default = @avis_all.first
-		@numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
-		@codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
-		@users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
+  def filter_consultation
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
+    @bops_consultation_id = @bops_consultation.pluck(:id)
+    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: "Brouillon").order(created_at: :desc)
+    @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+    @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+    @bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+    @avis_default = @avis_all.first
+    @numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
+    @codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
+    @users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
-		if @avis_all.count > 0
-			if params[:phases] && params[:phases].length != 3
-				@avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
-			end
-			if params[:statuts] && params[:statuts].length != 3
-				@avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
-			end
-			if params[:etats] && params[:etats].length != 3
-				@avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
-			end
-			if params[:numeros] && params[:numeros].length != @numeros_programmes.length
-				@bops = Bop.where(id: @avis_all.pluck(:bop_id))
-				@num = params[:numeros].map(&:to_i)
-				@bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
-				@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
-			end
-			if params[:users] && params[:users].length != @users_id.length
-				@users = params[:users].map(&:to_i)
-				@avis_all = @avis_all.select{ |a| @users.include?(a.user_id) }
-			end
-			if params[:bops] && params[:bops].length != @codes_bop.length
-				@bops_id = params[:bops].map(&:to_i)
-				@avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
-			end
-		end
 
-		respond_to do |format|
-			format.turbo_stream do
-				render turbo_stream: [
-					turbo_stream.update('table_historique', partial: "avis/table_historique", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data})
-				]
-			end
-		end
-	end
-	def new
-		@bop = Bop.where(id: params[:bop_id]).first
-		@date1 = Date.new(2023,4,30)
-		@date2 = Date.new(2023,8,31)
+    if params[:phases] && params[:phases].length != 3
+      @avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
+    end
+    if params[:statuts] && params[:statuts].length != 3
+      @avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
+    end
+    if params[:etats] && params[:etats].length != 3
+      @avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
+    end
+    if params[:numeros] && params[:numeros].length != @numeros_programmes.length
+      @bops = Bop.where(id: @avis_all.pluck(:bop_id))
+      @num = params[:numeros].map(&:to_i)
+      @bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
+      @avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
+    end
+    if params[:users] && params[:users].length != @users_id.length
+      @users_arr = params[:users].map(&:to_i)
+      @avis_all = @avis_all.select{ |a| @users_arr.include?(a.user_id) }
+    end
+    if params[:bops] && params[:bops].length != @codes_bop.length
+      @bops_id = params[:bops].map(&:to_i)
+      @avis_all = @avis_all.select{ |a| @bops_id.include?(a.bop_id) }
+    end
 
-		@is_completed = false
-		if @bop.user != current_user
-			redirect_to bops_path
-		else
-			@avis_debut = @bop.avis.where(phase: "début de gestion").first
-			@avis_crg1 = @bop.avis.where(phase: "CRG1").first
-			@avis_crg2 = @bop.avis.where(phase: "CRG2").first
-			if Date.today <= @date1
-				if @avis_debut.nil?
-					@avis = Avi.new
-				else
-					@avis = @avis_debut
-					if @avis.etat != "Brouillon"
-						@is_completed = true
-					end
-				end
-				@form = "début de gestion"
-			elsif @date1 < Date.today && Date.today <= @date2
-				@form = "CRG1"
-				if @avis_debut.nil?
-					@avis = Avi.new
-					@form = "début de gestion"
-				elsif @avis_debut.etat == "Brouillon"
-					@avis = @avis_debut
-					@form = "début de gestion"
-				elsif @avis_debut.is_crg1 == false
-					@form = "no CRG1" #pas de crg1 programmé
-				elsif @avis_crg1.nil?
-					@avis = Avi.new
-				elsif @avis_crg1.etat == "Brouillon"
-					@avis = @avis_crg1
-				elsif @avis_crg1.etat != "Brouillon"
-					@is_completed = true
-				end
-			elsif Date.today > @date2
-				@form = "CRG2"
-				if @avis_debut.nil?
-					@avis = Avi.new
-					@form = "début de gestion"
-				elsif @avis_debut.etat == "Brouillon"
-					@avis = @avis_debut
-					@form = "début de gestion"
-				elsif @avis_debut.is_crg1 == true && @avis_crg1.nil?
-					@avis = Avi.new
-					@form = "CRG1"
-				elsif @avis_debut.is_crg1 == true && @avis_crg1.etat == "Brouillon"
-					@avis = @avis_crg1
-					@form = "CRG1"
-				elsif @avis_crg2.nil?
-					@avis = Avi.new
-				elsif @avis_crg2.etat == "Brouillon"
-					@avis = @avis_crg2
-				elsif @avis_crg2.etat != "Brouillon"
-					@is_completed = true
-				end
-			end
-		end 
-	end 
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('table', partial: "avis/table", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data}),
+        ]
+      end
+    end
+  end
+  def filter_historique
+    if current_user.statut == "admin"
+      @avis_all = Avi.order(created_at: :desc)
+    else
+      @avis_all = current_user.avis.order(created_at: :desc)
+    end
+    @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
+    @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
+    @bops_data = Hash[@bops_arr.collect {|a| [a[0],a[1..4]]}]
+    @avis_default = @avis_all.first
+    @numeros_programmes = @avis_all.joins(:bop).pluck(:numero_programme).uniq.sort
+    @codes_bop = @avis_all.joins(:bop).pluck(:bop_id, :code).uniq.to_h
+    @users_id = @avis_all.joins(:user).pluck(:user_id, :nom).uniq.to_h
 
-	def create
-		@bop = Bop.where(id: params[:bop]).first
-		if @bop.user == current_user
-			if @bop.avis.where(phase: params[:phase]).count == 0 
-				@avis = current_user.avis.new(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception], 
-				date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
-				ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
-				t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
-				@avis.save
-			else
-				@avis = @bop.avis.where(phase: params[:phase]).first
-				@avis.update(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception],
-				date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
-				ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
-				t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
-			end
-			
-			if params[:etat] == "Brouillon"
-				@message = "Avis sauvegardé en tant que brouillon"
-			else
-				if @bop.user_id == @bop.consultant
-					 @avis.update(etat: "Lu") #si DCB lui même en consultation
-				end
-				@message = "transmis"
-			end
-		end
-		respond_to do |format|      
-			format.all { redirect_to historique_path, status: :see_other, notice: @message}
-		end
-	end
+    if @avis_all.count > 0
+      if params[:phases] && params[:phases].length != 3
+        @avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
+      end
+      if params[:statuts] && params[:statuts].length != 3
+        @avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
+      end
+      if params[:etats] && params[:etats].length != 3
+        @avis_all = @avis_all.select { |a| params[:etats].include?(a.etat) }
+      end
+      if params[:numeros] && params[:numeros].length != @numeros_programmes.length
+        @bops = Bop.where(id: @avis_all.pluck(:bop_id))
+        @num = params[:numeros].map(&:to_i)
+        @bops_id = @bops.select { |b| @num.include?(b.numero_programme) }.pluck(:id)
+        @avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
+      end
+      if params[:users] && params[:users].length != @users_id.length
+        @users = params[:users].map(&:to_i)
+        @avis_all = @avis_all.select{ |a| @users.include?(a.user_id) }
+      end
+      if params[:bops] && params[:bops].length != @codes_bop.length
+        @bops_id = params[:bops].map(&:to_i)
+        @avis_all = @avis_all.select { |a| @bops_id.include?(a.bop_id) }
+      end
+    end
 
-	def destroy
-		Avi.where(id: params[:id]).destroy_all
-		respond_to do |format|
-			format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
-		end
-	end
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('table_historique', partial: "avis/table_historique", locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data})
+        ]
+      end
+    end
+  end
+  def new
+    @bop = Bop.where(id: params[:bop_id]).first
+    @date1 = Date.new(2023,4,30)
+    @date2 = Date.new(2023,8,31)
 
-	def reset_brouillon
-		@avis = Avi.find(params[:id])
-		@avis.update(etat: "Brouillon")
-		respond_to do |format|
-			format.turbo_stream { redirect_to bop_path(@avis.bop)  }
-		end
-	end
+    @is_completed = false
+    if @bop.user != current_user
+      redirect_to bops_path
+    else
+      @avis_debut = @bop.avis.where(phase: "début de gestion").first
+      @avis_crg1 = @bop.avis.where(phase: "CRG1").first
+      @avis_crg2 = @bop.avis.where(phase: "CRG2").first
+      if Date.today <= @date1
+        if @avis_debut.nil?
+          @avis = Avi.new
+        else
+          @avis = @avis_debut
+          if @avis.etat != "Brouillon"
+            @is_completed = true
+          end
+        end
+        @form = "début de gestion"
+      elsif @date1 < Date.today && Date.today <= @date2
+        @form = "CRG1"
+        if @avis_debut.nil?
+          @avis = Avi.new
+          @form = "début de gestion"
+        elsif @avis_debut.etat == "Brouillon"
+          @avis = @avis_debut
+          @form = "début de gestion"
+        elsif @avis_debut.is_crg1 == false
+          @form = "no CRG1" #pas de crg1 programmé
+        elsif @avis_crg1.nil?
+          @avis = Avi.new
+        elsif @avis_crg1.etat == "Brouillon"
+          @avis = @avis_crg1
+        elsif @avis_crg1.etat != "Brouillon"
+          @is_completed = true
+        end
+      elsif Date.today > @date2
+        @form = "CRG2"
+        if @avis_debut.nil?
+          @avis = Avi.new
+          @form = "début de gestion"
+        elsif @avis_debut.etat == "Brouillon"
+          @avis = @avis_debut
+          @form = "début de gestion"
+        elsif @avis_debut.is_crg1 == true && @avis_crg1.nil?
+          @avis = Avi.new
+          @form = "CRG1"
+        elsif @avis_debut.is_crg1 == true && @avis_crg1.etat == "Brouillon"
+          @avis = @avis_crg1
+          @form = "CRG1"
+        elsif @avis_crg2.nil?
+          @avis = Avi.new
+        elsif @avis_crg2.etat == "Brouillon"
+          @avis = @avis_crg2
+        elsif @avis_crg2.etat != "Brouillon"
+          @is_completed = true
+        end
+      end
+    end 
+  end 
 
-	def reset
-		Bop.all.each do |bop|
-			#bop.update(dotation: nil)
-		end
-		respond_to do |format|
-			format.turbo_stream { redirect_to historique_path  }
-		end
-	end
+  def create
+    @bop = Bop.where(id: params[:bop]).first
+    if @bop.user == current_user
+      if @bop.avis.where(phase: params[:phase]).count == 0 
+        @avis = current_user.avis.new(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception], 
+        date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
+        ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
+        t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
+        @avis.save
+      else
+        @avis = @bop.avis.where(phase: params[:phase]).first
+        @avis.update(phase: params[:phase], bop_id: params[:bop], date_reception: params[:date_reception],
+        date_envoi: params[:date_envoi], is_delai: params[:is_delai], is_crg1: params[:is_crg1], statut: params[:statut],
+        ae_i: params[:ae_i], cp_i: params[:cp_i], t2_i: params[:t2_i], etpt_i: params[:etpt_i], ae_f: params[:ae_f], cp_f: params[:cp_f],
+        t2_f: params[:t2_f], etpt_f: params[:etpt_f], commentaire: params[:commentaire], etat: params[:etat])
+      end
+      
+      if params[:etat] == "Brouillon"
+        @message = "Avis sauvegardé en tant que brouillon"
+      else
+        if @bop.user_id == @bop.consultant
+           @avis.update(etat: "Lu") #si DCB lui même en consultation
+        end
+        @message = "transmis"
+      end
+    end
+    respond_to do |format|      
+      format.all { redirect_to historique_path, status: :see_other, notice: @message}
+    end
+  end
+
+  def destroy
+    Avi.where(id: params[:id]).destroy_all
+    respond_to do |format|
+      format.turbo_stream { redirect_to historique_path, notice: "Avis supprimé"  }
+    end
+  end
+
+  def reset_brouillon
+    @avis = Avi.find(params[:id])
+    @avis.update(etat: "Brouillon")
+    respond_to do |format|
+      format.turbo_stream { redirect_to bop_path(@avis.bop)  }
+    end
+  end
+
+  def reset
+    Bop.all.each do |bop|
+      #bop.update(dotation: nil)
+    end
+    respond_to do |format|
+      format.turbo_stream { redirect_to historique_path  }
+    end
+  end
 
 end

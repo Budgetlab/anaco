@@ -169,6 +169,44 @@ class PagesController < ApplicationController
       end
     end
   end
+
+  def suivi
+    if current_user.statut != "admin"
+      redirect_to root_path
+    else
+    @users = User.where(statut: ['CBR','DCB'])
+    @bops_all = Bop.where(dotation: [nil, "complete","T2","HT2"])
+    @avis = Avi.where(phase: "début de gestion")
+    @users_array = []
+    @users.each do |user|
+      @bops_actifs = @bops_all.select{ |b| b.user_id == user.id }.length
+      @avis_favorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable" }.length
+      @avis_favorables_reserve = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable avec réserve" }.length
+      @avis_defavorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Défavorable" }.length
+      @avis_brouillon = @avis.select { |a| a.user_id == user.id && a.etat == "Brouillon" }.length
+      @avis_vide = @bops_actifs - @avis.select { |a| a.user_id == user.id }.length
+      @taux = ((@avis.select { |a| a.user_id == user.id && a.etat != "Brouillon"}.length.to_f/@bops_actifs.to_f)*100).round
+      @users_array << [user.nom, @bops_actifs, @avis_vide, @avis_brouillon, @avis_favorables, @avis_favorables_reserve, @avis_defavorables, @taux]
+    end
+    @users_array = @users_array.sort_by { |e| -e[7]}
+    @dcb = @users.select { |u| u.statut == "DCB"}
+    @dcb_array = []
+    @dcb.each do |dcb|
+      @bops_arr = @bops_all.select{ |b| b.consultant == dcb.id }.pluck(:id)
+      @bops_actifs = @bops_arr.length
+      @avis_lu = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "Lu"}.length
+      @avis_en_attente = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "En attente de lecture"}.length
+      @avis_non_recu = @bops_actifs - @avis_lu - @avis_en_attente
+      @taux = ((@avis_lu.to_f/@bops_actifs.to_f)*100).round
+      @dcb_array << [dcb.nom, @bops_actifs, @avis_non_recu, @avis_en_attente, @avis_lu, @taux]
+    end
+    @dcb_array = @dcb_array.sort_by { |e| -e[5]}
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+    end
+  end
   def error_404
       if params[:path] && params[:path] == "500"
         render 'error_500'
