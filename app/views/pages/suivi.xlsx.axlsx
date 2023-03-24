@@ -1,0 +1,18 @@
+
+    wb = xlsx_package.workbook
+  	wb.add_worksheet(name: "Suivi remplissage") do |sheet| 	
+    	sheet.add_row %W{ Controleur BOP\ actifs Avis\ en\ attente Avis\ brouillon Avis\ favorable Avis\ favorable\ avec\ réserve Avis\ défavorable Taux\ de\ remplissage}
+
+      @users_array.each do |arr|
+        sheet.add_row [arr[0], arr[1],arr[2],arr[3],arr[4],arr[5],arr[6],arr[7]]
+           
+      end
+  	end
+  	wb.add_worksheet(name: "Suivi lecture") do |sheet|
+    	sheet.add_row %W{ DCB BOP\ actifs Avis\ non\ reçus Avis\ en\ attente\ de\ lecture Avis\ lus Taux\ de\ lecture}
+    
+    	
+      @dcb_array.each do |arr|
+        sheet.add_row [arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]]          
+      end
+  	end
