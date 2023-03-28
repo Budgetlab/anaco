@@ -11,65 +11,212 @@
           <%end %></p>
       </div>
 
-      <div class="fr-table fr-table--blue-ecume">
-        <table>
-          <caption>Suivi du remplissage des avis</caption>
-          <thead>
-            <tr>
-              <th scope="col">CBR/DCB</th>
-              <th scope="col">BOP actifs</th>
-              <th scope="col">Avis en attente</th>
-              <th scope="col">Avis en brouillon</th>
-              <th scope="col">Avis favorable</th>
-              <th scope="col">Avis favorable avec réserve</th>
-              <th scope="col">Avis défavorable</th>
-              <th scope="col">Taux de remplissage</th>
-            </tr>
-          </thead>
-          <tbody>
-          <%  @users_array.each do |arr| %>
-            <tr>
-              <td><%= arr[0] %></td>
-              <td><%= arr[1] %></td>
-              <td><%= arr[2] %></td>
-              <td><%= arr[3] %></td>
-              <td><%= arr[4] %></td>
-              <td><%= arr[5] %></td>
-              <td><%= arr[6] %></td>
-              <td><%= arr[7] %>%</td>
-            </tr>
-          <%end %>
-          </tbody>
-        </table>
+      <div class="fr-tabs fr-mb-4w">
+        <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+          <li role="presentation">
+            <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">Début de gestion</button>
+          </li>
+          <li role="presentation">
+            <button id="tabpanel-405" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-405-panel">CRG1</button>
+          </li>
+          <li role="presentation">
+            <button id="tabpanel-406" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-406-panel">CRG2</button>
+          </li>
+        </ul>
+        <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
+          <div class="fr-table fr-table--blue-ecume">
+            <table>
+              <caption>Suivi du remplissage des avis</caption>
+              <thead>
+              <tr>
+                <th scope="col">CBR/DCB</th>
+                <th scope="col">Taux de remplissage</th>
+                <th scope="col">BOP actifs</th>
+                <th scope="col">Avis en attente</th>
+                <th scope="col">Avis en brouillon</th>
+                <th scope="col">Avis favorable</th>
+                <th scope="col">Avis favorable avec réserve</th>
+                <th scope="col">Avis défavorable</th>
+              </tr>
+              </thead>
+              <tbody>
+              <%  @users_array.each do |arr| %>
+                <tr>
+                  <td><%= arr[0] %></td>
+                  <td><%= arr[7] %>%</td>
+                  <td><%= arr[1] %></td>
+                  <td><%= arr[2] %></td>
+                  <td><%= arr[3] %></td>
+                  <td><%= arr[4] %></td>
+                  <td><%= arr[5] %></td>
+                  <td><%= arr[6] %></td>
+                </tr>
+              <%end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fr-table">
+            <table>
+              <caption>Suivi de lecture des avis par les DCB</caption>
+              <thead>
+              <tr>
+                <th scope="col">DCB responsable</th>
+                <th scope="col">Taux de lecture</th>
+                <th scope="col">BOP actifs / Avis à lire</th>
+                <th scope="col">Avis non reçus</th>
+                <th scope="col">Avis en attente de lecture</th>
+                <th scope="col">Avis lus</th>
+
+              </tr>
+              </thead>
+              <tbody>
+              <%  @dcb_array.each do |arr| %>
+                <tr>
+                  <td><%= arr[0] %></td>
+                  <td><%= arr[5] %>%</td>
+                  <td><%= arr[1] %></td>
+                  <td><%= arr[2] %></td>
+                  <td><%= arr[3] %></td>
+                  <td><%= arr[4] %></td>
+
+                </tr>
+              <%end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
+          <% if Date.today >= @date1 %>
+            <div class="fr-table fr-table--blue-ecume">
+              <table>
+                <caption>Suivi du remplissage des avis</caption>
+                <thead>
+                <tr>
+                  <th scope="col">CBR/DCB</th>
+                  <th scope="col">Taux de remplissage</th>
+                  <th scope="col">BOP avec CRG1</th>
+                  <th scope="col">Notes en brouillon</th>
+                  <th scope="col">Notes risques faibles</th>
+                  <th scope="col">Notes risques modérés</th>
+                  <th scope="col">Notes risques significatifs</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <%  @users_array_crg1.each do |arr| %>
+                  <tr>
+                    <td><%= arr[0] %></td>
+                    <td><%= arr[6] %>%</td>
+                    <td><%= arr[1] %></td>
+                    <td><%= arr[2] %></td>
+                    <td><%= arr[3] %></td>
+                    <td><%= arr[4] %></td>
+                    <td><%= arr[5] %></td>
+                  </tr>
+                <%end %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="fr-table">
+              <table>
+                <caption>Suivi de lecture des avis par les DCB</caption>
+                <thead>
+                <tr>
+                  <th scope="col">DCB responsable</th>
+                  <th scope="col">Taux de lecture</th>
+                  <th scope="col">Notes à lire</th>
+                  <th scope="col">Notes non reçues</th>
+                  <th scope="col">Notes en attente de lecture</th>
+                  <th scope="col">Notes lues</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <%  @dcb_array_crg1.each do |arr| %>
+                  <tr>
+                    <td><%= arr[0] %></td>
+                    <td><%= arr[5] %>%</td>
+                    <td><%= arr[1] %></td>
+                    <td><%= arr[2] %></td>
+                    <td><%= arr[3] %></td>
+                    <td><%= arr[4] %></td>
+
+                  </tr>
+                <%end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </div>
+        <div id="tabpanel-406-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-406" tabindex="0">
+          <% if Date.today >= @date2 %>
+            <div class="fr-table fr-table--blue-ecume">
+              <table>
+                <caption>Suivi du remplissage des avis</caption>
+                <thead>
+                <tr>
+                  <th scope="col">CBR/DCB</th>
+                  <th scope="col">Taux de remplissage</th>
+                  <th scope="col">BOP actifs</th>
+                  <th scope="col">Notes en brouillon</th>
+                  <th scope="col">Notes risques faibles</th>
+                  <th scope="col">Notes risques modérés</th>
+                  <th scope="col">Notes risques significatifs</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <%  @users_array_crg2.each do |arr| %>
+                  <tr>
+                    <td><%= arr[0] %></td>
+                    <td><%= arr[6] %>%</td>
+                    <td><%= arr[1] %></td>
+                    <td><%= arr[2] %></td>
+                    <td><%= arr[3] %></td>
+                    <td><%= arr[4] %></td>
+                    <td><%= arr[5] %></td>
+                  </tr>
+                <%end %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="fr-table">
+              <table>
+                <caption>Suivi de lecture des avis par les DCB</caption>
+                <thead>
+                <tr>
+                  <th scope="col">DCB responsable</th>
+                  <th scope="col">Taux de lecture</th>
+                  <th scope="col">Notes à lire</th>
+                  <th scope="col">Notes non reçues</th>
+                  <th scope="col">Notes en attente de lecture</th>
+                  <th scope="col">Notes lues</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <%  @dcb_array_crg2.each do |arr| %>
+                  <tr>
+                    <td><%= arr[0] %></td>
+                    <td><%= arr[5] %>%</td>
+                    <td><%= arr[1] %></td>
+                    <td><%= arr[2] %></td>
+                    <td><%= arr[3] %></td>
+                    <td><%= arr[4] %></td>
+
+                  </tr>
+                <%end %>
+                </tbody>
+              </table>
+            </div>
+          <% end %>
+        </div>
       </div>
 
-      <div class="fr-table">
-        <table>
-          <caption>Suivi de lecture des avis par les DCB</caption>
-          <thead>
-          <tr>
-            <th scope="col">DCB responsable</th>
-            <th scope="col">BOP actifs / Avis à lire</th>
-            <th scope="col">Avis non reçus</th>
-            <th scope="col">Avis en attente de lecture</th>
-            <th scope="col">Avis lus</th>
-            <th scope="col">Taux de lecture</th>
-          </tr>
-          </thead>
-          <tbody>
-          <%  @dcb_array.each do |arr| %>
-            <tr>
-              <td><%= arr[0] %></td>
-              <td><%= arr[1] %></td>
-              <td><%= arr[2] %></td>
-              <td><%= arr[3] %></td>
-              <td><%= arr[4] %></td>
-              <td><%= arr[5] %>%</td>
-            </tr>
-          <%end %>
-          </tbody>
-        </table>
-      </div>
+
     </div>
   </div>
 

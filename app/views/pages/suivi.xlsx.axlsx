@@ -1,6 +1,6 @@
 
     wb = xlsx_package.workbook
-  	wb.add_worksheet(name: "Suivi remplissage") do |sheet| 	
+  	wb.add_worksheet(name: "Suivi remplissage début") do |sheet| 	
     	sheet.add_row %W{ Controleur BOP\ actifs Avis\ en\ attente Avis\ brouillon Avis\ favorable Avis\ favorable\ avec\ réserve Avis\ défavorable Taux\ de\ remplissage}
 
       @users_array.each do |arr|
@@ -8,7 +8,7 @@
            
       end
   	end
-  	wb.add_worksheet(name: "Suivi lecture") do |sheet|
+  	wb.add_worksheet(name: "Suivi lecture début") do |sheet|
     	sheet.add_row %W{ DCB BOP\ actifs Avis\ non\ reçus Avis\ en\ attente\ de\ lecture Avis\ lus Taux\ de\ lecture}
     
     	
@@ -16,3 +16,35 @@
         sheet.add_row [arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]]          
       end
   	end
+    wb.add_worksheet(name: "Suivi remplissage crg1") do |sheet|  
+      sheet.add_row %W{ Controleur BOP\ CRG1 Notes\ brouillon Notes\ risques\ faibles Notes\ risques\ modérés Notes\ risques\ significatifs Taux\ de\ remplissage}
+
+      @users_array_crg1.each do |arr|
+        sheet.add_row [arr[0], arr[1],arr[2],arr[3],arr[4],arr[5],arr[6]]
+           
+      end
+    end
+    wb.add_worksheet(name: "Suivi lecture crg1") do |sheet|
+      sheet.add_row %W{ DCB Notes\ a\ lire Notes\ non\ reçues Notes\ en\ attente\ de\ lecture Notes\ lues Taux\ de\ lecture}
+    
+      
+      @dcb_array_crg1.each do |arr|
+        sheet.add_row [arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]]          
+      end
+    end
+    wb.add_worksheet(name: "Suivi remplissage crg2") do |sheet|  
+      sheet.add_row %W{ Controleur BOP\ actifs Notes\ brouillon Notes\ risques\ faibles Notes\ risques\ modérés Notes\ risques\ significatifs Taux\ de\ remplissage}
+
+      @users_array_crg2.each do |arr|
+        sheet.add_row [arr[0], arr[1],arr[2],arr[3],arr[4],arr[5],arr[6]]
+           
+      end
+    end
+    wb.add_worksheet(name: "Suivi lecture crg2") do |sheet|
+      sheet.add_row %W{ DCB Notes\ a\ lire Notes\ non\ reçues Notes\ en\ attente\ de\ lecture Notes\ lues Taux\ de\ lecture}
+    
+      
+      @dcb_array_crg2.each do |arr|
+        sheet.add_row [arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]]          
+      end
+    end

@@ -174,45 +174,98 @@ class PagesController < ApplicationController
     if current_user.statut != "admin"
       redirect_to root_path
     else
-    @users = User.where(statut: ['CBR','DCB'])
-    @bops_all = Bop.where(dotation: [nil, "complete","T2","HT2"])
-    @avis = Avi.where(phase: "début de gestion")
-    @users_array = []
-    @users.each do |user|
-      @bops_actifs = @bops_all.select{ |b| b.user_id == user.id }.length
-      @avis_favorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable" }.length
-      @avis_favorables_reserve = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable avec réserve" }.length
-      @avis_defavorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Défavorable" }.length
-      @avis_brouillon = @avis.select { |a| a.user_id == user.id && a.etat == "Brouillon" }.length
-      @avis_vide = @bops_actifs - @avis.select { |a| a.user_id == user.id }.length
-      @taux = ((@avis.select { |a| a.user_id == user.id && a.etat != "Brouillon"}.length.to_f/@bops_actifs.to_f)*100).round
-      @users_array << [user.nom, @bops_actifs, @avis_vide, @avis_brouillon, @avis_favorables, @avis_favorables_reserve, @avis_defavorables, @taux]
-    end
-    @users_array = @users_array.sort_by { |e| -e[7]}
-    @dcb = @users.select { |u| u.statut == "DCB"}
-    @dcb_array = []
-    @dcb.each do |dcb|
-      @bops_arr = @bops_all.select{ |b| b.consultant == dcb.id }.pluck(:id)
-      @bops_actifs = @bops_arr.length
-      @avis_lu = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "Lu"}.length
-      @avis_en_attente = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "En attente de lecture"}.length
-      @avis_non_recu = @bops_actifs - @avis_lu - @avis_en_attente
-      @taux = ((@avis_lu.to_f/@bops_actifs.to_f)*100).round
-      @dcb_array << [dcb.nom, @bops_actifs, @avis_non_recu, @avis_en_attente, @avis_lu, @taux]
-    end
-    @dcb_array = @dcb_array.sort_by { |e| -e[5]}
-    respond_to do |format|
-      format.html
-      format.xlsx
-    end
+      @date1 = Date.new(2023,4,30)
+      @date2 = Date.new(2023,8,31)
+      @users = User.where(statut: ['CBR','DCB'])
+      @bops_all = Bop.where(dotation: [nil, "complete","T2","HT2"])
+      @avis = Avi.where(phase: "début de gestion")
+      @notes1 = Avi.where(phase: "CRG1")
+      @notes2 = Avi.where(phase: "CRG2")
+      @users_array = []
+      @users_array_crg1 = []
+      @users_array_crg2 = []
+      @users.each do |user|
+        @bops_actifs = @bops_all.select{ |b| b.user_id == user.id }.length
+        @avis_favorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable" }.length
+        @avis_favorables_reserve = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Favorable avec réserve" }.length
+        @avis_defavorables = @avis.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Défavorable" }.length
+        @avis_brouillon = @avis.select { |a| a.user_id == user.id && a.etat == "Brouillon" }.length
+        @avis_vide = @bops_actifs - @avis.select { |a| a.user_id == user.id }.length
+        @taux = ((@avis.select { |a| a.user_id == user.id && a.etat != "Brouillon"}.length.to_f/@bops_actifs.to_f)*100).round
+        @users_array << [user.nom, @bops_actifs, @avis_vide, @avis_brouillon, @avis_favorables, @avis_favorables_reserve, @avis_defavorables, @taux]
+        @bops_crg1 = @avis.select { |a| a.user_id == user.id && a.is_crg1 == true}.length
+        @notes1_brouillon = @notes1.select { |a| a.user_id == user.id && a.etat == "Brouillon" }.length
+        @notes1_risque_faible = @notes1.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Aucun risque" }.length
+        @notes1_risque_modere = @notes1.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Risques éventuels ou modérés" }.length
+        @notes1_risque_significatifs = @notes1.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Risques certains ou significatifs" }.length
+        @taux_n1 = if @bops_crg1 == 0
+                     0
+                   else
+                     (((@notes1_risque_faible+@notes1_risque_modere+@notes1_risque_significatifs).to_f/@bops_crg1.to_f)*100).round
+                   end
+        @users_array_crg1 << [user.nom, @bops_crg1, @notes1_brouillon, @notes1_risque_faible, @notes1_risque_modere, @notes1_risque_significatifs, @taux_n1]
+        @notes2_brouillon = @notes1.select { |a| a.user_id == user.id && a.etat == "Brouillon" }.length
+        @notes2_risque_faible = @notes2.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Aucun risque" }.length
+        @notes2_risque_modere = @notes2.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Risques éventuels ou modérés" }.length
+        @notes2_risque_significatifs = @notes2.select { |a| a.user_id == user.id && a.etat != "Brouillon" && a.statut == "Risques certains ou significatifs" }.length
+        @taux_n2 = (((@notes2_risque_faible+@notes2_risque_modere+@notes2_risque_significatifs).to_f/@bops_actifs.to_f)*100).round
+        @users_array_crg2 << [user.nom, @bops_actifs, @notes2_brouillon, @notes2_risque_faible, @notes2_risque_modere, @notes2_risque_significatifs, @taux_n2]
+      end
+      @users_array = @users_array.sort_by { |e| -e[7]}
+      @users_array_crg1 = @users_array_crg1.sort_by { |e| -e[6]}
+      @users_array_crg2 = @users_array_crg2.sort_by { |e| -e[6]}
+      @dcb = @users.select { |u| u.statut == "DCB"}
+      @dcb_array = []
+      @dcb_array_crg1 = []
+      @dcb_array_crg2 = []
+      @dcb.each do |dcb|
+        @bops_arr = @bops_all.select{ |b| b.consultant == dcb.id }.pluck(:id)
+        @bops_actifs = @bops_arr.length
+        @avis_lu = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "Lu"}.length
+        @avis_en_attente = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "En attente de lecture"}.length
+        @avis_non_recu = @bops_actifs - @avis_lu - @avis_en_attente
+        @taux = if @avis_lu == 0
+                  0
+                else
+                  ((@avis_lu.to_f/(@avis_lu+@avis_en_attente).to_f)*100).round
+                end
+        @dcb_array << [dcb.nom, @bops_actifs, @avis_non_recu, @avis_en_attente, @avis_lu, @taux]
+        @bops_crg1_actifs = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.is_crg1 == true }.length
+        @notes1_lu = @notes1.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "Lu"}.length
+        @notes1_en_attente = @notes1.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "En attente de lecture"}.length
+        @notes1_non_recu = @bops_crg1_actifs - @notes1_lu - @notes1_en_attente
+        @taux_n1 = if @notes1_lu == 0
+                  0
+                else
+                  ((@notes1_lu.to_f/(@notes1_lu+@notes1_en_attente).to_f)*100).round
+                end
+        @dcb_array_crg1 << [dcb.nom, @bops_crg1_actifs, @notes1_non_recu, @notes1_en_attente, @notes1_lu, @taux_n1]
+        @notes2_lu = @notes2.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "Lu"}.length
+        @notes2_en_attente = @notes2.select { |a| @bops_arr.include?(a.bop_id) && a.etat == "En attente de lecture"}.length
+        @notes2_non_recu = @bops_actifs - @notes2_lu - @notes2_en_attente
+        @taux_n2 = if @notes2_lu == 0
+                     0
+                   else
+                     ((@notes2_lu.to_f/(@notes2_lu+@notes2_en_attente).to_f)*100).round
+                   end
+        @dcb_array_crg2 << [dcb.nom, @bops_actifs, @notes2_non_recu, @notes2_en_attente, @notes2_lu, @taux_n2]
+
+      end
+      @dcb_array = @dcb_array.sort_by { |e| -e[5]}
+      @dcb_array_crg1 = @dcb_array_crg1.sort_by { |e| -e[5]}
+      @dcb_array_crg2 = @dcb_array_crg2.sort_by { |e| -e[5]}
+      respond_to do |format|
+        format.html
+        format.xlsx
+      end
     end
   end
   def error_404
-      if params[:path] && params[:path] == "500"
-        render 'error_500'
-      else 
-        render status: 404
-      end 
+    if params[:path] && params[:path] == "500"
+      render 'error_500'
+    else 
+      render status: 404
+    end 
     end
   def error_500
     render status: 500
