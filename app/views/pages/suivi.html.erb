@@ -24,7 +24,7 @@
           </li>
         </ul>
         <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
-          <div class="fr-table fr-table--blue-ecume">
+          <div class="fr-table ">
             <table>
               <caption>Suivi du remplissage des avis</caption>
               <thead>
@@ -40,6 +40,15 @@
               </tr>
               </thead>
               <tbody>
+              <tr class="total"><td>Total</td>
+                <td><%= (@users_array.transpose.map{|e| e.inject(:+)}[7]/@users.length.to_f).round %>%</td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[1] %></td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[2] %></td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[3] %></td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[4] %></td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[5] %></td>
+                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[6] %></td>
+              </tr>
               <%  @users_array.each do |arr| %>
                 <tr>
                   <td><%= arr[0] %></td>
@@ -71,6 +80,13 @@
               </tr>
               </thead>
               <tbody>
+              <tr class="total"><td>Total</td>
+                <td><%= (@dcb_array.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
+                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[1] %></td>
+                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[2] %></td>
+                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[3] %></td>
+                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[4] %></td>
+              </tr>
               <%  @dcb_array.each do |arr| %>
                 <tr>
                   <td><%= arr[0] %></td>
@@ -88,7 +104,7 @@
         </div>
         <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
           <% if Date.today >= @date1 %>
-            <div class="fr-table fr-table--blue-ecume">
+            <div class="fr-table">
               <table>
                 <caption>Suivi du remplissage des avis</caption>
                 <thead>
@@ -104,6 +120,14 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr class="total"><td>Total</td>
+                  <td><%= (@users_array_crg1.transpose.map{|e| e.inject(:+)}[6]/@users.length.to_f).round %>%</td>
+                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[5] %></td>
+                </tr>
                 <%  @users_array_crg1.each do |arr| %>
                   <tr>
                     <td><%= arr[0] %></td>
@@ -134,6 +158,13 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr class="total"><td>Total</td>
+                  <td><%= (@dcb_array_crg1.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
+                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[4] %></td>
+                </tr>
                 <%  @dcb_array_crg1.each do |arr| %>
                   <tr>
                     <td><%= arr[0] %></td>
@@ -152,7 +183,7 @@
         </div>
         <div id="tabpanel-406-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-406" tabindex="0">
           <% if Date.today >= @date2 %>
-            <div class="fr-table fr-table--blue-ecume">
+            <div class="fr-table">
               <table>
                 <caption>Suivi du remplissage des avis</caption>
                 <thead>
@@ -168,6 +199,14 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr class="total"><td>Total</td>
+                  <td><%= (@users_array_crg2.transpose.map{|e| e.inject(:+)}[6]/@users.length.to_f).round %>%</td>
+                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[5] %></td>
+                </tr>
                 <%  @users_array_crg2.each do |arr| %>
                   <tr>
                     <td><%= arr[0] %></td>
@@ -198,6 +237,13 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr class="total"><td>Total</td>
+                  <td><%= (@dcb_array_crg2.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
+                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[4] %></td>
+                </tr>
                 <%  @dcb_array_crg2.each do |arr| %>
                   <tr>
                     <td><%= arr[0] %></td>

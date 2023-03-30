@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <div class="fr-table fr-table--no-caption ">
+  <div class="fr-table fr-table--no-caption fr-table--vscroll">
     <table>
       <caption>Historique des avis</caption>
       <%= form_with(url: filter_consultation_path, method: :post, data: {'filter-target': "form"}) do |f|%>
@@ -30,7 +30,7 @@
                       <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                         <%= f.check_box "phases[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-phase-#{i}"}, phase%>
                         <label class="fr-label" for="checkboxes-phase-<%=i %>">
-                          <%= phase %>
+                          <%= phase %> (<%= @avis_all.select { |a| a.phase == phase}.count %>)
                         </label>
                         <div class="fr-messages-group" id="checkboxes-phase-<%=i %>-messages" aria-live="assertive">
                         </div>
@@ -139,7 +139,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
                           <label class="fr-label" for="checkboxes-<%=i %>">
-                            <%= statut %>
+                            <%= statut %> (<%= @avis_all.select { |a| a.statut == statut}.count %>)
                           </label>
                           <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
                           </div>
@@ -166,7 +166,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
                           <label class="fr-label" for="checkboxes-etat-<%=i %>">
-                            <%= etat %>
+                            <%= etat %> (<%= @avis_all.select { |a| a.etat == etat}.count %>)
                           </label>
                           <div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
                           </div>

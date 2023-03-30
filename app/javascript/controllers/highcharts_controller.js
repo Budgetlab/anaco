@@ -76,6 +76,11 @@ export default class extends Controller {
                 color: 'var(--text-title-grey)',
                 },
           },
+        legend:{
+            itemStyle: {
+                color: 'var(--text-title-grey)',
+            },
+        },
           tooltip: {
               borderColor: 'transparent',
               borderRadius: 16,
@@ -155,6 +160,11 @@ export default class extends Controller {
                     color: 'var(--text-title-grey)',
                 },
             },
+            legend:{
+                itemStyle: {
+                    color: 'var(--text-title-grey)',
+                },
+            },
             tooltip: {
                 borderColor: 'transparent',
                 borderRadius: 16,
@@ -225,6 +235,11 @@ export default class extends Controller {
             },
             xAxis: {
                 categories: ["Début de gestion",'CRG1', 'CRG2'],
+                labels: {
+                    style: {
+                        color: 'var(--text-title-grey)',
+                    },
+                },
             },
             yAxis: {
                 min: 0,
@@ -234,7 +249,10 @@ export default class extends Controller {
                 gridLineColor: 'var(--text-inverted-grey)',
             },
             legend: {
-                reversed: true
+                reversed: true,
+                itemStyle: {
+                    color: 'var(--text-title-grey)',
+                },
             },
             tooltip: {
                 borderColor: 'transparent',
@@ -305,6 +323,11 @@ export default class extends Controller {
                 style: {
                     fontSize: '13px',
                     fontWeight: "900",
+                    color: 'var(--text-title-grey)',
+                },
+            },
+            legend:{
+                itemStyle: {
                     color: 'var(--text-title-grey)',
                 },
             },
@@ -384,6 +407,11 @@ export default class extends Controller {
                 style: {
                     fontSize: '13px',
                     fontWeight: "900",
+                    color: 'var(--text-title-grey)',
+                },
+            },
+            legend:{
+                itemStyle: {
                     color: 'var(--text-title-grey)',
                 },
             },
