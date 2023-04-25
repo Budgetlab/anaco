@@ -126,7 +126,7 @@
               </div>
             </div>
           </th>
-          <th scope="col">Statut
+          <th scope="col">Statut/Risque
             <div class="fr-translate fr-nav fr-nav-filter">
               <button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
               </button>
@@ -135,7 +135,7 @@
                   <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
 
                     <div class="fr-fieldset__element">
-                      <% ["Favorable","Favorable avec réserve","Défavorable"].each_with_index do |statut,i| %>
+                      <% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs"].each_with_index do |statut,i| %>
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
                           <label class="fr-label" for="checkboxes-<%=i %>">

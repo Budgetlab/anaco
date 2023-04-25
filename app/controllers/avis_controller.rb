@@ -94,7 +94,7 @@ class AvisController < ApplicationController
     if params[:phases] && params[:phases].length != 3
       @avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
     end
-    if params[:statuts] && params[:statuts].length != 3
+    if params[:statuts] && params[:statuts].length != 6
       @avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
     end
     if params[:etats] && params[:etats].length != 3
@@ -141,7 +141,7 @@ class AvisController < ApplicationController
       if params[:phases] && params[:phases].length != 3
         @avis_all = @avis_all.select { |a| params[:phases].include?(a.phase) }
       end
-      if params[:statuts] && params[:statuts].length != 3
+      if params[:statuts] && params[:statuts].length != 6
         @avis_all = @avis_all.select { |a| params[:statuts].include?(a.statut) }
       end
       if params[:etats] && params[:etats].length != 3
@@ -173,8 +173,6 @@ class AvisController < ApplicationController
   end
   def new
     @bop = Bop.where(id: params[:bop_id]).first
-    @date1 = Date.new(2023,4,30)
-    @date2 = Date.new(2023,8,31)
 
     @is_completed = false
     if @bop.user != current_user

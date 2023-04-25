@@ -14,8 +14,6 @@ class BopsController < ApplicationController
 			@bops.select(:code, :dotation, :numero_programme,:nom_programme, :user_id)
 		else
 
-		@date1 = Date.new(2023,4,30)
-		@date2 = Date.new(2023,8,31)
 		@avis = current_user.avis
 
 		@bops_inactifs = current_user.bops.where(dotation: "aucune").order(code: :asc)
@@ -23,15 +21,12 @@ class BopsController < ApplicationController
 		@bops = current_user.bops.where(dotation: [nil, "complete","T2","HT2"]).order(code: :asc)
 		@bops_actifs_count = @bops.count
 		if Date.today <= @date1
-			@phase = "début de gestion"
 			@count_reste = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 		elsif @date1 < Date.today && Date.today <= @date2
-			@phase = "CRG1"
 			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 			@count_reste_crg1 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
 			@count_reste = @count_reste_debut + @count_reste_crg1
-		elsif Date.today > @date2 
-			@phase = "CRG2"
+		elsif Date.today > @date2
 			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
 			@count_reste_crg1 =  @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
 			@count_reste_crg2 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == false }.length + @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length - @avis.select{ |a| a.phase == "CRG2" && a.etat != 'Brouillon'}.length

@@ -31,10 +31,10 @@
               <div class="fr-card__start">
                 <ul class="fr-badges-group">
                   <li>
-                    <p class="fr-badge fr-badge--purple-glycine"><%= Avi.where(bop_id: Bop.where(numero_programme: programme[0]).pluck(:id)).where("etat != ? ","Brouillon").count %> avis/notes remplis</p>
+                    <p class="fr-badge fr-badge--purple-glycine"><%= @liste_avis_programme.count(programme[0]) %> avis/notes remplis</p>
                   </li>
                 </ul>
-                <p class="fr-card__detail fr-icon-arrow-right-line"><%= Bop.where(numero_programme: programme[0]).count %> BOP</p>
+                <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bop_programme.count(programme[0]) %> BOP</p>
               </div>
               <h3 class="fr-card__title">Programme n°<%= programme[0] %> </h3>
               <div class="fr-card__desc"> <%= programme[1] %></div>
