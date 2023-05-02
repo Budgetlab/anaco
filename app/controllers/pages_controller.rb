@@ -172,7 +172,7 @@ class PagesController < ApplicationController
     @users_array_crg1 = []
     @users_array_crg2 = []
 
-    @bops_all = Bop.where(dotation: [nil, 'complete', 'T2', 'HT2']).select(:user_id, :consultant)
+    @bops_all = Bop.where(dotation: [nil, 'complete', 'T2', 'HT2'])
     @avis = Avi.where(phase: 'début de gestion').select(:user_id, :etat, :statut, :is_crg1, :bop_id)
     @notes1 = Avi.where(phase: 'CRG1').select(:user_id, :etat, :statut, :bop_id)
     @notes2 = Avi.where(phase: 'CRG2').select(:user_id, :etat, :statut, :bop_id)
@@ -187,7 +187,7 @@ class PagesController < ApplicationController
       @taux = ((@avis.select { |a| a.user_id == user.id && a.etat != 'Brouillon'}.length.to_f/@bops_actifs.to_f)*100).round
       @users_array << [user.nom, @bops_actifs, @avis_vide, @avis_brouillon, @avis_favorables, @avis_favorables_reserve, @avis_defavorables, @taux]
 
-      @bops_crg1 = @avis.select { |a| a.user_id == user.id && a.is_crg1 == true}.length
+      @bops_crg1 = @avis.select { |a| a.user_id == user.id && a.is_crg1 == true && a.etat != 'Brouillon'}.length
       @notes1_brouillon = @notes1.select { |a| a.user_id == user.id && a.etat == 'Brouillon' }.length
       @notes1_risque_faible = @notes1.select { |a| a.user_id == user.id && a.etat != 'Brouillon' && a.statut == 'Aucun risque' }.length
       @notes1_risque_modere = @notes1.select { |a| a.user_id == user.id && a.etat != 'Brouillon' && a.statut == 'Risques éventuels ou modérés' }.length
@@ -225,7 +225,7 @@ class PagesController < ApplicationController
                 ((@avis_lu.to_f/(@avis_lu+@avis_en_attente).to_f)*100).round
               end
       @dcb_array << [dcb.nom, @bops_actifs, @avis_non_recu, @avis_en_attente, @avis_lu, @taux]
-      @bops_crg1_actifs = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.is_crg1 == true }.length
+      @bops_crg1_actifs = @avis.select { |a| @bops_arr.include?(a.bop_id) && a.is_crg1 == true && a.etat != 'Brouillon'}.length
       @notes1_lu = @notes1.select { |a| @bops_arr.include?(a.bop_id) && a.etat == 'Lu'}.length
       @notes1_en_attente = @notes1.select { |a| @bops_arr.include?(a.bop_id) && a.etat == 'En attente de lecture'}.length
       @notes1_non_recu = @bops_crg1_actifs - @notes1_lu - @notes1_en_attente
