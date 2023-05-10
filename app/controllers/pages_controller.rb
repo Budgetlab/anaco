@@ -35,17 +35,20 @@ class PagesController < ApplicationController
 
   def restitutions
     @total_programmes = Bop.pluck(:numero_programme).uniq.length
-    if current_user.statut == 'admin'
+    case current_user.statut
+    when 'admin'
       @programmes = Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
-    elsif	current_user.statut == 'DCB'
+    when 'DCB'
       @programmes = Bop.where('user_id = ? OR consultant = ?',current_user.id, current_user.id).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
-    elsif current_user.statut == 'CBR'
+    when 'CBR'
       @programmes = current_user.bops.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq
     else
       redirect_to root_path
     end
-    @liste_avis_programme = Avi.where('etat != ?', 'Brouillon').includes(:bop).pluck(:numero_programme)
+    @liste_avis_programme = Avi.where.not(etat: 'Brouillon').includes(:bop).pluck(:numero_programme)
     @liste_bop_programme = Bop.pluck(:numero_programme)
+    @liste_bop_inactifs_programme = Bop.where(dotation: "aucune").pluck(:numero_programme)
+    #valeurs pour graphes
     @bops_count = Bop.where(dotation: [nil, 'complete','T2','HT2']).count
     @avis_d = Avi.where(phase: 'début de gestion').where.not(etat: 'Brouillon')
     @avis_vide = @bops_count - @avis_d.count
@@ -73,20 +76,22 @@ class PagesController < ApplicationController
     @numero = params[:programme]
     @bops = Bop.where(numero_programme: @numero).order(code: :asc)
     @bops_actifs = @bops.where(dotation: [nil, 'complete','T2','HT2'])
-    @bops_id_all = @bops.pluck(:id)
-    @bops_count_all = @bops_id_all.length
+    @bops_count_all = @bops.length
     @bops_id = @bops_actifs.pluck(:id)
     @bops_count = @bops_id.length
     @ministere = @bops.first.ministere
 
-    @avis = Avi.where(bop_id: @bops_id, phase: @phase).where('etat != ?','Brouillon')
-    @array = @avis.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
-    #@data = @array.transpose.map(&:sum)
+    @avis_phase = Avi.where(bop_id: @bops_id, phase: @phase).where('etat != ?','Brouillon') #important pour garder couleurs box
+    if @phase == "CRG1"
+      @array = @avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
+    else
+      @array = @avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
+    end
     @data = [@array.sum { |a,b,c,d,e,f,g,h| a}, @array.sum { |a,b,c,d,e,f,g,h| b},@array.sum { |a,b,c,d,e,f,g,h| c},@array.sum { |a,b,c,d,e,f,g,h| d},@array.sum { |a,b,c,d,e,f,g,h| e}, @array.sum { |a,b,c,d,e,f,g,h| f}, @array.sum { |a,b,c,d,e,f,g,h| g},@array.sum { |a,b,c,d,e,f,g,h| h}]
 
     @avis_d = Avi.where(bop_id: @bops_id, phase: 'début de gestion').where.not(etat: 'Brouillon')
     @statuts_debut = [@avis_d.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }.count, @avis_d.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }.count, @avis_d.select {|a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }.count, @bops_count-@avis_d.count ]
-    @array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+    @array_d = @avis_d.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
     #@data_d = @array_d.transpose.map(&:sum)
     @data_d = [@array_d.sum { |a,b,c,d,e,f,g,h| a}, @array_d.sum { |a,b,c,d,e,f,g,h| b},@array_d.sum { |a,b,c,d,e,f,g,h| c},@array_d.sum { |a,b,c,d,e,f,g,h| d},@array_d.sum { |a,b,c,d,e,f,g,h| e}, @array_d.sum { |a,b,c,d,e,f,g,h| f}, @array_d.sum { |a,b,c,d,e,f,g,h| g},@array_d.sum { |a,b,c,d,e,f,g,h| h}]
     @avis_default = @avis_d.first
@@ -109,7 +114,7 @@ class PagesController < ApplicationController
     if @date2 < Date.today
       @avis_crg2 = Avi.where(bop_id: @bops_id, phase: 'CRG2').where.not(etat: 'Brouillon')
       @statuts_crg2 = [@avis_crg2.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }.count, @avis_crg2.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }.count, @avis_crg2.select {|a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }.count, @bops_count-@avis_crg2.count ]
-      @array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f )
+      @array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
       #@data_c = @array_c.transpose.map(&:sum)
       @data_c = [@array_c.sum { |a,b,c,d,e,f,g,h| a}, @array_c.sum { |a,b,c,d,e,f,g,h| b},@array_c.sum { |a,b,c,d,e,f,g,h| c},@array_c.sum { |a,b,c,d,e,f,g,h| d},@array_c.sum { |a,b,c,d,e,f,g,h| e}, @array_c.sum { |a,b,c,d,e,f,g,h| f}, @array_c.sum { |a,b,c,d,e,f,g,h| g},@array_c.sum { |a,b,c,d,e,f,g,h| h}]
     end

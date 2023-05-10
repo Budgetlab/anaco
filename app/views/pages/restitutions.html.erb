@@ -34,7 +34,7 @@
                     <p class="fr-badge fr-badge--purple-glycine"><%= @liste_avis_programme.count(programme[0]) %> avis/notes remplis</p>
                   </li>
                 </ul>
-                <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bop_programme.count(programme[0]) %> BOP</p>
+                <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bop_programme.count(programme[0]) %> BOP (<%= pluralize(@liste_bop_inactifs_programme.count(programme[0]),'BOP inactif')  %>)</p>
               </div>
               <h3 class="fr-card__title">Programme n°<%= programme[0] %> </h3>
               <div class="fr-card__desc"> <%= programme[1] %></div>
