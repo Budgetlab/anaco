@@ -83,7 +83,7 @@ class PagesController < ApplicationController
 
     @avis_phase = Avi.where(bop_id: @bops_id, phase: @phase).where('etat != ?','Brouillon') #important pour garder couleurs box
     if @phase == "CRG1"
-      @array = @avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
+      @array = @avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'Brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
     else
       @array = @avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
     end
@@ -114,7 +114,7 @@ class PagesController < ApplicationController
     if @date2 < Date.today
       @avis_crg2 = Avi.where(bop_id: @bops_id, phase: 'CRG2').where.not(etat: 'Brouillon')
       @statuts_crg2 = [@avis_crg2.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }.count, @avis_crg2.select { |a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }.count, @avis_crg2.select {|a| (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }.count, @bops_count-@avis_crg2.count ]
-      @array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
+      @array_c = @avis_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f) + Avi.where(bop_id: @bops_id, phase: "début de gestion", is_crg1: false).where.not(etat: 'Brouillon').pluck(:ae_i, :cp_i, :t2_i, :etpt_i,:ae_f, :cp_f, :t2_f, :etpt_f)
       #@data_c = @array_c.transpose.map(&:sum)
       @data_c = [@array_c.sum { |a,b,c,d,e,f,g,h| a}, @array_c.sum { |a,b,c,d,e,f,g,h| b},@array_c.sum { |a,b,c,d,e,f,g,h| c},@array_c.sum { |a,b,c,d,e,f,g,h| d},@array_c.sum { |a,b,c,d,e,f,g,h| e}, @array_c.sum { |a,b,c,d,e,f,g,h| f}, @array_c.sum { |a,b,c,d,e,f,g,h| g},@array_c.sum { |a,b,c,d,e,f,g,h| h}]
     end
