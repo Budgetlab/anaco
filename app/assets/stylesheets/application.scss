@@ -3,19 +3,6 @@
 html{
   height: 100%;
 }
-
-body div{
-  font-family: Marianne, sans-serif;
-}
-a{
-  &:hover{
-  cursor:pointer;
-  }
-}
-
-.fr-header__brand:hover, .fr-footer__brand:hover{
-  background-color:transparent !important;
-}
 .fr-text-lg{
   font-size:1.125rem;
 }

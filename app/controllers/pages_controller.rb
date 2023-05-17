@@ -260,31 +260,16 @@ class PagesController < ApplicationController
     end
 
   end
-  def error_404
-    if params[:path] && params[:path] == '500'
-      render 'error_500'
-    else
-      render status: 404
-    end
-  end
-  def error_500
-    render status: 500
-  end
 
-  def mentions_legales
-  end
+  def mentions_legales; end
 
-  def accessibilite
-  end
+  def accessibilite; end
 
-  def donnees_personnelles
-  end
+  def donnees_personnelles; end
 
-  def plan
-  end
+  def plan; end
 
-  def faq
-  end
+  def faq; end
 
   private
 

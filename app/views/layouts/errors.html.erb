@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Erreurs</title>
+  <meta name="theme-color" content="#000091"><!-- Défini la couleur de thème du navigateur (Safari/Android) -->
+
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "dsfr", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "utility", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  <%= javascript_include_tag 'custom/dsfr.module.min', module: true %>
+  <%= javascript_include_tag 'custom/dsfr.nomodule.min', nomodule: true %>
+  <%= favicon_link_tag 'favicon/favicon.ico' %>
+  <%= favicon_link_tag 'favicon/favicon.svg' %>
+  <%= favicon_link_tag "favicon/apple-touch-icon.png", rel: "apple-touch-icon" %>
+
+</head>
+
+<body>
+<%= render 'layouts/header_errors'%>
+<%= yield %>
+<%= render 'layouts/footer'%>
+
+</body>
+</html>

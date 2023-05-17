@@ -35,12 +35,12 @@ Rails.application.routes.draw do
   get '/accessibilite', to: 'pages#accessibilite'
   get '/plan', to: 'pages#plan'
   get '/faq', to: 'pages#faq'
-  get '/*path', to: 'pages#error_404'
-  get '/page_introuvable', to: 'pages#error_404'
-  match '/404', to: 'pages#error_404', via: :all
-  match '/500', to: 'pages#error_500', via: :all
+  #routes pages erreurs
+  match '/500', via: :all, to: 'errors#error_500'
+  match '/404', via: :all, to: 'errors#error_404'
+  match '/503', via: :all, to: 'errors#error_503'
 end
   get '/', to: redirect('/anaco')
-  get '/500', to: redirect('/anaco/500')
-  get '/*path', to: redirect('/anaco')
+  #get '/500', to: redirect('/anaco/500')
+  #get '/*path', to: redirect('/anaco')
 end
