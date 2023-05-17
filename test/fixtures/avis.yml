@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  phase: MyString
+  phase: "début de gestion"
   date_reception: 2022-12-15
   date_envoi: 2022-12-15
   is_delai: false
@@ -14,13 +14,14 @@ one:
   cp_f: 1.5
   t2_f: 1.5
   etpt_f: 1.5
-  statut: MyString
-  etat: MyString
-  commentaire: MyString
+  statut: "favorable"
+  etat: "Lu"
+  commentaire: "ok"
   bop: one
+  user: two
 
 two:
-  phase: MyString
+  phase: "CRG1"
   date_reception: 2022-12-15
   date_envoi: 2022-12-15
   is_delai: false
@@ -33,7 +34,8 @@ two:
   cp_f: 1.5
   t2_f: 1.5
   etpt_f: 1.5
-  statut: MyString
-  etat: MyString
-  commentaire: MyString
+  statut: "risques"
+  etat: "Brouillon"
+  commentaire: "ok"
   bop: two
+  user: two
