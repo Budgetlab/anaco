@@ -1,17 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  user: one
+  user: two
   consultant: 1
-  ministere: MyString
+  ministere: "Justice"
   numero_programme: 1
-  nom_programme: MyString
-  code: MyString
+  nom_programme: "Programme 101"
+  code: "101-CCAS"
 
 two:
   user: two
   consultant: 1
-  ministere: MyString
+  ministere: "Culture"
   numero_programme: 1
-  nom_programme: MyString
-  code: MyString
+  nom_programme: "Programme 102"
+  code: "102-CBAS"
