@@ -23,7 +23,7 @@
     <%end %>
 
     <div class="fr-grid-row fr-grid-row--gutters">
-      <% @programmes.each do |programme| %>
+      <% @programmes.each do |numero, nom| %>
         <div class="fr-col-12 fr-col-lg-3">
         <div class="fr-card">
           <div class="fr-card__body">
@@ -31,19 +31,19 @@
               <div class="fr-card__start">
                 <ul class="fr-badges-group">
                   <li>
-                    <p class="fr-badge fr-badge--purple-glycine"><%= @liste_avis_programme.count(programme[0]) %> avis/notes remplis</p>
+                    <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(@liste_avis_par_programme[numero],'avis/notes remplis') %> </p>
                   </li>
                 </ul>
-                <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bop_programme.count(programme[0]) %> BOP (<%= pluralize(@liste_bop_inactifs_programme.count(programme[0]),'BOP inactif')  %>)</p>
+                <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bops_par_programme[numero] %> BOP (<%= pluralize(@liste_bops_inactifs_par_programme[numero],'BOP inactif')  %>)</p>
               </div>
-              <h3 class="fr-card__title">Programme n°<%= programme[0] %> </h3>
-              <div class="fr-card__desc"> <%= programme[1] %></div>
+              <h3 class="fr-card__title">Programme n°<%= numero %> </h3>
+              <div class="fr-card__desc"> <%= nom %></div>
 
             </div>
             <div class="fr-card__footer fr-btns-group--right">
               <ul class="fr-links-group">
                 <li>
-                  <a href="restitutions/<%= programme[0]%>" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">
+                  <a href="restitutions/<%= numero%>" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">
                     Afficher
                   </a>
                 </li>

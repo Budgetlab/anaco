@@ -2,7 +2,6 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-my-6w">Suivi des avis par contrôleur</h1>
-
       <div class="fr-download">
         <p><%= link_to "/anaco/suivi.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger les tableaux
             <span class="fr-download__detail">
@@ -10,7 +9,6 @@
         </span>
           <%end %></p>
       </div>
-
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
           <li role="presentation">
@@ -41,26 +39,28 @@
               </thead>
               <tbody>
               <tr class="total"><td>Total</td>
-                <td><%= (@users_array.transpose.map{|e| e.inject(:+)}[7]/@users.length.to_f).round %>%</td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[1] %></td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[2] %></td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[3] %></td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[4] %></td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[5] %></td>
-                <td><%= @users_array.transpose.map{|e| e.inject(:+)}[6] %></td>
+                <td><%= ((@hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[3] +
+                  @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[4] +
+                  @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[1]*100).round %>%</td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[6] %></td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[3] %></td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[5] %></td>
               </tr>
-              <%  @users_array.each do |arr| %>
+              <%  @hash_phase_user["début de gestion"].each do |user_array|%>
                 <tr>
-                  <td><%= arr[0] %></td>
-                  <td><%= arr[7] %>%</td>
-                  <td><%= arr[1] %></td>
-                  <td><%= arr[2] %></td>
-                  <td><%= arr[3] %></td>
-                  <td><%= arr[4] %></td>
-                  <td><%= arr[5] %></td>
-                  <td><%= arr[6] %></td>
+                  <td><%= user_array[0] %></td>
+                  <td><%= user_array[7] %>%</td>
+                  <td><%= user_array[1] %></td>
+                  <td><%= user_array[6] %></td>
+                  <td><%= user_array[2] %></td>
+                  <td><%= user_array[3] %></td>
+                  <td><%= user_array[4] %></td>
+                  <td><%= user_array[5] %></td>
                 </tr>
-              <%end %>
+              <% end %>
               </tbody>
             </table>
           </div>
@@ -81,21 +81,22 @@
               </thead>
               <tbody>
               <tr class="total"><td>Total</td>
-                <td><%= (@dcb_array.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
-                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[1] %></td>
-                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[2] %></td>
-                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[3] %></td>
-                <td><%= @dcb_array.transpose.map{|e| e.inject(:+)}[4] %></td>
-              </tr>
-              <%  @dcb_array.each do |arr| %>
-                <tr>
-                  <td><%= arr[0] %></td>
-                  <td><%= arr[5] %>%</td>
-                  <td><%= arr[1] %></td>
-                  <td><%= arr[2] %></td>
-                  <td><%= arr[3] %></td>
-                  <td><%= arr[4] %></td>
+                <td><%= (@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
+                           (@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
+                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3] %></td>
 
+              </tr>
+              <%  @hash_phase_lecture["début de gestion"].each do |user_array|%>
+                <tr>
+                  <td><%= user_array[0] %></td>
+                  <td><%= user_array[5] %>%</td>
+                  <td><%= user_array[1] %></td>
+                  <td><%= user_array[4] %></td>
+                  <td><%= user_array[2] %></td>
+                  <td><%= user_array[3] %></td>
                 </tr>
               <%end %>
               </tbody>
@@ -112,6 +113,7 @@
                   <th scope="col">CBR/DCB</th>
                   <th scope="col">Taux de remplissage</th>
                   <th scope="col">BOP avec CRG1</th>
+                  <th scope="col">Notes en attente</th>
                   <th scope="col">Notes en brouillon</th>
                   <th scope="col">Notes risques faibles</th>
                   <th scope="col">Notes risques modérés</th>
@@ -121,24 +123,28 @@
                 </thead>
                 <tbody>
                 <tr class="total"><td>Total</td>
-                  <td><%= (@users_array_crg1.transpose.map{|e| e.inject(:+)}[6]/@users.length.to_f).round %>%</td>
-                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @users_array_crg1.transpose.map{|e| e.inject(:+)}[5] %></td>
+                  <td><%= (@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1] == 0 ? 100 : ((@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[3] +
+                    @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[4] +
+                    @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1]*100).round) %>%</td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[6] %></td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[5] %></td>
                 </tr>
-                <%  @users_array_crg1.each do |arr| %>
+                <%  @hash_phase_user["CRG1"].each do |user_array|%>
                   <tr>
-                    <td><%= arr[0] %></td>
-                    <td><%= arr[6] %>%</td>
-                    <td><%= arr[1] %></td>
-                    <td><%= arr[2] %></td>
-                    <td><%= arr[3] %></td>
-                    <td><%= arr[4] %></td>
-                    <td><%= arr[5] %></td>
+                    <td><%= user_array[0] %></td>
+                    <td><%= user_array[7] %>%</td>
+                    <td><%= user_array[1] %></td>
+                    <td><%= user_array[6] %></td>
+                    <td><%= user_array[2] %></td>
+                    <td><%= user_array[3] %></td>
+                    <td><%= user_array[4] %></td>
+                    <td><%= user_array[5] %></td>
                   </tr>
-                <%end %>
+                <% end %>
                 </tbody>
               </table>
             </div>
@@ -159,21 +165,21 @@
                 </thead>
                 <tbody>
                 <tr class="total"><td>Total</td>
-                  <td><%= (@dcb_array_crg1.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
-                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @dcb_array_crg1.transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= (@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
+                             (@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
+                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3] %></td>
                 </tr>
-                <%  @dcb_array_crg1.each do |arr| %>
+                <%  @hash_phase_lecture["CRG1"].each do |user_array|%>
                   <tr>
-                    <td><%= arr[0] %></td>
-                    <td><%= arr[5] %>%</td>
-                    <td><%= arr[1] %></td>
-                    <td><%= arr[2] %></td>
-                    <td><%= arr[3] %></td>
-                    <td><%= arr[4] %></td>
-
+                    <td><%= user_array[0] %></td>
+                    <td><%= user_array[5] %>%</td>
+                    <td><%= user_array[1] %></td>
+                    <td><%= user_array[4] %></td>
+                    <td><%= user_array[2] %></td>
+                    <td><%= user_array[3] %></td>
                   </tr>
                 <%end %>
                 </tbody>
@@ -191,6 +197,7 @@
                   <th scope="col">CBR/DCB</th>
                   <th scope="col">Taux de remplissage</th>
                   <th scope="col">BOP actifs</th>
+                  <th scope="col">Notes en attente</th>
                   <th scope="col">Notes en brouillon</th>
                   <th scope="col">Notes risques faibles</th>
                   <th scope="col">Notes risques modérés</th>
@@ -200,24 +207,28 @@
                 </thead>
                 <tbody>
                 <tr class="total"><td>Total</td>
-                  <td><%= (@users_array_crg2.transpose.map{|e| e.inject(:+)}[6]/@users.length.to_f).round %>%</td>
-                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @users_array_crg2.transpose.map{|e| e.inject(:+)}[5] %></td>
+                  <td><%= ((@hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[3] +
+                    @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[4] +
+                    @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[1]*100).round %>%</td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[6] %></td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[3] %></td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[5] %></td>
                 </tr>
-                <%  @users_array_crg2.each do |arr| %>
+                <%  @hash_phase_user["CRG2"].each do |user_array|%>
                   <tr>
-                    <td><%= arr[0] %></td>
-                    <td><%= arr[6] %>%</td>
-                    <td><%= arr[1] %></td>
-                    <td><%= arr[2] %></td>
-                    <td><%= arr[3] %></td>
-                    <td><%= arr[4] %></td>
-                    <td><%= arr[5] %></td>
+                    <td><%= user_array[0] %></td>
+                    <td><%= user_array[7] %>%</td>
+                    <td><%= user_array[1] %></td>
+                    <td><%= user_array[6] %></td>
+                    <td><%= user_array[2] %></td>
+                    <td><%= user_array[3] %></td>
+                    <td><%= user_array[4] %></td>
+                    <td><%= user_array[5] %></td>
                   </tr>
-                <%end %>
+                <% end %>
                 </tbody>
               </table>
             </div>
@@ -238,21 +249,21 @@
                 </thead>
                 <tbody>
                 <tr class="total"><td>Total</td>
-                  <td><%= (@dcb_array_crg2.transpose.map{|e| e.inject(:+)}[5]/@dcb.length.to_f).round %>%</td>
-                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @dcb_array_crg2.transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= (@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
+                             (@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
+                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[1] %></td>
+                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[4] %></td>
+                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2] %></td>
+                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3] %></td>
                 </tr>
-                <%  @dcb_array_crg2.each do |arr| %>
+                <%  @hash_phase_lecture["CRG2"].each do |user_array|%>
                   <tr>
-                    <td><%= arr[0] %></td>
-                    <td><%= arr[5] %>%</td>
-                    <td><%= arr[1] %></td>
-                    <td><%= arr[2] %></td>
-                    <td><%= arr[3] %></td>
-                    <td><%= arr[4] %></td>
-
+                    <td><%= user_array[0] %></td>
+                    <td><%= user_array[5] %>%</td>
+                    <td><%= user_array[1] %></td>
+                    <td><%= user_array[4] %></td>
+                    <td><%= user_array[2] %></td>
+                    <td><%= user_array[3] %></td>
                   </tr>
                 <%end %>
                 </tbody>

@@ -42,7 +42,7 @@
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_vide %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis[3] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
 											</div>
 										</div>
@@ -51,7 +51,7 @@
 												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis_vide%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis[3]%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis donnés sans interruption du délai</p>
 											</div>
 										</div>
