@@ -142,7 +142,7 @@ class PagesController < ApplicationController
     avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == 'début de gestion' }
     avis_vide = avis_total - avis_favorables - avis_reserves - avis_defavorables
     @avis = [avis_favorables, avis_reserves, avis_defavorables, avis_vide]
-    return @avis
+    @avis
   end
 
   def avisDateRepartition(avis, avis_total)
@@ -152,7 +152,7 @@ class PagesController < ApplicationController
     avis_date_4 = avis.count { |a| a.date_reception > Date.new(2023, 4, 1) && a.phase == 'début de gestion' }
     avis_vide = avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4
     @avis_date = [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_vide]
-    return @avis_date
+    @avis_date
   end
 
   def notesRepartition(avis, avis_total, phase)
@@ -161,7 +161,7 @@ class PagesController < ApplicationController
     notes_risque = avis.count { |a| a.statut == 'Risques certains ou significatifs' && a.phase == phase }
     notes_vide = avis_total - notes_sans_risque - notes_moyen - notes_risque
     @notes = [notes_sans_risque, notes_moyen, notes_risque, notes_vide]
-    return @notes
+    @notes
   end
   def statutBop(avis, avis_total, phase)
     if phase == 'CRG1'

@@ -1,116 +1,85 @@
+# frozen_string_literal: true
+
+# controller des Bop
 class BopsController < ApplicationController
-	before_action :authenticate_user!	
-	protect_from_forgery with: :null_session
-	
-	def index
-		if current_user.statut == "admin"
-			@bops = Bop.all.order(code: :asc)
-			@codes_bop = @bops.pluck(:code)
-			@numeros_programmes = @bops.pluck(:numero_programme).uniq
-			@users = @bops.joins(:user).pluck(:id,:nom).to_h
-			@users_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
-			@dotations =  {"complete"=>"T2/HT2","T2"=>"T2","HT2"=>"HT2","aucune"=>"INACTIF", "vide"=>"NON RENSEIGNÉ"}
-			@dotations_total = [@bops.select{|b| b.dotation == "complete"}.count,@bops.select{|b| b.dotation == "T2"}.count,@bops.select{|b| b.dotation == "HT2"}.count,@bops.select{|b| b.dotation == "aucune"}.count,@bops.select{|b| b.dotation == nil}.count ]
-			@bops.select(:code, :dotation, :numero_programme,:nom_programme, :user_id)
-		else
+  before_action :authenticate_user!
+  protect_from_forgery with: :null_session
+  def index
+    if current_user.statut == 'admin'
+      @liste_bops = Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
+      @codes_bop = @liste_bops.map{ |el| el[0] }.uniq
+      @numeros_programmes = @liste_bops.map{ |el| el[2] }.uniq
+      @users_nom = @liste_bops.map{ |el| el[4] }.uniq
+      @dotations = {'complete'=>'T2/HT2','T2'=>'T2','HT2'=>'HT2','aucune'=>'INACTIF', 'vide'=>'NON RENSEIGNÉ'}
+      @dotations_total = [@liste_bops.count{ |el| el[1] == 'complete'},@liste_bops.count{ |el| el[1] == 'T2'},@liste_bops.count{ |el| el[1] == 'HT2'},@liste_bops.count{ |el| el[1] == 'aucune'},@liste_bops.count{ |el| el[1] == nil} ]
+    else
+      @liste_bops = current_user.bops.pluck(:id, :code, :dotation).sort_by { |e| e[1] }
+      @liste_bops_actifs = @liste_bops.select { |el| el[2] != "aucune" }
+      @liste_bops_inactifs = @liste_bops.select { |el| el[2] == "aucune" }
+      @liste_avis_par_bop = current_user.bops.joins(:avis).pluck(:id, "avis.etat AS avis_etat", "avis.phase AS avis_phase", "avis.is_crg1 AS avis_crg1")
+      @count_reste = @liste_bops.length - @liste_avis_par_bop.select{|el| el[1] != "Brouillon"}.length if @phase == "début de gestion"
+      @count_reste = @liste_bops.length + @liste_avis_par_bop.select{|el| el[1] != "Brouillon" && el[2] == "début de gestion" && el[3] == true}.length - @liste_avis_par_bop.select{|el| el[1] != "Brouillon"}.length if @phase == "CRG1"
+      @count_reste = 2*@liste_bops.length + @liste_avis_par_bop.select{|el| el[1] != "Brouillon" && el[2] == "début de gestion" && el[3] == true}.length - @liste_avis_par_bop.select{|el| el[1] != "Brouillon"}.length if @phase == "CRG2"
+    end
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
 
-		@avis = current_user.avis
+  def filter_bop
+    @liste_bops = Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
+    @codes_bop = @liste_bops.map{ |el| el[0] }.uniq
+    @numeros_programmes = @liste_bops.map{ |el| el[2] }.uniq
+    @users_nom = @liste_bops.map{ |el| el[4] }.uniq
+    if params[:statuts] && params[:statuts].length != 5
+      params[:statuts] = params[:statuts].append(nil) if params[:statuts].include?('vide')
+      @liste_bops = @liste_bops.select { |b| params[:statuts].include?(b[1]) }
+    end
+    @liste_bops = @liste_bops.select { |b| params[:numeros].map(&:to_i).include?(b[2]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length
+    @liste_bops = @liste_bops.select{ |b| params[:users].include?(b[4]) } if params[:users] && params[:users].length != @users_nom.length
+    @liste_bops = @liste_bops.select { |b| params[:bops].include?(b[0]) } if params[:bops] && params[:bops].length != @codes_bop.length
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('table_bops', partial: 'bops/table_bops', locals: { bops: @liste_bops })
+        ]
+      end
+    end
+  end
 
-		@bops_inactifs = current_user.bops.where(dotation: "aucune").order(code: :asc)
-		@bops_inactifs_count = @bops_inactifs.count
-		@bops = current_user.bops.where(dotation: [nil, "complete","T2","HT2"]).order(code: :asc)
-		@bops_actifs_count = @bops.count
-		if Date.today <= @date1
-			@count_reste = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
-		elsif @date1 < Date.today && Date.today <= @date2
-			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
-			@count_reste_crg1 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
-			@count_reste = @count_reste_debut + @count_reste_crg1
-		elsif Date.today > @date2
-			@count_reste_debut = @bops_actifs_count - @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon'}.length
-			@count_reste_crg1 =  @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == true }.length - @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length
-			@count_reste_crg2 = @avis.select{ |a| a.phase == "début de gestion" && a.etat != 'Brouillon' && a.is_crg1 == false }.length + @avis.select{ |a| a.phase == "CRG1" && a.etat != 'Brouillon'}.length - @avis.select{ |a| a.phase == "CRG2" && a.etat != 'Brouillon'}.length
-			@count_reste = @count_reste_debut + @count_reste_crg1 + @count_reste_crg2
-		end
-		@bops_avis_debut = @bops.joins(:avis).where(avis: {phase: "début de gestion"}).pluck(:id, :etat).to_h
-		@bops_avis_crg1 = @bops.joins(:avis).where(avis: {phase: "CRG1"}).pluck(:id, :etat).to_h
-		@bops_avis_crg2 = @bops.joins(:avis).where(avis: {phase: "CRG2"}).pluck(:id, :etat).to_h
-		end
-		respond_to do |format|
-			format.html
-			format.xlsx
-		end
-	end
+  def show
+    @bop = Bop.find(params[:id])
+  end
 
-	def filter_bop
-		@bops = Bop.all.order(code: :asc)
-		@users = @bops.joins(:user).pluck(:id,:nom).to_h
-		@numeros_programmes = @bops.pluck(:numero_programme).uniq
-		@codes_bop = @bops.pluck(:code)
-		@users_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
-		@bops.select(:code, :dotation, :numero_programme, :nom_programme, :user_id)
-		if params[:statuts] && params[:statuts].length != 5
-			if params[:statuts].include?("vide")
-				params[:statuts] = params[:statuts].append(nil)
-			end
-			@bops = @bops.select { |b| params[:statuts].include?(b.dotation) }
-		end
-		if params[:numeros] && params[:numeros].length != @numeros_programmes.length
-			@num = params[:numeros].map(&:to_i)
-			@bops = @bops.select { |b| @num.include?(b.numero_programme) }
-		end
-		if params[:users] && params[:users].length != @users_id.length
-			@users_s = params[:users].map(&:to_i)
-			@bops = @bops.select{ |b| @users_s.include?(b.user_id) }
-		end
-		if params[:bops] && params[:bops].length != @codes_bop.length
-			@bops = @bops.select { |b| params[:bops].include?(b.code) }
-		end
+  def edit
+    @bop = Bop.find(params[:id])
+  end
 
-		respond_to do |format|
-			format.turbo_stream do
-				render turbo_stream: [
-					turbo_stream.update('table_bops', partial: "bops/table_bops", locals: {bops: @bops, users: @users}),
-				]
-			end
-		end
-	end
+  def update
+    @bop = Bop.find(params[:id])
+    @bop.update(dotation: params[:dotation])
+    if @bop.dotation == 'aucune'
+      @bop.avis.destroy_all if !@bop.avis.empty?
+      @message = 'suppression'
+      respond_to do |format|
+        format.turbo_stream { redirect_to bops_path, notice: @message  }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { redirect_to new_bop_avi_path(@bop.id) }
+      end
+    end
+  end
 
-	def show
-		@bop = Bop.find(params[:id])
-	end
+  def new
+    redirect_to root_path if current_user.statut != 'admin'
+  end
 
-	def edit
-		@bop = Bop.find(params[:id])
-	end
-
-	def update
-		@bop = Bop.find(params[:id])
-		@bop.update(dotation: params[:dotation])
-		if @bop.dotation == "aucune"
-			if @bop.avis.count > 0
-				@bop.avis.destroy_all
-			end
-			@message = "suppression"
-			respond_to do |format|
-				format.turbo_stream { redirect_to bops_path, notice: @message  }
-			end
-		else
-			respond_to do |format|
-				format.turbo_stream { redirect_to new_bop_avi_path(@bop.id)  }
-			end
-		end
-	end
-
-	def new
-		if current_user.statut != "admin"
-			redirect_to root_path
-		end 
-	end 
-	def import
-		Bop.import(params[:file])
-    	respond_to do |format|
-		  	format.turbo_stream {redirect_to root_path} 
-		end
-	end
+  def import
+    Bop.import(params[:file])
+    respond_to do |format|
+      format.turbo_stream { redirect_to root_path }
+    end
+  end
 end

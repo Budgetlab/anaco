@@ -1,4 +1,4 @@
-<% if Date.today > @date_alert1 && Date.today <= @date1 && @avis_vide > 0%>
+<% if Date.today > @date_alert1 && Date.today <= @date1 && @avis[3] > 0%>
   <div class="fr-notice notice--warning">
       <div class="fr-container">
           <div class="fr-notice__body">
@@ -6,7 +6,7 @@
           </div>
     </div>
   </div>
-<% elsif Date.today > @date1 && @avis_vide > 0%>
+<% elsif Date.today > @date1 && @avis[3] > 0%>
   <div class="fr-notice notice--red">
       <div class="fr-container">
           <div class="fr-notice__body">

@@ -2,12 +2,7 @@ class AvisController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
   def index
-    if current_user.statut == "admin"
-      @avis_all = Avi.order(created_at: :desc)
-    else
-      @avis_all = current_user.avis.order(created_at: :desc)
-    end
-
+    @avis_all = current_user.statut == "admin" ? Avi.order(created_at: :desc) : current_user.avis.order(created_at: :desc)
     @avis_users = @avis_all.joins(:user).pluck(:id,:nom).to_h
     @bops_arr = @avis_all.joins(:bop).pluck(:id,:code, :numero_programme, :nom_programme, :bop_id)
     @bops_data = Hash[@bops_arr.collect { |a| [a[0], a[1..4]] }]
@@ -276,15 +271,6 @@ class AvisController < ApplicationController
     @avis.update(etat: "Brouillon")
     respond_to do |format|
       format.turbo_stream { redirect_to bop_path(@avis.bop)  }
-    end
-  end
-
-  def reset
-    Bop.all.each do |bop|
-      #bop.update(dotation: nil)
-    end
-    respond_to do |format|
-      format.turbo_stream { redirect_to historique_path  }
     end
   end
 
