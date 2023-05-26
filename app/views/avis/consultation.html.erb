@@ -1,7 +1,7 @@
 <div class="fr-container" data-controller="filter">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w">Consultation des avis et notes émis par les CBR et DCB [<%= @avis_all.count %>]</h1>
+      <h1 class="fr-my-6w">Consultation des avis et notes émis par les CBR et DCB [<%= @avis_all.length %>]</h1>
       <div class="fr-download">
         <p><%= link_to "/anaco/consultation.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'historique des avis/notes reçus
             <span class="fr-download__detail">
@@ -30,7 +30,7 @@
                       <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                         <%= f.check_box "phases[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-phase-#{i}"}, phase%>
                         <label class="fr-label" for="checkboxes-phase-<%=i %>">
-                          <%= phase %> (<%= @avis_all.select { |a| a.phase == phase}.count %>)
+                          <%= phase %>  (<%= @avis_all.count { |el| el[1] == phase} %>)
                         </label>
                         <div class="fr-messages-group" id="checkboxes-phase-<%=i %>-messages" aria-live="assertive">
                         </div>
@@ -52,9 +52,9 @@
                     <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
 
                       <div class="fr-fieldset__element">
-                        <% @users_id.values.sort.each_with_index do |name,i| %>
+                        <% @users_nom.each_with_index do |name,i| %>
                           <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                            <%= f.check_box "users[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-controleur-#{i}"}, @users_id.key(name)%>
+                            <%= f.check_box "users[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-controleur-#{i}"}, name %>
                             <label class="fr-label" for="checkboxes-controleur-<%=i %>">
                               <%= name %>
                             </label>
@@ -81,9 +81,9 @@
                   <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-bop-legend checkboxes-bop-messages">
 
                     <div class="fr-fieldset__element">
-                      <% @codes_bop.values.sort.each_with_index do |code,i| %>
+                      <% @codes_bop.each_with_index do |code,i| %>
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "bops[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-bop-#{i}"}, @codes_bop.key(code)%>
+                          <%= f.check_box "bops[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-bop-#{i}"}, code%>
                           <label class="fr-label" for="checkboxes-bop-<%=i %>">
                             <%= code %>
                           </label>
@@ -139,7 +139,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
                           <label class="fr-label" for="checkboxes-<%=i %>">
-                            <%= statut %> (<%= @avis_all.select { |a| a.statut == statut}.count %>)
+                            <%= statut %> (<%= @avis_all.count { |el| el[4] == statut} %>)
                           </label>
                           <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
                           </div>
@@ -166,7 +166,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
                           <label class="fr-label" for="checkboxes-etat-<%=i %>">
-                            <%= etat %> (<%= @avis_all.select { |a| a.etat == etat}.count %>)
+                            <%= etat %> (<%= @avis_all.count { |el| el[2] == etat} %>)
                           </label>
                           <div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
                           </div>
@@ -187,13 +187,13 @@
         </thead>
       <%end %>
       <tbody id="table">
-      <%= render partial: 'avis/table', locals: {liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data} %>
+      <%= render partial: 'avis/table', locals: { liste_avis: @avis_all } %>
 
       </tbody>
     </table>
     <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
       <div id="debut">
-        <%= render partial: 'avis/dialog_debut',locals: {avis: @avis_default} %>
+        <%= render partial: 'avis/dialog_debut',locals: {avis: nil} %>
       </div>
     </dialog>
   </div>

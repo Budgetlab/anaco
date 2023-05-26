@@ -1,22 +1,22 @@
 
     <% liste_avis.each do |avis|%>
       <tr>
-        <td><% if avis.phase =="début de gestion" %><%= avis.phase.capitalize %><%else %><%= avis.phase %><%end %></td>
+        <td><% if avis[1] =="début de gestion" %><%= avis[1].capitalize %><%else %><%= avis[1] %><%end %></td>
         <% if current_user.statut =="admin" %>
-          <td><%= avis_users[avis.id]%> </td>
+          <td><%= avis[18]%> </td>
         <%end %>
-        <td><%= l(avis.created_at,format: "%e/%m/%y")%> </td>
-        <td><%= link_to bop_path(bops_data[avis.id][3]) do%><%= bops_data[avis.id][0]%><%end %></td>
-        <td><%= bops_data[avis.id][1] %> - <%= bops_data[avis.id][2] %> </td>
-        <td><%= avis.statut %></td>
+        <td><%= l(avis[3],format: "%e/%m/%y")%> </td>
+        <td><%= link_to bop_path(avis[20]) do%><%= avis[19]%><%end %></td>
+        <td><%= avis[21] %> - <%= avis[22] %> </td>
+        <td><%= avis[4] %></td>
 
-        <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+        <td><% if avis[2] == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis[2]%></p><%elsif avis[2] == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis[2]%></p><% elsif avis[2] == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis[2]%></p><%end%></td>
 
         <td>
-          <% if avis.etat == "Brouillon"%>
-            <%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn fr-btn--sm" do %>Reprendre<%end %><%end %>
+          <% if avis[2] == "Brouillon"%>
+            <%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis[20]), class: "fr-btn fr-btn--sm" do %>Reprendre<%end %><%end %>
           <%else%>
-            <%= link_to open_modal_path(id: avis.id), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+            <%= link_to open_modal_path(id: avis[0]), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
           <%end%>
 
         </td>
