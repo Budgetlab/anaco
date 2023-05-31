@@ -10,8 +10,8 @@ class AvisController < ApplicationController
                                                    :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                                    :date_envoi, :date_reception,
                                                    'users.nom AS user_nom',
-                                                    'bops.code AS bop_code','bops.id AS bop_id',
-                                                    'bops.numero_programme AS bop_numero_programme', 'bops.nom_programme AS bop_nom_programme' )
+                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
+                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
@@ -27,8 +27,8 @@ class AvisController < ApplicationController
                                                    :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                                    :date_envoi, :date_reception,
                                                    'users.nom AS user_nom',
-                                                   'bops.code AS bop_code','bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero_programme', 'bops.nom_programme AS bop_nom_programme' )
+                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
+                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
 
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
@@ -60,15 +60,16 @@ class AvisController < ApplicationController
   end
 
   def consultation
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-    @bops_consultation_id = @bops_consultation.pluck(:id)
-    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: 'Brouillon').order(created_at: :desc)
+    redirect_to root_path and return if current_user.statut != 'DCB'
+
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
     @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                                    :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                                    :date_envoi, :date_reception,
                                                    'users.nom AS user_nom',
-                                                   'bops.code AS bop_code','bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero_programme', 'bops.nom_programme AS bop_nom_programme' )
+                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
+                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
@@ -81,15 +82,14 @@ class AvisController < ApplicationController
   def update
     @avis = Avi.find(params[:id])
     @avis.update(etat: 'Lu')
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-    @bops_consultation_id = @bops_consultation.pluck(:id)
-    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: 'Brouillon').order(created_at: :desc)
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
     @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                                    :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                                    :date_envoi, :date_reception,
                                                    'users.nom AS user_nom',
-                                                   'bops.code AS bop_code','bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero_programme', 'bops.nom_programme AS bop_nom_programme' )
+                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
+                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
 
     respond_to do |format|
       format.turbo_stream do
@@ -102,9 +102,8 @@ class AvisController < ApplicationController
   end
 
   def filter_consultation
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).order(code: :asc)
-    @bops_consultation_id = @bops_consultation.pluck(:id)
-    @avis_all = Avi.where(bop_id: @bops_consultation_id).where.not(etat: 'Brouillon').order(created_at: :desc)
+    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
     @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                                    :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                                    :date_envoi, :date_reception,
@@ -131,7 +130,6 @@ class AvisController < ApplicationController
 
   def new
     @bop = Bop.where(id: params[:bop_id]).first
-    @is_completed = false
     redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
 
     @avis_debut = @bop.avis.where(phase: 'début de gestion').first
@@ -183,7 +181,7 @@ class AvisController < ApplicationController
     @avis = Avi.find(params[:id])
     @avis.update(etat: 'Brouillon')
     respond_to do |format|
-      format.turbo_stream { redirect_to bop_path(@avis.bop)  }
+      format.turbo_stream { redirect_to bop_path(@avis.bop) }
     end
   end
 

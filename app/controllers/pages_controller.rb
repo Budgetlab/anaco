@@ -10,8 +10,8 @@ class PagesController < ApplicationController
     @avis_total = current_user.statut == 'admin' ? Bop.where(dotation: [nil, 'complete', 'T2', 'HT2']).count : current_user.bops.where(dotation: [nil, 'complete', 'T2', 'HT2']).count
     @bops_consultation = current_user.statut == 'DCB' ? Bop.where(consultant: current_user.id).where.not(user_id: current_user.id) : []
     @avis_to_read = @bops_consultation.empty? ? 0 : Avi.where(bop_id: @bops_consultation.pluck(:id), etat: 'En attente de lecture').count
-    @avis_crg1 = @avis_remplis.count { |a| a.is_crg1 && a.phase == 'début de gestion'}
-    @avis_delai = @avis_remplis.count { |a| !a.is_delai && a.phase == 'début de gestion'}
+    @avis_crg1 = @avis_remplis.count { |a| a.is_crg1 && a.phase == 'début de gestion' }
+    @avis_delai = @avis_remplis.count { |a| !a.is_delai && a.phase == 'début de gestion' }
     @avis = avisRepartition(@avis_remplis, @avis_total)
     @notes1 = @date1 < Date.today ? notesRepartition(@avis_remplis, @avis_crg1, 'CRG1') : []
     @notes2 = @date2 < Date.today ? notesRepartition(@avis_remplis, @avis_total, 'CRG2') : []
@@ -19,7 +19,7 @@ class PagesController < ApplicationController
 
   def restitutions
     @total_programmes = Bop.distinct.count(:numero_programme)
-    @programmes = current_user.statut == 'admin' ? Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h : @programmes = Bop.where('user_id = ? OR consultant = ?', current_user.id, current_user.id).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h
+    @programmes = current_user.statut == 'admin' ? Bop.order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h : Bop.where('user_id = ? OR consultant = ?', current_user.id, current_user.id).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h
     @liste_bops_par_programme = Bop.group(:numero_programme).count
     @liste_bops_inactifs_par_programme = Bop.where(dotation: 'aucune').group(:numero_programme).count
     @avis_total = Bop.where(dotation: [nil, 'complete', 'T2', 'HT2']).count
@@ -36,7 +36,7 @@ class PagesController < ApplicationController
     @numero = params[:programme]
     @bops = Bop.where(numero_programme: @numero).order(code: :asc)
     @bops_count_all = @bops.size
-    @bops_actifs_count = @bops.count { |b| b.dotation != 'aucune'}
+    @bops_actifs_count = @bops.count { |b| b.dotation != 'aucune' }
     @ministere = @bops.first&.ministere
     @avis_remplis = Avi.where(bop_id: @bops.pluck(:id)).where.not(etat: 'Brouillon')
     @hash_donnees_phase = {'début de gestion' => [0, 0, 0, 0, 0, 0, 0, 0], 'CRG1' => [0, 0, 0, 0, 0, 0, 0, 0], 'CRG2' => [0, 0, 0, 0, 0, 0, 0, 0]}
@@ -89,12 +89,12 @@ class PagesController < ApplicationController
       array_suivi_users = []
       @users.each do |user|
         array_user = [user.nom,
-                       @hash_bops_users.select { |key, value| key[0] == user.id && !key.include?('aucune')}.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon')}.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque'))}.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés'))}.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs'))}.values.sum]
-        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true)}.values.sum if phase == 'CRG1'
+                       @hash_bops_users.select { |key, value| key[0] == user.id && !key.include?('aucune') }.values.sum,
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon') }.values.sum,
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque')) }.values.sum,
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés')) }.values.sum,
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs')) }.values.sum]
+        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) }.values.sum if phase == 'CRG1'
         array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5])
         array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
         array_suivi_users << array_user
@@ -107,9 +107,9 @@ class PagesController < ApplicationController
       @users.where(statut: 'DCB').each do |user|
         bop_to_read = @hash_bops_users.select { |key, value| key[2] == user.id && key[1] != 'aucune' }.keys.map { |element| element[3] }.uniq
         array_user = [user.nom,
-                      @hash_bops_users.select { |key, value| key[2] == user.id && !key.include?('aucune')}.values.sum,
-                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'En attente de lecture'}.values.sum,
-                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'Lu'}.values.sum]
+                      @hash_bops_users.select { |key, value| key[2] == user.id && !key.include?('aucune') }.values.sum,
+                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'En attente de lecture' }.values.sum,
+                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'Lu' }.values.sum]
         array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && bop_to_read.include?(key[5]) && key[4] == true }.values.sum if phase == 'CRG1'
         array_user << array_user[1] - (array_user[2] + array_user[3])
         array_user << (array_user[2].zero? ? 100 : ((array_user[3].to_f / (array_user[2] + array_user[3])) * 100).round)
@@ -137,7 +137,7 @@ class PagesController < ApplicationController
   private
 
   def avisRepartition(avis, avis_total)
-    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == 'début de gestion'}
+    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == 'début de gestion' }
     avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == 'début de gestion' }
     avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == 'début de gestion' }
     avis_vide = avis_total - avis_favorables - avis_reserves - avis_defavorables
@@ -146,7 +146,7 @@ class PagesController < ApplicationController
   end
 
   def avisDateRepartition(avis, avis_total)
-    avis_date_1 = avis.count { |a| a.date_reception <= Date.new(2023, 3, 1) && a.phase == 'début de gestion'}
+    avis_date_1 = avis.count { |a| a.date_reception <= Date.new(2023, 3, 1) && a.phase == 'début de gestion' }
     avis_date_2 = avis.count { |a| a.date_reception > Date.new(2023, 3, 1) && a.date_reception <= Date.new(2023, 3, 15) && a.phase == 'début de gestion' }
     avis_date_3 = avis.count { |a| a.date_reception > Date.new(2023, 3, 15) && a.date_reception <= Date.new(2023, 3, 31) && a.phase == 'début de gestion' }
     avis_date_4 = avis.count { |a| a.date_reception > Date.new(2023, 4, 1) && a.phase == 'début de gestion' }
