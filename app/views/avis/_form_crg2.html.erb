@@ -28,8 +28,9 @@
       <p>Vous avez déjà rempli la note CRG2 pour ce bop.</p>
     </div>
   <%else%>
-    <%= form_with(url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
-      <%= f.hidden_field :bop, value: @bop.id%>
+    <%= form_with(model: @avis, url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
+      <%= f.hidden_field :bop_id, value: @bop.id%>
+      <%= f.hidden_field :user_id, value: current_user.id %>
       <%= f.hidden_field :phase, value: "CRG2"%>
       <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%>
       <%= f.hidden_field :date_reception, value: Date.today, data: {'form-target': 'datereception'}%>

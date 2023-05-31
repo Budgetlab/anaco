@@ -1,38 +1,38 @@
 
     wb = xlsx_package.workbook
   	wb.add_worksheet(name: "Début de gestion") do |sheet| 	
-    	sheet.add_row %W{ Controleur BOP Avis Date\ reception Date\ avis\ initial Delai CRG1\ programmé AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+    	sheet.add_row %W{ Controleur BOP Date\ de\ saisie Etat Statut\ Avis Date\ reception Date\ avis\ initial Delai CRG1\ programmé AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
 
-      @avis_d.each do |avis|
-        if avis.is_delai == true 
+      @avis_all.select{|el| el[1] == "début de gestion" && el[2] != "Brouillon"}.each do |avis|
+        if avis[6] == true 
           is_delai = "oui"
         else
           is_delai = "non"
         end
-        if avis.is_crg1 == true 
+        if avis[5] == true 
           is_crg1 = "oui"
         else
           is_crg1 = "non"
         end
-        sheet.add_row [avis.user.nom, avis.bop.code, avis.statut, avis.date_reception, avis.date_envoi, is_delai, is_crg1, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+        sheet.add_row [avis[18], avis[19], avis[3], avis[2], avis[4], avis[17], avis[16], is_delai, is_crg1, avis[7], avis[9], avis[13], avis[11], avis[8], avis[10], avis[14], avis[12], avis[15]]
            
       end
   	end
   	wb.add_worksheet(name: "CRG1") do |sheet|
-    	sheet.add_row %W{ Controleur BOP Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+    	sheet.add_row %W{ Controleur BOP Date\ de\ saisie Etat Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
     
     	
-      @avis_crg1.each do |avis|
-        sheet.add_row [avis.user.nom, avis.bop.code, avis.date_envoi, avis.statut, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+      @avis_all.select{|el| el[1] == "CRG1" && el[2] != "Brouillon"}.each do |avis|
+        sheet.add_row [avis[18], avis[19], avis[3], avis[2], avis[16], avis[4], avis[7], avis[9], avis[13], avis[11], avis[8], avis[10], avis[14], avis[12], avis[15]]
            
       end
   	end
   	wb.add_worksheet(name: "CRG2") do |sheet|
-    	sheet.add_row %W{ Controleur BOP Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
+    	sheet.add_row %W{ Controleur BOP Date\ de\ saisie Etat Date\ note Risque AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}
     
 
-      @avis_crg2.each do |avis|
-        sheet.add_row [avis.user.nom, avis.bop.code, avis.date_envoi, avis.statut, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+      @avis_all.select{|el| el[1] == "CRG2" && el[2] != "Brouillon"}.each do |avis|
+        sheet.add_row [avis[18], avis[19], avis[3], avis[2], avis[16], avis[4], avis[7], avis[9], avis[13], avis[11], avis[8], avis[10], avis[14], avis[12], avis[15]]
            
       end
   	end

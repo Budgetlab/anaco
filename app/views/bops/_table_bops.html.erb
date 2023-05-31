@@ -1,12 +1,14 @@
-<% bops.each do |bop|%>
-  <tr>
-    <td><%= link_to bop_path(bop) do%><%= bop.code%><%end %></td>
-    <td><% if bop.dotation.nil? %><p class="fr-badge fr-badge--sm">non renseigné</p>
-      <%elsif bop.dotation == "aucune" %><p class="fr-badge fr-badge--sm fr-badge--pink-tuile">inactif</p>
-      <%elsif bop.dotation == "complete" %><p class="fr-badge fr-badge--sm fr-badge--purple-glycine">T2/HT2 </p>
-      <%elsif bop.dotation == "T2" %><p class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">T2</p>
-      <%elsif bop.dotation == "HT2"%><p class="fr-badge fr-badge--sm fr-badge--brown-caramel">HT2</p><%end %></td>
-    <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
-    <td><%= users[bop.id] %></td>
-  </tr>
-<% end %>
+<% if !bops.nil? %>
+  <% bops.each do |bop|%>
+    <tr>
+      <td><%= link_to bop_path(bop[5]) do%><%= bop[0]%><%end %></td>
+      <td><% if bop[1].nil? %><p class="fr-badge fr-badge--sm">non renseigné</p>
+        <%elsif bop[1] == "aucune" %><p class="fr-badge fr-badge--sm fr-badge--pink-tuile">inactif</p>
+        <%elsif bop[1] == "complete" %><p class="fr-badge fr-badge--sm fr-badge--purple-glycine">T2/HT2 </p>
+        <%elsif bop[1] == "T2" %><p class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">T2</p>
+        <%elsif bop[1] == "HT2"%><p class="fr-badge fr-badge--sm fr-badge--brown-caramel">HT2</p><%end %></td>
+      <td><%= bop[2] %> - <%= bop[3] %></td>
+      <td><%= bop[4] %></td>
+    </tr>
+  <% end %>
+<%end %>

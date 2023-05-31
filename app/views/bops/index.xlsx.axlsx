@@ -3,17 +3,17 @@
   	wb.add_worksheet(name: "Liste BOP") do |sheet| 	
     	sheet.add_row %W{ BOP Statut\ Dotation Programme Controleur}
 
-      @bops.each do |bop|
-        if bop.dotation == "complete" 
+      @liste_bops.each do |bop|
+        if bop[1] == "complete" 
           dotation = "T2/HT2"
-        elsif bop.dotation == "aucune"
+        elsif bop[1] == "aucune"
           dotation = "Inactif"       
-        elsif bop.dotation.nil? 
+        elsif bop[1].nil? 
           dotation = "Non renseigné"
         else
-          dotation = bop.dotation
+          dotation = bop[1]
         end
-        sheet.add_row [bop.code, dotation, bop.numero_programme, bop.user.nom]
+        sheet.add_row [bop[0], dotation, bop[2], bop[4]]
            
       end
   	end

@@ -49,10 +49,10 @@
     </div>
    <% unless @bop.dotation == "aucune" %>
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
+      <div class="fr-col-12 fr-col-lg-9">
         <h2 class="fr-mb-3w">Historique des avis</h2>
 
-        <div class="fr-table fr-table--no-caption">
+        <div class="fr-table fr-table--no-caption fr-table--layout-fixed">
           <table>
               <caption>Historique des avis</caption>
               <thead>
@@ -62,26 +62,27 @@
                       <th scope="col">Statut </th>
                       <th scope="col">État </th>
                       <th scope="col"> </th>
+                      <% if current_user.statut == "admin" %><th scope="col"> </th><%end %>
                   </tr>
               </thead>
               <tbody>
                 <% @bop.avis.each do |avis|%>
                   <tr>
-                      <td><%= l(avis.created_at,format: "%e/%m/%y")%></td>
-                      <td><%= avis.phase%> </td>
-                      <td><%= avis.statut%></td>
-                      <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
-                      <td>
-                        <% if avis.etat == "Brouillon" && avis.user == current_user %>
-                          <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
-                        <%elsif avis.etat != "Brouillon"%>
-                          <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
-                          <% if current_user.statut == "admin" %>
-                            <button class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-modifiable">Rendre modifiable</button>
-                            <%= render partial: "avis/dialog_modifiable", locals: {avis: avis} %>
-                          <%end %>
-                        <%end%>
-                      </td>
+                    <td><%= l(avis.created_at,format: "%e/%m/%y")%></td>
+                    <td><%= avis.phase%> </td>
+                    <td><%= avis.statut%></td>
+                    <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+                    <td>
+                      <% if avis.etat == "Brouillon" && avis.user == current_user %>
+                        <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
+                      <%elsif avis.etat != "Brouillon"%>
+                        <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+                      <%end%>
+                    </td>
+                    <% if current_user.statut == "admin" %><td><%if avis.etat != "Brouillon"%>
+                      <button class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-modifiable">Remettre Brouillon</button>
+                      <%= render partial: "avis/dialog_modifiable", locals: {avis: avis} %>
+                    <%end %></td><%end %>
                   </tr>
                 <% end %>
               </tbody>

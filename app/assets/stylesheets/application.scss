@@ -41,8 +41,8 @@ h1, h2{
   --active: var(--background-contrast-warning-active);
 }
 .notice--warning .fr-notice__body::before, .notice--red .fr-notice__body::before{
-  -webkit-mask-image: image-url("icons/Systeme/fr--warning-fill.svg") !important;
-  mask-image: image-url("icons/Systeme/fr--warning-fill.svg") !important;
+  -webkit-mask-image: image-url("icons/system/fr--warning-fill.svg") !important;
+  mask-image: image-url("icons/system/fr--warning-fill.svg") !important;
   content: "";
 }
 
@@ -217,8 +217,8 @@ h1, h2{
   height: var(--icon-size);
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
-  -webkit-mask-image: image-url("icons/Systeme/arrow-down-s-fill.svg");
-  mask-image: image-url("icons/Systeme/arrow-down-s-fill.svg");
+  -webkit-mask-image: image-url("icons/system/arrow-down-s-fill.svg");
+  mask-image: image-url("icons/system/arrow-down-s-fill.svg");
   --icon-size: 1rem;
   content: "";
   margin-left: auto;

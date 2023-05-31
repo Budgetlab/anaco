@@ -22,7 +22,6 @@ Rails.application.routes.draw do
   post 'open_modal' => 'avis#openModal'
   post 'filter_consultation', to: 'avis#filter_consultation'
   post 'filter_historique', to: 'avis#filter_historique'
-  post 'reset', to: 'avis#reset'
   post 'reset_brouillon', to: 'avis#reset_brouillon'
 
   get '/restitutions', to: 'pages#restitutions'
