@@ -12,14 +12,14 @@
                 <div class="fr-container fr-background-alt--grey fr-px-md-0 fr-pt-10v fr-pt-md-14v fr-pb-6v fr-pb-md-10v">
                     <div class="fr-grid-row fr-grid-row-gutters fr-grid-row--center">
                         <div class="fr-col-12 fr-col-md-9 fr-col-lg-8">
-                            <h4>Connexion à ANACO</h4>
+                            <h1 class="fr-h4">Connexion à ANACO</h1>
                             
                             <div>
                               <%= form_for(resource, as: resource_name, url: session_path(resource_name),data: {'session-target': "form", action: "turbo:before-fetch-request->session#submitForm turbo:submit-end->session#resultForm change->session#changeForm input->session#changeForm"}) do |f| %>
                             
                                     <fieldset class="fr-fieldset" id="login-1801-fieldset" aria-labelledby="login-1801-fieldset-legend login-1801-fieldset-messages">
                                         <legend class="fr-fieldset__legend" id="login-1801-fieldset-legend">
-                                            <h5>Se connecter avec son compte</h5>
+                                            <h2 class="fr-h5">Se connecter avec son compte</h2>
                                         </legend>
                                         <div class="fr-fieldset__element fr-hidden" data-session-target="error" >
                                             <div class="fr-alert fr-alert--error fr-alert--sm">
