@@ -1,4 +1,4 @@
-<% content_for :title do %>Connexion <% end %>
+<% content_for :title do %>Connexion | Anaco <% end %>
 <main role="main" id="content">
     <div class="fr-container--fluid" data-controller="session">
         <div class="fr-grid-row fr-grid-row-gutters">
@@ -13,7 +13,6 @@
                     <div class="fr-grid-row fr-grid-row-gutters fr-grid-row--center">
                         <div class="fr-col-12 fr-col-md-9 fr-col-lg-8">
                             <h1 class="fr-h4">Connexion à ANACO</h1>
-                            
                             <div>
                               <%= form_for(resource, as: resource_name, url: session_path(resource_name),data: {'session-target': "form", action: "turbo:before-fetch-request->session#submitForm turbo:submit-end->session#resultForm change->session#changeForm input->session#changeForm"}) do |f| %>
                             
@@ -112,7 +111,6 @@
                                     </fieldset>
                                 <%end%>
                             </div>
-                            
                         </div>
                     </div>
                 </div>

@@ -67,10 +67,10 @@
             </div>
 
             <div class="fr-col-lg-2 fr-col-4">
-              <% if Date.today <= @date2 || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1[0][1].empty? || etat_crg1[0][1] == "Brouillon"))%>
+              <% if Date.today <= @date2 || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
-                <% if etat_crg2[0][1].empty? %>
+                <% if etat_crg2.empty? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
                 <%elsif etat_crg2[0][1] != "Brouillon"%>
                   <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>

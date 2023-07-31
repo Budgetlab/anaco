@@ -232,3 +232,9 @@ h1, h2{
   --hover: var(--background-open-blue-france-hover);
   --active: var(--background-open-blue-france-active);
 }
+@media (min-width: 62em) {
+  .fr-table--layout-fixed--lg table {
+    display: table !important;
+    table-layout: fixed !important;
+  }
+}

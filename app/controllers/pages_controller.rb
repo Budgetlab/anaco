@@ -48,7 +48,7 @@ class PagesController < ApplicationController
     @avis_date = avisDateRepartition(@avis_remplis, @bops_actifs_count)
     @statuts_debut = statutBop(@avis_remplis, @bops_actifs_count, 'début de gestion')
     @statuts_crg1 = @date1 < Date.today ? statutBop(@avis_remplis, @bops_actifs_count, 'CRG1') : [0, 0, 0, @bops_actifs_count]
-    @statuts_crg2 = @date2 < Date.today ? statutBop(@avis_remplis, @avis_total, 'CRG2') : [0, 0, 0, @bops_actifs_count]
+    @statuts_crg2 = @date2 < Date.today ? statutBop(@avis_remplis, @bops_actifs_count, 'CRG2') : [0, 0, 0, @bops_actifs_count]
     @notesbar = [[@statuts_debut[0], @statuts_crg1[0], @statuts_crg2[0]], [@statuts_debut[1], @statuts_crg1[1], @statuts_crg2[1]], [@statuts_debut[2], @statuts_crg1[2], @statuts_crg2[2]], [@statuts_debut[3], @statuts_crg1[3], @statuts_crg2[3]]]
     @bops_user = @bops.joins(:user).pluck(:id, :nom).uniq.to_h
     @bops_user_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
@@ -165,17 +165,17 @@ class PagesController < ApplicationController
   end
   def statutBop(avis, avis_total, phase)
     if phase == 'CRG1'
-      @statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
-      @statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
-      @statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
-      @statuts_vide = avis_total - avis.select { |a| a.phase == 'début de gestion' && a.is_crg1 == false }.count - avis.count { |a| a.phase == phase }
+      statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
+      statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
+      statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
+      statuts_vide = avis_total - avis.select { |a| a.phase == 'début de gestion' && a.is_crg1 == false }.count - avis.count { |a| a.phase == phase }
     else
-      @statuts_positive = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
-      @statuts_nul = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
-      @statuts_negative = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
-      @statuts_vide = avis_total - avis.count { |a| a.phase == phase }
+      statuts_positive = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
+      statuts_nul = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
+      statuts_negative = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
+      statuts_vide = avis_total - avis.count { |a| a.phase == phase }
     end
-    @statuts = [@statuts_positive, @statuts_nul, @statuts_negative, @statuts_vide]
+    @statuts = [statuts_positive, statuts_nul, statuts_negative, statuts_vide]
     return @statuts
   end
 end

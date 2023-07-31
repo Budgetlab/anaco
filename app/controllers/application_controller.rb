@@ -26,11 +26,11 @@ class ApplicationController < ActionController::Base
     @date1 = Date.new(2023, 4, 30)
     @date2 = Date.new(2023, 8, 31)
     if Date.today <= @date1
-      @phase = "début de gestion"
+      @phase = 'début de gestion'
     elsif @date1 < Date.today && Date.today <= @date2
-      @phase = "CRG1"
+      @phase = 'CRG1'
     elsif Date.today > @date2
-      @phase = "CRG2"
+      @phase = 'CRG2'
     end
   end
 
