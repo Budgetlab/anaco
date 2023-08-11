@@ -445,8 +445,8 @@ export default class extends Controller {
                 name: 'Catégorie',
                 data: [
                     { name: 'Aucun risque', y: data[0] },
-                    { name: 'Risques éventuels ou modérés', y: data[1] },
-                    { name: 'Risques certains ou significatifs', y: data[2] },
+                    { name: 'Risques modérés', y: data[1] },
+                    { name: 'Risques significatifs', y: data[2] },
                     { name: 'Notes non renseignées', y: data[3] }
                 ]
             }]

@@ -97,7 +97,7 @@
       <% @liste_bops_inactifs.each do |bop|%>
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
           <div class="fr-col-lg-2 fr-col-6"><ul><li><%= link_to bop_path(bop[0]) do%>BOP <%= bop[1]%><%end %></li></ul></div>
-          <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop[0]), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<%end %></div>
+          <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop[0]), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<% end %></div>
         </div>
       <%end %>
     </div>

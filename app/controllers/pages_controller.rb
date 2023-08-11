@@ -92,8 +92,8 @@ class PagesController < ApplicationController
                        @hash_bops_users.select { |key, value| key[0] == user.id && !key.include?('aucune') }.values.sum,
                        @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon') }.values.sum,
                        @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque')) }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés')) }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs')) }.values.sum]
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés') || key.include?('Risques modérés')) }.values.sum,
+                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs') || key.include?('Risques significatifs')) }.values.sum]
         array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) }.values.sum if phase == 'CRG1'
         array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5])
         array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
@@ -157,8 +157,8 @@ class PagesController < ApplicationController
 
   def notesRepartition(avis, avis_total, phase)
     notes_sans_risque = avis.count { |a| a.statut == 'Aucun risque' && a.phase == phase }
-    notes_moyen = avis.count { |a| a.statut == 'Risques éventuels ou modérés' && a.phase == phase }
-    notes_risque = avis.count { |a| a.statut == 'Risques certains ou significatifs' && a.phase == phase }
+    notes_moyen = avis.count { |a| (a.statut == 'Risques éventuels ou modérés' || a.statut == 'Risques modérés') && a.phase == phase }
+    notes_risque = avis.count { |a| (a.statut == 'Risques certains ou significatifs' || a.statut == 'Risques significatifs') && a.phase == phase }
     notes_vide = avis_total - notes_sans_risque - notes_moyen - notes_risque
     @notes = [notes_sans_risque, notes_moyen, notes_risque, notes_vide]
     @notes

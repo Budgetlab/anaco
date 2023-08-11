@@ -24,20 +24,20 @@
               <%end %>
             <% else %>
               <% if @avis_bop_crg1.statut == "Aucun risque" %>
-                <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">CRG1 : BOP avec capacité contributive</p>
+                <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">CRG1 : Aucun risque</p>
               <% elsif @avis_bop_crg1.statut == "Risques éventuels ou modérés" %>
-                <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">CRG1 : BOP avec consommation à la ressource</p>
+                <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">CRG1 : Risques éventuels ou modérés</p>
               <% elsif @avis_bop_crg1.statut == "Risques certains ou significatifs" %>
-                <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">CRG1 : BOP avec besoin de financement</p>
+                <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">CRG1 : Risques certains ou significatifs</p>
               <% end %>
             <%end %>
             <% unless @avis_bop_crg2.nil? %>
               <% if @avis_bop_crg2.statut == "Aucun risque" %>
-                <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">CRG2 : BOP avec capacité contributive</p>
-              <% elsif @avis_bop_crg2.statut == "Risques éventuels ou modérés" %>
-                <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">CRG2 : BOP avec consommation à la ressource</p>
-              <% elsif @avis_bop_crg2.statut == "Risques certains ou significatifs" %>
-                <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">CRG2 : BOP avec besoin de financement</p>
+                <p class="fr-badge fr-badge--success fr-badge--no-icon fr-ml-2w">CRG2 : Aucun risque</p>
+              <% elsif @avis_bop_crg2.statut == "Risques modérés" %>
+                <p class="fr-badge fr-badge--new fr-badge--no-icon fr-ml-2w">CRG2 : Risques modérés</p>
+              <% elsif @avis_bop_crg2.statut == "Risques significatifs" %>
+                <p class="fr-badge fr-badge--warning fr-badge--no-icon fr-ml-2w">CRG2 : Risques significatifs</p>
               <% end %>
             <%end %>
           <%end %>

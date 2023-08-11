@@ -45,7 +45,7 @@
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
-              <%= f.select :statut,[["- sélectionner -",""],['Aucun risque','Aucun risque'],['Risques éventuels ou modérés','Risques éventuels ou modérés'],['Risques certains ou significatifs','Risques certains ou significatifs'],],{selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
+              <%= f.select :statut,[["- sélectionner -",""],['Aucun risque','Aucun risque'],['Risques modérés','Risques modérés'],['Risques significatifs','Risques significatifs'],],{selected: @avis.statut}, {data: {'form-target': 'statut' }, id:"statut",class:"fr-select"}%>
           </div>
         </div>
         <div class="fr-col-12 fr-col-lg-8">

@@ -80,12 +80,15 @@
                         <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
                       <%end%>
                     </td>
-                    <% if current_user.statut == "admin" %><td><%if avis.etat != "Brouillon"%>
-                      <button class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-modifiable">Remettre Brouillon</button>
-                      <%= render partial: "avis/dialog_modifiable", locals: {avis: avis} %>
-                    <%end %></td><%end %>
+                    <% if current_user.statut == "admin" %>
+                      <td><%if avis.etat != "Brouillon"%>
+                      <%= link_to open_modal_brouillon_path(id: avis.id), class:"fr-btn fr-btn--secondary","data-fr-opened": false,"aria-controls":"modal-modifiable",data: { "turbo_method": :post} do %>Remettre Brouillon<%end %>
+                    <%end %></td>
+                    <%end %>
                   </tr>
                 <% end %>
+
+
               </tbody>
           </table>
         </div>
@@ -93,9 +96,14 @@
     </div>
     <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
       <div id="debut">
-        <%= render partial: 'avis/dialog_debut',locals: {avis: @bop.avis.first} %>
+        <%= render partial: 'avis/dialog_debut',locals: {avis: nil} %>
       </div>
     </dialog>
+      <dialog id="modal-modifiable" class="fr-modal" role="dialog" aria-labelledby="modal-modifiable-title">
+        <div id="modal_brouillon">
+          <%= render partial: "avis/dialog_modifiable", locals: {avis: nil} %>
+        </div>
+      </dialog>
     <%end %>
   </div>
 </main>

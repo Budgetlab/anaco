@@ -48,12 +48,23 @@ class AvisController < ApplicationController
     end
   end
 
-  def openModal
+  def open_modal
     @avis_default = Avi.find(params[:id])
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
           turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default })
+        ]
+      end
+    end
+  end
+
+  def open_modal_brouillon
+    @avis = Avi.find(params[:id])
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('modal_brouillon', partial: 'avis/dialog_modifiable', locals: { avis: @avis })
         ]
       end
     end
