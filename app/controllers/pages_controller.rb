@@ -94,7 +94,7 @@ class PagesController < ApplicationController
                        @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque')) }.values.sum,
                        @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés') || key.include?('Risques modérés')) }.values.sum,
                        @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs') || key.include?('Risques significatifs')) }.values.sum]
-        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) }.values.sum if phase == 'CRG1'
+        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) && !key.include?('Brouillon')}.values.sum if phase == 'CRG1'
         array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5])
         array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
         array_suivi_users << array_user
@@ -110,7 +110,7 @@ class PagesController < ApplicationController
                       @hash_bops_users.select { |key, value| key[2] == user.id && !key.include?('aucune') }.values.sum,
                       @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'En attente de lecture' }.values.sum,
                       @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'Lu' }.values.sum]
-        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && bop_to_read.include?(key[5]) && key[4] == true }.values.sum if phase == 'CRG1'
+        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && bop_to_read.include?(key[5]) && key[4] == true && key[3] != 'Brouillon' }.values.sum if phase == 'CRG1'
         array_user << array_user[1] - (array_user[2] + array_user[3])
         array_user << (array_user[2].zero? ? 100 : ((array_user[3].to_f / (array_user[2] + array_user[3])) * 100).round)
         array_suivi_lecture << array_user
