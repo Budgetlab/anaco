@@ -40,10 +40,13 @@ class PagesController < ApplicationController
     @ministere = @bops.first&.ministere
     @avis_remplis = Avi.where(bop_id: @bops.pluck(:id)).where.not(etat: 'Brouillon')
     @hash_donnees_phase = {'début de gestion' => [0, 0, 0, 0, 0, 0, 0, 0], 'CRG1' => [0, 0, 0, 0, 0, 0, 0, 0], 'CRG2' => [0, 0, 0, 0, 0, 0, 0, 0]}
+    avis_debut_gestion_non_crg1 = @avis_remplis.select { |avi| avi.phase == 'début de gestion' && !avi.is_crg1 }
+    array_sommes_debut_non_crg1 = avis_debut_gestion_non_crg1.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_debut_gestion_non_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
     avis_par_phase = @avis_remplis.group(:phase).select(:phase, 'SUM(ae_i) AS sum_ae_i', 'SUM(cp_i) AS sum_cp_i', 'SUM(etpt_i) AS sum_etpt_i', 'SUM(t2_i) AS sum_t2_i', 'SUM(ae_f) AS sum_ae_f', 'SUM(cp_f) AS sum_cp_f', 'SUM(etpt_f) AS sum_etpt_f', 'SUM(t2_f) AS sum_t2_f')
     avis_par_phase.each do |avis|
       @hash_donnees_phase[avis.phase] = [avis.sum_ae_i, avis.sum_cp_i, avis.sum_t2_i, avis.sum_etpt_i, avis.sum_ae_f, avis.sum_cp_f, avis.sum_t2_f, avis.sum_etpt_f]
     end
+    @hash_donnees_phase['CRG1'] = @hash_donnees_phase['CRG1'].zip(array_sommes_debut_non_crg1).map { |x, y| x + y }
     @avis = avisRepartition(@avis_remplis, @bops_actifs_count)
     @avis_date = avisDateRepartition(@avis_remplis, @bops_actifs_count)
     @statuts_debut = statutBop(@avis_remplis, @bops_actifs_count, 'début de gestion')

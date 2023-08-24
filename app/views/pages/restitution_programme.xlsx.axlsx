@@ -24,6 +24,9 @@
     	
       @avis_remplis.where(phase: 'CRG1').each do |avis|
         sheet.add_row [avis.bop.code, avis.date_envoi, avis.statut, avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
+      end
+      @avis_remplis.where(phase: 'début de gestion', is_crg1: false).each do |avis|
+        sheet.add_row [avis.bop.code, "CF Avis début de gestion", "N/A", avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire]
            
       end
   	end
