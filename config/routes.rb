@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   match '/500', via: :all, to: 'errors#error_500'
   match '/404', via: :all, to: 'errors#error_404'
   match '/503', via: :all, to: 'errors#error_503'
+  match '*path', to: 'errors#error_404', via: :all
 end
   get '/', to: redirect('/anaco')
   #get '/500', to: redirect('/anaco/500')
