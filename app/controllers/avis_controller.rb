@@ -34,15 +34,16 @@ class AvisController < ApplicationController
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
     @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases] && params[:phases].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 6 && @avis_all.length > 0
+    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 8 && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats] && params[:etats].length != 3 && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops] && params[:bops].length != @codes_bop.length && @avis_all.length > 0
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all, avis_users: @avis_users, bops_data: @bops_data })
+          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all, users_nom: @users_nom, codes_bop: @codes_bop, numeros_programmes: @numeros_programmes })
         ]
       end
     end
@@ -125,7 +126,7 @@ class AvisController < ApplicationController
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
     @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases] && params[:phases].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 6 && @avis_all.length > 0
+    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 8 && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats] && params[:etats].length != 3 && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length && @avis_all.length > 0
     @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length && @avis_all.length > 0
@@ -133,7 +134,7 @@ class AvisController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all })
+          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all, users_nom: @users_nom, codes_bop: @codes_bop, numeros_programmes: @numeros_programmes })
         ]
       end
     end

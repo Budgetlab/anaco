@@ -136,11 +136,11 @@
                   <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
 
                     <div class="fr-fieldset__element">
-                      <% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs"].each_with_index do |statut,i| %>
+                      <% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs","Risques modérés","Risques significatifs"].each_with_index do |statut,i| %>
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
                           <label class="fr-label" for="checkboxes-<%=i %>">
-                            <%= statut %> (<%= @avis_all.count { |el| el[4] == statut} %>)
+                            <% if statut == "Risques éventuels ou modérés" %>Risques éventuels<%elsif statut == "Risques certains ou significatifs"%>Risques certains<%else %><%= statut %><%end %> (<%= @avis_all.count { |el| el[4] == statut} %>)
                           </label>
                           <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
                           </div>

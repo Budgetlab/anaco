@@ -12,11 +12,12 @@
 					<%end %></p></div>
 		</div>
 	</div>
+
 	<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form"}) do |f|%>
-	<div class="fr-table fr-table--no-caption fr-table--vscroll">
-		<table>
-			<caption>Historique</caption>
-			<thead>
+		<div class="fr-table fr-table--no-caption fr-table--vscroll">
+			<table>
+				<caption>Historique</caption>
+				<thead>
 
 				<tr>
 
@@ -49,7 +50,7 @@
 						<th scope="col">CBR/DCB
 							<div class="fr-translate fr-nav fr-nav-filter">
 								<button class="filter-table-btn2" aria-controls="translate-1292" aria-expanded="false" title="Filtrer par controleur" data-action="click->filter#Dropdown">
-									</button>
+								</button>
 								<div class="fr-collapse fr-menu" id="translate-1292">
 									<ul class="fr-menu__list filter-table-list">
 										<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
@@ -105,7 +106,7 @@
 					<th scope="col">Programme
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
-								</button>
+							</button>
 							<div class="fr-collapse fr-menu" id="translate-1293">
 								<ul class="fr-menu__list filter-table-list">
 									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-prog-legend checkboxes-prog-messages">
@@ -132,17 +133,17 @@
 					<th scope="col">Statut/Risque
 						<div class="fr-translate fr-nav fr-nav-filter">
 							<button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
-								</button>
+							</button>
 							<div class="fr-collapse fr-menu" id="translate-1294">
 								<ul class="fr-menu__list filter-table-list">
 									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
 
 										<div class="fr-fieldset__element">
-											<% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs"].each_with_index do |statut,i| %>
+											<% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs","Risques modérés","Risques significatifs"].each_with_index do |statut,i| %>
 												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
 													<%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
 													<label class="fr-label" for="checkboxes-<%=i %>">
-														<%= statut %> (<%= @avis_all.count { |el| el[4] == statut} %>)
+														<% if statut == "Risques éventuels ou modérés" %>Risques éventuels CRG1<%elsif statut == "Risques certains ou significatifs"%>Risques certains CRG1<%else %><%= statut %><%end %> (<%= @avis_all.count { |el| el[4] == statut} %>)
 													</label>
 													<div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
 													</div>
@@ -160,41 +161,41 @@
 							<button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
 							</button>
 							<div class="fr-collapse fr-menu" id="translate-1295">
-							<ul class="fr-menu__list filter-table-list">
-								<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
+								<ul class="fr-menu__list filter-table-list">
+									<li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
 
-									<div class="fr-fieldset__element">
-										<% ["Brouillon","En attente de lecture","Lu"].each_with_index do |etat,i| %>
-											<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-												<%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
-												<label class="fr-label" for="checkboxes-etat-<%=i %>">
-													<%= etat %> (<%= @avis_all.count { |el| el[2] == etat} %>)
-												</label>
-												<div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
+										<div class="fr-fieldset__element">
+											<% ["Brouillon","En attente de lecture","Lu"].each_with_index do |etat,i| %>
+												<div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+													<%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
+													<label class="fr-label" for="checkboxes-etat-<%=i %>">
+														<%= etat %> (<%= @avis_all.count { |el| el[2] == etat} %>)
+													</label>
+													<div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
+													</div>
 												</div>
-											</div>
-										<%end %>
-									</div>
-									<div class="fr-messages-group" id="checkboxes-etat-messages" aria-live="assertive">
-									</div>
-								</fieldset></li>
-							</ul>
-						</div>
+											<%end %>
+										</div>
+										<div class="fr-messages-group" id="checkboxes-etat-messages" aria-live="assertive">
+										</div>
+									</fieldset></li>
+								</ul>
+							</div>
 						</div>
 					</th>
 					<th scope="col"> </th>
 
 				</tr>
 
-			</thead>
+				</thead>
 
 
-			<tbody id="table_historique">
-			<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all} %>
-			</tbody>
+				<tbody id="table_historique">
+				<%= render partial: 'avis/table_historique', locals: {liste_avis: @avis_all} %>
+				</tbody>
 
-		</table>
-	</div>
+			</table>
+		</div>
 	<%end %>
 	<dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
 		<div id="debut">

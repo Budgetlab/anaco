@@ -1,5 +1,4 @@
-
-    <% liste_avis.each do |avis|%>
+<% liste_avis.each do |avis|%>
       <tr>
         <td><% if avis[1] =="début de gestion" %><%= avis[1].capitalize %><%else %><%= avis[1] %><%end %></td>
         <% if current_user.statut =="admin" %>
