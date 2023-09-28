@@ -43,7 +43,7 @@ class AvisController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all, users_nom: @users_nom, codes_bop: @codes_bop, numeros_programmes: @numeros_programmes })
+          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all })
         ]
       end
     end
@@ -134,7 +134,7 @@ class AvisController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all, users_nom: @users_nom, codes_bop: @codes_bop, numeros_programmes: @numeros_programmes })
+          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all})
         ]
       end
     end
