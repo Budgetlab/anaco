@@ -2,23 +2,23 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static get targets() {
-  return ['form','statut','nom','nomBloc','password','submitBouton','error','error2','credentials'
-  ];
+  return ['form','statut','nom','perimetre','password','credentials','erreurMDP','erreurOubli'];
   }
 
   connect() {
     
   }
 
+  // fonction qui met à jour les noms dans le bloc périmètre
   statutChange(e){
     e.preventDefault();
     if (this.statutTarget.value == "admin" || this.statutTarget.value == "" ){
-      this.nomBlocTarget.classList.add('fr-hidden');
+      this.perimetreTarget.classList.add('fr-hidden');
       this.resetChamp(this.nomTarget);
     }else if (this.statutTarget.value == "CBR" || this.statutTarget.value == "DCB"){
-      this.nomBlocTarget.classList.remove('fr-hidden');
+      this.perimetreTarget.classList.remove('fr-hidden');
       this.resetChamp(this.nomTarget);
-      // mettre à jour les valeurs dans nom 
+      // récupérer et mettre à jour les valeurs des noms dans périmètre
       const statut = this.statutTarget.value;
       const token = document.querySelector('meta[name="csrf-token"]').content;
       const url = "/anaco/select_nom";
@@ -46,6 +46,7 @@ export default class extends Controller {
     }
   }
 
+    // fonction qui n'affiche plus que l'option vide "- Sélectionner -" dans les champs select
   resetChamp(target){
         target.innerHTML = "";
         const option = document.createElement("option");
@@ -54,13 +55,15 @@ export default class extends Controller {
         target.appendChild(option);
   }
 
+  // fonction qui efface les messages d'erreur dès la modification d'un champ
   changeForm(e){
     e.preventDefault();
-    this.error2Target.classList.add('fr-hidden');
-    this.errorTarget.classList.add('fr-hidden');
+    this.erreurOubliTarget.classList.add('fr-hidden');
+    this.erreurMDPTarget.classList.add('fr-hidden');
     this.credentialsTarget.classList.remove('fr-fieldset--error');
   }
 
+    // fonction qui récupère les erreurs avant l'envoi du formulaire
   submitForm(e){
     let valid = true;
     if (this.passwordTarget.value == ""){
@@ -71,18 +74,18 @@ export default class extends Controller {
     }
     if ((this.statutTarget.value == "CBR" || this.statutTarget.value == "DCB") && this.nomTarget.value == ""){
       valid = false;
-
     }
     if (valid == false ){
-      this.error2Target.classList.remove('fr-hidden');
+      this.erreurOubliTarget.classList.remove('fr-hidden');
       this.credentialsTarget.classList.add('fr-fieldset--error');
       e.preventDefault();
     }
   }
 
+    // fonction qui récupère les erreurs du mot de passe après l'envoi du formulaire
   resultForm(event){
     if (event.detail.success == false){
-      this.errorTarget.classList.remove('fr-hidden');
+      this.erreurMDPTarget.classList.remove('fr-hidden');
       this.credentialsTarget.classList.add('fr-fieldset--error');
     } 
   }

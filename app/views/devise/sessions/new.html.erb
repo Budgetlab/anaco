@@ -20,71 +20,54 @@
                                         <legend class="fr-fieldset__legend" id="login-1801-fieldset-legend">
                                             <h2 class="fr-h5">Se connecter avec son compte</h2>
                                         </legend>
-                                        <div class="fr-fieldset__element fr-hidden" data-session-target="error" >
+                                        <div class="fr-fieldset__element fr-hidden" data-session-target="erreurMDP">
                                             <div class="fr-alert fr-alert--error fr-alert--sm">
                                                 <p>Mot de passe incorrect</p>
                                             </div>
                                         </div>
-                                        <div class="fr-fieldset__element fr-hidden" data-session-target="error2" >
+                                        <div class="fr-fieldset__element fr-hidden" data-session-target="erreurOubli">
                                             <div class="fr-alert fr-alert--error fr-alert--sm">
                                                 <p>Vous devez remplir tous les champs obligatoires (*)</p>
                                             </div>
                                         </div>
                                         <div class="fr-fieldset__element">
                                             <fieldset class="fr-fieldset" id="credentials" data-session-target="credentials" aria-labelledby="credentials-legend credentials-messages">
-                                                <legend class="fr-sr-only" id="credentials-legend">
-                                                    identifiants
-                                                </legend>
+                                                <legend class="fr-sr-only" id="credentials-legend">identifiants</legend>
+
                                                 <div class="fr-fieldset__element">
                                                     <div class="fr-input-group">
-                                                        <label class="fr-label" for="username-1798">
-                                                            Profil
-                                                        </label>
-                                                        
-                                                        <%= f.select :statut , [["CBR","CBR"], ["DCB","DCB"],["Direction du Budget","admin"]], {:include_blank => "- Sélectionner -"}, {data: {action: 'change->session#statutChange','session-target': 'statut' }, required: true, class: "fr-select", id:'username-1798'} %>
-                                                        <div class="fr-messages-group" id="username-1798-messages" aria-live="assertive">
-                                                        </div>
+                                                        <label class="fr-label" for="profil">Profil</label>
+                                                        <%= f.select :statut , [["CBR","CBR"], ["DCB","DCB"],["Direction du Budget","admin"]], {:include_blank => "- Sélectionner -"}, {data: {action: 'change->session#statutChange','session-target': 'statut' }, required: true, class: "fr-select", id:'profil'} %>
+                                                        <div class="fr-messages-group" id="profil-messages" aria-live="assertive"></div>
                                                     </div>
                                                 </div>
 
-                                                <div class="fr-fieldset__element fr-hidden" data-session-target="nomBloc">
+                                                <div class="fr-fieldset__element fr-hidden" data-session-target="perimetre">
                                                     <div class="fr-input-group">
-                                                        <label class="fr-label" for="nom-1798">
-                                                            Périmètre
-                                                        </label>
-                                                        <%= f.select :nom, [], {:include_blank => "- Sélectionner -"}, {data: {'session-target': 'nom' }, class: "fr-select", id: 'nom-1798'} %>
-                                                        
-                                                        <div class="fr-messages-group" id="nom-1798-messages" aria-live="assertive">
-                                                        </div>
+                                                        <label class="fr-label" for="nom">Périmètre</label>
+                                                        <%= f.select :nom, [], {:include_blank => "- Sélectionner -"}, {data: {'session-target': 'nom' }, class: "fr-select", id: 'nom'} %>
+                                                        <div class="fr-messages-group" id="nom-messages" aria-live="assertive"></div>
                                                     </div>
                                                 </div>
-
-                                                
 
                                                 <div class="fr-fieldset__element">
                                                     <div class="fr-password" id="password-1799">
-                                                        <label class="fr-label" for="password-1799-input">
-                                                            Mot de passe
-                                                        </label>
+                                                        <label class="fr-label" for="password-1799-input">Mot de passe</label>
                                                         <div class="fr-input-wrap">
                                                             <%= f.password_field :password,data: {'session-target': 'password' },required: true, autocomplete: "current-password",class:"fr-password__input fr-input", id: "password-1799-input" %>
-                                                            
                                                         </div>
-                                                        <div class="fr-messages-group" id="password-1799-input-messages" aria-live="assertive">
-                                                        </div>
+                                                        <div class="fr-messages-group" id="password-1799-input-messages" aria-live="assertive"></div>
                                                         <div class="fr-password__checkbox fr-checkbox-group fr-checkbox-group--sm">
                                                             <input aria-label="Afficher le mot de passe" id="password-1799-show" type="checkbox">
-                                                            <label class="fr--password__checkbox fr-label" for="password-1799-show">
-                                                                Afficher
-                                                            </label>
+                                                            <label class="fr--password__checkbox fr-label" for="password-1799-show">Afficher</label>
                                                         </div>
                                                         <p>
                                                           <a class="fr-link" href="mailto:budget.lab@finances.gouv.fr?subject=Mot de passe oublié -ANACO" target="_blank" rel="noopener" title="Mot de passe oublié">Mot de passe oublié ?</a>
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div class="fr-messages-group" id="credentials-messages" aria-live="assertive">
-                                                </div>
+
+                                                <div class="fr-messages-group" id="credentials-messages" aria-live="assertive"></div>
                                             </fieldset>
                                         </div>
                                         <div class="fr-fieldset__element">
@@ -101,13 +84,11 @@
                                         <div class="fr-fieldset__element">
                                             <ul class="fr-btns-group">
                                                 <li>
-                                                    
-                                                    <%= f.submit "Connexion", class:"fr-mt-2v fr-btn",  data: {action: 'click->session#submitForm','session-target': "submitBouton"}, aria: { label: "Valider le formulaire de connexion"} %>
+                                                    <%= f.submit "Connexion", class:"fr-mt-2v fr-btn",  data: {action: 'click->session#submitForm'}, aria: { label: "Valider le formulaire de connexion"} %>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="fr-messages-group" id="login-1801-fieldset-messages" aria-live="assertive">
-                                        </div>
+                                        <div class="fr-messages-group" id="login-1801-fieldset-messages" aria-live="assertive"></div>
                                     </fieldset>
                                 <%end%>
                             </div>

@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   root 'pages#index'
   get 'utilisateurs' => 'users#index'
   post 'import_users' => 'users#import'
-  post 'import2_users' => 'users#import2'
+  post 'import_nom_users' => 'users#import_nom'
   post '/select_nom' => 'users#select_nom'
 
   resources :bops do
