@@ -148,13 +148,13 @@ class AvisController < ApplicationController
     @avis_crg1 = @bop.avis.where(phase: 'CRG1').first
     @avis_crg2 = @bop.avis.where(phase: 'CRG2').first
     @form = 'début de gestion' if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
-    @form = 'no CRG1' if @date1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && !@avis_debut.is_crg1
-    @form = 'CRG1' if @date1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && @avis_debut.is_crg1
-    @form = 'CRG2' if @date2 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' &&
+    @form = 'no CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && !@avis_debut.is_crg1
+    @form = 'CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && @avis_debut.is_crg1
+    @form = 'CRG2' if @date_crg2 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' &&
                       (!@avis_debut.is_crg1 || (@avis_debut.is_crg1 && !@avis_crg1.nil? && @avis_crg1.etat != 'Brouillon'))
-    @avis = if Date.today <= @date1
+    @avis = if Date.today <= @date_crg1
               @avis_debut || Avi.new
-            elsif Date.today <= @date2
+            elsif Date.today <= @date_crg2
               @avis_debut.nil? || @avis_debut.etat == 'Brouillon' ? @avis_debut || Avi.new : @avis_crg1 || Avi.new
             else
               if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'

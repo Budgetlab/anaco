@@ -26,7 +26,7 @@ Rails.application.routes.draw do
   post 'reset_brouillon', to: 'avis#reset_brouillon'
 
   get '/restitutions', to: 'pages#restitutions'
-  get '/restitutions/:programme', to: 'pages#restitution_programme'
+  get '/restitutions/:programme', to: 'pages#restitution_programme', as: 'specific_restitutions'
   post 'filter_restitution', to: 'pages#filter_restitution'
   get 'suivi', to: "pages#suivi"
 

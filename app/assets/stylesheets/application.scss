@@ -238,3 +238,9 @@ h1, h2{
     table-layout: fixed !important;
   }
 }
+
+.title-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

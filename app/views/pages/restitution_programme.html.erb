@@ -1,5 +1,5 @@
 <% content_for :title do %>Restitutions du programme | Anaco <% end %>
-<div class="fr-container" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-avisdate="<%=@avis_date %>"  data-highcharts-notesbar="<%= @notesbar %>">
+<div class="fr-container" data-controller="highcharts" data-highcharts-avis="<%= @avis_repartition %>" data-highcharts-avisdate="<%= @avis_date_repartition %>"  data-highcharts-notesbar="<%= @notes_bar %>">
   <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
     <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
     <div class="fr-collapse" id="breadcrumb-1">
@@ -16,400 +16,57 @@
       </ol>
     </div>
   </nav>
+
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mb-2w">Restitution du programme n°<%= @numero %></h1>
-      <p class="fr-tag">Ministère <%=@ministere %></p>
+      <h1 class="fr-mb-2w title-btn"><div>Restitution du programme n°<%= @numero %></div> <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+        <ul class="fr-pagination__list">
+          <li>
+            <%= link_to specific_restitutions_path(programme: @numero, date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
+              2023
+            <%end %>
+          </li>
+          <li>
+            <%= link_to specific_restitutions_path(programme: @numero, date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+              2024
+            <%end %>
+          </li>
+        </ul>
+      </nav></h1>
+      <p class="fr-tag">Ministère <%= @ministere %></p>
       <p class="fr-card__detail fr-icon-arrow-right-line fr-mt-1w"><%= @bops_count_all %> BOP (<%= pluralize(@bops_count_all-@bops_actifs_count,'BOP inactif')  %>)</p>
     </div>
   </div>
+
   <h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %></h2>
+
   <% if current_user.statut != "CBR" %>
     <h3 class="fr-mt-3w">Ressources allouées</h3>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        <%= @phase %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][0])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][1])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][2])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][3])%></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <% if Date.today > @date2 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          CRG1
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][0])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][1])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][2])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][3])%></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: @phase, hash_donnees_phase: @hash_donnees_phase} %>
+    <% if Date.today > @date_crg2 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
-    <% if Date.today >= @date1 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          Début de gestion
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2 </p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][0])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2 </p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][1])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 </p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][2])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][3])%></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <% if Date.today >= @date_crg1 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'début de gestion', hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
     <h3 class="fr-mt-3w">Prévision d’exécution</h3>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        <%= @phase %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][4])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][5])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][6])%>€</p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase[@phase][7])%></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <% if Date.today > @date2 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          CRG1
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][4])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][5])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][6])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["CRG1"][7])%></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: @phase, hash_donnees_phase: @hash_donnees_phase} %>
+    <% if Date.today > @date_crg2 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
-    <% if Date.today >= @date1 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          Début de gestion
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][4])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][5])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][6])%>€</p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@hash_donnees_phase["début de gestion"][7])%></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <% if Date.today >= @date_crg1 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'début de gestion', hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
     <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
-    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-      <div class="fr-col-12 fr-col-lg-1">
-        <%= @phase %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase[@phase][0] - @hash_donnees_phase[@phase][4] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase[@phase][0] - @hash_donnees_phase[@phase][4])%>€</span><%else %><%= format_number(@hash_donnees_phase[@phase][0] - @hash_donnees_phase[@phase][4])%>€<%end %></p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase[@phase][1] - @hash_donnees_phase[@phase][5] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase[@phase][1] - @hash_donnees_phase[@phase][5])%>€</span><%else %><%= format_number(@hash_donnees_phase[@phase][1] - @hash_donnees_phase[@phase][5])%>€<%end %></p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase[@phase][2] - @hash_donnees_phase[@phase][6] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase[@phase][2] - @hash_donnees_phase[@phase][6])%>€</span><%else %><%= format_number(@hash_donnees_phase[@phase][2] - @hash_donnees_phase[@phase][6])%>€<%end %></p>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-3">
-            <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-              <div class="fr-cart__body">
-                <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-                <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase[@phase][3] - @hash_donnees_phase[@phase][7] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase[@phase][3] - @hash_donnees_phase[@phase][7])%></span><%else %><%= format_number(@hash_donnees_phase[@phase][3] - @hash_donnees_phase[@phase][7])%><%end %></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <% if Date.today > @date2 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          CRG1
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["CRG1"][0] - @hash_donnees_phase["CRG1"][4] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["CRG1"][0] - @hash_donnees_phase["CRG1"][4])%>€</span><%else %><%= format_number(@hash_donnees_phase["CRG1"][0] - @hash_donnees_phase["CRG1"][4])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["CRG1"][1] - @hash_donnees_phase["CRG1"][5] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["CRG1"][1] - @hash_donnees_phase["CRG1"][5])%>€</span><%else %><%= format_number(@hash_donnees_phase["CRG1"][1] - @hash_donnees_phase["CRG1"][5])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["CRG1"][2] - @hash_donnees_phase["CRG1"][6] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["CRG1"][2] - @hash_donnees_phase["CRG1"][6])%>€</span><%else %><%= format_number(@hash_donnees_phase["CRG1"][2] - @hash_donnees_phase["CRG1"][6])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["CRG1"][3] - @hash_donnees_phase["CRG1"][7] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["CRG1"][3] - @hash_donnees_phase["CRG1"][7])%></span><%else %><%= format_number(@hash_donnees_phase["CRG1"][3] - @hash_donnees_phase["CRG1"][7])%><%end %></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: @phase, hash_donnees_phase: @hash_donnees_phase} %>
+    <% if Date.today > @date_crg2 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "CRG1", hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
-    <% if Date.today >= @date1 %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-        <div class="fr-col-12 fr-col-lg-1">
-          Début de gestion
-        </div>
-        <div class="fr-col-12 fr-col-lg-9">
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["début de gestion"][0] - @hash_donnees_phase["début de gestion"][4] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["début de gestion"][0] - @hash_donnees_phase["début de gestion"][4])%>€</span><%else %><%= format_number(@hash_donnees_phase["début de gestion"][0] - @hash_donnees_phase["début de gestion"][4])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["début de gestion"][1] - @hash_donnees_phase["début de gestion"][5] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["début de gestion"][1] - @hash_donnees_phase["début de gestion"][5])%>€</span><%else %><%= format_number(@hash_donnees_phase["début de gestion"][1] - @hash_donnees_phase["début de gestion"][5])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["début de gestion"][2] - @hash_donnees_phase["début de gestion"][6] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["début de gestion"][2] - @hash_donnees_phase["début de gestion"][6])%>€</span><%else %><%= format_number(@hash_donnees_phase["début de gestion"][2] - @hash_donnees_phase["début de gestion"][6])%>€<%end %></p>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-3">
-              <div class="fr-card fr-card--grey fr-p-2w fr-card--no-border">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if @hash_donnees_phase["début de gestion"][3] - @hash_donnees_phase["début de gestion"][7] < 0 %><span class="crouge"><%= format_number(@hash_donnees_phase["début de gestion"][3] - @hash_donnees_phase["début de gestion"][7])%></span><%else %><%= format_number(@hash_donnees_phase["début de gestion"][3] - @hash_donnees_phase["début de gestion"][7])%><%end %></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <% if Date.today >= @date_crg1 %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "début de gestion", hash_donnees_phase: @hash_donnees_phase} %>
     <% end %>
   <% end %>
+
   <h2 class="fr-mb-2w fr-mt-4w">Statistiques sur les <%= @bops_actifs_count %> BOP actifs du programme</h2>
   <div class="fr-grid-row fr-grid-row--gutters" >
     <div class="fr-col-12 fr-col-lg-4">
@@ -422,6 +79,7 @@
         <div data-highcharts-target="canvasNotesBar"></div>
     </div>
   </div>
+
   <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
     <div class="fr-col-12 fr-col-lg-12">
       <h2 class="fr-mb-2w">Liste des <%= @bops_count_all %> BOP du programme</h2>
@@ -429,7 +87,7 @@
   </div>
   <div class="fr-download">
     <h3>
-      <%= link_to "/anaco/restitutions/#{@numero}.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'ensemble des avis sur ce programme
+      <%= link_to specific_restitutions_path(programme: @numero, date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger l'ensemble des avis <%= @annee_a_afficher %> sur ce programme
         <span class="fr-download__detail">
           Format .xlsx
         </span>
@@ -439,7 +97,8 @@
   <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w" data-controller="filter">
     <div class="fr-col-12 fr-col-lg-12">
       <%= form_with(url: filter_restitution_path, method: :post, data: {'filter-target': "form", action: "change->filter#submitFilter"}) do |f|%>
-      <%= f.hidden_field :numero, value: @numero %>
+        <%= f.hidden_field :programme, value: @numero %>
+        <%= f.hidden_field :date, value: @annee_a_afficher %>
         <ul class="fr-btns-group fr-btns-group--inline-sm">
           <li>
             <div class="fr-translate fr-nav">

@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# Controller Application
+
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound do
@@ -13,23 +17,29 @@ class ApplicationController < ActionController::Base
   def resource_name
     :user
   end
+
   def resource
     @resource ||= User.new
-	end
+  end
+
   def resource_class
     User
   end
+
   def devise_mapping
     @devise_mapping ||= Devise.mappings[:user]
   end
+
+  # fonction pour déclarer les variables globales dans l'application
   def set_global_variable
-    @date1 = Date.new(2023, 4, 30)
-    @date2 = Date.new(2023, 8, 31)
-    if Date.today <= @date1
+    @annee = Date.today.year
+    @date_crg1 = Date.new(@annee, 4, 30)
+    @date_crg2 = Date.new(@annee, 8, 31)
+    if Date.today <= @date_crg1
       @phase = 'début de gestion'
-    elsif @date1 < Date.today && Date.today <= @date2
+    elsif @date_crg1 < Date.today && Date.today <= @date_crg2
       @phase = 'CRG1'
-    elsif Date.today > @date2
+    elsif Date.today > @date_crg2
       @phase = 'CRG2'
     end
   end

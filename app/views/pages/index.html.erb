@@ -3,20 +3,20 @@
 	<% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
 		<%= render 'notice'%>
 	<%end %>
-		<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis %>" data-highcharts-notes1="<%=@notes1 %>" data-highcharts-notes2="<%=@notes2 %>">
+		<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis_repartition %>" data-highcharts-notes1="<%=@notes_crg1 %>" data-highcharts-notes2="<%=@notes_crg2 %>">
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-12">
-					<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom%></h1>
+					<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom %></h1>
 					<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
 				</div>
 			</div>
-			<% if current_user.statut == "DCB" %>
+			<% if @statut_user == "DCB" %>
 				<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
 					<div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/system/notification.svg", alt: "" %></div>
 					<div class="fr-col-lg-11 fr-col-10">
-						<div class="fr-text--lg fr-mt-1w">Vous avez <%= @avis_to_read %> avis/notes en attente de lecture<br>
-						<%= link_to consultation_path, class:"fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
-							Consulter les avis transmis par les CBR et DCB
+						<div class="fr-text--lg fr-mt-1w">Vous avez <%= @avis_a_lire %> avis/notes en attente de lecture<br>
+							<%= link_to consultation_path, class:"fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
+								Consulter les avis transmis par les CBR et DCB
 							<%end %>
 						</div>
 					</div>
@@ -30,7 +30,7 @@
 									<div class="fr-card__start">
 										<ul class="fr-badges-group">
 											<li>
-												<% if Date.today <= @date1 %><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
+												<% if Date.today <= @date_crg1 %><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
 											</li>
 										</ul>
 										<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 janvier au 30 avril</p>
@@ -42,7 +42,7 @@
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis[3] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_repartition[3] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
 											</div>
 										</div>
@@ -51,7 +51,7 @@
 												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis[3]%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis_repartition[3]%> </h3>
 												<p class="fr-text--sm fr-mb-3w">avis donnés sans interruption du délai</p>
 											</div>
 										</div>
@@ -60,7 +60,7 @@
 												<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_crg1 %>/<%= @avis_total-@avis[3]%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_crg1 %>/<%= @avis_total-@avis_repartition[3]%> </h3>
 												<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
 											</div>
 										</div>
@@ -85,7 +85,7 @@
 						<div class="fr-card__body">
 							<div class="fr-card__content">
 								<h3 class="fr-card__title">Phase de CRG1</h3>
-								<% if Date.today <= @date1%>
+								<% if Date.today <= @date_crg1%>
 									<p class="fr-card__desc">Données ouvertes à partir du 1er mai.</p>
 								<% else %>
 									<div class="fr-card__desc">
@@ -94,7 +94,7 @@
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @notes1[3] %>/<%= @avis_crg1 %> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @notes_crg1[3] %>/<%= @avis_crg1 %> </h3>
 												<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
 											</div>
 										</div>
@@ -103,7 +103,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1[1] %>/<%= @avis_crg1 %> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg1[1] %>/<%= @avis_crg1 %> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec risques éventuels</p>
 											</div>
 										</div>
@@ -112,7 +112,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes1[2] %>/<%= @avis_crg1 %> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg1[2] %>/<%= @avis_crg1 %> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec risques certains</p>
 											</div>
 										</div>
@@ -122,13 +122,13 @@
 								<div class="fr-card__start">
 									<ul class="fr-badges-group">
 										<li>
-											<% if Date.today <= @date1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date1 < Date.today && Date.today <= @date2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
+											<% if Date.today <= @date_crg1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date_crg1 < Date.today && Date.today <= @date_crg2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
 										</li>
 									</ul>
 									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
 								</div>
 							</div>
-							<% if Date.today > @date1%>
+							<% if Date.today > @date_crg1%>
 								<div class="fr-card__footer fr-btns-group--right">
 									<ul class="fr-links-group">
 										<li>
@@ -147,7 +147,7 @@
 						<div class="fr-card__body">
 							<div class="fr-card__content">
 								<h3 class="fr-card__title">Phase de CRG2</h3>
-								<% if Date.today <= @date2%>
+								<% if Date.today <= @date_crg2%>
 									<p class="fr-card__desc">Données ouvertes à partir du 1er septembre.</p>
 								<% else%>
 									<div class="fr-card__desc">
@@ -156,7 +156,7 @@
 												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @notes2[3] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%= @notes_crg2[3] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
 											</div>
 										</div>
@@ -165,7 +165,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2[1] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg2[1] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec risques modérés</p>
 											</div>
 										</div>
@@ -174,7 +174,7 @@
 												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
 											</div>
 											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes2[2] %>/<%= @avis_total%> </h3>
+												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg2[2] %>/<%= @avis_total%> </h3>
 												<p class="fr-text--sm fr-mb-3w">BOP avec risques significatifs</p>
 											</div>
 										</div>
@@ -184,13 +184,13 @@
 								<div class="fr-card__start">
 									<ul class="fr-badges-group">
 										<li>
-											<% if Date.today <= @date2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
+											<% if Date.today <= @date_crg2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
 										</li>
 									</ul>
 									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 septembre au 31 décembre</p>
 								</div>
 							</div>
-							<% if Date.today > @date2%>
+							<% if Date.today > @date_crg2%>
 								<div class="fr-card__footer fr-btns-group--right">
 									<ul class="fr-links-group">
 										<li>
