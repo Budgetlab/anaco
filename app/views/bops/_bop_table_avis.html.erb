@@ -1,0 +1,42 @@
+<% liste_avis_annee = @bop_avis.select{ |avis| avis.created_at >= Date.new(annee, 1, 1) && avis.created_at <= Date.new(annee, 12, 31)} %>
+<% if liste_avis_annee.empty? %>
+  <p>Aucun avis</p>
+<%else %>
+  <div class="fr-table fr-table--no-caption fr-table--layout-fixed">
+    <table>
+      <caption>Historique des avis</caption>
+      <thead>
+      <tr>
+        <th scope="col">Date de saisie </th>
+        <th scope="col">Phase </th>
+        <th scope="col">Statut </th>
+        <th scope="col">État </th>
+        <th scope="col"> </th>
+        <% if current_user.statut == "admin" %><th scope="col"> </th><%end %>
+      </tr>
+      </thead>
+      <tbody>
+      <% liste_avis_annee.each do |avis|%>
+        <tr>
+          <td><%= l(avis.created_at,format: "%e/%m/%y")%></td>
+          <td><%= avis.phase%> </td>
+          <td><%= avis.statut%></td>
+          <td><% if avis.etat == "En attente de lecture"%><p class="fr-badge fr-badge--purple-glycine"><%= avis.etat%></p><%elsif avis.etat == "Lu"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat%></p><% elsif avis.etat == "Brouillon" %><p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat%></p><%end%></td>
+          <td>
+            <% if avis.etat == "Brouillon" && avis.user == current_user %>
+              <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre<%end %>
+            <%elsif avis.etat != "Brouillon"%>
+              <%= link_to open_modal_path(id: avis.id), class:"fr-btn","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+            <%end%>
+          </td>
+          <% if current_user.statut == "admin" %>
+            <td><%if avis.etat != "Brouillon"%>
+                <%= link_to open_modal_brouillon_path(id: avis.id), class:"fr-btn fr-btn--secondary","data-fr-opened": false,"aria-controls":"modal-modifiable",data: { "turbo_method": :post} do %>Remettre en Brouillon<%end %>
+              <%end %></td>
+          <%end %>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end  %>

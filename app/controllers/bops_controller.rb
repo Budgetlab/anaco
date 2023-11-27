@@ -4,22 +4,13 @@
 class BopsController < ApplicationController
   before_action :authenticate_user!
   protect_from_forgery with: :null_session
+  # page liste des bops
   def index
+    @liste_bops = liste_bops_user
     if current_user.statut == 'admin'
-      @liste_bops = Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
-      @codes_bop = @liste_bops.map { |el| el[0] }.uniq
-      @numeros_programmes = @liste_bops.map { |el| el[2] }.uniq
-      @users_nom = @liste_bops.map { |el| el[4] }.uniq
-      @dotations = { 'complete' => 'T2/HT2', 'T2' => 'T2', 'HT2' => 'HT2', 'aucune' => 'INACTIF', 'vide' => 'NON RENSEIGNÉ' }
-      @dotations_total = [@liste_bops.count { |el| el[1] == 'complete' }, @liste_bops.count { |el| el[1] == 'T2' }, @liste_bops.count { |el| el[1] == 'HT2' }, @liste_bops.count { |el| el[1] == 'aucune' }, @liste_bops.count { |el| el[1] == nil } ]
+      variables_bops_admin
     else
-      @liste_bops = current_user.bops.pluck(:id, :code, :dotation).sort_by { |e| e[1] }
-      @liste_bops_actifs = @liste_bops.reject { |el| el[2] == 'aucune' }
-      @liste_bops_inactifs = @liste_bops.select { |el| el[2] == 'aucune' }
-      @liste_avis_par_bop = current_user.bops.joins(:avis).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
-      @count_reste = @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'début de gestion'
-      @count_reste = @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG1'
-      @count_reste = 2 * @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG2'
+      variables_bops_index
     end
     respond_to do |format|
       format.html
@@ -27,18 +18,11 @@ class BopsController < ApplicationController
     end
   end
 
+  # filtre tableau page liste des bops vision admin
   def filter_bop
-    @liste_bops = Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
-    @codes_bop = @liste_bops.map { |el| el[0] }.uniq
-    @numeros_programmes = @liste_bops.map { |el| el[2] }.uniq
-    @users_nom = @liste_bops.map { |el| el[4] }.uniq
-    if params[:statuts] && params[:statuts].length != 5
-      params[:statuts] = params[:statuts].append(nil) if params[:statuts].include?('vide')
-      @liste_bops = @liste_bops.select { |b| params[:statuts].include?(b[1]) }
-    end
-    @liste_bops = @liste_bops.select { |b| params[:numeros].map(&:to_i).include?(b[2]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length
-    @liste_bops = @liste_bops.select { |b| params[:users].include?(b[4]) } if params[:users] && params[:users].length != @users_nom.length
-    @liste_bops = @liste_bops.select { |b| params[:bops].include?(b[0]) } if params[:bops] && params[:bops].length != @codes_bop.length
+    @liste_bops = liste_bops_user
+    variables_bops_admin
+    filter_bops if params_present
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -48,8 +32,10 @@ class BopsController < ApplicationController
     end
   end
 
+  # page affichage du bop
   def show
     @bop = Bop.find(params[:id])
+    @bop_avis = @bop.avis
   end
 
   def edit
@@ -60,15 +46,10 @@ class BopsController < ApplicationController
     @bop = Bop.find(params[:id])
     @bop.update(dotation: params[:dotation])
     if @bop.dotation == 'aucune'
-      # @bop.avis.destroy_all unless @bop.avis.empty?
       @message = 'suppression'
-      respond_to do |format|
-        format.turbo_stream { redirect_to bops_path, notice: @message }
-      end
+      redirect_to bops_path, flash: { notice: @message }
     else
-      respond_to do |format|
-        format.turbo_stream { redirect_to new_bop_avi_path(@bop.id) }
-      end
+      redirect_to new_bop_avi_path(@bop.id)
     end
   end
 
@@ -81,5 +62,47 @@ class BopsController < ApplicationController
     respond_to do |format|
       format.turbo_stream { redirect_to root_path }
     end
+  end
+
+  private
+
+  def liste_bops_user
+    if current_user.statut == 'admin'
+      Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
+    else
+      current_user.bops.pluck(:id, :code, :dotation).sort_by { |e| e[1] }
+    end
+  end
+
+  def variables_bops_admin
+    @codes_bop = @liste_bops.map { |el| el[0] }.uniq
+    @numeros_programmes = @liste_bops.map { |el| el[2] }.uniq
+    @users_nom = @liste_bops.map { |el| el[4] }.uniq
+    @dotations = { 'complete' => 'T2/HT2', 'T2' => 'T2', 'HT2' => 'HT2', 'aucune' => 'INACTIF', 'vide' => 'NON RENSEIGNÉ' }
+    @dotations_total = [@liste_bops.count { |el| el[1] == 'complete' }, @liste_bops.count { |el| el[1] == 'T2' }, @liste_bops.count { |el| el[1] == 'HT2' }, @liste_bops.count { |el| el[1] == 'aucune' }, @liste_bops.count { |el| el[1] == nil } ]
+  end
+
+  # variable concernant les BOP sur l'année en cours
+  def variables_bops_index
+    @liste_bops_actifs = @liste_bops.reject { |el| el[2] == 'aucune' }
+    @liste_bops_inactifs = @liste_bops.select { |el| el[2] == 'aucune' }
+    @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
+    @count_reste = @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'début de gestion'
+    @count_reste = @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG1'
+    @count_reste = 2 * @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG2'
+  end
+
+  def filter_bops
+    if params[:statuts].length != 5
+      params[:statuts] = params[:statuts].append(nil) if params[:statuts].include?('vide')
+      @liste_bops = @liste_bops.select { |b| params[:statuts].include?(b[1]) }
+    end
+    @liste_bops = @liste_bops.select { |b| params[:numeros].map(&:to_i).include?(b[2]) } if params[:numeros].length != @numeros_programmes.length
+    @liste_bops = @liste_bops.select { |b| params[:users].include?(b[4]) } if params[:users].length != @users_nom.length
+    @liste_bops = @liste_bops.select { |b| params[:bops].include?(b[0]) } if params[:bops].length != @codes_bop.length
+  end
+
+  def params_present
+    params[:statuts] || params[:numeros] || params[:users] || params[:bops]
   end
 end

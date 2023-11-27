@@ -3,7 +3,7 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @liste_bops.length %> BOP</h1>
       <div class="fr-download">
-        <p><%= link_to "/anaco/bops.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'ensemble des BOP
+        <p><%= link_to bops_path(format: :xlsx), class: "fr-download__link" do %> Télécharger l'ensemble des BOP
             <span class="fr-download__detail">Format .xlsx</span>
           <%end %></p>
       </div>
@@ -17,7 +17,6 @@
           <table>
             <caption>BOP</caption>
             <thead>
-
             <tr>
               <th scope="col">BOP
                 <div class="fr-translate fr-nav fr-nav-filter">
@@ -128,9 +127,7 @@
                 </div>
               </th>
             </tr>
-
             </thead>
-
 
             <tbody id="table_bops">
             <%= render partial: 'bops/table_bops', locals: {bops: @liste_bops} %>

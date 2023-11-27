@@ -15,24 +15,15 @@
         </div>
       </div>
 
-      <% if flash.any? %>
-        <% flash.each do |type, msg| %>
-          <% if msg == "suppression" %>
-            <div class="fr-alert fr-alert--success fr-mb-2w">
-              <h3 class="fr-alert__title">Votre BOP a bien été enregistré comme BOP non doté. Il est désormais à retrouver dans la liste des BOP inactifs et les avis associés (brouillon ou validés) sont supprimés.</h3>
-            </div>
-          <% end %>
-        <% end %>
-      <% end %>
+      <%= render partial: 'bops/notice' %>
     </div>
   </div>
 
-
-<div class="fr-tabs fr-mb-2w">
+  <div class="fr-tabs fr-mb-2w">
     <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
-        <li role="presentation">
-            <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @liste_bops_actifs.length %>)</button>
-        </li>
+      <li role="presentation">
+        <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @liste_bops_actifs.length %>)</button>
+      </li>
       <li role="presentation">
         <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP inactifs (<%= @liste_bops_inactifs.length %>)</button>
       </li>
@@ -101,7 +92,7 @@
         </div>
       <%end %>
     </div>
-</div>
+  </div>
 
 </div>
 <% end  %>

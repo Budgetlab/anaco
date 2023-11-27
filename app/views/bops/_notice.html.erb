@@ -1,0 +1,9 @@
+<% if flash.any? %>
+  <% flash.each do |type, msg| %>
+    <% if msg == "suppression" %>
+      <div class="fr-alert fr-alert--success fr-mb-2w">
+        <h3 class="fr-alert__title">Votre BOP a bien été enregistré comme BOP non doté. Il est désormais à retrouver dans la liste des BOP inactifs.</h3>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
