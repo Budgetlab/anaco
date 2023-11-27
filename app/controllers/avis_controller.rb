@@ -7,9 +7,7 @@ class AvisController < ApplicationController
   def index
     annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
-    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
-    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
-    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
+    variables_table
     respond_to do |format|
       format.html
       format.xlsx
@@ -19,20 +17,13 @@ class AvisController < ApplicationController
   def filter_historique
     annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
-    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
-    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
-    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
-    @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases] && params[:phases].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 8 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats] && params[:etats].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops] && params[:bops].length != @codes_bop.length && @avis_all.length > 0
-
+    variables_table
+    filter_avis_all if params_present_and_avis_all_not_empty
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all })
+          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all }),
+          turbo_stream.update('total_table', partial: 'avis/table_total', locals: { total: @avis_all.length })
         ]
       end
     end
@@ -63,17 +54,9 @@ class AvisController < ApplicationController
   def consultation
     redirect_to root_path and return if current_user.statut != 'DCB'
 
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
-    @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                                   :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                                   :date_envoi, :date_reception,
-                                                   'users.nom AS user_nom',
-                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
-    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
-    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
-    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
+    annee_a_afficher
+    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
+    variables_table
     respond_to do |format|
       format.html
       format.xlsx
@@ -83,15 +66,8 @@ class AvisController < ApplicationController
   def update
     @avis = Avi.find(params[:id])
     @avis.update(etat: 'Lu')
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
-    @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                                   :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                                   :date_envoi, :date_reception,
-                                                   'users.nom AS user_nom',
-                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
-
+    annee_a_afficher
+    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
@@ -103,27 +79,15 @@ class AvisController < ApplicationController
   end
 
   def filter_consultation
-    @bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    @avis_all = Avi.where(bop_id: @bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
-    @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                                   :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                                   :date_envoi, :date_reception,
-                                                   'users.nom AS user_nom',
-                                                   'bops.code AS bop_code','bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero_programme', 'bops.nom_programme AS bop_nom_programme' )
-    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
-    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
-    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
-    @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases] && params[:phases].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts] && params[:statuts].length != 8 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats] && params[:etats].length != 3 && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros] && params[:numeros].length != @numeros_programmes.length && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length && @avis_all.length > 0
-    @avis_all = @avis_all.select { |el| params[:bops].include?(el[19]) } if params[:bops] && params[:bops].length != @codes_bop.length && @avis_all.length > 0
+    annee_a_afficher
+    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
+    variables_table
+    filter_avis_all if params_present_and_avis_all_not_empty
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all})
+          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all}),
+          turbo_stream.update('total_table', partial: 'avis/table_total', locals: { total: @avis_all.length })
         ]
       end
     end
@@ -196,14 +160,46 @@ class AvisController < ApplicationController
     @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
   end
 
+  def variables_table
+    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
+    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
+    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
+  end
+
+  def params_present_and_avis_all_not_empty
+    params_present? && !@avis_all.empty?
+  end
+
+  def params_present?
+    params[:phases] || params[:statuts] || params[:etats] || params[:numeros] || params[:users] || params[:bops]
+  end
+
+  def filter_avis_all
+    @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases].length != 3
+    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts].length != 8
+    @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats].length != 3
+    @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros].length != @numeros_programmes.length
+    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users].length != @users_nom.length
+    @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops].length != @codes_bop.length
+  end
+
   def liste_avis_annee(annee)
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
     avis_all = scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                        :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                       :date_envoi, :date_reception,
-                                       'users.nom AS user_nom',
+                                       :date_envoi, :date_reception, 'users.nom AS user_nom',
                                        'bops.code AS bop_code', 'bops.id AS bop_id',
                                        'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
+  end
+
+  def liste_dcb_avis_annee(annee)
+    bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+    avis_all = Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
+    avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
+                                      :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
+                                      :date_envoi, :date_reception, 'users.nom AS user_nom',
+                                      'bops.code AS bop_code', 'bops.id AS bop_id',
+                                      'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
   end
 end

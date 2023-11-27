@@ -2,20 +2,33 @@
 <div class="fr-container" data-controller="filter">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w">Consultation des avis et notes émis par les CBR et DCB [<%= @avis_all.length %>]</h1>
+      <h1 class="fr-my-6w title-btn"><div>Avis/notes à consulter</div>
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+          <ul class="fr-pagination__list">
+            <li>
+              <%= link_to consultation_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
+                2023
+              <%end %>
+            </li>
+            <li>
+              <%= link_to consultation_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+                2024
+              <%end %>
+            </li>
+          </ul>
+        </nav>
+      </h1>
       <div class="fr-download">
-        <p><%= link_to "/anaco/consultation.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger l'historique des avis/notes reçus
-            <span class="fr-download__detail">
-          Format .xlsx
-        </span>
+        <p><%= link_to consultation_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger l'historique des avis/notes <%= @annee_a_afficher %> reçus
+            <span class="fr-download__detail">Format .xlsx</span>
           <%end %></p></div>
     </div>
   </div>
 
-  <div class="fr-table fr-table--no-caption fr-table--vscroll">
+  <div class="fr-table fr-table--bordered fr-table--layout-fixed--lg fr-table--vscroll fr-mb-6w">
     <table>
-      <caption>Historique des avis</caption>
       <%= form_with(url: filter_consultation_path, method: :post, data: {'filter-target': "form"}) do |f|%>
+        <caption>Liste des résultats <span id="total_table"><%= render partial: "avis/table_total", locals: { total: @avis_all.length} %></span></caption>
         <thead>
         <tr>
           <th scope="col">Phase
@@ -31,7 +44,7 @@
                       <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                         <%= f.check_box "phases[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-phase-#{i}"}, phase%>
                         <label class="fr-label" for="checkboxes-phase-<%=i %>">
-                          <%= phase %>  (<%= @avis_all.count { |el| el[1] == phase} %>)
+                          <%= phase %>
                         </label>
                         <div class="fr-messages-group" id="checkboxes-phase-<%=i %>-messages" aria-live="assertive">
                         </div>
@@ -140,7 +153,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
                           <label class="fr-label" for="checkboxes-<%=i %>">
-                            <% if statut == "Risques éventuels ou modérés" %>Risques éventuels<%elsif statut == "Risques certains ou significatifs"%>Risques certains<%else %><%= statut %><%end %> (<%= @avis_all.count { |el| el[4] == statut} %>)
+                            <% if statut == "Risques éventuels ou modérés" %>Risques éventuels<%elsif statut == "Risques certains ou significatifs"%>Risques certains<%else %><%= statut %><%end %>
                           </label>
                           <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
                           </div>
@@ -167,7 +180,7 @@
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
                           <label class="fr-label" for="checkboxes-etat-<%=i %>">
-                            <%= etat %> (<%= @avis_all.count { |el| el[2] == etat} %>)
+                            <%= etat %>
                           </label>
                           <div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive">
                           </div>
@@ -188,8 +201,7 @@
         </thead>
       <%end %>
       <tbody id="table">
-      <%= render partial: 'avis/table', locals: { liste_avis: @avis_all } %>
-
+        <%= render partial: 'avis/table', locals: { liste_avis: @avis_all } %>
       </tbody>
     </table>
     <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
