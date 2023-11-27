@@ -5,13 +5,8 @@ class AvisController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
   def index
-    @avis_all = current_user.statut == 'admin' ? Avi.order(created_at: :desc) : current_user.avis.order(created_at: :desc)
-    @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                                   :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                                   :date_envoi, :date_reception,
-                                                   'users.nom AS user_nom',
-                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
+    annee_a_afficher
+    @avis_all = liste_avis_annee(@annee_a_afficher)
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
@@ -22,14 +17,8 @@ class AvisController < ApplicationController
   end
 
   def filter_historique
-    @avis_all = current_user.statut == 'admin' ? Avi.order(created_at: :desc) : current_user.avis.order(created_at: :desc)
-    @avis_all = @avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                                   :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                                   :date_envoi, :date_reception,
-                                                   'users.nom AS user_nom',
-                                                   'bops.code AS bop_code', 'bops.id AS bop_id',
-                                                   'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
-
+    annee_a_afficher
+    @avis_all = liste_avis_annee(@annee_a_afficher)
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
@@ -201,5 +190,20 @@ class AvisController < ApplicationController
 
   def avi_params
     params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat)
+  end
+
+  def annee_a_afficher
+    @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
+  end
+
+  def liste_avis_annee(annee)
+    scope = current_user.statut == 'admin' ? Avi : current_user.avis
+    avis_all = scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).order(created_at: :desc)
+    avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
+                                       :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
+                                       :date_envoi, :date_reception,
+                                       'users.nom AS user_nom',
+                                       'bops.code AS bop_code', 'bops.id AS bop_id',
+                                       'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
   end
 end

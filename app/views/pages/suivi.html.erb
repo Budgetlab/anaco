@@ -2,12 +2,25 @@
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w">Suivi des avis par contrôleur</h1>
+      <h1 class="fr-my-6w title-btn"><div>Suivi des avis par contrôleur</div>
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+          <ul class="fr-pagination__list">
+            <li>
+              <%= link_to suivi_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
+                2023
+              <%end %>
+            </li>
+            <li>
+              <%= link_to suivi_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+                2024
+              <%end %>
+            </li>
+          </ul>
+        </nav>
+      </h1>
       <div class="fr-download">
-        <p><%= link_to "/anaco/suivi.xlsx", format: :xslx, class: "fr-download__link" do %> Télécharger les tableaux
-            <span class="fr-download__detail">
-          Format .xlsx
-        </span>
+        <p><%= link_to suivi_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger les tableaux
+            <span class="fr-download__detail">Format .xlsx</span>
           <%end %></p>
       </div>
       <div class="fr-tabs fr-mb-4w">
@@ -27,42 +40,18 @@
             <table>
               <caption>Suivi du remplissage des avis</caption>
               <thead>
-              <tr>
-                <th scope="col">CBR/DCB</th>
-                <th scope="col">Taux de remplissage</th>
-                <th scope="col">BOP actifs</th>
-                <th scope="col">Avis en attente</th>
-                <th scope="col">Avis en brouillon</th>
-                <th scope="col">Avis favorable</th>
-                <th scope="col">Avis favorable avec réserve</th>
-                <th scope="col">Avis défavorable</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr class="total"><td>Total</td>
-                <td><%= ((@hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[3] +
-                  @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[4] +
-                  @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[1]*100).round %>%</td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[6] %></td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[3] %></td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                <td><%= @hash_phase_user["début de gestion"].transpose.map{|e| e.inject(:+)}[5] %></td>
-              </tr>
-              <%  @hash_phase_user["début de gestion"].each do |user_array|%>
                 <tr>
-                  <td><%= user_array[0] %></td>
-                  <td><%= user_array[7] %>%</td>
-                  <td><%= user_array[1] %></td>
-                  <td><%= user_array[6] %></td>
-                  <td><%= user_array[2] %></td>
-                  <td><%= user_array[3] %></td>
-                  <td><%= user_array[4] %></td>
-                  <td><%= user_array[5] %></td>
+                  <th scope="col">CBR/DCB</th>
+                  <th scope="col">Taux de remplissage</th>
+                  <th scope="col">BOP actifs</th>
+                  <th scope="col">Avis en attente</th>
+                  <th scope="col">Avis en brouillon</th>
+                  <th scope="col">Avis favorable</th>
+                  <th scope="col">Avis favorable avec réserve</th>
+                  <th scope="col">Avis défavorable</th>
                 </tr>
-              <% end %>
-              </tbody>
+              </thead>
+              <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "début de gestion"} %>
             </table>
           </div>
 
@@ -70,37 +59,16 @@
             <table>
               <caption>Suivi de lecture des avis par les DCB</caption>
               <thead>
-              <tr>
-                <th scope="col">DCB responsable</th>
-                <th scope="col">Taux de lecture</th>
-                <th scope="col">BOP actifs / Avis à lire</th>
-                <th scope="col">Avis non reçus</th>
-                <th scope="col">Avis en attente de lecture</th>
-                <th scope="col">Avis lus</th>
-
-              </tr>
-              </thead>
-              <tbody>
-              <tr class="total"><td>Total</td>
-                <td><%= (@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
-                           (@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
-                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                <td><%= @hash_phase_lecture["début de gestion"].transpose.map{|e| e.inject(:+)}[3] %></td>
-
-              </tr>
-              <%  @hash_phase_lecture["début de gestion"].each do |user_array|%>
                 <tr>
-                  <td><%= user_array[0] %></td>
-                  <td><%= user_array[5] %>%</td>
-                  <td><%= user_array[1] %></td>
-                  <td><%= user_array[4] %></td>
-                  <td><%= user_array[2] %></td>
-                  <td><%= user_array[3] %></td>
+                  <th scope="col">DCB responsable</th>
+                  <th scope="col">Taux de lecture</th>
+                  <th scope="col">BOP actifs / Avis à lire</th>
+                  <th scope="col">Avis non reçus</th>
+                  <th scope="col">Avis en attente de lecture</th>
+                  <th scope="col">Avis lus</th>
                 </tr>
-              <%end %>
-              </tbody>
+              </thead>
+              <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "début de gestion"} %>
             </table>
           </div>
         </div>
@@ -109,43 +77,18 @@
               <table>
                 <caption>Suivi du remplissage des avis</caption>
                 <thead>
-                <tr>
-                  <th scope="col">CBR/DCB</th>
-                  <th scope="col">Taux de remplissage</th>
-                  <th scope="col">BOP avec CRG1</th>
-                  <th scope="col">Notes en attente</th>
-                  <th scope="col">Notes en brouillon</th>
-                  <th scope="col">Notes risques faibles</th>
-                  <th scope="col">Notes risques modérés</th>
-                  <th scope="col">Notes risques significatifs</th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="total"><td>Total</td>
-                  <td><%= (@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1] == 0 ? 100 : ((@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[3] +
-                    @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[4] +
-                    @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1]*100).round) %>%</td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[6] %></td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @hash_phase_user["CRG1"].transpose.map{|e| e.inject(:+)}[5] %></td>
-                </tr>
-                <%  @hash_phase_user["CRG1"].each do |user_array|%>
                   <tr>
-                    <td><%= user_array[0] %></td>
-                    <td><%= user_array[7] %>%</td>
-                    <td><%= user_array[1] %></td>
-                    <td><%= user_array[6] %></td>
-                    <td><%= user_array[2] %></td>
-                    <td><%= user_array[3] %></td>
-                    <td><%= user_array[4] %></td>
-                    <td><%= user_array[5] %></td>
+                    <th scope="col">CBR/DCB</th>
+                    <th scope="col">Taux de remplissage</th>
+                    <th scope="col">BOP avec CRG1</th>
+                    <th scope="col">Notes en attente</th>
+                    <th scope="col">Notes en brouillon</th>
+                    <th scope="col">Notes risques faibles</th>
+                    <th scope="col">Notes risques modérés</th>
+                    <th scope="col">Notes risques significatifs</th>
                   </tr>
-                <% end %>
-                </tbody>
+                </thead>
+                <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG1"} %>
               </table>
             </div>
 
@@ -153,82 +96,36 @@
               <table>
                 <caption>Suivi de lecture des avis par les DCB</caption>
                 <thead>
-                <tr>
-                  <th scope="col">DCB responsable</th>
-                  <th scope="col">Taux de lecture</th>
-                  <th scope="col">Notes à lire</th>
-                  <th scope="col">Notes non reçues</th>
-                  <th scope="col">Notes en attente de lecture</th>
-                  <th scope="col">Notes lues</th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="total"><td>Total</td>
-                  <td><%= (@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
-                             (@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
-                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @hash_phase_lecture["CRG1"].transpose.map{|e| e.inject(:+)}[3] %></td>
-                </tr>
-                <%  @hash_phase_lecture["CRG1"].each do |user_array|%>
                   <tr>
-                    <td><%= user_array[0] %></td>
-                    <td><%= user_array[5] %>%</td>
-                    <td><%= user_array[1] %></td>
-                    <td><%= user_array[4] %></td>
-                    <td><%= user_array[2] %></td>
-                    <td><%= user_array[3] %></td>
+                    <th scope="col">DCB responsable</th>
+                    <th scope="col">Taux de lecture</th>
+                    <th scope="col">Notes à lire</th>
+                    <th scope="col">Notes non reçues</th>
+                    <th scope="col">Notes en attente de lecture</th>
+                    <th scope="col">Notes lues</th>
                   </tr>
-                <%end %>
-                </tbody>
+                </thead>
+                <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "CRG1"} %>
               </table>
             </div>
         </div>
         <div id="tabpanel-406-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-406" tabindex="0">
-
             <div class="fr-table fr-table--layout-fixed--lg">
               <table>
                 <caption>Suivi du remplissage des avis</caption>
                 <thead>
-                <tr>
-                  <th scope="col">CBR/DCB</th>
-                  <th scope="col">Taux de remplissage</th>
-                  <th scope="col">BOP actifs</th>
-                  <th scope="col">Notes en attente</th>
-                  <th scope="col">Notes en brouillon</th>
-                  <th scope="col">Notes risques faibles</th>
-                  <th scope="col">Notes risques modérés</th>
-                  <th scope="col">Notes risques significatifs</th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="total"><td>Total</td>
-                  <td><%= ((@hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[3] +
-                    @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[4] +
-                    @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[5]).to_f/@hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[1]*100).round %>%</td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[6] %></td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[3] %></td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @hash_phase_user["CRG2"].transpose.map{|e| e.inject(:+)}[5] %></td>
-                </tr>
-                <%  @hash_phase_user["CRG2"].each do |user_array|%>
                   <tr>
-                    <td><%= user_array[0] %></td>
-                    <td><%= user_array[7] %>%</td>
-                    <td><%= user_array[1] %></td>
-                    <td><%= user_array[6] %></td>
-                    <td><%= user_array[2] %></td>
-                    <td><%= user_array[3] %></td>
-                    <td><%= user_array[4] %></td>
-                    <td><%= user_array[5] %></td>
+                    <th scope="col">CBR/DCB</th>
+                    <th scope="col">Taux de remplissage</th>
+                    <th scope="col">BOP actifs</th>
+                    <th scope="col">Notes en attente</th>
+                    <th scope="col">Notes en brouillon</th>
+                    <th scope="col">Notes risques faibles</th>
+                    <th scope="col">Notes risques modérés</th>
+                    <th scope="col">Notes risques significatifs</th>
                   </tr>
-                <% end %>
-                </tbody>
+                </thead>
+                <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG2"} %>
               </table>
             </div>
 
@@ -236,36 +133,16 @@
               <table>
                 <caption>Suivi de lecture des avis par les DCB</caption>
                 <thead>
-                <tr>
-                  <th scope="col">DCB responsable</th>
-                  <th scope="col">Taux de lecture</th>
-                  <th scope="col">Notes à lire</th>
-                  <th scope="col">Notes non reçues</th>
-                  <th scope="col">Notes en attente de lecture</th>
-                  <th scope="col">Notes lues</th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="total"><td>Total</td>
-                  <td><%= (@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2] == 0 ? 100 :
-                             (@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3].to_f/(@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3]+@hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2])*100).round) %>%</td>
-                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[1] %></td>
-                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[4] %></td>
-                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[2] %></td>
-                  <td><%= @hash_phase_lecture["CRG2"].transpose.map{|e| e.inject(:+)}[3] %></td>
-                </tr>
-                <%  @hash_phase_lecture["CRG2"].each do |user_array|%>
                   <tr>
-                    <td><%= user_array[0] %></td>
-                    <td><%= user_array[5] %>%</td>
-                    <td><%= user_array[1] %></td>
-                    <td><%= user_array[4] %></td>
-                    <td><%= user_array[2] %></td>
-                    <td><%= user_array[3] %></td>
+                    <th scope="col">DCB responsable</th>
+                    <th scope="col">Taux de lecture</th>
+                    <th scope="col">Notes à lire</th>
+                    <th scope="col">Notes non reçues</th>
+                    <th scope="col">Notes en attente de lecture</th>
+                    <th scope="col">Notes lues</th>
                   </tr>
-                <%end %>
-                </tbody>
+                </thead>
+                <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "CRG2"} %>
               </table>
             </div>
 

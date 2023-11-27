@@ -72,42 +72,10 @@ class PagesController < ApplicationController
   def suivi
     redirect_to root_path and return unless current_user.statut == 'admin'
 
-    @users = User.where(statut: ['CBR', 'DCB'])
-    @hash_bops_users = Bop.group(:user_id, :dotation, :consultant, :id).count
-    @hash_avis_users = Avi.group(:user_id, :phase, :statut, :etat, :is_crg1, :bop_id).count
-    @hash_phase_user = {}
-    ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
-      array_suivi_users = []
-      @users.each do |user|
-        array_user = [user.nom,
-                       @hash_bops_users.select { |key, value| key[0] == user.id && !key.include?('aucune') }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon') }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque')) }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés') || key.include?('Risques modérés')) }.values.sum,
-                       @hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs') || key.include?('Risques significatifs')) }.values.sum]
-        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) && !key.include?('Brouillon')}.values.sum if phase == 'CRG1'
-        array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5])
-        array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
-        array_suivi_users << array_user
-      end
-      @hash_phase_user[phase] = array_suivi_users.sort_by { |e| -e[7] }
-    end
-    @hash_phase_lecture = {}
-    ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
-      array_suivi_lecture = []
-      @users.where(statut: 'DCB').each do |user|
-        bop_to_read = @hash_bops_users.select { |key, value| key[2] == user.id && key[1] != 'aucune' }.keys.map { |element| element[3] }.uniq
-        array_user = [user.nom,
-                      @hash_bops_users.select { |key, value| key[2] == user.id && !key.include?('aucune') }.values.sum,
-                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'En attente de lecture' }.values.sum,
-                      @hash_avis_users.select { |key, value| key[1] == phase && bop_to_read.include?(key[5]) && key[3] == 'Lu' }.values.sum]
-        array_user[1] = @hash_avis_users.select { |key, value| key.include?('début de gestion') && bop_to_read.include?(key[5]) && key[4] == true && key[3] != 'Brouillon' }.values.sum if phase == 'CRG1'
-        array_user << array_user[1] - (array_user[2] + array_user[3])
-        array_user << (array_user[2].zero? ? 100 : ((array_user[3].to_f / (array_user[2] + array_user[3])) * 100).round)
-        array_suivi_lecture << array_user
-      end
-      @hash_phase_lecture[phase] = array_suivi_lecture.sort_by { |e| -e[5] }
-    end
+    annee_a_afficher
+    variables_suivi(@annee_a_afficher)
+    calcul_hash_phase_user(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
+    calcul_hash_phase_lecture(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
     respond_to do |format|
       format.html
       format.xlsx
@@ -140,29 +108,37 @@ class PagesController < ApplicationController
     scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(etat: 'Brouillon')
   end
 
-  # fonction pour charger la liste des avis à renseigner sur tous les bops actifs
+  # fonction pour récupérer les bops actifs de l'année sélectionnée
   def liste_bop_actifs(statut_user, annee)
     scope = statut_user == 'admin' ? Bop : current_user.bops
-    scope.where('created_at <= ?', Date.new(annee, 12, 31)).where(dotation: [nil, 'complete', 'T2', 'HT2']).count
+    if annee == @annee
+      # si année courante prendre ceux actuellement qui n'ont pas aucune comme dotation
+      scope.where('bops.created_at <= ?', Date.new(annee, 12, 31)).count { |b| b.dotation != 'aucune' }
+    else
+      # si année précédente, récupérer ceux qui ont eu des avis pendant cette année en début de gestion (= bop actifs)
+      # ceux qui n'ont pas d'avis pendant l'année = bops inactifs
+      scope.where('bops.created_at <= ?', Date.new(annee, 12, 31)).joins(:avis)
+           .where('avis.created_at >= ? AND avis.created_at <= ? AND phase = ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31), "début de gestion").count
+    end
   end
 
-  # fonction pour charger la liste des avis à lire par le DCB (ceux des CBR uniquement)
+  # fonction pour charger la liste des avis à lire par le DCB (ceux des CBR uniquement, année en cours)
   def dcb_avis_a_lire
     bops_dcb = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    bops_dcb.empty? ? 0 : Avi.where(bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
+    bops_dcb.empty? ? 0 : Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).where(bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
   end
 
-  # fonction pour calculer le nombre d'avis avec CRG1 prévu
+  # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
   def avis_crg1(avis_remplis)
     avis_remplis.count { |a| a.is_crg1 && a.phase == 'début de gestion' }
   end
 
-  # fonction pour calculer le nombre d'avis données sans interruption du delai
+  # fonction pour calculer le nombre d'avis données sans interruption du delai parmi la liste des avis remplis
   def avis_delai(avis_remplis)
     avis_remplis.count { |a| !a.is_delai && a.phase == 'début de gestion' }
   end
 
-  # fonction pour afficher la répartition des statuts pour les avis début de gestion
+  # fonction pour afficher la répartition des statuts pour les avis début de gestion de l'année sélectionnée
   def avis_repartition(avis, avis_total)
     avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == 'début de gestion' }
     avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == 'début de gestion' }
@@ -171,6 +147,7 @@ class PagesController < ApplicationController
     [avis_favorables, avis_reserves, avis_defavorables, avis_vide]
   end
 
+  # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee)
     avis_date_1 = avis.count { |a| a.date_reception <= Date.new(annee, 3, 1) && a.phase == 'début de gestion' }
     avis_date_2 = avis.count { |a| a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == 'début de gestion' }
@@ -195,7 +172,8 @@ class PagesController < ApplicationController
     bops = Bop.where('created_at <= ?', Date.new(annee, 12, 31))
     @total_programmes = bops.distinct.count(:numero_programme)
     @liste_bops_par_programme = bops.group(:numero_programme).count
-    @liste_bops_inactifs_par_programme = bops.where(dotation: 'aucune').group(:numero_programme).count
+    liste_bops_inactifs_annee = annee == @annee ? bops.where(dotation: 'aucune') : bops.where.not(id: Avi.where('created_at >= ? AND created_at <= ? AND phase = ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31), "début de gestion").pluck(:bop_id))
+    @liste_bops_inactifs_par_programme = liste_bops_inactifs_annee.group(:numero_programme).count
   end
 
   # fonction pour afficher la liste des programmes (nom et numero) accessibles à l'utilisateur sur l'année
@@ -235,7 +213,7 @@ class PagesController < ApplicationController
     @numero = params[:programme].to_i
     @bops = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(numero_programme: @numero).order(code: :asc)
     @bops_count_all = @bops.size
-    @bops_actifs_count = @bops.count { |b| b.dotation != 'aucune' }
+    @bops_actifs_count = annee == @annee ? @bops.count { |b| b.dotation != 'aucune' } : @bops.count { |b| b.avis.where('created_at >= ? AND created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).count.positive? }
     @ministere = @bops.first&.ministere
   end
 
@@ -272,6 +250,53 @@ class PagesController < ApplicationController
       hash_donnees_phase[avis.phase] = [avis.sum_ae_i, avis.sum_cp_i, avis.sum_t2_i, avis.sum_etpt_i, avis.sum_ae_f, avis.sum_cp_f, avis.sum_t2_f, avis.sum_etpt_f]
     end
     hash_donnees_phase['CRG1'] = hash_donnees_phase['CRG1'].zip(array_somme_debut_non_crg1).map { |x, y| x + y }
+  end
+
+  def variables_suivi(annee)
+    @users = User.where(statut: ['CBR', 'DCB'])
+    @hash_bops_users = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).group(:user_id, :dotation, :consultant, :id).count
+    @hash_avis_users = Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).group(:user_id, :phase, :statut, :etat, :is_crg1, :bop_id).count
+  end
+
+  def calcul_hash_phase_user(users, hash_bops_users, hash_avis_users, annee)
+    @hash_phase_user = {}
+    ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
+      array_suivi_users = []
+      users.each do |user|
+        array_user = [user.nom,
+                      hash_bops_users.select { |key, value| key[0] == user.id && !key.include?('aucune') }.values.sum,
+                      hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon') }.values.sum,
+                      hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable') || key.include?('Aucun risque')) }.values.sum,
+                      hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Favorable avec réserve') || key.include?('Risques éventuels ou modérés') || key.include?('Risques modérés')) }.values.sum,
+                      hash_avis_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && (key.include?('Défavorable') || key.include?('Risques certains ou significatifs') || key.include?('Risques significatifs')) }.values.sum]
+        array_user[1] = hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) && !key.include?('Brouillon')}.values.sum if phase == 'CRG1'
+        array_user[1] = hash_avis_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id }.values.sum if annee < @annee && phase != "CRG1" # total de bop actifs = avis en début de gestion
+        array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5]) # avis en attente
+        array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
+        array_suivi_users << array_user
+      end
+      @hash_phase_user[phase] = array_suivi_users.sort_by { |e| -e[7] }
+    end
+  end
+
+  def calcul_hash_phase_lecture(users, hash_bops_users, hash_avis_users, annee)
+    @hash_phase_lecture = {}
+    ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
+      array_suivi_lecture = []
+      users.where(statut: 'DCB').each do |user|
+        bop_dcb_id = hash_bops_users.select { |key, value| key[2] == user.id }.keys.map { |element| element[3] }.uniq
+        array_user = [user.nom,
+                      hash_bops_users.select { |key, value| key[2] == user.id && !key.include?('aucune') }.values.sum,
+                      hash_avis_users.select { |key, value| key[1] == phase && bop_dcb_id.include?(key[5]) && key[3] == 'En attente de lecture' }.values.sum,
+                      hash_avis_users.select { |key, value| key[1] == phase && bop_dcb_id.include?(key[5]) && key[3] == 'Lu' }.values.sum]
+        array_user[1] = hash_avis_users.select { |key, value| key.include?('début de gestion') && bop_dcb_id.include?(key[5]) && key[4] == true && key[3] != 'Brouillon' }.values.sum if phase == 'CRG1'
+        array_user[1] = hash_avis_users.select { |key, value| key[1] == 'début de gestion' && bop_dcb_id.include?(key[5]) }.values.sum if annee < @annee && phase != "CRG1"
+        array_user << array_user[1] - (array_user[2] + array_user[3])
+        array_user << (array_user[2].zero? ? 100 : ((array_user[3].to_f / (array_user[2] + array_user[3])) * 100).round)
+        array_suivi_lecture << array_user
+      end
+      @hash_phase_lecture[phase] = array_suivi_lecture.sort_by { |e| -e[5] }
+    end
   end
 
 end

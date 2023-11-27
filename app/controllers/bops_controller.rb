@@ -60,7 +60,7 @@ class BopsController < ApplicationController
     @bop = Bop.find(params[:id])
     @bop.update(dotation: params[:dotation])
     if @bop.dotation == 'aucune'
-      @bop.avis.destroy_all unless @bop.avis.empty?
+      # @bop.avis.destroy_all unless @bop.avis.empty?
       @message = 'suppression'
       respond_to do |format|
         format.turbo_stream { redirect_to bops_path, notice: @message }
