@@ -97,35 +97,16 @@ class AvisController < ApplicationController
     @bop = Bop.where(id: params[:bop_id]).first
     redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
 
-    @avis_debut = @bop.avis.where(phase: 'début de gestion').first
-    @avis_crg1 = @bop.avis.where(phase: 'CRG1').first
-    @avis_crg2 = @bop.avis.where(phase: 'CRG2').first
-    @form = 'début de gestion' if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
-    @form = 'no CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && !@avis_debut.is_crg1
-    @form = 'CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && @avis_debut.is_crg1
-    @form = 'CRG2' if @date_crg2 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' &&
-                      (!@avis_debut.is_crg1 || (@avis_debut.is_crg1 && !@avis_crg1.nil? && @avis_crg1.etat != 'Brouillon'))
-    @avis = if Date.today <= @date_crg1
-              @avis_debut || Avi.new
-            elsif Date.today <= @date_crg2
-              @avis_debut.nil? || @avis_debut.etat == 'Brouillon' ? @avis_debut || Avi.new : @avis_crg1 || Avi.new
-            else
-              if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
-                @avis_debut || Avi.new
-              elsif @avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')
-                @avis_crg1 || Avi.new
-              else
-                @avis_crg2 || Avi.new
-              end
-            end
-    @is_completed = (@avis.etat == 'En attente de lecture' || @avis.etat == 'Lu')
+    set_avis_phase
+    set_form_type
+    set_form_avis
   end
 
   def create
     @bop = Bop.find_by(id: params[:avi][:bop_id])
     redirect_to root_path and return if @bop.nil? || @bop.user != current_user
 
-    @avis = @bop.avis.find_or_initialize_by(phase: params[:avi][:phase])
+    @avis = @bop.avis.where('created_at >= ? AND created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
     @avis.assign_attributes(avi_params)
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
@@ -202,4 +183,35 @@ class AvisController < ApplicationController
                                       'bops.code AS bop_code', 'bops.id AS bop_id',
                                       'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
   end
+
+  def set_avis_phase
+    avis = @bop.avis.where('created_at >= ? AND created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31))
+    @avis_debut = avis.where(phase: 'début de gestion').first
+    @avis_crg1 = avis.where(phase: 'CRG1').first
+    @avis_crg2 = avis.where(phase: 'CRG2').first
+  end
+  def set_form_type
+    @form = 'début de gestion' if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
+    @form = 'no CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && !@avis_debut.is_crg1
+    @form = 'CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && @avis_debut.is_crg1
+    @form = 'CRG2' if @date_crg2 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && (!@avis_debut.is_crg1 || (@avis_debut.is_crg1 && !@avis_crg1.nil? && @avis_crg1.etat != 'Brouillon'))
+  end
+
+  def set_form_avis
+    @avis = if Date.today <= @date_crg1
+              @avis_debut || Avi.new
+            elsif Date.today <= @date_crg2
+              @avis_debut.nil? || @avis_debut.etat == 'Brouillon' ? @avis_debut || Avi.new : @avis_crg1 || Avi.new
+            else
+              if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
+                @avis_debut || Avi.new
+              elsif @avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')
+                @avis_crg1 || Avi.new
+              else
+                @avis_crg2 || Avi.new
+              end
+            end
+    @is_completed = (@avis.etat == 'En attente de lecture' || @avis.etat == 'Lu')
+  end
+
 end

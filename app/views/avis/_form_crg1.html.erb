@@ -17,7 +17,7 @@
   </nav>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1>Formulaire CRG1 2023</h1>
+      <h1>Formulaire CRG1 <%= @annee %></h1>
       <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%></div>
     </div>
   </div>
@@ -42,7 +42,7 @@
           <div class="fr-select-group">
             <label for="dateenvoi" class="fr-label">Date de la note d’analyse du CRG1*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
-            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'dateenvoi',action: "change->form#changeDate3", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(2023,1,1), flatpickr_max_date: Date.new(2023,12,31), flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "dateenvoi", placeholder: "- sélectionner -"%>
+            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'dateenvoi',action: "change->form#changeDate3", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee,1,1), flatpickr_max_date: Date.new(@annee,12,31), flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "dateenvoi", placeholder: "- sélectionner -"%>
             <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mai.</p>
           </div>
           <div class="fr-select-group">
