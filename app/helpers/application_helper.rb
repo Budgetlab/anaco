@@ -1,7 +1,10 @@
 module ApplicationHelper
-  def format_number(number)
-    unless number.nil?
-      number = number_with_delimiter('%.11g' % ('%.1f' % number), locale: :fr)
+  def format_number(nombre)
+    case nombre
+    when nil, ''
+      '-'
+    else
+      number_with_delimiter('%.11g' % ('%.1f' % nombre), locale: :fr)
     end
   end
 

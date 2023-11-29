@@ -2,21 +2,18 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static get targets() {
-  return ['form','submitBouton',
-  'datereception','dateenvoi','statut','aei','cpi','t2i','etpti','aef','cpf','t2f','etptf','aeresult','cpresult','t2result','etptresult','commentaire',
-  'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat','aeiresult','cpiresult','t2iresult','etptiresult','aefresult','cpfresult','t2fresult','etptfresult','dotation',
+  return ['form','submitBouton','fieldRequire', 'Btnvalidate','Btnsave','count','datealerte1','datealerte2','etat','dotation',
   ];
   }
   connect() {
+    this.calculNombreCaracteres();
     this.formChange();
+    this.setNombreInput();
+    this.getEcart();
   }
 
   formChange(){
-    //e.preventDefault();
-    this.count();
     let isValid = this.validateForm(this.formTarget);
-
-    this.getEcart();
     if (isValid == true){
       this.BtnvalidateTarget.classList.remove('bouton_inactive');
       this.BtnvalidateTarget.disabled = false;
@@ -24,107 +21,165 @@ export default class extends Controller {
       this.BtnvalidateTarget.classList.add('bouton_inactive');
       this.BtnvalidateTarget.disabled = true;
     }
-    const numberTargets = [this.aeiTarget.value,this.cpiTarget.value,this.t2iTarget.value,this.etptiTarget.value,this.aefTarget.value,this.cpfTarget.value,this.t2fTarget.value,this.etptfTarget.value ];
-    const resultNumberTargets = [this.aeiresultTarget,this.cpiresultTarget,this.t2iresultTarget,this.etptiresultTarget,this.aefresultTarget,this.cpfresultTarget,this.t2fresultTarget,this.etptfresultTarget ];
-    [0,1,2,3,4,5,6,7].forEach((indice) =>{
-      if (numberTargets[indice] > 0){
-        resultNumberTargets[indice].innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(numberTargets[indice]).toFixed(2))))
-      }else{
-        resultNumberTargets[indice].innerHTML = '';
-      }
-    })
   }
 
-  getEcart(){
-    if (this.aeiTarget.value >= 0 && this.aefTarget.value >= 0 ){
-      this.aeresultTarget.innerHTML =  new Intl.NumberFormat('fr').format((parseFloat(Number(this.aeiTarget.value - this.aefTarget.value).toFixed(2))))+"€"
-      if (this.aeiTarget.value - this.aefTarget.value < 0){
-        this.aeresultTarget.classList.add('crouge')
-      }else{
-        this.aeresultTarget.classList.remove('crouge')
+  setNombreInput(){
+    const fields = document.querySelectorAll("input[type='text']");
+    fields.forEach(field => {
+      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception"){
+        this.changeFloatToText(field);
       }
-    }
-    if (this.cpiTarget.value >= 0 && this.cpfTarget.value >= 0 ){
-      this.cpresultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.cpiTarget.value - this.cpfTarget.value).toFixed(2))))+"€"
-      if (this.cpiTarget.value - this.cpfTarget.value < 0){
-        this.cpresultTarget.classList.add('crouge')
-      }else{
-        this.cpresultTarget.classList.remove('crouge')
-      }
-    }
-    if (this.t2iTarget.value >= 0 && this.t2fTarget.value >= 0 ){
-      this.t2resultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.t2iTarget.value - this.t2fTarget.value).toFixed(2))))+"€"
-      if (this.t2iTarget.value - this.t2fTarget.value < 0){
-        this.t2resultTarget.classList.add('crouge')
-      }else{
-        this.t2resultTarget.classList.remove('crouge')
-      }
-    }
-    if (this.etptiTarget.value >= 0 && this.etptfTarget.value >= 0 ){
-      this.etptresultTarget.innerHTML = new Intl.NumberFormat('fr').format((parseFloat(Number(this.etptiTarget.value - this.etptfTarget.value).toFixed(2))))
-      if (this.etptiTarget.value - this.etptfTarget.value < 0){
-        this.etptresultTarget.classList.add('crouge')
-      }else{
-        this.etptresultTarget.classList.remove('crouge')
-      }
-    } 
+    });
   }
 
-  count(){
-    //e.preventDefault();
-    this.countTarget.innerHTML = this.commentaireTarget.value.length.toString()
+  calculNombreCaracteres(){
+    const commentaire = document.getElementById("commentaire");
+    this.countTarget.innerHTML = commentaire.value.length.toString()
 
-    if (this.commentaireTarget.value.length > 800){
+    if (commentaire.value.length > 800){
       this.countTarget.parentElement.classList.add('cwarning')
     }else {
       this.countTarget.parentElement.classList.remove('cwarning')
     }
   }
 
-  changeDate1(e){
-    e.preventDefault();
-    const date_max = new Date(2023, 2, 1); 
-    if (new Date(this.datereceptionTarget.value.split('/').reverse().join('/')) > date_max){
-      this.datealerte1Target.classList.remove('fr-hidden');
-    }else{
-      this.datealerte1Target.classList.add('fr-hidden');
+  getEcart(){
+    if (document.getElementById("ae_i") != null ){
+      const ae_i = this.numberFormat(document.getElementById("ae_i").value) || 0;
+      const ae_f = this.numberFormat(document.getElementById("ae_f").value) || 0;
+      const ae_resultat = document.getElementById("ae_resultat");
+      const cp_i = this.numberFormat(document.getElementById("cp_i").value) || 0;
+      const cp_f = this.numberFormat(document.getElementById("cp_f").value) || 0;
+      const cp_resultat = document.getElementById("cp_resultat");
+      const t2_i = this.numberFormat(document.getElementById("t2_i").value) || 0;
+      const t2_f = this.numberFormat(document.getElementById("t2_f").value) || 0;
+      const t2_resultat = document.getElementById("t2_resultat");
+      const etpt_i = this.numberFormat(document.getElementById("etpt_i").value) || 0;
+      const etpt_f = this.numberFormat(document.getElementById("etpt_f").value) || 0;
+      const etpt_resultat = document.getElementById("etpt_resultat");
+
+      this.calculEcart(ae_i,ae_f,ae_resultat, "€");
+      this.calculEcart(cp_i,cp_f,cp_resultat, "€");
+      this.calculEcart(t2_i,t2_f,t2_resultat, "€");
+      this.calculEcart(etpt_i,etpt_f,etpt_resultat, '');
     }
+  }
+
+  calculEcart(valeur_i, valeur_f, resultat, unite){
+    resultat.innerHTML = (valeur_i - valeur_f).toLocaleString("fr-FR") + unite;
+    if (valeur_i - valeur_f < 0){
+      resultat.classList.add('crouge')
+    }else{
+      resultat.classList.remove('crouge')
+    }
+  }
+
+  changeFloatToText(field){
+    const parsedValue = this.numberFormat(field.value);
+    if (!isNaN(parsedValue)) {
+      // Formatage du nombre avec séparateur de milliers
+      const formattedValue = parsedValue.toLocaleString("fr-FR");
+      field.value = formattedValue;
+
+    } else {
+      field.value = null;
+    }
+  }
+  changeNumber(event){
+    const inputElement = event.target;
+    const orginalLength = inputElement.value.length
+    const end = inputElement.selectionEnd;
+    let element = inputElement.value.replace(/[^0-9,-.]/g, "");
+    element = element.replace(/,,/g, ',')
+    const lastLetter = inputElement.value[inputElement.value.length - 1];
+    if (inputElement.value.length == 1 && inputElement.value == "-"){
+      inputElement.value = "-";
+    }else{
+      const parsedValue = this.numberFormat(element);
+      if (!isNaN(parsedValue)) {
+        // Formatage du nombre avec séparateur de milliers
+        const formattedValue = parsedValue.toLocaleString("fr-FR");
+        // Mettez à jour la valeur du champ de formulaire avec le format souhaité
+        if (lastLetter == "," || lastLetter == "."){
+          inputElement.value = formattedValue + ",";
+        }else {
+          inputElement.value = formattedValue;
+        }
+        const lengthDiff = inputElement.value.length - orginalLength ;
+        inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
+      } else {
+        inputElement.value = null;
+      }
+    }
+    this.getEcart();
+
+  }
+  numberFormat(number){
+    if (number != undefined){
+      const sanitizedValue = number.replace(/\u202F/g, "");
+      // Remplacez la virgule par un point pour permettre les décimaux
+      const sanitizedValueWithDot = sanitizedValue.replace(',', '.');
+      // Analysez la valeur en tant que nombre à virgule flottante
+      const parsedValue = parseFloat(sanitizedValueWithDot);
+      return parsedValue;
+    }
+  }
+
+  changeTextToFloat(event){
+    event.preventDefault();
+    const fields = document.querySelectorAll("input[type='text']");
+    fields.forEach(field => {
+      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception") {
+        const parsedValue = this.numberFormat(field.value);
+        if (!isNaN(parsedValue)) {
+          field.value = parsedValue;
+        }
+      }
+    })
+    this.formTarget.submit();
+  }
 
 
-  }
-  changeDate2(e){
+  changeDateReception(e){
     e.preventDefault();
-    const date_max = new Date(2023, 2, 15)
-    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
-      this.datealerte2Target.classList.remove('fr-hidden');
-    }else{
-      this.datealerte2Target.classList.add('fr-hidden');
-    }
+    const date_max = new Date(2023, 2, 1);
+    const date_reception = document.getElementById("date_reception");
+    this.setAlerteDate(date_reception, date_max, this.datealerte1Target );
   }
-  changeDate3(e){
+  changeDateEnvoi(e){
     e.preventDefault();
-    const date_max = new Date(2023, 4, 15)
-    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
-      this.datealerte2Target.classList.remove('fr-hidden');
-    }else{
-      this.datealerte2Target.classList.add('fr-hidden');
-    }
+    const date_max = new Date(2023, 2, 15);
+    const date_envoi = document.getElementById("date_envoi");
+    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
   }
-  changeDate4(e){
+  changeDateCRG1(e){
     e.preventDefault();
-    const date_max = new Date(2023, 8, 15)
-    if (new Date(this.dateenvoiTarget.value.split('/').reverse().join('/')) > date_max){
-      this.datealerte2Target.classList.remove('fr-hidden');
+    const date_max = new Date(2023, 4, 15);
+    const date_envoi = document.getElementById("date_envoi");
+    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
+  }
+  changeDateCRG2(e){
+    e.preventDefault();
+    const date_max = new Date(2023, 8, 15);
+    const date_envoi = document.getElementById("date_envoi");
+    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
+  }
+
+  setAlerteDate(date, date_max, resultat){
+    if (new Date(date.value.split('/').reverse().join('/')) > date_max){
+      resultat.classList.remove('fr-hidden');
     }else{
-      this.datealerte2Target.classList.add('fr-hidden');
+      resultat.classList.add('fr-hidden');
     }
   }
 
   validateForm(){
     let isValid = true;
-    if (this.datereceptionTarget.value == "" || this.dateenvoiTarget.value == "" || this.statutTarget.selectedIndex == 0 || this.aeiTarget.value == "" || this.aefTarget.value == "" || this.cpiTarget.value == "" || this.cpfTarget.value == "" || this.t2iTarget.value == "" || this.t2fTarget.value == "" || this.etptiTarget.value == "" || this.etptfTarget.value == "" || this.commentaireTarget.value == ""){
-      isValid = false;
-    }
+    this.fieldRequireTargets.forEach((field) => {
+      if (field.value == "" && field.disabled == false){
+        isValid = false;
+      }
+    })
     return isValid
   }
   

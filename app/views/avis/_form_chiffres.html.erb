@@ -1,0 +1,148 @@
+<div class="fr-accordion__title">Ressources allouées (en €)</div>
+<hr class="fr-col_12">
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="ae_i">
+        AE HT2*
+      </label>
+      <% if bop.dotation != "T2" %>
+        <%= f.text_field :ae_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'} , class:"fr-input", id:"ae_i",value: avis.ae_i %>
+      <%else %>
+        <%= f.text_field :ae_i, class:"fr-input", id:"ae_i",value: 0, disabled: true%>
+        <%= f.hidden_field :ae_i, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="cp_i">
+        CP HT2*
+      </label>
+      <% if bop.dotation != "T2" %>
+        <%= f.text_field :cp_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_i",value: avis.cp_i%>
+      <%else %>
+        <%= f.text_field :cp_i, class:"fr-input", id:"cp_i",value: 0, disabled: true%>
+        <%= f.hidden_field :cp_i, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="t2_i">
+        AE/CP T2*
+      </label>
+      <% if bop.dotation != "HT2" %>
+        <%= f.text_field :t2_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"t2_i",value: avis.t2_i%>
+      <%else %>
+        <%= f.text_field :t2_i, class:"fr-input", id:"t2_i",value: 0, disabled: true%>
+        <%= f.hidden_field :t2_i, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="etpt_i">
+        ETPT*
+      </label>
+      <% if bop.dotation != "HT2" %>
+        <%= f.text_field :etpt_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"etpt_i",value: avis.etpt_i%>
+      <%else %>
+        <%= f.text_field :etpt_i, class:"fr-input", id:"etpt_i",value: 0, disabled: true%>
+        <%= f.hidden_field :etpt_i, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+</div>
+<div class="fr-accordion__title fr-mt-3w">Prévisions d'exécution (en €)</div>
+<hr class="fr-col_12">
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="ae_f">
+        AE HT2*
+      </label>
+      <% if bop.dotation != "T2" %>
+        <%= f.text_field :ae_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"ae_f", value: avis.ae_f%>
+      <%else %>
+        <%= f.text_field :ae_f, class:"fr-input", id:"ae_f", value: 0, disabled: true%>
+        <%= f.hidden_field :ae_f, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="cp_f">
+        CP HT2*
+      </label>
+      <% if bop.dotation != "T2" %>
+        <%= f.text_field :cp_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_f",value: avis.cp_f%>
+      <%else %>
+        <%= f.text_field :cp_f, class:"fr-input", id:"cp_f",value: 0, disabled: true%>
+        <%= f.hidden_field :cp_f, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="t2_f">
+        AE/CP T2*
+      </label>
+      <% if bop.dotation != "HT2" %>
+        <%= f.text_field :t2_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'},class:"fr-input", id:"t2_f",value: avis.t2_f%>
+      <%else %>
+        <%= f.text_field :t2_f, class:"fr-input", id:"t2_f",value: 0, disabled: true%>
+        <%= f.hidden_field :t2_f, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-input-group">
+      <label class="fr-label" for="etpt_f">
+        ETPT*
+      </label>
+      <% if bop.dotation != "HT2" %>
+        <%= f.text_field :etpt_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'},class:"fr-input", id:"etpt_f",value: avis.etpt_f%>
+      <%else %>
+        <%= f.text_field :etpt_f, class:"fr-input", id:"etpt_f",value: 0, disabled: true%>
+        <%= f.hidden_field :etpt_f, value: 0 %>
+      <%end %>
+    </div>
+  </div>
+</div>
+<div class="fr-accordion__title fr-mt-3w">Écarts ressources/prévisions d’exécution</div>
+<hr class="fr-col_12">
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-3">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">AE HT2</p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="ae_resultat">-</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">CP HT2</p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="cp_resultat">-</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">AE/CP T2</p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="t2_resultat">-</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">ETPT</p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="etpt_resultat">-</p>
+      </div>
+    </div>
+  </div>
+</div>

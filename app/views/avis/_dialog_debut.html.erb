@@ -26,111 +26,16 @@
 							<p class="fr-my-1w"><span class="fr-text--bold">Date de la note d’analyse du <%= avis.phase %> :</span> <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
 						<%end %>
 
-						<div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE HT2 alloué</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_i)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">CP HT2 alloué</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_i)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 alloué</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_i)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--green fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">ETPT alloué</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_i)%></p>
-									</div>
-								</div>
-							</div>
+						<div class="fr-mt-2w">
+							<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i], titre: 'alloué', class_active: 'fr-card--green'} %>
 						</div>
-						<div class="fr-grid-row fr-grid-row--gutters">
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE HT2 prév.</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.ae_f)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">CP HT2 prév.</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.cp_f)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">AE/CP T2 prév.</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.t2_f)%>€</p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--orange fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">ETPT prév.</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(avis.etpt_f)%></p>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">Écart AE HT2</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if avis.ae_i - avis.ae_f < 0 %><span class="crouge"><%= format_number(avis.ae_i - avis.ae_f)%>€</span><%else %><%= format_number(avis.ae_i - avis.ae_f)%>€<%end %></p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">Écart CP HT2</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if avis.cp_i - avis.cp_f < 0 %><span class="crouge"><%= format_number(avis.cp_i - avis.cp_f)%>€</span><%else %><%= format_number(avis.cp_i - avis.cp_f)%>€<%end %></p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">Écart AE/CP T2</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if avis.t2_i - avis.t2_f < 0 %><span class="crouge"><%= format_number(avis.t2_i - avis.t2_f)%>€</span><%else %><%= format_number(avis.t2_i - avis.t2_f)%>€<%end %></p>
-									</div>
-								</div>
-							</div>
-							<div class="fr-col-3">
-								<div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-									<div class="fr-cart__body">
-										<p class="fr-text--lg fr-mb-0 text_center">Écart ETPT</p>
-										<p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><% if avis.etpt_i - avis.etpt_f < 0 %><span class="crouge"><%= format_number(avis.etpt_i - avis.etpt_f)%></span><%else %><%= format_number(avis.etpt_i - avis.etpt_f)%><%end %></p>
-									</div>
-								</div>
-							</div>
+						<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f], titre: 'prév.', class_active: 'fr-card--orange'} %>
+						<div class="fr-mb-2w">
+							<%= render partial: "avis/rappel_ecart", locals: {avis: avis} %>
 						</div>
 
 						<% if avis.user != current_user && current_user.statut == "DCB" && avis.etat == "En attente de lecture"%>
-							<%= link_to avi_path(avis.id), data: { "turbo_method": :patch}, class: "fr-btn fr-btn--secondary",aria: {controls: "modal-1"} do %> Afficher comme Lu et fermer<%end %>
+							<%= link_to update_etat_path(id: avis.id), data: { "turbo_method": :post}, class: "fr-btn fr-btn--secondary",aria: {controls: "modal-1"} do %> Afficher comme Lu et fermer<%end %>
 						<%end %>
 					</div>
 				</div>

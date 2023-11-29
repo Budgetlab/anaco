@@ -4,6 +4,7 @@
 class AvisController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
+  # Page historique des avis
   def index
     annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
@@ -14,6 +15,7 @@ class AvisController < ApplicationController
     end
   end
 
+  # fonction qui filtre le tableau de la page historique en fonction des paramètres choisis
   def filter_historique
     annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
@@ -29,6 +31,7 @@ class AvisController < ApplicationController
     end
   end
 
+  # fonction qui ouvre l'avis et ses infos
   def open_modal
     @avis_default = Avi.find(params[:id])
     respond_to do |format|
@@ -40,6 +43,7 @@ class AvisController < ApplicationController
     end
   end
 
+  # fonction qui ouvre le modal pour remettre l'avis en brouillon pour la DB
   def open_modal_brouillon
     @avis = Avi.find(params[:id])
     respond_to do |format|
@@ -51,9 +55,18 @@ class AvisController < ApplicationController
     end
   end
 
-  def consultation
-    redirect_to root_path and return if current_user.statut != 'DCB'
+  # fonction qui remet l'avis en brouillon
+  def reset_brouillon
+    @avis = Avi.find(params[:id])
+    @avis&.update(etat: 'Brouillon')
+    respond_to do |format|
+      format.turbo_stream { redirect_to bop_path(@avis.bop) }
+    end
+  end
 
+  # Page de consultation des avis pour les DCB
+  def consultation
+    redirect_unless_dcb
     annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
     variables_table
@@ -63,21 +76,16 @@ class AvisController < ApplicationController
     end
   end
 
-  def update
+  # fonction qui met à jour l'état de l'avis comme Lu
+  def update_etat
+    redirect_unless_dcb
     @avis = Avi.find(params[:id])
-    @avis.update(etat: 'Lu')
+    @avis&.update(etat: 'Lu')
     annee_a_afficher
-    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all })
-        ]
-      end
-    end
-
+    redirect_to consultation_path(date: @annee_a_afficher), flash: { notice: 'Lu' }
   end
 
+  # fonction qui filtre le tableau de la page consultation en fonction des paramètres choisis
   def filter_consultation
     annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
@@ -93,24 +101,25 @@ class AvisController < ApplicationController
     end
   end
 
+  # Page de création d'un nouvel avis
   def new
     @bop = Bop.where(id: params[:bop_id]).first
-    redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
-
+    redirect_unless_bop_controller
     set_avis_phase
-    set_form_type
-    set_form_avis
+    @form = set_form_type
+    @avis = set_form_avis
+    @is_completed = ['En attente de lecture', 'Lu'].include?(@avis&.etat)
   end
 
+  # fonction qui créé un nouvel avis
   def create
     @bop = Bop.find_by(id: params[:avi][:bop_id])
-    redirect_to root_path and return if @bop.nil? || @bop.user != current_user
-
-    @avis = @bop.avis.where('created_at >= ? AND created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
+    redirect_unless_bop_controller
+    @avis = @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
     @avis.assign_attributes(avi_params)
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' # si DCB lui même
+    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
     respond_to do |format|
       format.html { redirect_to historique_path, notice: @message }
     end
@@ -120,14 +129,6 @@ class AvisController < ApplicationController
     Avi.where(id: params[:id]).destroy_all
     respond_to do |format|
       format.turbo_stream { redirect_to historique_path, notice: 'Avis supprimé' }
-    end
-  end
-
-  def reset_brouillon
-    @avis = Avi.find(params[:id])
-    @avis.update(etat: 'Brouillon')
-    respond_to do |format|
-      format.turbo_stream { redirect_to bop_path(@avis.bop) }
     end
   end
 
@@ -176,7 +177,7 @@ class AvisController < ApplicationController
 
   def liste_dcb_avis_annee(annee)
     bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    avis_all = Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
+    avis_all = Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                       :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                       :date_envoi, :date_reception, 'users.nom AS user_nom',
@@ -185,33 +186,51 @@ class AvisController < ApplicationController
   end
 
   def set_avis_phase
-    avis = @bop.avis.where('created_at >= ? AND created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31))
-    @avis_debut = avis.where(phase: 'début de gestion').first
-    @avis_crg1 = avis.where(phase: 'CRG1').first
-    @avis_crg2 = avis.where(phase: 'CRG2').first
-  end
-  def set_form_type
-    @form = 'début de gestion' if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
-    @form = 'no CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && !@avis_debut.is_crg1
-    @form = 'CRG1' if @date_crg1 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && @avis_debut.is_crg1
-    @form = 'CRG2' if @date_crg2 < Date.today && !@avis_debut.nil? && @avis_debut.etat != 'Brouillon' && (!@avis_debut.is_crg1 || (@avis_debut.is_crg1 && !@avis_crg1.nil? && @avis_crg1.etat != 'Brouillon'))
+    avis_annee_courante = @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31))
+    @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
+    @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
+    @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
+    @avis_execution = avis_annee_courante.select { |a| a.phase == 'execution' }[0]
+    avis_annee_precedente = @bop.avis.where(created_at: Date.new(@annee - 1, 1, 1)..Date.new(@annee - 1, 12, 31))
+    @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
+    @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
+    @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
   end
 
+  # fonction pour afficher le bon formulaire
+  def set_form_type
+    # si bop a un avis en crg2 N-1 il doit remplir le form execution sinon direct début de gestion
+    if (@avis_execution.nil? && !@avis_crg2_n1.nil?) || (@avis_execution && @avis_execution.etat != 'valide')
+      'execution'
+    elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || Date.today < @date_crg1 # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
+      'début de gestion'
+    elsif Date.today < @date_crg2 # avis début de gestion rempli et phase de CRG1
+      @avis_debut.is_crg1 ? 'CRG1' : 'no CRG1'
+    else # avis début de gestion rempli et phase de CRG2 sauf si CRG1 présent et non rempli
+      @avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon') ? 'CRG1' : 'CRG2'
+    end
+  end
+
+  # fonction pour donner la bonne valeur de l'avis à afficher
   def set_form_avis
-    @avis = if Date.today <= @date_crg1
-              @avis_debut || Avi.new
-            elsif Date.today <= @date_crg2
-              @avis_debut.nil? || @avis_debut.etat == 'Brouillon' ? @avis_debut || Avi.new : @avis_crg1 || Avi.new
-            else
-              if @avis_debut.nil? || @avis_debut.etat == 'Brouillon'
-                @avis_debut || Avi.new
-              elsif @avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')
-                @avis_crg1 || Avi.new
-              else
-                @avis_crg2 || Avi.new
-              end
-            end
-    @is_completed = (@avis.etat == 'En attente de lecture' || @avis.etat == 'Lu')
+    case @form
+    when 'execution'
+      @avis_execution
+    when 'début de gestion'
+      @avis_debut || Avi.new
+    when 'CRG1'
+      @avis_crg1 || Avi.new
+    when 'CRG2'
+      @avis_crg2 || Avi.new
+    end
+  end
+
+  def redirect_unless_dcb
+    redirect_to root_path and return if current_user.statut != 'DCB'
+  end
+
+  def redirect_unless_bop_controller
+    redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
   end
 
 end
