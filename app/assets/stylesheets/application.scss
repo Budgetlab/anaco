@@ -244,3 +244,11 @@ h1, h2{
   justify-content: space-between;
   align-items: center;
 }
+
+.fr-capitalize::first-letter{
+  text-transform: uppercase;
+}
+
+.fr-text--italic{
+  font-style: italic;
+}

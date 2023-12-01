@@ -6,12 +6,9 @@ class BopsController < ApplicationController
   protect_from_forgery with: :null_session
   # page liste des bops
   def index
-    @liste_bops = liste_bops_user
-    if current_user.statut == 'admin'
-      variables_bops_admin
-    else
-      variables_bops_index
-    end
+    annee_a_afficher
+    @liste_bops = liste_bops_user(@annee_a_afficher)
+    current_user.statut == 'admin' ? variables_bops_admin : variables_bops_index(@annee_a_afficher)
     respond_to do |format|
       format.html
       format.xlsx
@@ -20,7 +17,8 @@ class BopsController < ApplicationController
 
   # filtre tableau page liste des bops vision admin
   def filter_bop
-    @liste_bops = liste_bops_user
+    annee_a_afficher
+    @liste_bops = liste_bops_user(@annee_a_afficher)
     variables_bops_admin
     filter_bops if params_present
     respond_to do |format|
@@ -66,11 +64,15 @@ class BopsController < ApplicationController
 
   private
 
-  def liste_bops_user
+  def annee_a_afficher
+    @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
+  end
+
+  def liste_bops_user(annee)
     if current_user.statut == 'admin'
-      Bop.all.order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
+      Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
     else
-      current_user.bops.pluck(:id, :code, :dotation).sort_by { |e| e[1] }
+      current_user.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).pluck(:id, :code, :dotation).sort_by { |e| e[1] }
     end
   end
 
@@ -83,13 +85,22 @@ class BopsController < ApplicationController
   end
 
   # variable concernant les BOP sur l'année en cours
-  def variables_bops_index
+  def variables_bops_index(annee)
     @liste_bops_actifs = @liste_bops.reject { |el| el[2] == 'aucune' }
     @liste_bops_inactifs = @liste_bops.select { |el| el[2] == 'aucune' }
-    @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
-    @count_reste = @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'début de gestion'
-    @count_reste = @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG1'
-    @count_reste = 2 * @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' } if @phase == 'CRG2'
+    @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
+    @count_reste = case @phase
+                   when 'début de gestion'
+                     @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   when 'CRG1'
+                     @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   when 'CRG2'
+                     2 * @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   end
+    liste_avis_annee_precedente = current_user.avis.where(created_at: Date.new(annee-1, 1, 1)..Date.new(annee-1, 12, 31))
+    liste_avis_annee_precedente_debut = liste_avis_annee_precedente.count { |avis| avis.phase == 'début de gestion' && avis.etat != 'Brouillon' }
+    liste_avis_annee_precedente_crg2 = liste_avis_annee_precedente.count { |avis| avis.phase == 'CRG2' && avis.etat != 'Brouillon' }
+    @count_reste_annee_precedente = liste_avis_annee_precedente_debut - liste_avis_annee_precedente_crg2
   end
 
   def filter_bops

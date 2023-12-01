@@ -1,7 +1,22 @@
 <div class="fr-container" data-controller="filter">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w fr-mb-2w">Liste des <%= @liste_bops.length %> BOP</h1>
+      <h1 class="fr-mt-6w fr-mb-2w title-btn"><div>Liste des <%= @liste_bops.length %> BOP</div>
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+          <ul class="fr-pagination__list">
+            <li>
+              <%= link_to bops_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
+                2023
+              <%end %>
+            </li>
+            <li>
+              <%= link_to bops_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+                2024
+              <%end %>
+            </li>
+          </ul>
+        </nav>
+      </h1>
       <div class="fr-download">
         <p><%= link_to bops_path(format: :xlsx), class: "fr-download__link" do %> Télécharger l'ensemble des BOP
             <span class="fr-download__detail">Format .xlsx</span>

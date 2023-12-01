@@ -34,10 +34,13 @@ class AvisController < ApplicationController
   # fonction qui ouvre l'avis et ses infos
   def open_modal
     @avis_default = Avi.find(params[:id])
+    if @avis_default.phase == 'début de gestion'
+      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, created_at: Date.new(@avis_default.created_at.year,1,1)..Date.new(@avis_default.created_at.year,12,31) ).first
+    end
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default })
+          turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default, avis_execution: avis_execution || nil })
         ]
       end
     end
@@ -199,8 +202,9 @@ class AvisController < ApplicationController
 
   # fonction pour afficher le bon formulaire
   def set_form_type
-    # si bop a un avis en crg2 N-1 il doit remplir le form execution sinon direct début de gestion
-    if (@avis_execution.nil? && !@avis_crg2_n1.nil?) || (@avis_execution && @avis_execution.etat != 'valide')
+    if @avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon' # n'a pas rempli CRG2 année précédente
+      'CRG2'
+    elsif (@avis_execution.nil? && !@avis_crg2_n1.nil?) || (@avis_execution && @avis_execution.etat != 'valide') # si bop a un avis en crg2 N-1 il doit remplir le form execution sinon direct début de gestion
       'execution'
     elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || Date.today < @date_crg1 # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
       'début de gestion'
@@ -221,7 +225,7 @@ class AvisController < ApplicationController
     when 'CRG1'
       @avis_crg1 || Avi.new
     when 'CRG2'
-      @avis_crg2 || Avi.new
+      @avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon' ? @avis_crg2_n1 || Avi.new : @avis_crg2 || Avi.new
     end
   end
 

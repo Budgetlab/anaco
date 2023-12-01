@@ -1,6 +1,6 @@
 <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
-  <div class="fr-col-12 fr-col-lg-1">
-    <%= phase %>
+  <div class="fr-col-12 fr-col-lg-1 fr-capitalize">
+    <%= phase == "execution" ? "Exécution #{@annee_a_afficher - 1}" : phase %> <br> <span class="fr-text--italic fr-text--sm">Dont SD</span>
   </div>
   <% if titre == "Écart" %>
     <% class_active = "fr-card--blue" %>
@@ -17,11 +17,13 @@
       <% card_data.each do |title, index_1, index_2| %>
         <div class="fr-col-3">
           <% ecart = titre == "Écart" ? hash_donnees_phase[phase][index_1] - hash_donnees_phase[phase][index_2] : hash_donnees_phase[phase][index_1]%>
+          <% ecart_sd = titre == "Écart" ? hash_donnees_phase_controleur[phase][index_1] - hash_donnees_phase_controleur[phase][index_2] : hash_donnees_phase_controleur[phase][index_1]%>
           <% unite = ["Écart ETPT", "ETPT"].include?(title) ? '' : '€' %>
           <div class="fr-card <%= phase == @phase ? class_active : 'fr-card--grey' %> fr-p-2w fr-card--no-border">
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center"><%= title %></p>
               <p class="fr-text--lg fr-text--bold fr-mb-0 text_center <%= ecart.negative? ? 'crouge' : '' %>"><%= format_number(ecart) %><%= unite %></p>
+              <p class="fr-text--sm fr-mb-0 text_center <%= ecart_sd.negative? ? 'crouge' : '' %>"><%= format_number(ecart_sd) %><%= unite %></p>
             </div>
           </div>
         </div>

@@ -35,8 +35,12 @@ class PagesController < ApplicationController
     annee_a_afficher
     variables_programme_bops(@annee_a_afficher)
     @avis_remplis = avis_remplis_programme(@annee_a_afficher, @bops)
+    array_controleur_id = User.where(statut: 'Controleur').pluck(:id)
+    avis_remplis_controleur = @avis_remplis.where(user_id: array_controleur_id)
     @hash_donnees_phase = init_hash_donnees_phase
+    @hash_donnees_phase_controleur = init_hash_donnees_phase
     calcul_hash_donnees_phase(@hash_donnees_phase, @avis_remplis)
+    calcul_hash_donnees_phase(@hash_donnees_phase_controleur, avis_remplis_controleur)
     @avis_repartition = avis_repartition(@avis_remplis, @bops_actifs_count)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @bops_actifs_count, @annee_a_afficher)
     @notes_bar = statut_bop_repartition(@avis_remplis, @bops_actifs_count)
@@ -236,7 +240,8 @@ class PagesController < ApplicationController
 
   # fonction qui initialise les donnees des sommes AE, CP, ETPT par phase
   def init_hash_donnees_phase
-    { 'début de gestion' => [0, 0, 0, 0, 0, 0, 0, 0],
+    { 'execution' => [0, 0, 0, 0, 0, 0, 0, 0],
+      'début de gestion' => [0, 0, 0, 0, 0, 0, 0, 0],
       'CRG1' => [0, 0, 0, 0, 0, 0, 0, 0],
       'CRG2' => [0, 0, 0, 0, 0, 0, 0, 0] }
   end
