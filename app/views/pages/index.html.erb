@@ -68,11 +68,11 @@
 									</div>
 
 								</div>
-								<div class="fr-card__footer fr-btns-group--right">
+								<div class="fr-card__footer">
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
+												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>
@@ -129,11 +129,11 @@
 								</div>
 							</div>
 							<% if Date.today > @date_crg1%>
-								<div class="fr-card__footer fr-btns-group--right">
+								<div class="fr-card__footer">
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
+												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>
@@ -191,11 +191,11 @@
 								</div>
 							</div>
 							<% if Date.today > @date_crg2%>
-								<div class="fr-card__footer fr-btns-group--right">
+								<div class="fr-card__footer">
 									<ul class="fr-links-group">
 										<li>
 											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												<% if current_user.statut == "admin" %>Les<%else %>Mes<% end %> avis
+												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
 											<%end%>
 										</li>
 									</ul>
