@@ -25,6 +25,8 @@ Rails.application.routes.draw do
   post 'filter_historique', to: 'avis#filter_historique'
   post 'reset_brouillon', to: 'avis#reset_brouillon'
   post 'update_etat', to: 'avis#update_etat'
+  get 'ajout_avis', to: 'avis#ajout_avis'
+  post 'import_avis', to: 'avis#import'
 
   get '/restitutions', to: 'pages#restitutions'
   get '/restitutions/:programme', to: 'pages#restitution_programme', as: 'specific_restitutions'

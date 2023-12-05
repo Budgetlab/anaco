@@ -3,11 +3,11 @@
 	<% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
 		<%= render 'notice'%>
 	<%end %>
-		<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%=@avis_repartition %>" data-highcharts-notes1="<%=@notes_crg1 %>" data-highcharts-notes2="<%=@notes_crg2 %>">
+		<div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= @avis_repartition %>" data-highcharts-notes1="<%= @notes_crg1 %>" data-highcharts-notes2="<%= @notes_crg2 %>">
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-12">
 					<h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom %></h1>
-					<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2>
+					<h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
 				</div>
 			</div>
 			<% if @statut_user == "DCB" %>
@@ -24,191 +24,19 @@
 			<% end  %>
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-4">
-					<div class="fr-card  fr-card--shadow">
-							<div class="fr-card__body">
-								<div class="fr-card__content">
-									<div class="fr-card__start">
-										<ul class="fr-badges-group">
-											<li>
-												<% if Date.today <= @date_crg1 %><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
-											</li>
-										</ul>
-										<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 janvier au 30 avril</p>
-									</div>
-									<h3 class="fr-card__title">Phase de début de gestion</h3>
-									<div class="fr-card__desc">
-										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-											<div class="fr-col-2">
-												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_repartition[3] %>/<%= @avis_total%> </h3>
-												<p class="fr-text--sm fr-mb-3w">avis à rédiger</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-chat-check-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_delai %>/<%= @avis_total-@avis_repartition[3]%> </h3>
-												<p class="fr-text--sm fr-mb-3w">avis donnés sans interruption du délai</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-calendar-event-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @avis_crg1 %>/<%= @avis_total-@avis_repartition[3]%> </h3>
-												<p class="fr-text--sm fr-mb-3w">CRG1 prévus</p>
-											</div>
-										</div>
-										<div data-highcharts-target="canvasAvis"></div>
-									</div>
-
-								</div>
-								<div class="fr-card__footer">
-									<ul class="fr-links-group">
-										<li>
-											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
-											<%end%>
-										</li>
-									</ul>
-								</div>
-							</div>
-					</div>
+					<%= render partial: "pages/card_index", locals: {phase: 'début de gestion', date_ouverture: Date.new(@annee, 1,10), date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: @avis_delai, valeur3: @avis_crg1 , nom_graphe: "canvasAvis"} %>
 				</div>
 				<div class="fr-col-12 fr-col-lg-4">
-					<div class="fr-card fr-card--shadow">
-						<div class="fr-card__body">
-							<div class="fr-card__content">
-								<h3 class="fr-card__title">Phase de CRG1</h3>
-								<% if Date.today <= @date_crg1%>
-									<p class="fr-card__desc">Données ouvertes à partir du 1er mai.</p>
-								<% else %>
-									<div class="fr-card__desc">
-										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-											<div class="fr-col-2">
-												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @notes_crg1[3] %>/<%= @avis_crg1 %> </h3>
-												<p class="fr-text--sm fr-mb-3w">notes CRG1 à rédiger</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg1[1] %>/<%= @avis_crg1 %> </h3>
-												<p class="fr-text--sm fr-mb-3w">BOP avec risques éventuels</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg1[2] %>/<%= @avis_crg1 %> </h3>
-												<p class="fr-text--sm fr-mb-3w">BOP avec risques certains</p>
-											</div>
-										</div>
-										<div data-highcharts-target="canvasNotes1"></div>
-									</div>
-								<% end %>
-								<div class="fr-card__start">
-									<ul class="fr-badges-group">
-										<li>
-											<% if Date.today <= @date_crg1 %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif @date_crg1 < Date.today && Date.today <= @date_crg2%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
-										</li>
-									</ul>
-									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 mai au 31 août</p>
-								</div>
-							</div>
-							<% if Date.today > @date_crg1%>
-								<div class="fr-card__footer">
-									<ul class="fr-links-group">
-										<li>
-											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
-											<%end%>
-										</li>
-									</ul>
-								</div>
-							<% end%>
-						</div>
-					</div>
+					<%= render partial: "pages/card_index", locals: {phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: @avis_crg1, avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2] , nom_graphe: "canvasNotes1"} %>
 				</div>
 				<div class="fr-col-12 fr-col-lg-4">
-					<div class="fr-card fr-card--shadow">
-						<div class="fr-card__body">
-							<div class="fr-card__content">
-								<h3 class="fr-card__title">Phase de CRG2</h3>
-								<% if Date.today <= @date_crg2%>
-									<p class="fr-card__desc">Données ouvertes à partir du 1er septembre.</p>
-								<% else%>
-									<div class="fr-card__desc">
-										<div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
-											<div class="fr-col-2">
-												<span class="fr-icon-edit-fill fr-fi--lg cbleu" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%= @notes_crg2[3] %>/<%= @avis_total%> </h3>
-												<p class="fr-text--sm fr-mb-3w">notes CRG2 à rédiger</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg cwarning" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg2[1] %>/<%= @avis_total%> </h3>
-												<p class="fr-text--sm fr-mb-3w">BOP avec risques modérés</p>
-											</div>
-										</div>
-										<div class="fr-grid-row fr-grid-row--gutters">
-											<div class="fr-col-2">
-												<span class="fr-icon-flag-fill fr-fi--lg crouge" aria-hidden="true"></span>
-											</div>
-											<div class="fr-col-10">
-												<h3 class="fr-text--lg fr-mb-2v"><%=@notes_crg2[2] %>/<%= @avis_total%> </h3>
-												<p class="fr-text--sm fr-mb-3w">BOP avec risques significatifs</p>
-											</div>
-										</div>
-										<div data-highcharts-target="canvasNotes2"></div>
-									</div>
-								<% end %>
-								<div class="fr-card__start">
-									<ul class="fr-badges-group">
-										<li>
-											<% if Date.today <= @date_crg2%><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><%else%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%end%>
-										</li>
-									</ul>
-									<p class="fr-card__detail fr-icon-arrow-right-line">Du 1 septembre au 31 décembre</p>
-								</div>
-							</div>
-							<% if Date.today > @date_crg2%>
-								<div class="fr-card__footer">
-									<ul class="fr-links-group">
-										<li>
-											<%= link_to historique_path, class:"fr-link fr-icon-arrow-right-line fr-link--icon-right" do%>
-												Consulter <% if current_user.statut == "admin" %>les<%else %>mes<% end %> avis
-											<%end%>
-										</li>
-									</ul>
-								</div>
-							<% end%>
-						</div>
-					</div>
+					<%= render partial: "pages/card_index", locals: {phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12,31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2] , nom_graphe: "canvasNotes2"} %>
 				</div>
 			</div>
 		</div>
 
 	<div class="fr-follow">
-        <div class="fr-container">
+		<div class="fr-container">
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
             <div class="fr-col-12">
                 <div class="fr-follow__newsletter">
@@ -221,8 +49,7 @@
                     </div>
                 </div>
             </div>
-    
-        </div>
-        </div>
-    </div>
+				</div>
+		</div>
+	</div>
 </main>

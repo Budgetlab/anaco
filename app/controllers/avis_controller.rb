@@ -135,6 +135,15 @@ class AvisController < ApplicationController
     end
   end
 
+  def ajout_avis; end
+
+  def import
+    Avi.import(params[:file])
+    respond_to do |format|
+      format.turbo_stream { redirect_to ajout_avis_path }
+    end
+  end
+
   private
 
   def avi_params

@@ -12,8 +12,8 @@ class PagesController < ApplicationController
     @avis_crg1 = avis_crg1(@avis_remplis)
     @avis_delai = avis_delai(@avis_remplis)
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
-    @notes_crg1 = @date_crg1 < Date.today ? notes_repartition(@avis_remplis, @avis_crg1, 'CRG1') : []
-    @notes_crg2 = @date_crg2 < Date.today ? notes_repartition(@avis_remplis, @avis_total, 'CRG2') : []
+    @notes_crg1 = @date_crg1 <= Date.today ? notes_repartition(@avis_remplis, @avis_crg1, 'CRG1') : []
+    @notes_crg2 = @date_crg2 <= Date.today ? notes_repartition(@avis_remplis, @avis_total, 'CRG2') : []
   end
 
   # Page des restitutions nationales
@@ -99,7 +99,7 @@ class PagesController < ApplicationController
 
   private
 
-  # fonction pour déclarer les variables dans la page index
+  # fonction pour déclarer les variables dans la page index : date alerte fin de gestion, fin CRG1 + statut de l'user
   def liste_variables_index
     @date_alerte_debut_gestion = Date.new(@annee, 3, 15)
     @date_alerte_crg1 = Date.new(@annee, 6, 15)
@@ -109,7 +109,7 @@ class PagesController < ApplicationController
   # fonction pour charger les avis renseignés dans l'année en cours
   def avis_annee_remplis(statut_user, annee)
     scope = statut_user == 'admin' ? Avi : current_user.avis
-    scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(etat: 'Brouillon')
+    scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(etat: 'Brouillon').where.not(phase: 'execution')
   end
 
   # fonction pour récupérer les bops actifs de l'année sélectionnée
@@ -126,10 +126,10 @@ class PagesController < ApplicationController
     end
   end
 
-  # fonction pour charger la liste des avis à lire par le DCB (ceux des CBR uniquement, année en cours)
+  # fonction pour charger le nombre des avis à lire par le DCB (ceux des CBR uniquement, année actuelle)
   def dcb_avis_a_lire
     bops_dcb = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    bops_dcb.empty? ? 0 : Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(@annee, 1, 1), Date.new(@annee, 12, 31)).where(bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
+    bops_dcb.empty? ? 0 : Avi.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31), bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
   end
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
@@ -176,7 +176,7 @@ class PagesController < ApplicationController
     bops = Bop.where('created_at <= ?', Date.new(annee, 12, 31))
     @total_programmes = bops.distinct.count(:numero_programme)
     @liste_bops_par_programme = bops.group(:numero_programme).count
-    liste_bops_inactifs_annee = annee == @annee ? bops.where(dotation: 'aucune') : bops.where.not(id: Avi.where('created_at >= ? AND created_at <= ? AND phase = ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31), "début de gestion").pluck(:bop_id))
+    liste_bops_inactifs_annee = annee == @annee ? bops.where(dotation: 'aucune') : bops.where.not(id: Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), phase: "début de gestion").pluck(:bop_id))
     @liste_bops_inactifs_par_programme = liste_bops_inactifs_annee.group(:numero_programme).count
   end
 

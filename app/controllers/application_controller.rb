@@ -33,13 +33,13 @@ class ApplicationController < ActionController::Base
   # fonction pour déclarer les variables globales dans l'application
   def set_global_variable
     @annee = Date.today.year
-    @date_crg1 = Date.new(@annee, 4, 30)
-    @date_crg2 = Date.new(@annee, 8, 31)
-    if Date.today <= @date_crg1
+    @date_crg1 = Date.new(@annee, 5, 1)
+    @date_crg2 = Date.new(@annee, 9, 1)
+    if Date.today < @date_crg1
       @phase = 'début de gestion'
-    elsif @date_crg1 < Date.today && Date.today <= @date_crg2
+    elsif @date_crg1 <= Date.today && Date.today < @date_crg2
       @phase = 'CRG1'
-    elsif Date.today > @date_crg2
+    elsif Date.today >= @date_crg2
       @phase = 'CRG2'
     end
   end
