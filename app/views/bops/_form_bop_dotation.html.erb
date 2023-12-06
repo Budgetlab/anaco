@@ -21,16 +21,18 @@
       <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%></div>
     </div>
   </div>
-  <%= form_with(url: bop_path(@bop), method: :patch) do |f|%>
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="form2">
+  <div data-controller="form">
+  <%= form_with(url: bop_path(@bop), method: :patch, data: {'form-target': "form", action: "change->form#formChange"}) do |f|%>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
           <label for="dotation" class="fr-label">Dotation du BOP*
             <span class="fr-hint-text">Si le BOP est non doté, il n'y aura alors pas d'avis sur celui-ci et sera considéré comme un BOP inactif.</span></label>
-          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','complete'],['BOP doté uniquement en HT2','HT2'],['BOP doté uniquement en T2','T2'], ['BOP non doté','aucune']],{selected: @bop.dotation},{data: {'form2-target': 'dotation',action: "change->form2#changeDotation",  }, class:"fr-select", id:"dotation"} %>
+          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','complete'],['BOP doté uniquement en HT2','HT2'],['BOP doté uniquement en T2','T2'], ['BOP non doté','aucune']],{selected: @bop.dotation}, { data: {'form-target': 'fieldRequire' }, class:"fr-select", id:"dotation"} %>
         </div>
-        <div><%= f.submit "Valider et continuer", class: "fr-btn bouton_inactive",data: {'form2-target': "submitBouton"}, aria: { label: "Valider et continuer"}, disabled: true %></div>
+        <div><%= f.submit "Valider et continuer", class: "fr-btn",data: {'form-target': "Btnvalidate"}, aria: { label: "Valider et continuer"}%></div>
       </div>
     </div>
   <%end %>
+  </div>
 </div>

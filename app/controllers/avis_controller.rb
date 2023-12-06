@@ -9,7 +9,8 @@ class AvisController < ApplicationController
   def index
     @annee_a_afficher = annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
-    variables_table
+    # filtres table
+    variables_filtres_table
     respond_to do |format|
       format.html
       format.xlsx
@@ -20,7 +21,7 @@ class AvisController < ApplicationController
   def filter_historique
     @annee_a_afficher = annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
-    variables_table
+    variables_filtres_table
     filter_avis_all if params_present_and_avis_all_not_empty
     respond_to do |format|
       format.turbo_stream do
@@ -73,7 +74,7 @@ class AvisController < ApplicationController
     redirect_unless_dcb
     @annee_a_afficher = annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
-    variables_table
+    variables_filtres_table
     respond_to do |format|
       format.html
       format.xlsx
@@ -93,7 +94,7 @@ class AvisController < ApplicationController
   def filter_consultation
     @annee_a_afficher = annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
-    variables_table
+    variables_filtres_table
     filter_avis_all if params_present_and_avis_all_not_empty
     respond_to do |format|
       format.turbo_stream do
@@ -109,18 +110,26 @@ class AvisController < ApplicationController
   def new
     @bop = Bop.where(id: params[:bop_id]).first
     redirect_unless_bop_controller
-    set_avis_phase
+    set_avis_phase(@annee)
     @form = set_form_type
     @avis = set_form_avis
     @is_completed = ['En attente de lecture', 'Lu'].include?(@avis&.etat)
+    if @avis_debut_n1 && (@avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon') # n'a pas rempli CRG2 année précédente, on se place sur année N-1
+      @annee_a_afficher = @annee - 1
+      set_avis_phase(@annee - 1)
+    else
+      @annee_a_afficher = @annee
+    end
   end
 
   # fonction qui créé un nouvel avis
   def create
     @bop = Bop.find_by(id: params[:avi][:bop_id])
     redirect_unless_bop_controller
-    @avis = @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
+    annee = params[:avi][:date_envoi] && params[:avi][:date_envoi].to_date.year == @annee - 1 ? @annee - 1 : @annee
+    @avis = @bop.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
     @avis.assign_attributes(avi_params)
+    @avis.created_at = Date.new(annee, 12, 30) if annee == @annee - 1
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
@@ -136,6 +145,7 @@ class AvisController < ApplicationController
     end
   end
 
+  # Page pour importer les avis exécution N-1
   def ajout_avis; end
 
   def import
@@ -151,7 +161,7 @@ class AvisController < ApplicationController
     params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat)
   end
 
-  def variables_table
+  def variables_filtres_table
     @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
     @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
     @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
@@ -170,13 +180,13 @@ class AvisController < ApplicationController
     @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts].length != 8
     @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats].length != 3
     @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros].length != @numeros_programmes.length
-    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users].length != @users_nom.length
+    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length
     @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops].length != @codes_bop.length
   end
 
   def liste_avis_annee(annee)
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).order(created_at: :desc)
+    avis_all = scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(phase: 'execution').order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                        :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                        :date_envoi, :date_reception, 'users.nom AS user_nom',
@@ -194,13 +204,13 @@ class AvisController < ApplicationController
                                       'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
   end
 
-  def set_avis_phase
-    avis_annee_courante = @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31))
+  def set_avis_phase(annee)
+    avis_annee_courante = @bop.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31))
     @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
     @avis_execution = avis_annee_courante.select { |a| a.phase == 'execution' }[0]
-    avis_annee_precedente = @bop.avis.where(created_at: Date.new(@annee - 1, 1, 1)..Date.new(@annee - 1, 12, 31))
+    avis_annee_precedente = @bop.avis.where(created_at: Date.new(annee - 1, 1, 1)..Date.new(annee - 1, 12, 31))
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
@@ -208,7 +218,7 @@ class AvisController < ApplicationController
 
   # fonction pour afficher le bon formulaire
   def set_form_type
-    if @avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon' # n'a pas rempli CRG2 année précédente
+    if @avis_debut_n1 && (@avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon') # n'a pas rempli CRG2 année précédente
       'CRG2'
     elsif (@avis_execution.nil? && !@avis_crg2_n1.nil?) || (@avis_execution && @avis_execution.etat != 'valide') # si bop a un avis en crg2 N-1 il doit remplir le form execution sinon direct début de gestion
       'execution'

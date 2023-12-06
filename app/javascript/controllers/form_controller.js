@@ -6,10 +6,14 @@ export default class extends Controller {
   ];
   }
   connect() {
-    this.calculNombreCaracteres();
     this.formChange();
-    this.setNombreInput();
-    this.getEcart();
+    if (document.getElementById("commentaire") != null) {
+      this.calculNombreCaracteres();
+    }
+    if (document.getElementById("ae_i") != null){
+      this.setNombreInput();
+      this.getEcart();
+    }
   }
 
   formChange(){
@@ -198,16 +202,6 @@ export default class extends Controller {
       if (!isValid) {
         event.preventDefault();
       }
-    }
-  }
-
-  changeDotation(){
-    if (this.dotationTarget.value != ""){
-      this.submitBoutonTarget.classList.remove('bouton_inactive');
-      this.submitBoutonTarget.disabled = false;
-    } else {
-      this.submitBoutonTarget.classList.add('bouton_inactive');
-      this.submitBoutonTarget.disabled = true;
     }
   }
 

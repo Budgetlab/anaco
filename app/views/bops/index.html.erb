@@ -22,7 +22,7 @@
           </ul>
         </nav>
       </h1>
-      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %></h2><%end %>
+      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
 
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/document/document-download.svg", alt: "" %></div>
@@ -32,8 +32,6 @@
         </div>
       </div>
 
-
-
     </div>
   </div>
   <% if @count_reste_annee_precedente > 0 %>
@@ -41,8 +39,9 @@
       <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee_a_afficher - 1 %>.</h3>
       <p>Pour remplir l’avis de début de gestion <%= @annee_a_afficher %> d’un BOP, vous devez au préalable renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: 2023) do %>ici<% end %></p>
     </div>
-    <%else %>
-    <%= render partial: 'bops/notice' %>
+  <% end %>
+  <%= render partial: 'bops/notice' %>
+
     <div class="fr-tabs fr-mb-2w">
       <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
         <li role="presentation">
@@ -70,7 +69,7 @@
             <div class="fr-col-lg-2 fr-col-4">
               <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( Date.today < @date_crg1 && etat_debut[0][3] == true )%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-              <% elsif @date_crg1 < Date.today && etat_debut[0][3] == true %>
+              <% elsif @date_crg1 <= Date.today && etat_debut[0][3] == true %>
                 <% if etat_crg1.empty? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
                 <%elsif etat_crg1[0][1] != "Brouillon"%>
@@ -82,7 +81,7 @@
             </div>
 
             <div class="fr-col-lg-2 fr-col-4">
-              <% if Date.today <= @date_crg2 || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
+              <% if Date.today < @date_crg2 || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
                 <% if etat_crg2.empty? %>
@@ -96,11 +95,11 @@
             </div>
 
             <div class="fr-col-lg-3 fr-col-12">
-              <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon"%>
+              <% if Date.today >= Date.new(@annee_a_afficher,1,10) && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger l'avis<%end %>
-              <%elsif @date_crg1 < Date.today && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
+              <%elsif Date.today >= @date_crg1 && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
-              <%elsif Date.today > @date_crg2 && (etat_crg2.empty?|| etat_crg2[0][1] == "Brouillon")%>
+              <%elsif Date.today >= @date_crg2 && (etat_crg2.empty?|| etat_crg2[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
               <% end%>
             </div>
@@ -112,12 +111,13 @@
         <% @liste_bops_inactifs.each do |bop|%>
           <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
             <div class="fr-col-lg-2 fr-col-6"><ul><li><%= link_to bop_path(bop[0]) do%>BOP <%= bop[1]%><%end %></li></ul></div>
-            <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop[0]), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<% end %></div>
+            <% if @annee_a_afficher == @annee %>
+              <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop[0]), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<% end %></div>
+            <% end  %>
           </div>
         <%end %>
       </div>
     </div>
-  <% end  %>
 
 </div>
 <% end  %>
