@@ -4,9 +4,10 @@
 class AvisController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
+  include ApplicationHelper
   # Page historique des avis
   def index
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
     variables_table
     respond_to do |format|
@@ -17,7 +18,7 @@ class AvisController < ApplicationController
 
   # fonction qui filtre le tableau de la page historique en fonction des paramètres choisis
   def filter_historique
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
     variables_table
     filter_avis_all if params_present_and_avis_all_not_empty
@@ -70,7 +71,7 @@ class AvisController < ApplicationController
   # Page de consultation des avis pour les DCB
   def consultation
     redirect_unless_dcb
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
     variables_table
     respond_to do |format|
@@ -84,13 +85,13 @@ class AvisController < ApplicationController
     redirect_unless_dcb
     @avis = Avi.find(params[:id])
     @avis&.update(etat: 'Lu')
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     redirect_to consultation_path(date: @annee_a_afficher), flash: { notice: 'Lu' }
   end
 
   # fonction qui filtre le tableau de la page consultation en fonction des paramètres choisis
   def filter_consultation
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
     variables_table
     filter_avis_all if params_present_and_avis_all_not_empty
@@ -148,10 +149,6 @@ class AvisController < ApplicationController
 
   def avi_params
     params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat)
-  end
-
-  def annee_a_afficher
-    @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
   end
 
   def variables_table

@@ -13,4 +13,9 @@ module ApplicationHelper
       date = date.strftime('%d/%m/%Y')
     end
   end
+
+  # fonction qui met à jour l'année à afficher
+  def annee_a_afficher
+    params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
+  end
 end

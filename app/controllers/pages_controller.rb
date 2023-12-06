@@ -3,14 +3,18 @@
 class PagesController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
+  include ApplicationHelper
   # page d'accueil suivi global des avis par phase
   def index
     liste_variables_index
+    # notif DCB
     @avis_a_lire = dcb_avis_a_lire
     @avis_total = liste_bop_actifs(@statut_user, @annee)
     @avis_remplis = avis_annee_remplis(@statut_user, @annee)
+    # Cartes
     @avis_crg1 = avis_crg1(@avis_remplis)
     @avis_delai = avis_delai(@avis_remplis)
+    # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
     @notes_crg1 = @date_crg1 <= Date.today ? notes_repartition(@avis_remplis, @avis_crg1, 'CRG1') : []
     @notes_crg2 = @date_crg2 <= Date.today ? notes_repartition(@avis_remplis, @avis_total, 'CRG2') : []
@@ -18,12 +22,14 @@ class PagesController < ApplicationController
 
   # Page des restitutions nationales
   def restitutions
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @avis_total = liste_bop_actifs('admin', @annee_a_afficher)
     @avis_remplis = avis_annee_remplis('admin', @annee_a_afficher)
+    # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher)
     @notes_bar = statut_bop_repartition(@avis_remplis, @avis_total)
+    # cartes programmes
     variables_restitutions_programmes(@annee_a_afficher)
     @programmes = liste_programmes(@annee_a_afficher)
     @liste_avis_par_programme = @avis_remplis.joins(:bop).group('bops.numero_programme').count
@@ -32,18 +38,19 @@ class PagesController < ApplicationController
   # Page des restitutions au niveau d'un programme
   def restitution_programme
     redirect_si_programme_non_existant
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     variables_programme_bops(@annee_a_afficher)
     @avis_remplis = avis_remplis_programme(@annee_a_afficher, @bops)
-    array_controleur_id = User.where(statut: 'Controleur').pluck(:id)
+    # tableau données sommes globales et SD
+    array_controleur_id = User.where(statut: 'CBR').pluck(:id)
     avis_remplis_controleur = @avis_remplis.where(user_id: array_controleur_id)
-    @hash_donnees_phase = init_hash_donnees_phase
-    @hash_donnees_phase_controleur = init_hash_donnees_phase
-    calcul_hash_donnees_phase(@hash_donnees_phase, @avis_remplis)
-    calcul_hash_donnees_phase(@hash_donnees_phase_controleur, avis_remplis_controleur)
+    @hash_donnees_phase = calcul_hash_donnees_phase(@avis_remplis)
+    @hash_donnees_phase_controleur = calcul_hash_donnees_phase(avis_remplis_controleur)
+    # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @bops_actifs_count)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @bops_actifs_count, @annee_a_afficher)
     @notes_bar = statut_bop_repartition(@avis_remplis, @bops_actifs_count)
+    # filtres liste des BOP
     @bops_user = @bops.joins(:user).pluck(:id, :nom).uniq.to_h
     @bops_user_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
     respond_to do |format|
@@ -52,34 +59,31 @@ class PagesController < ApplicationController
     end
   end
 
+  # fonction pour filtrer la liste des BOP dans la page de restitution du programme
   def filter_restitution
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     variables_programme_bops(@annee_a_afficher)
-    bops_liste_users = @bops.joins(:user).pluck(:user_id).uniq
-    statut = params[:avis]
-    users_params = params[:users].map(&:to_i)
     @avis_remplis = avis_remplis_programme(@annee_a_afficher, @bops)
-    if statut.length != 3 || users_params.length != bops_liste_users.count
-      @bops = @bops.where(id: @avis_remplis.select { |a| statut.include?(a.statut) }.pluck(:bop_id)) if statut.length != 3
-      @bops = @bops.where(user_id: users_params) if users_params.length != bops_liste_users.count
-    end
+    # mise à jours de la liste des @bops
+    filter_bops_restitution
     @bops_user = @bops.joins(:user).pluck(:id, :nom).to_h
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.update('liste_bops', partial: 'pages/restitution_liste_bop')
+          turbo_stream.update('liste_bops', partial: 'pages/restitution_liste_bop', locals: { bops: @bops })
         ]
       end
     end
   end
 
+  # Page suivi remplissage et lecture pour DB
   def suivi
     redirect_to root_path and return unless current_user.statut == 'admin'
 
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     variables_suivi(@annee_a_afficher)
-    calcul_hash_phase_user(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
-    calcul_hash_phase_lecture(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
+    @hash_phase_user = calcul_hash_phase_user(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
+    @hash_phase_lecture = calcul_hash_phase_lecture(@users, @hash_bops_users, @hash_avis_users, @annee_a_afficher)
     respond_to do |format|
       format.html
       format.xlsx
@@ -217,7 +221,7 @@ class PagesController < ApplicationController
     @numero = params[:programme].to_i
     @bops = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(numero_programme: @numero).order(code: :asc)
     @bops_count_all = @bops.size
-    @bops_actifs_count = annee == @annee ? @bops.count { |b| b.dotation != 'aucune' } : @bops.count { |b| b.avis.where('created_at >= ? AND created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).count.positive? }
+    @bops_actifs_count = annee == @annee ? @bops.count { |b| b.dotation != 'aucune' } : @bops.count { |b| b.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31)).count.positive? }
     @ministere = @bops.first&.ministere
   end
 
@@ -225,11 +229,6 @@ class PagesController < ApplicationController
   def redirect_si_programme_non_existant
     tableau_numero_programmes = Bop.all.pluck(:numero_programme).uniq
     redirect_to restitutions_path and return unless tableau_numero_programmes.include?(params[:programme].to_i)
-  end
-
-  # fonction qui met à jour l'année à afficher
-  def annee_a_afficher
-    @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
   end
 
   # fonction qui charge tous les avis des bop d'un programme sur l'année à afficher
@@ -246,8 +245,9 @@ class PagesController < ApplicationController
       'CRG2' => [0, 0, 0, 0, 0, 0, 0, 0] }
   end
 
-  # fonction qui calcule les sommes AE, CP, ETPT par phase
-  def calcul_hash_donnees_phase(hash_donnees_phase, avis_remplis)
+  # fonction qui calcule les sommes AE, CP,T2, ETPT par phase
+  def calcul_hash_donnees_phase(avis_remplis)
+    hash_donnees_phase = init_hash_donnees_phase
     avis_debut_gestion_non_crg1 = avis_remplis.select { |avi| avi.phase == 'début de gestion' && !avi.is_crg1 }
     array_somme_debut_non_crg1 = avis_debut_gestion_non_crg1.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_debut_gestion_non_crg1.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
     avis_par_phase = avis_remplis.group(:phase).select(:phase, 'SUM(ae_i) AS sum_ae_i', 'SUM(cp_i) AS sum_cp_i', 'SUM(etpt_i) AS sum_etpt_i', 'SUM(t2_i) AS sum_t2_i', 'SUM(ae_f) AS sum_ae_f', 'SUM(cp_f) AS sum_cp_f', 'SUM(etpt_f) AS sum_etpt_f', 'SUM(t2_f) AS sum_t2_f')
@@ -255,6 +255,17 @@ class PagesController < ApplicationController
       hash_donnees_phase[avis.phase] = [avis.sum_ae_i, avis.sum_cp_i, avis.sum_t2_i, avis.sum_etpt_i, avis.sum_ae_f, avis.sum_cp_f, avis.sum_t2_f, avis.sum_etpt_f]
     end
     hash_donnees_phase['CRG1'] = hash_donnees_phase['CRG1'].zip(array_somme_debut_non_crg1).map { |x, y| x + y }
+    hash_donnees_phase
+  end
+
+  def filter_bops_restitution
+    bops_liste_users = @bops.joins(:user).pluck(:user_id).uniq
+    statut = params[:avis]
+    users_params = params[:users].map(&:to_i)
+    if statut.length != 3 || users_params.length != bops_liste_users.count
+      @bops = @bops.where(id: @avis_remplis.select { |a| statut.include?(a.statut) }.pluck(:bop_id)) if statut.length != 3
+      @bops = @bops.where(user_id: users_params) if users_params.length != bops_liste_users.count
+    end
   end
 
   def variables_suivi(annee)
@@ -264,7 +275,7 @@ class PagesController < ApplicationController
   end
 
   def calcul_hash_phase_user(users, hash_bops_users, hash_avis_users, annee)
-    @hash_phase_user = {}
+    hash_phase_user = {}
     ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
       array_suivi_users = []
       users.each do |user|
@@ -280,12 +291,13 @@ class PagesController < ApplicationController
         array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
         array_suivi_users << array_user
       end
-      @hash_phase_user[phase] = array_suivi_users.sort_by { |e| -e[7] }
+      hash_phase_user[phase] = array_suivi_users.sort_by { |e| -e[7] }
     end
+    hash_phase_user
   end
 
   def calcul_hash_phase_lecture(users, hash_bops_users, hash_avis_users, annee)
-    @hash_phase_lecture = {}
+    hash_phase_lecture = {}
     ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
       array_suivi_lecture = []
       users.where(statut: 'DCB').each do |user|
@@ -300,8 +312,9 @@ class PagesController < ApplicationController
         array_user << (array_user[2].zero? ? 100 : ((array_user[3].to_f / (array_user[2] + array_user[3])) * 100).round)
         array_suivi_lecture << array_user
       end
-      @hash_phase_lecture[phase] = array_suivi_lecture.sort_by { |e| -e[5] }
+      hash_phase_lecture[phase] = array_suivi_lecture.sort_by { |e| -e[5] }
     end
+    hash_phase_lecture
   end
 
 end

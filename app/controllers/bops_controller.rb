@@ -4,9 +4,10 @@
 class BopsController < ApplicationController
   before_action :authenticate_user!
   protect_from_forgery with: :null_session
+  include ApplicationHelper
   # page liste des bops
   def index
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @liste_bops = liste_bops_user(@annee_a_afficher)
     current_user.statut == 'admin' ? variables_bops_admin : variables_bops_index(@annee_a_afficher)
     respond_to do |format|
@@ -17,7 +18,7 @@ class BopsController < ApplicationController
 
   # filtre tableau page liste des bops vision admin
   def filter_bop
-    annee_a_afficher
+    @annee_a_afficher = annee_a_afficher
     @liste_bops = liste_bops_user(@annee_a_afficher)
     variables_bops_admin
     filter_bops if params_present
@@ -63,10 +64,6 @@ class BopsController < ApplicationController
   end
 
   private
-
-  def annee_a_afficher
-    @annee_a_afficher = params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
-  end
 
   def liste_bops_user(annee)
     if current_user.statut == 'admin'

@@ -38,12 +38,12 @@
     </div>
   </div>
 
-  <% if @annee_a_afficher == @annee %><h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %></h2><% end %>
+  <% if @annee_a_afficher == @annee %><h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %> <%= @annee %></h2><% end %>
 
   <% if current_user.statut != "CBR" %>
     <h3 class="fr-mt-3w">Ressources allouées</h3>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
-    <% if Date.today > @date_crg2 || @annee_a_afficher < @annee %>
+    <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
     <% if Date.today >= @date_crg1 || @annee_a_afficher < @annee %>
@@ -52,7 +52,7 @@
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'execution', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <h3 class="fr-mt-3w">Prévision d’exécution</h3>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
-    <% if Date.today > @date_crg2 || @annee_a_afficher < @annee %>
+    <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
     <% if Date.today >= @date_crg1 || @annee_a_afficher < @annee %>
@@ -61,7 +61,7 @@
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'execution', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
-    <% if Date.today > @date_crg2 || @annee_a_afficher < @annee %>
+    <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "CRG1", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
     <% if Date.today >= @date_crg1 || @annee_a_afficher < @annee %>
@@ -91,9 +91,7 @@
   <div class="fr-download">
     <h3>
       <%= link_to specific_restitutions_path(programme: @numero, date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger l'ensemble des avis <%= @annee_a_afficher %> sur ce programme
-        <span class="fr-download__detail">
-          Format .xlsx
-        </span>
+        <span class="fr-download__detail">Format .xlsx</span>
       <%end %>
     </h3>
   </div>
@@ -119,16 +117,12 @@
                         <% @bops_user_id.values.sort.each_with_index do |name,i| %>
                         <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
                           <%= f.check_box "users[]", {id: "checkboxes-#{i}"}, @bops_user_id.key(name)%>
-                          <label class="fr-label" for="checkboxes-<%=i %>">
-                            <%= name %>
-                          </label>
-                          <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive">
-                          </div>
+                          <label class="fr-label" for="checkboxes-<%=i %>"><%= name %></label>
+                          <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive"></div>
                         </div>
                         <%end %>
                       </div>
-                      <div class="fr-messages-group" id="checkboxes-small-messages" aria-live="assertive">
-                      </div>
+                      <div class="fr-messages-group" id="checkboxes-small-messages" aria-live="assertive"></div>
                     </fieldset></li>
                   </ul>
                 </div>
@@ -137,52 +131,31 @@
           </li>
           <li>
             <div class="fr-translate fr-nav">
-        <div>
-          <button class="fr-translate__btn fr-btn fr-btn--tertiary" aria-controls="translate-1295" aria-expanded="false" title="Sélectionner un ou plusieurs types d'avis" data-action="click->filter#Dropdown">
-            Filtrer par type d'avis
-          </button>
-          <div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
-            <ul class="fr-menu__list">
-              <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-avis" aria-labelledby="checkboxes-avis-legend checkboxes-avis-messages">
-                <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
-                  Sélectionner un ou plusieurs types d'avis
-                </legend>
-                <div class="fr-fieldset__element">
-
-                    <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                      <%= f.check_box "avis[]", {id: "checkboxes-fav"}, "Favorable"%>
-
-                      <label class="fr-label" for="checkboxes-fav">
-                        Avis favorable
-                      </label>
-                      <div class="fr-messages-group" id="checkboxes-small-fav-messages" aria-live="assertive">
+              <div>
+                <button class="fr-translate__btn fr-btn fr-btn--tertiary" aria-controls="translate-1295" aria-expanded="false" title="Sélectionner un ou plusieurs types d'avis" data-action="click->filter#Dropdown">
+                  Filtrer par type d'avis
+                </button>
+                <div class="fr-collapse fr-translate__menu fr-menu" id="translate-1295">
+                  <ul class="fr-menu__list">
+                    <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-avis" aria-labelledby="checkboxes-avis-legend checkboxes-avis-messages">
+                      <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-0">
+                        Sélectionner un ou plusieurs types d'avis
+                      </legend>
+                      <div class="fr-fieldset__element">
+                        <% ["Favorable","Favorable avec réserve","Défavorable"].each_with_index do |etat,i| %>
+                          <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
+                            <%= f.check_box "avis[]", {id: "checkboxes-avis-#{i}"}, etat%>
+                            <label class="fr-label" for="checkboxes-avis-<%=i %>"><%= etat %></label>
+                            <div class="fr-messages-group" id="checkboxes-avis-<%=i %>-messages" aria-live="assertive"></div>
+                          </div>
+                        <%end %>
                       </div>
-                    </div>
-                  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                    <%= f.check_box "avis[]", {id: "checkboxes-reserve"}, "Favorable avec réserve"%>
-                    <label class="fr-label" for="checkboxes-reserve">
-                      Avis favorable avec réserve
-                    </label>
-                    <div class="fr-messages-group" id="checkboxes-small-reserve-messages" aria-live="assertive">
-                    </div>
-                  </div>
-                  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                    <%= f.check_box "avis[]", {id: "checkboxes-defav"}, "Défavorable"%>
-                    <label class="fr-label" for="checkboxes-defav">
-                      Avis défavorable
-                    </label>
-                    <div class="fr-messages-group" id="checkboxes-small-defav-messages" aria-live="assertive">
-                    </div>
-                  </div>
-
+                      <div class="fr-messages-group" id="checkboxes-avis-messages" aria-live="assertive"></div>
+                    </fieldset></li>
+                  </ul>
                 </div>
-                <div class="fr-messages-group" id="checkboxes-avis-messages" aria-live="assertive">
-                </div>
-              </fieldset></li>
-            </ul>
-          </div>
-        </div>
-      </div>
+              </div>
+            </div>
           </li>
         </ul>
       <% end  %>
@@ -190,6 +163,6 @@
   </div>
 
   <div id="liste_bops">
-    <%= render 'pages/restitution_liste_bop' %>
+    <%= render partial: 'pages/restitution_liste_bop', locals: {bops: @bops} %>
   </div>
 </div>

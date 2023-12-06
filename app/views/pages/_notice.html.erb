@@ -1,4 +1,4 @@
-<% if Date.today > @date_alerte_debut_gestion && Date.today <= @date_crg1 && @avis_repartition[3] > 0%>
+<% if Date.today >= @date_alerte_debut_gestion && Date.today < @date_crg1 && @avis_repartition[3] > 0%>
   <div class="fr-notice notice--warning">
       <div class="fr-container">
           <div class="fr-notice__body">
@@ -6,7 +6,7 @@
           </div>
       </div>
   </div>
-<% elsif Date.today > @date_crg1 && @avis_repartition[3] > 0%>
+<% elsif Date.today >= @date_crg1 && @avis_repartition[3] > 0%>
   <div class="fr-notice notice--red">
       <div class="fr-container">
           <div class="fr-notice__body">
@@ -14,7 +14,7 @@
           </div>
       </div>
   </div>
-<% elsif Date.today > @date_alerte_crg1 && Date.today <= @date_crg2 && @notes_crg1[3] > 0%>
+<% elsif Date.today >= @date_alerte_crg1 && Date.today < @date_crg2 && @notes_crg1[3] > 0%>
   <div class="fr-notice notice--warning">
     <div class="fr-container">
       <div class="fr-notice__body">
@@ -22,7 +22,7 @@
       </div>
     </div>
   </div>
-<% elsif Date.today > @date_crg2 && @notes_crg1[3] > 0%>
+<% elsif Date.today >= @date_crg2 && @notes_crg1[3] > 0%>
   <div class="fr-notice notice--red">
     <div class="fr-container">
       <div class="fr-notice__body">
