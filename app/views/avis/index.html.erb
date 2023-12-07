@@ -26,7 +26,7 @@
 		</div>
 	</div>
 
-	<%= form_with(url: filter_historique_path, method: :post, data: {'filter-target': "form"}) do |f|%>
+	<%= form_with(url: filter_historique_path(date: @annee_a_afficher), method: :post, data: {'filter-target': "form"}) do |f|%>
 		<div class="fr-table fr-table--bordered fr-table--layout-fixed--lg fr-table--vscroll fr-mb-6w">
 			<table>
 				<caption>Liste des résultats <span id="total_table"><%= render partial: "avis/table_total", locals: { total: @avis_all.length} %></span></caption>

@@ -19,7 +19,7 @@
                       <% end %>
                     </div>
                     <div class="fr-header__service">
-                        <%= link_to root_path, title: "Accueil - Anaco" do %>
+                        <%= link_to root_path, title: "Accueil - ANACO" do %>
                           <p class="fr-header__service-title">ANACO <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
                         <%end %>
                         <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
@@ -53,26 +53,35 @@
                         <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'],['index']] do%>Accueil<%end%>
                     </li>
 
-                      <li class="fr-nav__item">
-                        <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do%>BOP et avis<%end%>
-                      </li>
+                  <li class="fr-nav__item">
+                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-avis" <%= current_page?(bops_path) || current_page?(historique_path) || current_page?(consultation_path) || current_page?(suivi_path) ? 'aria-current="true"' : '' %>>BOP et avis/notes</button>
+                    <div class="fr-collapse fr-menu" id="menu-avis">
+                      <ul class="fr-menu__list">
+                        <li>
+                          <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do%>Liste des BOP<% if current_user.statut != "admin" %> et avis/notes<% end %><%end%>
+                        </li>
+                        <li>
+                          <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do%>Historique <% if current_user.statut != "admin" %>de mes avis/notes<% end %><%end%>
+                        </li>
+                        <% if current_user.statut == "DCB" %>
+                          <li>
+                            <%= active_link_to consultation_path, class: "fr-nav__link", target: "_self" do%>Consultation des avis/notes<%end%>
+                          </li>
+                        <% end %>
+                        <% if current_user.statut == "admin" %>
+                        <li>
+                          <%= active_link_to suivi_path, class: "fr-nav__link", target: "_self" do%>Suivi du remplissage et lecture<%end%>
+                        </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </li>
 
-                    <li class="fr-nav__item">
-                        <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do%>Historique<%end%>
-                    </li>
-                    <% if current_user.statut == "DCB" %>
-                    <li class="fr-nav__item">
-                      <%= active_link_to consultation_path, class: "fr-nav__link", target: "_self" do%>Consultation<%end%>
-                    </li>
-                    <%end %>
+
                     <li class="fr-nav__item">
                       <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions<%end%>
                     </li>
-                    <% if current_user.statut == "admin" %>
-                      <li class="fr-nav__item">
-                        <%= active_link_to suivi_path, class: "fr-nav__link", target: "_self" do%>Suivi<%end%>
-                      </li>
-                    <% end  %>
+
                     <li class="fr-nav__item">
                       <%= active_link_to faq_path, class: "fr-nav__link", target: "_self" do%>FAQ<%end%>
                     </li>

@@ -15,6 +15,12 @@
       </ol>
     </div>
   </nav>
+  <% if @annee_a_afficher != @annee %>
+  <div class="fr-alert fr-alert--warning fr-mb-6w">
+    <h3 class="fr-alert__title">Vous n’avez pas rempli la note CRG2 <%= @annee_a_afficher %> sur ce BOP.</h3>
+    <p>Pour remplir l’avis de début de gestion <%= @annee %>, vous devez au préalable compléter le formulaire CRG2 <%= @annee_a_afficher %>.</p>
+  </div>
+  <% end  %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1>Formulaire CRG2 <%= @annee_a_afficher %></h1>
@@ -40,9 +46,9 @@
         <div class="fr-col-12 fr-col-lg-4">
 
           <div class="fr-select-group">
-            <label for="dateenvoi" class="fr-label">Date de la note d’analyse du CRG2*
+            <label for="date_envoi" class="fr-label">Date de la note d’analyse du CRG2*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
-            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateCRG2", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "dateenvoi", placeholder: "- sélectionner -"%>
+            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateCRG2", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
             <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 septembre.</p>
           </div>
           <div class="fr-select-group">

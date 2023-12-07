@@ -157,10 +157,10 @@ class PagesController < ApplicationController
 
   # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee)
-    avis_date_1 = avis.count { |a| a.date_reception <= Date.new(annee, 3, 1) && a.phase == 'début de gestion' }
-    avis_date_2 = avis.count { |a| a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == 'début de gestion' }
-    avis_date_3 = avis.count { |a| a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == 'début de gestion' }
-    avis_date_4 = avis.count { |a| a.date_reception > Date.new(annee, 4, 1) && a.phase == 'début de gestion' }
+    avis_date_1 = avis.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) && a.phase == 'début de gestion' }
+    avis_date_2 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == 'début de gestion' }
+    avis_date_3 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == 'début de gestion' }
+    avis_date_4 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) && a.phase == 'début de gestion' }
     avis_vide = avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4
     [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_vide]
   end

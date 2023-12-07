@@ -47,7 +47,7 @@ class BopsController < ApplicationController
     @bop.update(dotation: params[:dotation])
     if @bop.dotation == 'aucune'
       # détruire avis sur l'année en cours (DG) si existe en brouillon
-      @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31))&.destroy_all
+      @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31), phase: 'début de gestion')&.destroy_all
       @message = 'suppression'
       redirect_to bops_path, flash: { notice: @message }
     else
@@ -88,9 +88,9 @@ class BopsController < ApplicationController
 
   # variable concernant les BOP sur l'année en cours pour DBC et CBR
   def variables_bops_index(annee)
-    bop_annee_precedente_avis_dg_id = current_user.avis.where(created_at: Date.new(annee - 1, 1, 1)..Date.new(annee - 1 , 12, 31), phase: "début de gestion").pluck(:bop_id)
-    @liste_bops_actifs = annee == @annee ? @liste_bops.reject { |el| el[2] == 'aucune' } : @liste_bops.select { |el| bop_annee_precedente_avis_dg_id.include?(el[0]) }
-    @liste_bops_inactifs = annee == @annee ? @liste_bops.select { |el| el[2] == 'aucune' } : @liste_bops.reject { |el| bop_annee_precedente_avis_dg_id.include?(el[0]) }
+    bop_annee_avis_dg_id = current_user.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), phase: "début de gestion").pluck(:bop_id)
+    @liste_bops_actifs = annee == @annee ? @liste_bops.reject { |el| el[2] == 'aucune' } : @liste_bops.select { |el| bop_annee_avis_dg_id.include?(el[0]) }
+    @liste_bops_inactifs = annee == @annee ? @liste_bops.select { |el| el[2] == 'aucune' } : @liste_bops.reject { |el| bop_annee_avis_dg_id.include?(el[0]) }
     @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
     @count_reste = case @phase
                    when 'début de gestion'

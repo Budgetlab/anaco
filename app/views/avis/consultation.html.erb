@@ -3,7 +3,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-my-6w title-btn">
-        <div>Avis/notes à consulter</div>
+        <div>Consultation des avis/notes</div>
         <nav role="navigation" class="fr-pagination" aria-label="Pagination">
           <ul class="fr-pagination__list">
             <li>
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <%= form_with(url: filter_consultation_path, method: :post, data: {'filter-target': "form"}) do |f|%>
+  <%= form_with(url: filter_consultation_path(date: @annee_a_afficher), method: :post, data: {'filter-target': "form"}) do |f|%>
     <div class="fr-table fr-table--bordered fr-table--layout-fixed--lg fr-table--vscroll fr-mb-6w">
       <table>
         <caption>Liste des résultats <span id="total_table"><%= render partial: "avis/table_total", locals: { total: @avis_all.length} %></span></caption>

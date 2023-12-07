@@ -16,6 +16,6 @@ module ApplicationHelper
 
   # fonction qui met à jour l'année à afficher
   def annee_a_afficher
-    params[:date] && [2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
+    params[:date] && [2022, 2023, 2024].include?(params[:date].to_i) ? params[:date].to_i : @annee
   end
 end

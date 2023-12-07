@@ -15,7 +15,7 @@ class Avi < ApplicationRecord
       next unless bop
 
       avis = bop.avis.where(phase: 'execution', created_at: Date.new(2023, 1, 1)..Date.new(2023, 12, 31)).first || Avi.new(bop_id: bop.id, user_id: bop.user_id, phase: 'execution')
-      column_names_bis = %w[ae_i cp_i t2_i etpt_i ae_f cp_f t2_f etpt_f date_reception]
+      column_names_bis = %w[ae_i cp_i t2_i etpt_i ae_f cp_f t2_f etpt_f date_envoi]
       avis.attributes = row_data.slice(*column_names_bis)
       avis.save
 

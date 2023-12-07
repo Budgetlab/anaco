@@ -6,7 +6,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w title-btn">
-        <div>BOP et avis</div>
+        <div>Liste des BOP et avis</div>
         <nav role="navigation" class="fr-pagination" aria-label="Pagination">
           <ul class="fr-pagination__list">
             <li>
@@ -37,7 +37,7 @@
   <% if @count_reste_annee_precedente > 0 %>
     <div class="fr-alert fr-alert--warning fr-mb-6w">
       <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee_a_afficher - 1 %>.</h3>
-      <p>Pour remplir l’avis de début de gestion <%= @annee_a_afficher %> d’un BOP, vous devez au préalable renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: 2023) do %>ici<% end %></p>
+      <p>Pour remplir l’avis de début de gestion <%= @annee_a_afficher %> d’un BOP, vous devez au préalable renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
     </div>
   <% end %>
   <%= render partial: 'bops/notice' %>

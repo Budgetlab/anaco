@@ -39,7 +39,9 @@
     </div>
     <div class="fr-mt-4w" data-controller="form">
       <%= form_with(model: @avis, url: avis_path, method: :post, data: {'form-target': "form", action: "input->form#formChange turbo:before-fetch-request->form#submitForm"}) do |f|%>
+        <%= f.hidden_field :bop_id, value: @bop.id%>
         <%= f.hidden_field :etat, value: "valide"%>
+        <%= f.hidden_field :phase, value: "execution"%>
         <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
           <div class="fr-col-12 fr-col-lg-12">
             <% if @avis_crg2_n1 %>

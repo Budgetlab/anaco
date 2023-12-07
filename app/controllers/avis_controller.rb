@@ -126,15 +126,16 @@ class AvisController < ApplicationController
   def create
     @bop = Bop.find_by(id: params[:avi][:bop_id])
     redirect_unless_bop_controller
-    annee = params[:avi][:date_envoi] && params[:avi][:date_envoi].to_date.year == @annee - 1 ? @annee - 1 : @annee
+    annee = params[:avi][:date_envoi] && !params[:avi][:date_envoi].to_date.nil? && params[:avi][:date_envoi].to_date.year == @annee - 1 ? @annee - 1 : @annee
     @avis = @bop.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
     @avis.assign_attributes(avi_params)
-    @avis.created_at = Date.new(annee, 12, 30) if annee == @annee - 1
+    @avis.created_at = Date.new(annee, 12, 31) if annee == @annee - 1
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
+    redirect_path = @avis.phase == 'execution' ? new_bop_avi_path(@bop.id) : historique_path
     respond_to do |format|
-      format.html { redirect_to historique_path, notice: @message }
+      format.html { redirect_to redirect_path, notice: @message }
     end
   end
 
@@ -182,6 +183,7 @@ class AvisController < ApplicationController
     @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros].length != @numeros_programmes.length
     @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length
     @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops].length != @codes_bop.length
+
   end
 
   def liste_avis_annee(annee)
@@ -196,7 +198,7 @@ class AvisController < ApplicationController
 
   def liste_dcb_avis_annee(annee)
     bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    avis_all = Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
+    avis_all = Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                       :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                       :date_envoi, :date_reception, 'users.nom AS user_nom',
