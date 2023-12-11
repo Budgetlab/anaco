@@ -37,7 +37,7 @@ class AvisController < ApplicationController
   def open_modal
     @avis_default = Avi.find(params[:id])
     if @avis_default.phase == 'début de gestion'
-      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, created_at: Date.new(@avis_default.created_at.year,1,1)..Date.new(@avis_default.created_at.year,12,31) ).first
+      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, annee: @avis_default.annee - 1).first
     end
     respond_to do |format|
       format.turbo_stream do
@@ -126,10 +126,8 @@ class AvisController < ApplicationController
   def create
     @bop = Bop.find_by(id: params[:avi][:bop_id])
     redirect_unless_bop_controller
-    annee = params[:avi][:date_envoi] && !params[:avi][:date_envoi].to_date.nil? && params[:avi][:date_envoi].to_date.year == @annee - 1 ? @annee - 1 : @annee
-    @avis = @bop.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31)).find_or_initialize_by(phase: params[:avi][:phase])
+    @avis = @bop.avis.where(annee: params[:avi][:annee].to_i).find_or_initialize_by(phase: params[:avi][:phase])
     @avis.assign_attributes(avi_params)
-    @avis.created_at = Date.new(annee, 12, 31) if annee == @annee - 1
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
@@ -147,7 +145,12 @@ class AvisController < ApplicationController
   end
 
   # Page pour importer les avis exécution N-1
-  def ajout_avis; end
+  def ajout_avis
+    Avi.all.each do |avis|
+      avis.annee = 2023
+      avis.save
+    end
+  end
 
   def import
     Avi.import(params[:file])
@@ -188,7 +191,7 @@ class AvisController < ApplicationController
 
   def liste_avis_annee(annee)
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(phase: 'execution').order(created_at: :desc)
+    avis_all = scope.where(annee: annee).where.not(phase: 'execution').order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                        :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                        :date_envoi, :date_reception, 'users.nom AS user_nom',
@@ -198,7 +201,7 @@ class AvisController < ApplicationController
 
   def liste_dcb_avis_annee(annee)
     bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    avis_all = Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
+    avis_all = Avi.where(annee: annee, bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
                                       :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
                                       :date_envoi, :date_reception, 'users.nom AS user_nom',
@@ -207,12 +210,12 @@ class AvisController < ApplicationController
   end
 
   def set_avis_phase(annee)
-    avis_annee_courante = @bop.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31))
+    avis_annee_courante = @bop.avis.where(annee: annee)
     @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
     @avis_execution = avis_annee_courante.select { |a| a.phase == 'execution' }[0]
-    avis_annee_precedente = @bop.avis.where(created_at: Date.new(annee - 1, 1, 1)..Date.new(annee - 1, 12, 31))
+    avis_annee_precedente = @bop.avis.where(annee: annee - 1)
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]

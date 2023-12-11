@@ -6,7 +6,7 @@ class PagesController < ApplicationController
   include ApplicationHelper
   # page d'accueil suivi global des avis par phase
   def index
-    liste_variables_index
+    liste_variables_index # chargement dates alerte et user statut
     # notif DCB
     @avis_a_lire = dcb_avis_a_lire
     @avis_total = liste_bop_actifs(@statut_user, @annee)
@@ -113,27 +113,27 @@ class PagesController < ApplicationController
   # fonction pour charger les avis renseignés dans l'année en cours
   def avis_annee_remplis(statut_user, annee)
     scope = statut_user == 'admin' ? Avi : current_user.avis
-    scope.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    scope.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
   end
 
   # fonction pour récupérer les bops actifs de l'année sélectionnée
   def liste_bop_actifs(statut_user, annee)
-    scope = statut_user == 'admin' ? Bop : current_user.bops
     if annee == @annee
       # si année courante prendre ceux actuellement qui n'ont pas aucune comme dotation
+      scope = statut_user == 'admin' ? Bop : current_user.bops
       scope.where('bops.created_at <= ?', Date.new(annee, 12, 31)).count { |b| b.dotation != 'aucune' }
     else
       # si année précédente, récupérer ceux qui ont eu des avis pendant cette année en début de gestion (= bop actifs)
       # ceux qui n'ont pas d'avis pendant l'année = bops inactifs
-      scope.where('bops.created_at <= ?', Date.new(annee, 12, 31)).joins(:avis)
-           .where('avis.created_at >= ? AND avis.created_at <= ? AND phase = ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31), "début de gestion").count
+      scope = statut_user == 'admin' ? Avi : current_user.avis
+      scope.where(annee: annee, phase: 'début de gestion').count
     end
   end
 
   # fonction pour charger le nombre des avis à lire par le DCB (ceux des CBR uniquement, année actuelle)
   def dcb_avis_a_lire
     bops_dcb = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    bops_dcb.empty? ? 0 : Avi.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31), bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
+    bops_dcb.empty? ? 0 : Avi.where(annee: @annee, bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
   end
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
@@ -180,7 +180,7 @@ class PagesController < ApplicationController
     bops = Bop.where('created_at <= ?', Date.new(annee, 12, 31))
     @total_programmes = bops.distinct.count(:numero_programme)
     @liste_bops_par_programme = bops.group(:numero_programme).count
-    liste_bops_inactifs_annee = annee == @annee ? bops.where(dotation: 'aucune') : bops.where.not(id: Avi.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31), phase: "début de gestion").pluck(:bop_id))
+    liste_bops_inactifs_annee = annee == @annee ? bops.where(dotation: 'aucune') : bops.where.not(id: Avi.where(annee: annee, phase: 'début de gestion').pluck(:bop_id))
     @liste_bops_inactifs_par_programme = liste_bops_inactifs_annee.group(:numero_programme).count
   end
 
@@ -221,7 +221,7 @@ class PagesController < ApplicationController
     @numero = params[:programme].to_i
     @bops = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(numero_programme: @numero).order(code: :asc)
     @bops_count_all = @bops.size
-    @bops_actifs_count = annee == @annee ? @bops.count { |b| b.dotation != 'aucune' } : @bops.count { |b| b.avis.where(created_at: Date.new(annee, 1, 1)..Date.new(annee, 12, 31)).count.positive? }
+    @bops_actifs_count = annee == @annee ? @bops.count { |b| b.dotation != 'aucune' } : @bops.count { |b| b.avis.where(annee: annee).count.positive? }
     @ministere = @bops.first&.ministere
   end
 
@@ -234,7 +234,7 @@ class PagesController < ApplicationController
   # fonction qui charge tous les avis des bop d'un programme sur l'année à afficher
   def avis_remplis_programme(annee, bops)
     bops_id = bops.pluck(:id)
-    Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).where(bop_id: bops_id).where.not(etat: 'Brouillon')
+    Avi.where(annee: annee, bop_id: bops_id).where.not(etat: 'Brouillon')
   end
 
   # fonction qui initialise les donnees des sommes AE, CP, ETPT par phase
@@ -271,7 +271,7 @@ class PagesController < ApplicationController
   def variables_suivi(annee)
     @users = User.where(statut: ['CBR', 'DCB'])
     @hash_bops_users = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).group(:user_id, :dotation, :consultant, :id).count
-    @hash_avis_users = Avi.where('avis.created_at >= ? AND avis.created_at <= ?', Date.new(annee, 1, 1), Date.new(annee, 12, 31)).group(:user_id, :phase, :statut, :etat, :is_crg1, :bop_id).count
+    @hash_avis_users = Avi.where(annee: annee).group(:user_id, :phase, :statut, :etat, :is_crg1, :bop_id).count
   end
 
   def calcul_hash_phase_user(users, hash_bops_users, hash_avis_users, annee)

@@ -41,6 +41,7 @@
       <%= f.hidden_field :bop_id, value: @bop.id%>
       <%= f.hidden_field :user_id, value: current_user.id %>
       <%= f.hidden_field :phase, value: "CRG2"%>
+      <%= f.hidden_field :annee, value: @annee_a_afficher%>
       <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
         <div class="fr-col-12 fr-col-lg-4">
