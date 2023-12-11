@@ -3,6 +3,7 @@ class Avi < ApplicationRecord
   belongs_to :user
   require 'axlsx'
 
+  # fonction pour importer les avis d'exécution
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     headers = data.row(1) # get header row

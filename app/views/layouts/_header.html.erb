@@ -77,6 +77,21 @@
                     </div>
                   </li>
 
+                  <% if current_user.statut != 'CBR' %>
+                    <li class="fr-nav__item">
+                      <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(programmes_path) ? 'aria-current="true"' : '' %>>Crédits non répartis</button>
+                      <div class="fr-collapse fr-menu" id="menu-cnrep">
+                        <ul class="fr-menu__list">
+                          <% if current_user.statut == "DCB" %>
+                            <li>
+                              <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do%>Liste des crédits non répartis<%end%>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    </li>
+                  <% end  %>
+
 
                     <li class="fr-nav__item">
                       <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions<%end%>

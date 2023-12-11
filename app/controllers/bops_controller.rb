@@ -78,6 +78,7 @@ class BopsController < ApplicationController
     end
   end
 
+  # variables pour filtres table BOP vision DB
   def variables_bops_admin
     @codes_bop = @liste_bops.map { |el| el[0] }.uniq
     @numeros_programmes = @liste_bops.map { |el| el[2] }.uniq

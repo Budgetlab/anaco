@@ -14,6 +14,7 @@ class PagesController < ApplicationController
     # Cartes
     @avis_crg1 = avis_crg1(@avis_remplis)
     @avis_delai = avis_delai(@avis_remplis)
+    @credits_nrep = credits_nrep
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
     @notes_crg1 = @date_crg1 <= Date.today ? notes_repartition(@avis_remplis, @avis_crg1, 'CRG1') : []
@@ -110,7 +111,7 @@ class PagesController < ApplicationController
     @statut_user = current_user.statut
   end
 
-  # fonction pour charger les avis renseignés dans l'année en cours
+  # fonction pour charger les avis renseignés dans l'année en cours (hors avis d'éxécution et brouillon)
   def avis_annee_remplis(statut_user, annee)
     scope = statut_user == 'admin' ? Avi : current_user.avis
     scope.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
@@ -130,10 +131,10 @@ class PagesController < ApplicationController
     end
   end
 
-  # fonction pour charger le nombre des avis à lire par le DCB (ceux des CBR uniquement, année actuelle)
+  # fonction pour charger le nombre des avis à lire par le DCB (ceux des autres CBR/DCB uniquement, année actuelle)
   def dcb_avis_a_lire
-    bops_dcb = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    bops_dcb.empty? ? 0 : Avi.where(annee: @annee, bop_id: bops_dcb.pluck(:id), etat: 'En attente de lecture').count
+    bops_dcb_id = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).pluck(:id)
+    bops_dcb_id.empty? ? 0 : Avi.where(annee: @annee, bop_id: bops_dcb_id, etat: 'En attente de lecture').count
   end
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
@@ -175,6 +176,12 @@ class PagesController < ApplicationController
     [notes_sans_risque, notes_moyen, notes_red, notes_vide]
   end
 
+  # fonction pour charger crédits non rep par phase et total
+  def credits_nrep
+    programmes_count = Programme.all.count
+    [programmes_count, 0, 0, 0]
+  end
+
   # fonction pour initialiser les variables de la page restitutions sur l'année sélectionnée
   def variables_restitutions_programmes(annee)
     bops = Bop.where('created_at <= ?', Date.new(annee, 12, 31))
@@ -194,8 +201,8 @@ class PagesController < ApplicationController
   # fonction pour afficher la répartition des statuts des BOP par phase
   def statut_bop_repartition(avis_remplis, avis_total)
     statuts_debut = statut_bop(avis_remplis, avis_total, 'début de gestion')
-    statuts_crg1 = @date_crg1 < Date.today ? statut_bop(avis_remplis, avis_total, 'CRG1') : [0, 0, 0, avis_total]
-    statuts_crg2 = @date_crg2 < Date.today ? statut_bop(avis_remplis, avis_total, 'CRG2') : [0, 0, 0, avis_total]
+    statuts_crg1 = @date_crg1 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG1') : [0, 0, 0, avis_total]
+    statuts_crg2 = @date_crg2 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG2') : [0, 0, 0, avis_total]
     [[statuts_debut[0], statuts_crg1[0], statuts_crg2[0]], [statuts_debut[1], statuts_crg1[1], statuts_crg2[1]],
      [statuts_debut[2], statuts_crg1[2], statuts_crg2[2]], [statuts_debut[3], statuts_crg1[3], statuts_crg2[3]]]
   end
@@ -234,7 +241,7 @@ class PagesController < ApplicationController
   # fonction qui charge tous les avis des bop d'un programme sur l'année à afficher
   def avis_remplis_programme(annee, bops)
     bops_id = bops.pluck(:id)
-    Avi.where(annee: annee, bop_id: bops_id).where.not(etat: 'Brouillon')
+    Avi.where(annee: annee, bop_id: bops_id).where.not(etat: 'Brouillon').where.not(phase: 'execution')
   end
 
   # fonction qui initialise les donnees des sommes AE, CP, ETPT par phase

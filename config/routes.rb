@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'programmes/index'
   scope(:path => '/anaco') do
   devise_for :users, :path => '',
     :path_names =>  {:sign_in => 'connexion', :sign_out => 'logout'},
@@ -15,6 +16,9 @@ Rails.application.routes.draw do
   end
   post 'import_bops' => 'bops#import'
 	post 'filter_bop', to: 'bops#filter_bop'
+
+  resources :programmes
+  post 'import_programmes' => 'programmes#import'
 
   get 'historique' => 'avis#index'
   get 'consultation' => 'avis#consultation'
