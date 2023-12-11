@@ -64,7 +64,7 @@ class BopsController < ApplicationController
   def import
     Bop.import(params[:file])
     respond_to do |format|
-      format.turbo_stream { redirect_to root_path }
+      format.turbo_stream { redirect_to new_bop_path }
     end
   end
 
