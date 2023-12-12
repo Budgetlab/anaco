@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :bops
   has_many :avis
   has_many :programmes
+  has_many :credits
 
   # fonction d'import des utilisateurs dans la bdd
   def self.import(file)

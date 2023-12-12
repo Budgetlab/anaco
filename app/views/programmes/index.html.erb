@@ -3,7 +3,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w title-btn">
-        <div>Liste des crédits non répartis aux programmes</div>
+        <div>Programmes et crédits non répartis</div>
         <nav role="navigation" class="fr-pagination" aria-label="Pagination">
           <ul class="fr-pagination__list">
             <li>
@@ -20,19 +20,69 @@
         </nav>
       </h1>
       <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
+      <% if @count_reste_annee_precedente > 0 %>
+        <div class="fr-alert fr-alert--warning fr-mb-6w">
+          <h3 class="fr-alert__title">Vous n’avez pas rempli tous les crédits non répartis de <%= @annee_a_afficher - 1 %>.</h3>
+          <p>Pour remplir la phase de début de gestion <%= @annee_a_afficher %>, vous devez au préalable renseigner les crédits non répartis de <%= @annee_a_afficher - 1 %> <%= link_to programmes_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
+        </div>
+      <% end %>
+
       <div class="fr-mb-4w">
       <div class="fr-card">
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <h3 class="fr-card__title">Il vous reste XX crédits non répartis à remplir</h3>
+            <h3 class="fr-card__title">Il vous reste <%=pluralize(@count_reste, 'formulaires')%> à remplir</h3>
               <div class="fr-card__desc">
                 <% @programmes.each do |programme| %>
-                <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-                  <div class="fr-col-lg-2 fr-col-12"><ul><li>Programme <%= programme.numero %></li></ul></div>
-                  <div class="fr-col-lg-3 fr-col-4"></div>
-                  <div class="fr-col-lg-2 fr-col-4"></div>
-                  <div class="fr-col-lg-2 fr-col-4"></div>
-                </div>
+                  <% etat_debut = @liste_credits_par_programme.select { |el| el[0] == programme[0] && el[2] == "début de gestion"} %>
+                  <% etat_crg1 = @liste_credits_par_programme.select { |el| el[0] == programme[0] && el[2] == "CRG1"} %>
+                  <% etat_crg2 = @liste_credits_par_programme.select { |el| el[0] == programme[0] && el[2] == "CRG2"} %>
+                  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+                    <div class="fr-col-lg-2 fr-col-12"><ul><li>Programme <%= programme.numero %></li></ul></div>
+                    <div class="fr-col-lg-3 fr-col-4">
+                      <% if etat_debut.empty? %><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
+                      <% elsif etat_debut[0][1] == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                      <%elsif etat_debut[0][1] != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
+                      <%end%></div>
+
+                    <div class="fr-col-lg-2 fr-col-4">
+                      <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( @annee_a_afficher == @annee && Date.today < @date_crg1 && etat_debut[0][3] == true )%>
+                        <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                      <% elsif etat_debut[0][3] == true %>
+                        <% if etat_crg1.empty? %>
+                          <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                        <%elsif etat_crg1[0][1] != "Brouillon"%>
+                          <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
+                        <% elsif etat_crg1[0][1] == "Brouillon"%>
+                          <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                        <%end%>
+                      <% end %>
+                    </div>
+
+                    <div class="fr-col-lg-2 fr-col-4">
+                      <% if (@annee_a_afficher == @annee && Date.today < @date_crg2) || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
+                        <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
+                      <% else %>
+                        <% if etat_crg2.empty? %>
+                          <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
+                        <%elsif etat_crg2[0][1] != "Brouillon"%>
+                          <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
+                        <% elsif etat_crg2[0][1] == "Brouillon"%>
+                          <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                        <%end%>
+                      <% end %>
+                    </div>
+
+                    <div class="fr-col-lg-3 fr-col-12">
+                      <% if Date.today >= @date_debut && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
+                        <%= link_to new_programme_credit_path(programme[0]), class: "fr-btn" do %>Rédiger l'avis<%end %>
+                      <%elsif Date.today >= @date_crg1 && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
+                        <%= link_to new_programme_credit_path(programme[0]), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
+                      <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (etat_crg2.empty? || etat_crg2[0][1] == "Brouillon")%>
+                        <%= link_to new_programme_credit_path(programme[0]), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
+                      <% end%>
+                    </div>
+                  </div>
                 <% end %>
               </div>
           </div>

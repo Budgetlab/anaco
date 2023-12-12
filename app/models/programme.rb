@@ -1,5 +1,6 @@
 class Programme < ApplicationRecord
   belongs_to :user
+  has_many :credits
 
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)

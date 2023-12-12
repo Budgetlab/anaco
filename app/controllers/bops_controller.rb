@@ -93,7 +93,8 @@ class BopsController < ApplicationController
     @liste_bops_actifs = annee == @annee ? @liste_bops.reject { |el| el[2] == 'aucune' } : @liste_bops.select { |el| bop_annee_avis_dg_id.include?(el[0]) }
     @liste_bops_inactifs = annee == @annee ? @liste_bops.select { |el| el[2] == 'aucune' } : @liste_bops.reject { |el| bop_annee_avis_dg_id.include?(el[0]) }
     @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.annee': annee).pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
-    @count_reste = case @phase
+    phase = annee == @annee ? @phase : 'CRG2'
+    @count_reste = case phase
                    when 'début de gestion'
                      @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
                    when 'CRG1'

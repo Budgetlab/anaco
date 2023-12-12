@@ -67,9 +67,9 @@
               <%end%></div>
 
             <div class="fr-col-lg-2 fr-col-4">
-              <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( Date.today < @date_crg1 && etat_debut[0][3] == true )%>
+              <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( @annee_a_afficher == @annee && Date.today < @date_crg1 && etat_debut[0][3] == true )%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-              <% elsif @date_crg1 <= Date.today && etat_debut[0][3] == true %>
+              <% elsif etat_debut[0][3] == true %>
                 <% if etat_crg1.empty? %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
                 <%elsif etat_crg1[0][1] != "Brouillon"%>
@@ -81,7 +81,7 @@
             </div>
 
             <div class="fr-col-lg-2 fr-col-4">
-              <% if Date.today < @date_crg2 || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
+              <% if (@annee_a_afficher == @annee && Date.today < @date_crg2) || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
                 <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
               <% else %>
                 <% if etat_crg2.empty? %>
@@ -95,11 +95,11 @@
             </div>
 
             <div class="fr-col-lg-3 fr-col-12">
-              <% if Date.today >= Date.new(@annee_a_afficher,1,10) && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
+              <% if Date.today >= @date_debut && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger l'avis<%end %>
               <%elsif Date.today >= @date_crg1 && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
-              <%elsif Date.today >= @date_crg2 && (etat_crg2.empty?|| etat_crg2[0][1] == "Brouillon")%>
+              <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (etat_crg2.empty? || etat_crg2[0][1] == "Brouillon")%>
                 <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
               <% end%>
             </div>

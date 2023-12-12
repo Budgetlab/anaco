@@ -24,7 +24,7 @@
 			<% end  %>
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-4">
-					<%= render partial: "pages/card_index", locals: {phase: 'début de gestion', date_ouverture: Date.new(@annee, 1, 10), date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: @avis_delai, valeur3: @avis_crg1 , nom_graphe: "canvasAvis", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[1]} %>
+					<%= render partial: "pages/card_index", locals: {phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: @avis_delai, valeur3: @avis_crg1 , nom_graphe: "canvasAvis", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[1]} %>
 				</div>
 				<div class="fr-col-12 fr-col-lg-4">
 					<%= render partial: "pages/card_index", locals: {phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: @avis_crg1, avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2] , nom_graphe: "canvasNotes1", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[2]} %>
