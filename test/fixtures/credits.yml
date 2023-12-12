@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  programme: one
+  phase: MyString
+  annee: 1
+  etat: MyString
+  statut: MyString
+  commentaire: MyString
+  is_crg1: false
+  date_document: 2023-12-12
+  ae_i: 1.5
+  cp_i: 1.5
+  t2_i: 1.5
+  etpt_i: 1.5
+
+two:
+  user: two
+  programme: two
+  phase: MyString
+  annee: 1
+  etat: MyString
+  statut: MyString
+  commentaire: MyString
+  is_crg1: false
+  date_document: 2023-12-12
+  ae_i: 1.5
+  cp_i: 1.5
+  t2_i: 1.5
+  etpt_i: 1.5
