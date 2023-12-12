@@ -18,7 +18,7 @@
           </ul>
         </nav>
       </h1>
-      <%= render 'avis/success'%>
+      <%= render 'credits/success'%>
       <div class="fr-download">
         <p><%= link_to credits_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger l'historique des crédits non répartis <%= @annee_a_afficher %>
             <span class="fr-download__detail">Format .xlsx</span>
@@ -116,7 +116,7 @@
               </div>
             </div>
           </th>
-          <th scope="col">Qualification
+          <th scope="col">Qualification de l'enveloppe
             <div class="fr-translate fr-nav fr-nav-filter">
               <button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
               </button>
@@ -159,7 +159,7 @@
   <%end %>
   <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
     <div id="debut">
-      <%= render partial: 'credits/modal_consultation',locals: {credits: nil} %>
+      <%= render partial: 'credits/modal_consultation',locals: {credit: nil} %>
     </div>
   </dialog>
 

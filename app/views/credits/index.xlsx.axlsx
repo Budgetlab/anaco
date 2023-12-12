@@ -1,0 +1,33 @@
+
+    wb = xlsx_package.workbook
+  	wb.add_worksheet(name: "Début de gestion") do |sheet|
+    	sheet.add_row %W{ DCB Programme Date\ de\ saisie Etat Qualification Date\ document CRG1\ programmé AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué commentaire}
+
+      @credits.select{|el| el[1] == "début de gestion" && el[2] != "Brouillon"}.each do |avis|
+        if avis[5] == true
+          is_crg1 = "oui"
+        else
+          is_crg1 = "non"
+        end
+        sheet.add_row [avis[12], avis[14], avis[3], avis[2], avis[4], avis[11], is_crg1, avis[6], avis[7], avis[8], avis[9], avis[10]]
+
+      end
+  	end
+  	wb.add_worksheet(name: "CRG1") do |sheet|
+    	sheet.add_row %W{ DCB Programme Date\ de\ saisie Etat Qualification Date\ document AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué commentaire}
+
+
+      @credits.select{|el| el[1] == "CRG1" && el[2] != "Brouillon"}.each do |avis|
+        sheet.add_row [avis[12], avis[14], avis[3], avis[2], avis[4], avis[11], avis[6], avis[7], avis[8], avis[9], avis[10]]
+
+      end
+  	end
+  	wb.add_worksheet(name: "CRG2") do |sheet|
+    	sheet.add_row %W{ DCB Programme Date\ de\ saisie Etat Qualification Date\ document AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué commentaire}
+
+
+      @credits.select{|el| el[1] == "CRG2" && el[2] != "Brouillon"}.each do |avis|
+        sheet.add_row [avis[12], avis[14], avis[3], avis[2], avis[4], avis[11], avis[6], avis[7], avis[8], avis[9], avis[10]]
+
+      end
+  	end

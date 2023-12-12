@@ -12,6 +12,8 @@ export default class extends Controller {
     }
     if (document.getElementById("ae_i") != null){
       this.setNombreInput();
+    }
+    if (document.getElementById("ae_f") != null){
       this.getEcart();
     }
   }
@@ -30,7 +32,7 @@ export default class extends Controller {
   setNombreInput(){
     const fields = document.querySelectorAll("input[type='text']");
     fields.forEach(field => {
-      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception"){
+      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception" && field.id != "date_document"){
         this.changeFloatToText(field);
       }
     });
@@ -133,7 +135,7 @@ export default class extends Controller {
     event.preventDefault();
     const fields = document.querySelectorAll("input[type='text']");
     fields.forEach(field => {
-      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception") {
+      if (field.id != "commentaire" && field.id != "date_envoi" && field.id != "date_reception" && field.id != "date_document") {
         const parsedValue = this.numberFormat(field.value);
         if (!isNaN(parsedValue)) {
           field.value = parsedValue;

@@ -21,7 +21,8 @@ Rails.application.routes.draw do
   end
   resources :credits, only: [:index, :create, :update, :destroy]
   post 'import_programmes' => 'programmes#import'
-  post 'filter_credits', to: 'avis#filter_credits'
+  post 'filter_credits', to: 'credits#filter_credits'
+  post 'open_modal_credit' => 'credits#open_modal_credit'
 
   get 'historique' => 'avis#index'
   get 'consultation' => 'avis#consultation'

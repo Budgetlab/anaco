@@ -12,7 +12,7 @@
       <% if credit[2] == "Brouillon"%>
         <%if current_user.statut != "admin" %><%= link_to new_programme_credit_path(credit[13]), class: "fr-btn fr-btn--sm" do %>Reprendre<%end %><%end %>
       <%else%>
-        <%= link_to open_modal_path(id: credit[0]), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
+        <%= link_to open_modal_credit_path(id: credit[0]), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
       <%end%>
 
     </td>
