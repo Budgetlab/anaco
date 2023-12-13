@@ -61,12 +61,16 @@
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'execution', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <%= render partial: "pages/restitution_cnrep", locals: {phase: @phase, credit: @credit_hash} %>
     <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "CRG1", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+      <%= render partial: "pages/restitution_cnrep", locals: {phase: "CRG1", credit: @credit_hash} %>
     <% end %>
     <% if Date.today >= @date_crg1 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "début de gestion", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+      <%= render partial: "pages/restitution_cnrep", locals: {phase: "début de gestion", credit: @credit_hash} %>
     <% end %>
+
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "execution", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
   <% end %>
 

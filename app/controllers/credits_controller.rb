@@ -74,6 +74,15 @@ class CreditsController < ApplicationController
     end
   end
 
+  # page suivi des crédits remplis par DCB pour DB
+  def suivi
+    redirect_to root_path and return unless current_user.statut == 'admin'
+
+    @annee_a_afficher = annee_a_afficher
+    variables_suivi(@annee_a_afficher)
+    @hash_phase_user = calcul_hash_phase_user(@users, @hash_programmes_users, @hash_credits_users, @annee_a_afficher)
+  end
+
   private
 
   def credit_params
@@ -165,6 +174,34 @@ class CreditsController < ApplicationController
                               when 'CRG2'
                                 @credit_crg1 ? @credit_crg1 : @credit_debut
                               end
+  end
+
+  def variables_suivi(annee)
+    @users = User.where(statut: 'DCB')
+    @hash_programmes_users = Programme.group(:user_id, :id).count
+    @hash_credits_users = Credit.where(annee: annee).group(:user_id, :phase, :statut, :etat, :is_crg1, :programme_id).count
+
+  end
+  def calcul_hash_phase_user(users, hash_programmes_users, hash_credits_users, annee)
+    hash_phase_user = {}
+    ['début de gestion', 'CRG1', 'CRG2'].each do |phase|
+      array_suivi_users = []
+      users.each do |user|
+        array_user = [user.nom,
+                      hash_programmes_users.select { |key, value| key[0] == user.id }.values.sum,
+                      hash_credits_users.select { |key, value| key.include?(phase) && key[0] == user.id && key.include?('Brouillon') }.values.sum,
+                      hash_credits_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && key.include?('Excessive') }.values.sum,
+                      hash_credits_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && key.include?('Raisonnable') }.values.sum,
+                      hash_credits_users.select { |key, value| key.include?(phase) && key[0] == user.id && !key.include?('Brouillon') && key.include?('Insuffisante') }.values.sum]
+        array_user[1] = hash_credits_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id && key.include?(true) && !key.include?('Brouillon')}.values.sum if phase == 'CRG1'
+        # array_user[1] = hash_credits_users.select { |key, value| key.include?('début de gestion') && key[0] == user.id }.values.sum if annee < @annee && phase != "CRG1" # total de programmes = avis en début de gestion
+        array_user << array_user[1] - (array_user[2] + array_user[3] + array_user[4] + array_user[5]) # notes en attente
+        array_user << (array_user[1].zero? ? 100 : (((array_user[3] + array_user[4] + array_user[5]).to_f / array_user[1]) * 100).round)
+        array_suivi_users << array_user
+      end
+      hash_phase_user[phase] = array_suivi_users.sort_by { |e| -e[7] }
+    end
+    hash_phase_user
   end
 
 end

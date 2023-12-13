@@ -6,11 +6,6 @@
         <nav role="navigation" class="fr-pagination" aria-label="Pagination">
           <ul class="fr-pagination__list">
             <li>
-              <%= link_to credits_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
-                2023
-              <%end %>
-            </li>
-            <li>
               <%= link_to credits_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
                 2024
               <%end %>

@@ -1,6 +1,6 @@
 <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle" >
   <div class="fr-col-12 fr-col-lg-1 fr-capitalize">
-    <%= phase == "execution" ? "Exécution #{@annee_a_afficher - 1}" : phase %> <br> <span class="fr-text--italic fr-text--sm">Dont SD</span>
+    <%= phase == "execution" ? titre == "Ressources" ? "Début de gestion #{@annee_a_afficher - 1}" : "Exécution #{@annee_a_afficher - 1}" : phase %> <br> <span class="fr-text--italic fr-text--sm">Dont SD</span>
   </div>
   <% if titre == "Écart" %>
     <% class_active = "fr-card--blue" %>

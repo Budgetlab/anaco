@@ -80,6 +80,14 @@ h1, h2{
   --active: var(--background-contrast-orange-terre-battue);
   color: var(--text-label-orange-terre-battue);
 }
+
+.fr-card--creme{
+  color: var(--text-label-brown-cafe-creme);
+  background-color: var(--background-contrast-brown-cafe-creme) !important;
+  --idle: transparent;
+  --hover: var(--background-contrast-brown-cafe-creme-hover);
+  --active: var(--background-contrast-brown-cafe-creme-active);
+}
 .text_center{
   text-align:center
 }

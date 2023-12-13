@@ -55,13 +55,13 @@
                 </div>
               </section>
             <% end  %>
-            <div class="fr-accordion__title fr-mt-3w">Ressources disponibles (en €)</div>
+            <div class="fr-accordion__title fr-mt-3w">Ressources allouées en début de gestion <%= @annee -1 %></div>
             <hr class="fr-col_12">
             <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis.ae_i, @avis.cp_i, @avis.t2_i, @avis.etpt_i], titre: '', class_active: 'fr-card--green'} %>
-            <div class="fr-accordion__title fr-mt-3w">Ressources consommées (en €)</div>
+            <div class="fr-accordion__title fr-mt-3w">Ressources consommées durant la gestion <%= @annee -1 %></div>
             <hr class="fr-col_12">
             <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: '', class_active: 'fr-card--orange'} %>
-            <div class="fr-accordion__title fr-mt-3w">Solde d’exécution</div>
+            <div class="fr-accordion__title fr-mt-3w">Ecart début de gestion/exécution <%= @annee -1 %> </div>
             <hr class="fr-col_12">
             <%= render partial: "avis/rappel_ecart", locals: {avis: @avis} %>
             <div class="fr-input-group fr-mt-3w">

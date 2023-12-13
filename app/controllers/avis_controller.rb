@@ -145,12 +145,7 @@ class AvisController < ApplicationController
   end
 
   # Page pour importer les avis exécution N-1
-  def ajout_avis
-    Avi.all.each do |avis|
-      avis.annee = 2023
-      avis.save
-    end
-  end
+  def ajout_avis; end
 
   def import
     Avi.import(params[:file])

@@ -47,6 +47,7 @@ class PagesController < ApplicationController
     avis_remplis_controleur = @avis_remplis.where(user_id: array_controleur_id)
     @hash_donnees_phase = calcul_hash_donnees_phase(@avis_remplis)
     @hash_donnees_phase_controleur = calcul_hash_donnees_phase(avis_remplis_controleur)
+    @credit_hash = calcul_credits_phase(@annee_a_afficher)
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @bops_actifs_count)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @bops_actifs_count, @annee_a_afficher)
@@ -241,7 +242,9 @@ class PagesController < ApplicationController
   # fonction qui charge tous les avis des bop d'un programme sur l'année à afficher
   def avis_remplis_programme(annee, bops)
     bops_id = bops.pluck(:id)
-    Avi.where(annee: annee, bop_id: bops_id).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    avis_annee = Avi.where(annee: annee, bop_id: bops_id).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    avis_annee_precedente_execution = Avi.where(annee: annee - 1, bop_id: bops_id, phase: 'execution')
+    avis_annee.or(avis_annee_precedente_execution)
   end
 
   # fonction qui initialise les donnees des sommes AE, CP, ETPT par phase
@@ -263,6 +266,16 @@ class PagesController < ApplicationController
     end
     hash_donnees_phase['CRG1'] = hash_donnees_phase['CRG1'].zip(array_somme_debut_non_crg1).map { |x, y| x + y }
     hash_donnees_phase
+  end
+
+  def calcul_credits_phase(annee)
+    credit_hash = { 'début de gestion' => [0, 0, 0], 'CRG1' => [0, 0, 0], 'CRG2' => [0, 0, 0]}
+    programme_id = Programme.find_by(numero: @numero)&.id
+    credits_remplis_programme = Credit.where(annee: annee, programme_id: programme_id)
+    credits_remplis_programme.each do |credit|
+      credit_hash[credit.phase] = [credit.ae_i, credit.cp_i, credit.t2_i]
+    end
+    credit_hash
   end
 
   def filter_bops_restitution

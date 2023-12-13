@@ -4,6 +4,15 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w title-btn">
         <div>Programmes et crédits non répartis</div>
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+          <ul class="fr-pagination__list">
+            <li>
+              <%= link_to programmes_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+                2024
+              <%end %>
+            </li>
+          </ul>
+        </nav>
       </h1>
       <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
       <% if @count_reste_annee_precedente > 0 %>
