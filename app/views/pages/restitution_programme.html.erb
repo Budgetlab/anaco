@@ -1,4 +1,4 @@
-<% content_for :title do %>Restitutions du programme | Anaco <% end %>
+<% content_for :title do %>Restitutions du programme | ANACO <% end %>
 <div class="fr-container" data-controller="highcharts" data-highcharts-avis="<%= @avis_repartition %>" data-highcharts-avisdate="<%= @avis_date_repartition %>"  data-highcharts-notesbar="<%= @notes_bar %>">
   <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
     <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
@@ -42,7 +42,11 @@
 
   <% if current_user.statut != "CBR" %>
     <h3 class="fr-mt-3w">Ressources allouées</h3>
-    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% if @annee_a_afficher == @annee %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% else %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'CRG2', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% end  %>
     <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
@@ -50,8 +54,13 @@
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'début de gestion', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: 'execution', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+
     <h3 class="fr-mt-3w">Prévision d’exécution</h3>
-    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% if @annee_a_afficher == @annee %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% else %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'CRG2', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% end  %>
     <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'CRG1', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
@@ -59,9 +68,18 @@
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'début de gestion', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
     <% end %>
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Prévision", phase: 'execution', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+
     <h3 class="fr-mt-3w">Écarts ressources allouées/prévision d’exécution</h3>
-    <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
-    <%= render partial: "pages/restitution_cnrep", locals: {phase: @phase, credit: @credit_hash} %>
+    <% if @annee_a_afficher == @annee %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% else %>
+      <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: 'CRG2', hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
+    <% end  %>
+    <% if @annee_a_afficher == @annee %>
+      <%= render partial: "pages/restitution_cnrep", locals: {phase: @phase, credit: @credit_hash} %>
+    <% else %>
+      <%= render partial: "pages/restitution_cnrep", locals: {phase: 'CRG2', credit: @credit_hash} %>
+    <% end  %>
     <% if Date.today >= @date_crg2 || @annee_a_afficher < @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "CRG1", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
       <%= render partial: "pages/restitution_cnrep", locals: {phase: "CRG1", credit: @credit_hash} %>

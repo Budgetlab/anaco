@@ -17,7 +17,7 @@
   </nav>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1>Formulaire début de gestion <%= @annee %></h1>
+      <h1>Formulaire début de gestion <%= @annee_a_afficher %></h1>
       <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%> </div>
       <div>
         <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
@@ -27,14 +27,14 @@
 
   <% if @avis_execution.nil? %>
     <div class="fr-alert fr-alert--info fr-mt-4w fr-mb-6w">
-      <h3 class="fr-alert__title">Données d'exécution <%= @annee -1 %> à venir</h3>
-      <p>Les données d'exécution <%= @annee -1 %> n'ont pas encore été chargées dans l'outil. Vous pourrez renseigner l'avis de début de gestion une fois ces données importées dans l'outil.</p>
+      <h3 class="fr-alert__title">Données d'exécution <%= @annee_a_afficher -1 %> à venir</h3>
+      <p>Les données d'exécution <%= @annee_a_afficher -1 %> n'ont pas encore été chargées dans l'outil. Vous pourrez renseigner l'avis de début de gestion une fois ces données importées dans l'outil.</p>
     </div>
   <%else%>
     <div class="cwarning fr-mt-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
-    <h3 class="fr-mt-4w fr-mb-2w">Exécution <%= @annee -1 %></h3>
+    <h3 class="fr-mt-4w fr-mb-2w">Exécution <%= @annee_a_afficher -1 %></h3>
     <div class="fr-alert fr-alert--info fr-my-0w">
-      <h3 class="fr-alert__title">Les données d’exécution <%= @annee -1 %> sont issues de Chorus.</h3>
+      <h3 class="fr-alert__title">Les données d’exécution <%= @annee_a_afficher -1 %> sont issues de Chorus.</h3>
       <p>Vous pouvez commenter ces données dans l’espace commentaire et signaler si les chiffres de l'ordonnateur ne correspondent pas.</p>
     </div>
     <div class="fr-mt-4w" data-controller="form">
@@ -42,28 +42,73 @@
         <%= f.hidden_field :bop_id, value: @bop.id%>
         <%= f.hidden_field :etat, value: "valide"%>
         <%= f.hidden_field :phase, value: "execution"%>
-        <%= f.hidden_field :annee, value: @annee - 1%>
+        <%= f.hidden_field :annee, value: @annee_a_afficher - 1%>
         <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
           <div class="fr-col-12 fr-col-lg-12">
             <% if @avis_crg2_n1 %>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-80" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis CRG2 <%= @annee - 1 %></p> Écart ressource/prévision de consommation</button>
+                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-80" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis CRG2 <%= @annee_a_afficher - 1 %></p> Écart ressource/prévision de consommation</button>
                 </h3>
                 <div class="fr-collapse" id="accordion-80">
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_crg2_n1} %>
                 </div>
               </section>
             <% end  %>
-            <div class="fr-accordion__title fr-mt-3w">Ressources allouées en début de gestion <%= @annee -1 %></div>
+            <div class="fr-accordion__title fr-mt-3w">Ressources allouées en début de gestion <%= @annee_a_afficher -1 %></div>
             <hr class="fr-col_12">
-            <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis.ae_i, @avis.cp_i, @avis.t2_i, @avis.etpt_i], titre: '', class_active: 'fr-card--green'} %>
-            <div class="fr-accordion__title fr-mt-3w">Ressources consommées durant la gestion <%= @annee -1 %></div>
+            <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis&.ae_i, @avis&.cp_i, @avis&.t2_i, @avis&.etpt_i], titre: '', class_active: 'fr-card--green'} %>
+            <div class="fr-accordion__title fr-mt-3w">Ressources allouées en CRG2 <%= @annee_a_afficher -1 %></div>
             <hr class="fr-col_12">
-            <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: '', class_active: 'fr-card--orange'} %>
-            <div class="fr-accordion__title fr-mt-3w">Ecart début de gestion/exécution <%= @annee -1 %> </div>
+            <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis_crg2_n1&.ae_i, @avis_crg2_n1&.cp_i, @avis_crg2_n1&.t2_i, @avis_crg2_n1&.etpt_i], titre: '', class_active: 'fr-card--green'} %>
+
+            <div class="fr-accordion__title fr-mt-3w">Ressources consommées durant la gestion <%= @annee_a_afficher -1 %></div>
+            <hr class="fr-col_12">
+            <%= render partial: "avis/rappel_chiffres", locals: {avis: [@avis&.ae_f, @avis&.cp_f, @avis&.t2_f, @avis&.etpt_f], titre: '', class_active: 'fr-card--orange'} %>
+            <div class="fr-accordion__title fr-mt-3w">Ecart début de gestion/exécution <%= @annee_a_afficher -1 %> </div>
             <hr class="fr-col_12">
             <%= render partial: "avis/rappel_ecart", locals: {avis: @avis} %>
+            <div class="fr-accordion__title fr-mt-3w">Ecart CRG2/exécution <%= @annee_a_afficher -1 %> </div>
+            <hr class="fr-col_12">
+            <% ecart_ae = @avis_crg2_n1&.ae_i && @avis&.ae_f ? @avis_crg2_n1.ae_i - @avis.ae_f : nil %>
+            <% ecart_cp = @avis_crg2_n1&.cp_i && @avis&.cp_f ? @avis_crg2_n1.cp_i - @avis.cp_f : nil %>
+            <% ecart_t2 = @avis_crg2_n1&.t2_i && @avis&.t2_f ? @avis_crg2_n1.t2_i - @avis.t2_f : nil %>
+            <% ecart_etpt = @avis_crg2_n1&.etpt_i && @avis&.etpt_f ? @avis_crg2_n1.etpt_i - @avis.etpt_f : nil %>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-3">
+                <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                  <div class="fr-cart__body text_center">
+                    <p class="fr-text--lg fr-mb-0">Écart AE HT2</p>
+                    <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_ae&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_ae)%>€</p>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-3">
+                <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                  <div class="fr-cart__body text_center">
+                    <p class="fr-text--lg fr-mb-0">Écart CP HT2</p>
+                    <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_cp&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_cp)%>€</p>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-3">
+                <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                  <div class="fr-cart__body text_center">
+                    <p class="fr-text--lg fr-mb-0">Écart AE/CP T2</p>
+                    <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_t2&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_t2)%>€</p>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-3">
+                <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                  <div class="fr-cart__body text_center">
+                    <p class="fr-text--lg fr-mb-0">Écart ETPT</p>
+                    <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_etpt&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_etpt)%></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="fr-input-group fr-mt-3w">
               <label class="fr-label" for="commentaire">
                 Observations sur l’écart*

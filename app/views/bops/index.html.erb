@@ -37,7 +37,7 @@
   <% if @count_reste_annee_precedente > 0 %>
     <div class="fr-alert fr-alert--warning fr-mb-6w">
       <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee_a_afficher - 1 %>.</h3>
-      <p>Pour remplir l’avis de début de gestion <%= @annee_a_afficher %> d’un BOP, vous devez au préalable renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
+      <p>Vous pouvez renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
     </div>
   <% end %>
   <%= render partial: 'bops/notice' %>
@@ -95,12 +95,12 @@
             </div>
 
             <div class="fr-col-lg-3 fr-col-12">
-              <% if Date.today >= @date_debut && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger l'avis<%end %>
-              <%elsif Date.today >= @date_crg1 && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
+              <% if (@annee_a_afficher != @annee || Date.today >= @date_debut) && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
+                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis<%end %>
+              <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg1) && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
+                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
               <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (etat_crg2.empty? || etat_crg2[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop[0]), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
+                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
               <% end%>
             </div>
           </div>

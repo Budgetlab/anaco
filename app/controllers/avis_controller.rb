@@ -110,16 +110,11 @@ class AvisController < ApplicationController
   def new
     @bop = Bop.where(id: params[:bop_id]).first
     redirect_unless_bop_controller
-    set_avis_phase(@annee)
-    @form = set_form_type
+    @annee_a_afficher = annee_a_afficher
+    set_avis_phase(@annee_a_afficher)
+    @form = set_form_type(@annee_a_afficher)
     @avis = set_form_avis
     @is_completed = ['En attente de lecture', 'Lu'].include?(@avis&.etat)
-    if @avis_debut_n1 && (@avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon') # n'a pas rempli CRG2 année précédente, on se place sur année N-1
-      @annee_a_afficher = @annee - 1
-      set_avis_phase(@annee - 1)
-    else
-      @annee_a_afficher = @annee
-    end
   end
 
   # fonction qui créé un nouvel avis
@@ -145,7 +140,13 @@ class AvisController < ApplicationController
   end
 
   # Page pour importer les avis exécution N-1
-  def ajout_avis; end
+  def ajout_avis
+    avis_all = Avi.all.where(annee: nil)
+    avis_all.each do |avis|
+      avis.annee = 2023 if avis.annee.nil?
+      avis.save
+    end
+  end
 
   def import
     Avi.import(params[:file])
@@ -209,22 +210,20 @@ class AvisController < ApplicationController
     @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
-    @avis_execution = avis_annee_courante.select { |a| a.phase == 'execution' }[0]
     avis_annee_precedente = @bop.avis.where(annee: annee - 1)
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
+    @avis_execution = avis_annee_precedente.select { |a| a.phase == 'execution' }[0]
   end
 
   # fonction pour afficher le bon formulaire
-  def set_form_type
-    if @avis_debut_n1 && (@avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon') # n'a pas rempli CRG2 année précédente
-      'CRG2'
-    elsif (@avis_execution.nil? && !@avis_crg2_n1.nil?) || (@avis_execution && @avis_execution.etat != 'valide') # si bop a un avis en crg2 N-1 il doit remplir le form execution sinon direct début de gestion
+  def set_form_type(annee)
+    if (annee == @annee && @avis_execution.nil?) || (@avis_execution && @avis_execution.etat != 'valide') # doit remplir le form execution au départ
       'execution'
-    elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || Date.today < @date_crg1 # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
+    elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1) # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
       'début de gestion'
-    elsif Date.today < @date_crg2 # avis début de gestion rempli et phase de CRG1
+    elsif annee == @annee && Date.today < @date_crg2 # avis début de gestion rempli et phase de CRG1
       @avis_debut.is_crg1 ? 'CRG1' : 'no CRG1'
     else # avis début de gestion rempli et phase de CRG2 sauf si CRG1 présent et non rempli
       @avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon') ? 'CRG1' : 'CRG2'
@@ -241,7 +240,7 @@ class AvisController < ApplicationController
     when 'CRG1'
       @avis_crg1 || Avi.new
     when 'CRG2'
-      @avis_crg2_n1.nil? || @avis_crg2_n1.etat == 'Brouillon' ? @avis_crg2_n1 || Avi.new : @avis_crg2 || Avi.new
+      @avis_crg2 || Avi.new
     end
   end
 

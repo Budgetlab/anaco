@@ -1,9 +1,14 @@
+
+<% ecart_ae = avis&.ae_i && avis&.ae_f ? avis.ae_i - avis.ae_f : nil %>
+<% ecart_cp = avis&.cp_i && avis&.cp_f ? avis.cp_i - avis.cp_f : nil %>
+<% ecart_t2 = avis&.t2_i && avis&.t2_f ? avis.t2_i - avis.t2_f : nil %>
+<% ecart_etpt = avis&.etpt_i && avis&.etpt_f ? avis.etpt_i - avis.etpt_f : nil %>
+
 <div class="fr-grid-row fr-grid-row--gutters">
   <div class="fr-col-3">
     <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">Écart AE HT2</p>
-        <% ecart_ae = avis.ae_i && avis.ae_f ? avis.ae_i - avis.ae_f : nil %>
         <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_ae&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_ae)%>€</p>
       </div>
     </div>
@@ -12,7 +17,6 @@
     <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">Écart CP HT2</p>
-        <% ecart_cp = avis.cp_i && avis.cp_f ? avis.cp_i - avis.cp_f : nil %>
         <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_cp&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_cp)%>€</p>
       </div>
     </div>
@@ -21,7 +25,6 @@
     <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">Écart AE/CP T2</p>
-        <% ecart_t2 = avis.t2_i && avis.t2_f ? avis.t2_i - avis.t2_f : nil %>
         <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_t2&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_t2)%>€</p>
       </div>
     </div>
@@ -30,7 +33,6 @@
     <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">Écart ETPT</p>
-        <% ecart_etpt = avis.etpt_i && avis.etpt_f ? avis.etpt_i - avis.etpt_f : nil %>
         <p class="fr-text--lg fr-text--bold fr-mb-0 <%= ecart_etpt&.negative? ? 'crouge' : '' %>"><%= format_number(ecart_etpt)%></p>
       </div>
     </div>

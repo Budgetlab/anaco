@@ -21,7 +21,7 @@ class Bop < ApplicationRecord
           bop.nom_programme = row_data['Libellé programme'].to_s
           bop.numero_programme = row_data['N°Programme'].to_i
           bop.code = row_data['Code CHORUS du BOP'].to_s
-          bop.created_at = Date.new(2024, 1, 1)
+          bop.created_at = Date.new(2023, 1, 1)
           bop.save
        	end
       end

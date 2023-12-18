@@ -13,7 +13,7 @@
 
         <td>
           <% if avis[2] == "Brouillon"%>
-            <%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(avis[20]), class: "fr-btn fr-btn--sm" do %>Reprendre<%end %><%end %>
+            <%if current_user.statut != "admin" %><%= link_to new_bop_avi_path(bop_id: avis[20], date: @annee_a_afficher), class: "fr-btn fr-btn--sm" do %>Reprendre<%end %><%end %>
           <%else%>
             <%= link_to open_modal_path(id: avis[0]), class:"fr-btn fr-btn--sm","data-fr-opened": false,"aria-controls":"modal-1",data: { "turbo_method": :post} do %>Consulter<%end %>
           <%end%>

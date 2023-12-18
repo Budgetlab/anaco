@@ -1,20 +1,22 @@
 # frozen_string_literal: true
+
 # controller Pages
 class PagesController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
   include ApplicationHelper
-  # page d'accueil suivi global des avis par phase
+  # page d'accueil suivi global des avis par phase selon le profil
   def index
     liste_variables_index # chargement dates alerte et user statut
     # notif DCB
     @avis_a_lire = dcb_avis_a_lire
+    # chargement des avis
     @avis_total = liste_bop_actifs(@statut_user, @annee)
     @avis_remplis = avis_annee_remplis(@statut_user, @annee)
     # Cartes
     @avis_crg1 = avis_crg1(@avis_remplis)
     @avis_delai = avis_delai(@avis_remplis)
-    @credits_nrep = credits_nrep
+    @credits_nrep = credits_nrep(@statut_user)
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
     @notes_crg1 = @date_crg1 <= Date.today ? notes_repartition(@avis_remplis, @avis_crg1, 'CRG1') : []
@@ -29,7 +31,7 @@ class PagesController < ApplicationController
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher)
-    @notes_bar = statut_bop_repartition(@avis_remplis, @avis_total)
+    @notes_bar = statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher)
     # cartes programmes
     variables_restitutions_programmes(@annee_a_afficher)
     @programmes = liste_programmes(@annee_a_afficher)
@@ -51,7 +53,7 @@ class PagesController < ApplicationController
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @bops_actifs_count)
     @avis_date_repartition = avis_date_repartition(@avis_remplis, @bops_actifs_count, @annee_a_afficher)
-    @notes_bar = statut_bop_repartition(@avis_remplis, @bops_actifs_count)
+    @notes_bar = statut_bop_repartition(@avis_remplis, @bops_actifs_count, @annee_a_afficher)
     # filtres liste des BOP
     @bops_user = @bops.joins(:user).pluck(:id, :nom).uniq.to_h
     @bops_user_id = @bops.joins(:user).pluck(:user_id, :nom).uniq.to_h
@@ -178,9 +180,13 @@ class PagesController < ApplicationController
   end
 
   # fonction pour charger crédits non rep par phase et total
-  def credits_nrep
-    programmes_count = Programme.all.count
-    [programmes_count, 0, 0, 0]
+  def credits_nrep(statut_user)
+    programmes_count = statut_user == 'admin' ? Programme.all.count : current_user.programmes.count
+    credits = statut_user == 'admin' ? Credit : current_user.credits
+    credits_debut = credits.count { |credit| credit.phase == 'début de gestion' && credit.etat != 'Brouillon' }
+    credits_crg1 = credits.count { |credit| credit.phase == 'CRG1' && credit.etat != 'Brouillon' }
+    credits_crg2 = credits.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
+    [programmes_count, credits_debut, credits_crg1, credits_crg2]
   end
 
   # fonction pour initialiser les variables de la page restitutions sur l'année sélectionnée
@@ -200,10 +206,10 @@ class PagesController < ApplicationController
   end
 
   # fonction pour afficher la répartition des statuts des BOP par phase
-  def statut_bop_repartition(avis_remplis, avis_total)
+  def statut_bop_repartition(avis_remplis, avis_total, annee)
     statuts_debut = statut_bop(avis_remplis, avis_total, 'début de gestion')
-    statuts_crg1 = @date_crg1 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG1') : [0, 0, 0, avis_total]
-    statuts_crg2 = @date_crg2 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG2') : [0, 0, 0, avis_total]
+    statuts_crg1 = annee != @annee || @date_crg1 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG1') : [0, 0, 0, avis_total]
+    statuts_crg2 = annee != @annee || @date_crg2 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG2') : [0, 0, 0, avis_total]
     [[statuts_debut[0], statuts_crg1[0], statuts_crg2[0]], [statuts_debut[1], statuts_crg1[1], statuts_crg2[1]],
      [statuts_debut[2], statuts_crg1[2], statuts_crg2[2]], [statuts_debut[3], statuts_crg1[3], statuts_crg2[3]]]
   end

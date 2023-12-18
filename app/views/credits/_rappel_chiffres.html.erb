@@ -1,5 +1,5 @@
 <div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-3">
+  <div class="fr-col-4">
     <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">AE HT2</p>
@@ -7,7 +7,7 @@
       </div>
     </div>
   </div>
-  <div class="fr-col-3">
+  <div class="fr-col-4">
     <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">CP HT2</p>
@@ -15,19 +15,11 @@
       </div>
     </div>
   </div>
-  <div class="fr-col-3">
+  <div class="fr-col-4">
     <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
       <div class="fr-cart__body text_center">
         <p class="fr-text--lg fr-mb-0">AE/CP T2</p>
         <p class="fr-text--lg fr-text--bold fr-mb-0 <%= credit.t2_i&.negative? ? 'crouge' : '' %>"><%= format_number(credit.t2_i)%>€</p>
-      </div>
-    </div>
-  </div>
-  <div class="fr-col-3">
-    <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
-      <div class="fr-cart__body text_center">
-        <p class="fr-text--lg fr-mb-0">ETPT</p>
-        <p class="fr-text--lg fr-text--bold fr-mb-0 <%= credit.etpt_i&.negative? ? 'crouge' : '' %>"><%= format_number(credit.etpt_i)%></p>
       </div>
     </div>
   </div>

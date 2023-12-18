@@ -25,7 +25,7 @@
 							<% if avis_execution %>
 							<p class="fr-my-1w"><span class="fr-text--bold">Commentaire sur l'écart début de gestion/exécution <%= avis_execution.annee %> :</span> <% if avis_execution.commentaire.nil? %>Non renseigné<%else %><%= auto_link(simple_format(avis_execution.commentaire), :html => { :target => '_blank' })%><%end %></p>
 							<% end  %>
-							<p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion</p>
+							<p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= avis.annee %></p>
 						<%else %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
 							<p class="fr-my-1w"><span class="fr-text--bold">Observations :</span> <%= auto_link(simple_format(avis.commentaire), :html => { :target => '_blank' })%></p>
@@ -41,11 +41,13 @@
 						</div>
 						<% if avis.phase == "début de gestion" %>
 							<% if avis_execution %>
-								<p class="fr-text--lg fr-text--bold fr-mb-3w">Exécution</p>
+								<p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= avis_execution.annee %></p>
 								<div class="fr-mt-2w">
 									<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis_execution.ae_i, avis_execution.cp_i, avis_execution.t2_i, avis_execution.etpt_i], titre: '', class_active: 'fr-card--green'} %>
 								</div>
+								<p class="fr-text--lg fr-text--bold fr-my-3w">Exécution <%= avis_execution.annee %></p>
 								<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis_execution.ae_f, avis_execution.cp_f, avis_execution.t2_f, avis_execution.etpt_f], titre: '', class_active: 'fr-card--orange'} %>
+								<p class="fr-text--lg fr-text--bold fr-my-3w">Écart début de gestion/Exécution <%= avis_execution.annee %></p>
 								<div class="fr-mb-2w">
 									<%= render partial: "avis/rappel_ecart", locals: {avis: avis_execution} %>
 								</div>

@@ -17,8 +17,7 @@
   </nav>
   <% if @annee_a_afficher != @annee %>
   <div class="fr-alert fr-alert--warning fr-mb-6w">
-    <h3 class="fr-alert__title">Vous n’avez pas rempli la note CRG2 <%= @annee_a_afficher %> sur ce BOP.</h3>
-    <p>Pour remplir l’avis de début de gestion <%= @annee %>, vous devez au préalable compléter le formulaire CRG2 <%= @annee_a_afficher %>.</p>
+    <h3 class="fr-alert__title">Vous n’avez pas encore rempli la note CRG2 <%= @annee_a_afficher %> sur ce BOP.</h3>
   </div>
   <% end  %>
   <div class="fr-grid-row fr-grid-row--gutters">
@@ -70,7 +69,7 @@
           <%else %>
             <section class="fr-accordion">
               <h3 class="fr-accordion__title">
-                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee%></p>  Écart ressource/prévision d'exécution</button>
+                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee_a_afficher%></p>  Écart ressource/prévision d'exécution</button>
               </h3>
               <div class="fr-collapse" id="accordion-debut">
                 <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_debut} %>

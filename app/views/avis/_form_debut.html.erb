@@ -17,7 +17,7 @@
   </nav>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1>Formulaire début de gestion <%= @annee %></h1>
+      <h1>Formulaire début de gestion <%= @annee_a_afficher %></h1>
       <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%> </div>
       <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
         <%= link_to edit_bop_path(@bop), class:"fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>Modifier <%end %></div>
@@ -36,7 +36,7 @@
         <%= f.hidden_field :bop_id, value: @bop.id%>
         <%= f.hidden_field :user_id, value: current_user.id %>
         <%= f.hidden_field :phase, value: 'début de gestion'%>
-        <%= f.hidden_field :annee, value: @annee%>
+        <%= f.hidden_field :annee, value: @annee_a_afficher%>
         <%= f.hidden_field :etat, value: "Brouillon", data: {'form-target': 'etat'}%>
         <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
           <div class="fr-col-12 fr-col-lg-4">
@@ -44,13 +44,13 @@
               <label for="date_reception" class="fr-label">Date de réception BOP initial*
                 <span class="fr-hint-text">Indiquer ici la date de réception des documents finalisés</span>
               </label>
-              <%= f.text_field :date_reception, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateReception", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee,1,1), flatpickr_max_date: Date.new(@annee,12,31), flatpickr_default_date: format_date(@avis.date_reception)}, value: @avis.date_reception, id: "date_reception", placeholder: "- sélectionner -"%>
+              <%= f.text_field :date_reception, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateReception", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@avis.date_reception)}, value: @avis.date_reception, id: "date_reception", placeholder: "- sélectionner -"%>
               <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte1">Vous avez sélectionné une date supérieure au 1er mars.</p>
             </div>
             <div class="fr-select-group">
               <label for="date_envoi" class="fr-label">Date de l’avis*
               <span class="fr-hint-text">Indiquer ici la date du courrier de l’envoi de l’avis</span></label>
-              <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateEnvoi", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee,1,1), flatpickr_max_date: Date.new(@annee,12,31), flatpickr_default_date: format_date(@avis.date_envoi)}, value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
+              <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', action: "change->form#changeDateEnvoi", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@avis.date_envoi)}, value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
               <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mars.</p>
             </div>
 
@@ -119,7 +119,7 @@
             <% if @avis_execution %>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-execution" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel exécution <%= @annee - 1 %></p> Solde d'exécution</button>
+                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-execution" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel exécution <%= @annee_a_afficher - 1 %></p> Écart début de gestion/exécution</button>
                 </h3>
                 <div class="fr-collapse" id="accordion-execution">
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_execution} %>
@@ -129,7 +129,7 @@
             <% if @avis_debut_n1 %>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee - 1 %></p>  Ecart ressource/prévision d'exécution</button>
+                  <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee_a_afficher - 1 %></p>  Écart ressource/prévision d'exécution</button>
                 </h3>
                 <div class="fr-collapse" id="accordion-debut">
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_debut_n1} %>

@@ -148,25 +148,25 @@ export default class extends Controller {
 
   changeDateReception(e){
     e.preventDefault();
-    const date_max = new Date(2023, 2, 1);
+    const date_max = new Date(2024, 2, 1);
     const date_reception = document.getElementById("date_reception");
     this.setAlerteDate(date_reception, date_max, this.datealerte1Target );
   }
   changeDateEnvoi(e){
     e.preventDefault();
-    const date_max = new Date(2023, 2, 15);
+    const date_max = new Date(2024, 2, 15);
     const date_envoi = document.getElementById("date_envoi");
     this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
   }
   changeDateCRG1(e){
     e.preventDefault();
-    const date_max = new Date(2023, 4, 15);
+    const date_max = new Date(2024, 4, 15);
     const date_envoi = document.getElementById("date_envoi");
     this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
   }
   changeDateCRG2(e){
     e.preventDefault();
-    const date_max = new Date(2023, 8, 15);
+    const date_max = new Date(2024, 8, 15);
     const date_envoi = document.getElementById("date_envoi");
     this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
   }

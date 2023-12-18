@@ -34,7 +34,7 @@
   <div class="fr-notice fr-notice--info">
     <div class="fr-container">
       <div class="fr-notice__body">
-        <p class="fr-notice__title">Nous sommes en phase de <%=@phase %>. Vous pouvez remplir vos avis depuis la page <%= link_to bops_path, rel:'noopener' do%>BOP et avis<%end%></p>
+        <p class="fr-notice__title">Nous sommes en phase de <%=@phase %>. Vous pouvez remplir vos avis depuis la page <%= link_to bops_path, rel:'noopener' do%>BOP et avis<%end%> <% if @statut_user == 'DCB' %>et vos crédits non répartis depuis la page <%= link_to programmes_path do%>Liste des crédits non répartis<%end %><%end %></p>
         <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)">
           Masquer le message
         </button>
