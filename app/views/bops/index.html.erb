@@ -52,7 +52,7 @@
         </li>
       </ul>
       <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
-        <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note')%> à rédiger</p>
+        <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note', plural: 'avis/notes')%> à rédiger</p>
         <% @liste_bops_actifs.each do |bop|%>
           <% etat_debut = @liste_avis_par_bop.select { |el| el[0] == bop[0] && el[2] == "début de gestion"} %>
           <% etat_crg1 = @liste_avis_par_bop.select { |el| el[0] == bop[0] && el[2] == "CRG1"} %>
