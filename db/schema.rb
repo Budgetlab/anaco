@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_12_12_100503) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_19_160338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,7 +66,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_12_100503) do
     t.float "ae_i"
     t.float "cp_i"
     t.float "t2_i"
-    t.float "etpt_i"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["programme_id"], name: "index_credits_on_programme_id"

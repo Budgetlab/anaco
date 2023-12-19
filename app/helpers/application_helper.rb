@@ -4,7 +4,7 @@ module ApplicationHelper
     when nil, ''
       '-'
     else
-      number_with_delimiter('%.11g' % ('%.1f' % nombre), locale: :fr)
+      number_with_delimiter('%.12g' % ('%.1f' % nombre), locale: :fr)
     end
   end
 
