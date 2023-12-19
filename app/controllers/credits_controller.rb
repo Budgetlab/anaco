@@ -100,8 +100,9 @@ class CreditsController < ApplicationController
   end
 
   def variables_filtres_table
-    @users_nom = @credits.map { |el| el[12] }.uniq.sort
-    @numeros_programmes = @credits.map { |el| el[14] }.uniq.sort
+    @users_nom = @credits.map { |el| el[11] }.uniq.sort
+    @numeros_programmes = @credits.map { |el| el[13] }.uniq.sort
+    puts @numeros_programmes
   end
 
   def params_present_and_credits_not_empty
@@ -115,8 +116,8 @@ class CreditsController < ApplicationController
   def filter_credits_all
     @credits = @credits.select { |el| params[:phases].include?(el[1]) } if params[:phases].length != 3
     @credits = @credits.select { |el| params[:statuts].include?(el[4]) } if params[:statuts].length != 3
-    @credits = @credits.select { |el| params[:numeros].map(&:to_i).include?(el[14]) } if params[:numeros].length != @numeros_programmes.length
-    @credits = @credits.select { |el| params[:users].include?(el[12]) } if params[:users] && params[:users].length != @users_nom.length
+    @credits = @credits.select { |el| params[:numeros].map(&:to_i).include?(el[13]) } if params[:numeros].length != @numeros_programmes.length
+    @credits = @credits.select { |el| params[:users].include?(el[11]) } if params[:users] && params[:users].length != @users_nom.length
   end
 
   def redirect_unless_dcb

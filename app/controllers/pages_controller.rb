@@ -183,9 +183,9 @@ class PagesController < ApplicationController
   def credits_nrep(statut_user)
     programmes_count = statut_user == 'admin' ? Programme.all.count : current_user.programmes.count
     credits = statut_user == 'admin' ? Credit : current_user.credits
-    credits_debut = credits.count { |credit| credit.phase == 'début de gestion' && credit.etat != 'Brouillon' }
-    credits_crg1 = credits.count { |credit| credit.phase == 'CRG1' && credit.etat != 'Brouillon' }
-    credits_crg2 = credits.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
+    credits_debut = programmes_count - credits.count { |credit| credit.phase == 'début de gestion' && credit.etat != 'Brouillon' }
+    credits_crg1 = programmes_count - credits.count { |credit| credit.phase == 'CRG1' && credit.etat != 'Brouillon' }
+    credits_crg2 = programmes_count - credits.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
     [programmes_count, credits_debut, credits_crg1, credits_crg2]
   end
 

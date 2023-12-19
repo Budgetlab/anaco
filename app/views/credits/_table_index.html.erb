@@ -2,10 +2,10 @@
   <tr>
     <td><% if credit[1] =="début de gestion" %><%= credit[1].capitalize %><%else %><%= credit[1] %><%end %></td>
     <% if current_user.statut =="admin" %>
-      <td><%= credit[12]%> </td>
+      <td><%= credit[11]%> </td>
     <%end %>
     <td><%= l(credit[3],format: "%e/%m/%y")%> </td>
-    <td><%= credit[14] %> - <%= credit[15] %> </td>
+    <td><%= credit[13] %> - <%= credit[14] %> </td>
     <td><%= credit[4] %></td>
 
     <td>
