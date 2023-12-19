@@ -116,7 +116,7 @@
             </div>
           </div>
           <div class="fr-col-12 fr-col-lg-8">
-            <% if @avis_execution %>
+
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
                   <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-execution" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel exécution <%= @annee_a_afficher - 1 %></p> Écart début de gestion/exécution</button>
@@ -125,8 +125,8 @@
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_execution} %>
                 </div>
               </section>
-            <% end  %>
-            <% if @avis_debut_n1 %>
+
+
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
                   <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee_a_afficher - 1 %></p>  Écart ressource/prévision d'exécution</button>
@@ -135,7 +135,7 @@
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_debut_n1} %>
                 </div>
               </section>
-            <% end  %>
+
 
             <%= render partial: "avis/form_chiffres", locals: {f: f, bop: @bop, avis: @avis} %>
             <div class="fr-input-group fr-mt-3w">

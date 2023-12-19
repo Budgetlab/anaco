@@ -1,4 +1,4 @@
-<div class="fr-container" data-controller="form">
+<div class="fr-container">
   <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
     <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
     <div class="fr-collapse" id="breadcrumb-1">
@@ -17,13 +17,13 @@
   </nav>
   <% if @annee_a_afficher != @annee %>
   <div class="fr-alert fr-alert--warning fr-mb-6w">
-    <h3 class="fr-alert__title">Vous n’avez pas encore rempli la note CRG2 <%= @annee_a_afficher %> sur ce BOP.</h3>
+    <h3 class="fr-alert__title">Vous êtes sur le point de remplir la note CRG2 <%= @annee_a_afficher %> sur ce BOP.</h3>
   </div>
   <% end  %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1>Formulaire CRG2 <%= @annee_a_afficher %></h1>
-      <div class="fr-h3 fr-mb-4w">BOP n°<%= @bop.code%></div>
+      <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%></div>
       <div>
         <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
       </div>
@@ -31,11 +31,13 @@
   </div>
 
   <% if @is_completed%>
-    <div class="fr-alert fr-alert--success fr-mb-6w">
+    <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-6w">
       <h3 class="fr-alert__title">Note CRG2 transmise avec succès</h3>
       <p>Vous avez déjà rempli la note CRG2 pour ce bop.</p>
     </div>
   <%else%>
+    <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+    <div class="fr-mt-4w" data-controller="form">
     <%= form_with(model: @avis, url: avis_path, method: :post, data: {'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm "}) do |f|%>
       <%= f.hidden_field :bop_id, value: @bop.id%>
       <%= f.hidden_field :user_id, value: current_user.id %>
@@ -76,7 +78,7 @@
               </div>
             </section>
           <% end  %>
-          <% if @avis_crg2_n1 %>
+
           <section class="fr-accordion">
             <h3 class="fr-accordion__title">
               <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-crg2" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis CRG2 <%= @annee_a_afficher - 1 %></p>  Écart ressource/prévision de consommation</button>
@@ -85,7 +87,7 @@
               <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_crg2_n1} %>
             </div>
           </section>
-          <% end  %>
+
 
           <%= render partial: "avis/form_chiffres", locals: {f: f, bop: @bop, avis: @avis} %>
           <div class="fr-input-group fr-mt-3w">
@@ -174,5 +176,6 @@
         </div>
       </div>
     <% end %>
+    </div>
   <% end %>
 </div>

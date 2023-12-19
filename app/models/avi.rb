@@ -15,12 +15,29 @@ class Avi < ApplicationRecord
       bop = Bop.find_by(code: code_bop)
       next unless bop
 
-      avis = Avi.new(bop_id: bop.id, user_id: bop.user_id, phase: row_data['phase'], annee: 2023)
-      column_names_bis = %w[created_at etat date_envoi statut ae_i cp_i t2_i etpt_i ae_f cp_f t2_f etpt_f commentaire]
-      # avis_debut_n1 = bop.avis.where(phase: 'début de gestion', annee: 2023).first
-      # avis = Avi.where(bop_id: bop.id, phase: 'execution', annee: 2023).first || Avi.new(bop_id: bop.id, user_id: bop.user_id, phase: 'execution', annee: 2023, ae_i: avis_debut_n1.ae_i, cp_i: avis_debut_n1.cp_i, t2_i: avis_debut_n1.t2_i, etpt_i: avis_debut_n1.etpt_i)
-      # column_names_bis = %w[ae_f cp_f t2_f etpt_f date_envoi]
+      avis = Avi.where(bop_id: bop.id, user_id: bop.user_id, phase: row_data['phase'], annee: 2023).first || Avi.new(bop_id: bop.id, user_id: bop.user_id, phase: row_data['phase'], annee: 2023)
+      # avis = bop.avis.find_or_initialize_by(phase: row_data['phase'], annee: 2023)
+      avis_debut_n1 = bop.avis.where(phase: 'début de gestion', annee: 2023).first
+      next if row_data['phase'] == 'execution' && avis_debut_n1.nil?
+
+      column_names_bis = row_data['phase'] == 'execution' ? %w[ae_f cp_f t2_f etpt_f] : %w[created_at etat date_reception date_envoi statut ae_i cp_i t2_i etpt_i ae_f cp_f t2_f etpt_f commentaire]
       avis.attributes = row_data.slice(*column_names_bis)
+
+      if row_data['phase'] == 'début de gestion'
+        avis.is_crg1 = row_data['is_crg1'] == 'oui' ? true : false
+        avis.is_delai = row_data['is_delai'] == 'oui' ? true : false
+      end
+      if row_data['phase'] == 'execution'
+        avis.ae_f = row_data['ae_f'].to_f
+        avis.cp_f = row_data['cp_f'].to_f
+        avis.t2_f = row_data['t2_f'].to_f
+        avis.etpt_f = row_data['etpt_f'].to_f
+        avis.ae_i = avis_debut_n1.ae_i
+        avis.cp_i = avis_debut_n1.cp_i
+        avis.t2_i = avis_debut_n1.t2_i
+        avis.etpt_i = avis_debut_n1.etpt_i
+        avis.date_envoi = Date.new(2024, 1, 1)
+      end
       avis.save
     end
   end

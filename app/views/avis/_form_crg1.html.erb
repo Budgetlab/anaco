@@ -28,7 +28,7 @@
   <% if @is_completed%>
     <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-6w">
       <h3 class="fr-alert__title">Note CRG1 transmise avec succès</h3>
-      <p>Vous avez déjà rempli la note CRG1 pour ce bop.</p>
+      <p>Vous avez déjà rempli la note CRG1 pour ce BOP.</p>
     </div>
   <%else%>
     <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
@@ -55,7 +55,7 @@
           </div>
         </div>
         <div class="fr-col-12 fr-col-lg-8">
-          <% if @avis_debut %>
+
             <section class="fr-accordion">
               <h3 class="fr-accordion__title">
                 <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de gestion <%= @annee_a_afficher  %></p> Écart ressource/prévision d'exécution</button>
@@ -64,8 +64,8 @@
                 <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_debut} %>
               </div>
             </section>
-          <% end  %>
-          <% if @avis_crg1_n1 %>
+
+
             <section class="fr-accordion">
               <h3 class="fr-accordion__title">
                 <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-crg1" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis CRG1 <%= @annee_a_afficher - 1 %></p>  Écart ressource/prévision d'exécution</button>
@@ -74,7 +74,7 @@
                 <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_crg1_n1} %>
               </div>
             </section>
-          <% end  %>
+
 
           <%= render partial: "avis/form_chiffres", locals: {f: f, bop: @bop, avis: @avis} %>
           <div class="fr-input-group fr-mt-3w">
