@@ -219,7 +219,7 @@ class AvisController < ApplicationController
 
   # fonction pour afficher le bon formulaire
   def set_form_type(annee)
-    if (annee == @annee && @avis_execution.nil?) || (@avis_execution && @avis_execution.etat != 'valide') # doit remplir le form execution au départ
+    if (annee == @annee && @avis_execution.nil? && @avis_debut_n1) || (@avis_execution && @avis_execution.etat != 'valide') # doit remplir le form execution au départ
       'execution'
     elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1) # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
       'début de gestion'

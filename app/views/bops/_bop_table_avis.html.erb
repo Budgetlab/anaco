@@ -1,4 +1,4 @@
-<% liste_avis_annee = @bop_avis.select{ |avis| avis.created_at >= Date.new(annee, 1, 1) && avis.created_at <= Date.new(annee, 12, 31)} %>
+<% liste_avis_annee = @bop_avis.select{ |avis| avis.annee == annee } %>
 <% if liste_avis_annee.empty? %>
   <p>Aucun avis</p>
 <%else %>
