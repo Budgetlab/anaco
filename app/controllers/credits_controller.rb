@@ -55,6 +55,7 @@ class CreditsController < ApplicationController
     redirect_unless_dcb
     @credit = @programme.credits.where(annee: params[:credit][:annee].to_i).find_or_initialize_by(phase: params[:credit][:phase])
     @credit.assign_attributes(credit_params)
+    @credit.etat = params[:credit][:etat] == 'Brouillon' ? 'Brouillon' : 'valide'
     @credit.save
     @message = params[:credit][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     respond_to do |format|
@@ -86,14 +87,14 @@ class CreditsController < ApplicationController
   private
 
   def credit_params
-    params.require(:credit).permit(:user_id, :phase, :programme_id, :date_document, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :commentaire, :etat)
+    params.require(:credit).permit(:user_id, :phase, :programme_id, :date_document, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :commentaire, :etat)
   end
 
   def liste_credits(annee)
     scope = current_user.statut == 'admin' ? Credit : current_user.credits
     credits_all = scope.where(annee: annee).order(created_at: :desc)
     credits_all.joins(:programme, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :ae_i,
-                                               :cp_i, :etpt_i, :t2_i, :commentaire, :date_document,
+                                               :cp_i, :t2_i, :commentaire, :date_document,
                                                'users.nom AS user_nom', 'programmes.id AS programme_id',
                                                'programmes.numero AS programme_numero', 'programmes.nom AS programme_nom')
   end
