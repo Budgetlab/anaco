@@ -34,7 +34,7 @@
         </ul>
       </nav></h1>
       <p class="fr-tag">Ministère <%= @ministere %></p>
-      <p class="fr-card__detail fr-icon-arrow-right-line fr-mt-1w"><%= @bops_count_all %> BOP (<%= pluralize(@bops_count_all-@bops_actifs_count,'BOP inactif')  %>)</p>
+      <p class="fr-card__detail fr-icon-arrow-right-line fr-mt-1w"><%= @bops_count_all %> BOP (<%= pluralize(@bops_count_all-@bops_actifs_count,'BOP inactif', plural: 'BOP inactifs')  %>)</p>
     </div>
   </div>
 

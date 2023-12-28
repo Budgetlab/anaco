@@ -55,10 +55,10 @@
                 <div class="fr-card__start">
                   <ul class="fr-badges-group">
                     <li>
-                      <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(@liste_avis_par_programme[numero],'avis/notes remplis') %> </p>
+                      <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(@liste_avis_par_programme[numero],'avis/note rempli', plural: 'avis/notes remplis') %> </p>
                     </li>
                   </ul>
-                  <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bops_par_programme[numero] %> BOP (<%= pluralize(@liste_bops_inactifs_par_programme[numero],'BOP inactif')  %>)</p>
+                  <p class="fr-card__detail fr-icon-arrow-right-line"><%= @liste_bops_par_programme[numero] %> BOP (<%= pluralize(@liste_bops_inactifs_par_programme[numero],'BOP inactif', plural: 'BOP inactifs')  %>)</p>
                 </div>
                 <h3 class="fr-card__title">Programme n°<%= numero %> </h3>
                 <div class="fr-card__desc"> <%= nom %></div>

@@ -24,18 +24,14 @@
           <%end %></p>
       </div>
       <div class="fr-tabs fr-mb-4w">
-        <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
-          <li role="presentation">
-            <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">Début de gestion</button>
-          </li>
-          <li role="presentation">
-            <button id="tabpanel-405" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-405-panel">CRG1</button>
-          </li>
-          <li role="presentation">
-            <button id="tabpanel-406" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-406-panel">CRG2</button>
-          </li>
+        <ul class="fr-tabs__list" role="tablist" aria-label="Suivi du remplissage des avis">
+          <% ['début de gestion', 'CRG1', 'CRG2'].each_with_index do |phase, i| %>
+            <li role="presentation">
+              <button id="tabpanel-<%= i%>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="<%= phase == @phase ? 'true' : 'false'%>" aria-controls="tabpanel-<%=i %>-panel"><span class="fr-capitalize"><%= phase %></span></button>
+            </li>
+          <% end  %>
         </ul>
-        <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
+        <div id="tabpanel-0-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-0" tabindex="0">
           <div class="fr-table fr-table--layout-fixed--lg">
             <table>
               <caption>Suivi du remplissage des avis</caption>
@@ -72,7 +68,7 @@
             </table>
           </div>
         </div>
-        <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
+        <div id="tabpanel-1-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1" tabindex="0">
             <div class="fr-table fr-table--layout-fixed--lg">
               <table>
                 <caption>Suivi du remplissage des avis</caption>
@@ -109,7 +105,7 @@
               </table>
             </div>
         </div>
-        <div id="tabpanel-406-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-406" tabindex="0">
+        <div id="tabpanel-2-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-2" tabindex="0">
             <div class="fr-table fr-table--layout-fixed--lg">
               <table>
                 <caption>Suivi du remplissage des avis</caption>

@@ -17,7 +17,7 @@
         <ul class="fr-tabs__list" role="tablist" aria-label="Suivi du remplissage par phase">
           <% ['début de gestion', 'CRG1', 'CRG2'].each_with_index do |phase, i| %>
           <li role="presentation">
-            <button id="tabpanel-<%= i%>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="<%= phase == @phase ? 'true' : 'false'%>" aria-controls="tabpanel-<%=i %>-panel"><%= phase %></button>
+            <button id="tabpanel-<%= i%>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="<%= phase == @phase ? 'true' : 'false'%>" aria-controls="tabpanel-<%=i %>-panel"><span class="fr-capitalize"><%= phase %></span></button>
           </li>
           <% end  %>
         </ul>
