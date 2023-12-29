@@ -111,7 +111,7 @@
 
             <div class="fr-input-group fr-mt-3w">
               <label class="fr-label" for="commentaire">
-                Observations sur l’écart*
+                Observations sur les chiffres*
                 <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
               </label>
               <%= f.text_area :commentaire, data: {'form-target': 'fieldRequire', action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>

@@ -15,6 +15,7 @@
         <% end %>
       </div>
       <div class="fr-my-4w"><%= Avi.where(phase: 'execution').count %> avis exécution</div>
+      <div><%= Avi.where(phase: nil).count %> avis sans phase</div>
     </div>
   </div>
 </main>
