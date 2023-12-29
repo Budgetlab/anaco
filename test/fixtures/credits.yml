@@ -13,7 +13,6 @@ one:
   ae_i: 1.5
   cp_i: 1.5
   t2_i: 1.5
-  etpt_i: 1.5
 
 two:
   user: two
@@ -28,4 +27,3 @@ two:
   ae_i: 1.5
   cp_i: 1.5
   t2_i: 1.5
-  etpt_i: 1.5
