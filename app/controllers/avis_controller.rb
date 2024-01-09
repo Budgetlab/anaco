@@ -141,11 +141,8 @@ class AvisController < ApplicationController
 
   # Page pour importer les avis exécution N-1
   def ajout_avis
-    avis_all = Avi.all.where(annee: nil)
-    avis_all.each do |avis|
-      avis.annee = 2023 if avis.annee.nil?
-      avis.save
-    end
+    Bop.where(numero_programme: 382).destroy_all
+    Programme.where(numero: 382).destroy_all
   end
 
   def import

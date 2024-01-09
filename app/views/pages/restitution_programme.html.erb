@@ -40,7 +40,7 @@
 
   <% if @annee_a_afficher == @annee %><h2 class="fr-mt-3w">Nous sommes en phase de <%= @phase %> <%= @annee %></h2><% end %>
 
-  <% if current_user.statut != "CBR" %>
+
     <h3 class="fr-mt-3w">Ressources allouées</h3>
     <% if @annee_a_afficher == @annee %>
       <%= render partial: "pages/restitution_chiffres", locals: {titre: "Ressources", phase: @phase, hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
@@ -90,7 +90,7 @@
     <% end %>
 
     <%= render partial: "pages/restitution_chiffres", locals: {titre: "Écart", phase: "execution", hash_donnees_phase: @hash_donnees_phase, hash_donnees_phase_controleur: @hash_donnees_phase_controleur} %>
-  <% end %>
+
 
   <h2 class="fr-mb-2w fr-mt-4w">Statistiques sur les <%= @bops_actifs_count %> BOP actifs du programme</h2>
   <div class="fr-grid-row fr-grid-row--gutters" >

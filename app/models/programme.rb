@@ -1,6 +1,6 @@
 class Programme < ApplicationRecord
   belongs_to :user
-  has_many :credits
+  has_many :credits, dependent: :destroy
 
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
