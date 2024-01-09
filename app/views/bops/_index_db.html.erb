@@ -27,7 +27,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-10">
       <div class="table-content-scroll fr-mb-6w">
-      <%= form_with(url: filter_bop_path, method: :post, data: { 'filter-target': "form"}) do |f|%>
+      <%= form_with(url: filter_bop_path(date: @annee_a_afficher), method: :post, data: { 'filter-target': "form"}) do |f|%>
         <div class="fr-table fr-table--no-caption fr-table--layout-fixed">
           <table>
             <caption>BOP</caption>
