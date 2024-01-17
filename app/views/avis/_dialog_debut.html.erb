@@ -41,11 +41,11 @@
 						</div>
 						<% if avis.phase == "début de gestion" %>
 							<% if avis_execution %>
-								<p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= avis_execution.annee %></p>
+								<p class="fr-text--lg fr-text--bold fr-mb-3w">Ressources allouées en début de gestion <%= avis_execution.annee %></p>
 								<div class="fr-mt-2w">
 									<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis_execution.ae_i, avis_execution.cp_i, avis_execution.t2_i, avis_execution.etpt_i], titre: '', class_active: 'fr-card--green'} %>
 								</div>
-								<p class="fr-text--lg fr-text--bold fr-my-3w">Exécution <%= avis_execution.annee %></p>
+								<p class="fr-text--lg fr-text--bold fr-my-3w">Ressources consommées durant la gestion <%= avis_execution.annee %></p>
 								<%= render partial: "avis/rappel_chiffres", locals: {avis: [avis_execution.ae_f, avis_execution.cp_f, avis_execution.t2_f, avis_execution.etpt_f], titre: '', class_active: 'fr-card--orange'} %>
 								<p class="fr-text--lg fr-text--bold fr-my-3w">Écart début de gestion/Exécution <%= avis_execution.annee %></p>
 								<div class="fr-mb-2w">

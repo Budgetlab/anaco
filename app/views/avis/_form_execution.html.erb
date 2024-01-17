@@ -40,7 +40,7 @@
     <div class="fr-mt-4w" data-controller="form">
       <%= form_with(model: @avis, url: avis_path, method: :post, data: {'form-target': "form", action: "input->form#formChange turbo:before-fetch-request->form#submitForm"}) do |f|%>
         <%= f.hidden_field :bop_id, value: @bop.id%>
-        <%= f.hidden_field :etat, value: "valide"%>
+        <%= f.hidden_field :etat, value: "valide", data: {'form-target': 'etat'}%>
         <%= f.hidden_field :phase, value: "execution"%>
         <%= f.hidden_field :annee, value: @annee_a_afficher - 1%>
         <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
@@ -111,13 +111,58 @@
 
             <div class="fr-input-group fr-mt-3w">
               <label class="fr-label" for="commentaire">
-                Observations sur les chiffres*
+                Observations*
                 <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
               </label>
               <%= f.text_area :commentaire, data: {'form-target': 'fieldRequire', action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
               <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
             </div>
-            <div><%= f.submit "Valider et passer à l'avis de début de gestion", class: "fr-btn", data: {'form-target': "Btnvalidate"}, aria: { label: "Valider"} %></div>
+
+            <div>
+            <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+              <li>
+                <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123" data-action="click->form#save" > Enregistrer</button>
+              </li>
+              <li>
+                <%= f.submit "Valider et passer à l'avis de début de gestion", class: "fr-btn", data: {'form-target': "Btnvalidate"}, aria: { label: "Valider"} %>
+              </li>
+            </ul>
+            </div>
+
+            <dialog id="modal-1123" class="fr-modal" aria-labelledby="modal-1123-title">
+              <div class="fr-container fr-container--fluid fr-container-md">
+                <div class="fr-grid-row fr-grid-row--center">
+                  <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                    <div class="fr-modal__body">
+                      <div class="fr-modal__header">
+                        <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer" data-action="click->form#setValide" >
+                          Fermer
+                        </button>
+                      </div>
+                      <div class="fr-modal__content">
+                        <h1 id="modal-1123-title" class="fr-modal__title">
+                          <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                          Enregistrer le brouillon
+                        </h1>
+                        <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette page pour compléter et valider vos observations, afin de pouvoir rédiger votre avis sur la programmation de l’année en cours.</p>
+                        <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+                          <li>
+                            <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer" data-action="click->form#setValide" >
+                              Annuler
+                            </button>
+                          </li>
+                          <li>
+                            <button data-form-target="Btnsave" class="fr-btn" title="Enregistrer"> Enregistrer</button>
+                          </li>
+                        </ul>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </dialog>
+
           </div>
         </div>
       <% end  %>

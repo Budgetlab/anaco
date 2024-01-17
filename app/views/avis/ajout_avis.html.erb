@@ -17,7 +17,7 @@
       <div class="fr-my-4w"><%= Avi.where(phase: 'execution').count %> avis exécution</div>
       <div>
         <% Avi.where(phase: 'execution').each do |avis| %>
-        <p><%= avis.bop.code %>/ <%= avis.bop_id %> /<%= avis.ae_f %> / <%= avis.cp_f %> / <%= avis.t2_f %> / <%= avis.etpt_f %></p>
+        <p><%= avis.bop.code %>/ <%= avis.bop_id %> /<%= avis.ae_f %> / <%= avis.cp_f %> / <%= avis.t2_f %> / <%= avis.etpt_f %>/ <%= avis.ae_i %> / <%= avis.cp_i %> / <%= avis.t2_i %> / <%= avis.etpt_i %></p>
         <% end %>
       </div>
       <div><%= Avi.where(phase: nil).count %> avis sans phase</div>

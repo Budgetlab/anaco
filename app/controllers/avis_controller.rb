@@ -9,6 +9,9 @@ class AvisController < ApplicationController
   def index
     @annee_a_afficher = annee_a_afficher
     @avis_all = liste_avis_annee(@annee_a_afficher)
+    @avis_all_n1 = current_user.statut == 'admin' ? Avi.includes(:bop, :user) : current_user.avis.includes(:bop, :user)
+    @avis_all_n1_exec = @avis_all_n1.where(annee: @annee_a_afficher - 1).where(phase: 'execution').order('bops.code ASC')
+    @avis_all_n1_crg2 = @avis_all_n1.where(annee: @annee_a_afficher - 1).where(phase: 'CRG2').pluck(:bop_id, :ae_i, :cp_i, :t2_i, :etpt_i)
     # filtres table
     variables_filtres_table
     respond_to do |format|
@@ -64,6 +67,11 @@ class AvisController < ApplicationController
   def reset_brouillon
     @avis = Avi.find(params[:id])
     @avis&.update(etat: 'Brouillon')
+    if @avis.phase == 'début de gestion'
+      @bop = @avis.bop
+      @avis_execution = @bop.avis.where(phase: 'execution', annee: @avis.annee - 1).first
+      @avis_execution&.update(etat: 'Brouillon')
+    end
     respond_to do |format|
       format.turbo_stream { redirect_to bop_path(@avis.bop) }
     end
@@ -126,7 +134,11 @@ class AvisController < ApplicationController
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
-    redirect_path = @avis.phase == 'execution' ? new_bop_avi_path(@bop.id) : historique_path
+    redirect_path = if @avis.phase == 'execution'
+                      @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : bops_path
+                    else
+                      historique_path
+                    end
     respond_to do |format|
       format.html { redirect_to redirect_path, notice: @message }
     end
@@ -140,10 +152,7 @@ class AvisController < ApplicationController
   end
 
   # Page pour importer les avis exécution N-1
-  def ajout_avis
-    Bop.where(numero_programme: 382).destroy_all
-    Programme.where(numero: 382).destroy_all
-  end
+  def ajout_avis; end
 
   def import
     Avi.import(params[:file])

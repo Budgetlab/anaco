@@ -198,6 +198,11 @@ export default class extends Controller {
     this.etatTarget.value = "Brouillon";   
   }
 
+  setValide(e){
+    e.preventDefault();
+    this.etatTarget.value = "valide";
+  }
+
   submitForm(event) {
     if (this.etatTarget.value == "En attente de lecture"){
       let isValid = this.validateForm(this.formTarget);
