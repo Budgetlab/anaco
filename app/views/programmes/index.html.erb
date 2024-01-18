@@ -26,7 +26,7 @@
       <div class="fr-card">
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <h3 class="fr-card__title">Il vous reste <%=pluralize(@count_reste, 'formulaires')%> à remplir</h3>
+            <h3 class="fr-card__title">Il vous reste <%=pluralize(@count_reste, 'formulaire', plural: 'formulaires')%> à remplir</h3>
               <div class="fr-card__desc">
                 <% @programmes.each do |programme| %>
                   <% etat_debut = @liste_credits_par_programme.select { |el| el[0] == programme.id && el[2] == "début de gestion"} %>
