@@ -50,7 +50,7 @@ export default class extends Controller {
   }
 
   getEcart(){
-    if (document.getElementById("ae_i") != null ){
+    if (document.getElementById("ae_f") != null ){
       const ae_i = this.numberFormat(document.getElementById("ae_i").value) || 0;
       const ae_f = this.numberFormat(document.getElementById("ae_f").value) || 0;
       const ae_resultat = document.getElementById("ae_resultat");
