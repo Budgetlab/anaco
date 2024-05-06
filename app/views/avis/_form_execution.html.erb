@@ -111,10 +111,10 @@
 
             <div class="fr-input-group fr-mt-3w">
               <label class="fr-label" for="commentaire">
-                Observations*
+                Avez-vous des observations sur ces chiffres ?
                 <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
               </label>
-              <%= f.text_area :commentaire, data: {'form-target': 'fieldRequire', action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
+              <%= f.text_area :commentaire, data: {action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
               <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
             </div>
 

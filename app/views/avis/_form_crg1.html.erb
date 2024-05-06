@@ -46,8 +46,7 @@
           <div class="fr-select-group">
             <label for="date_envoi" class="fr-label">Date de la note d’analyse du CRG1*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
-            <%= f.text_field :date_envoi, class:"fr-select", data: {'form-target': 'fieldRequire', action: "change->form#changeDateCRG1", controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
-            <p class="fr-message fr-message--info fr-mt-1w cwarning fr-hidden" data-form-target="datealerte2">Vous avez sélectionné une date supérieure au 15 mai.</p>
+            <%= f.text_field :date_envoi, class:"fr-select", data: {'form-target': 'fieldRequire', controller: "flatpickr",flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
@@ -79,10 +78,10 @@
           <%= render partial: "avis/form_chiffres", locals: {f: f, bop: @bop, avis: @avis} %>
           <div class="fr-input-group fr-mt-3w">
             <label class="fr-label" for="commentaire">
-                Observations du contrôleur budgétaire*
+                Observations du contrôleur budgétaire
                 <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
             </label>
-            <%= f.text_area :commentaire, data: {'form-target': 'fieldRequire', action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
+            <%= f.text_area :commentaire, data: {action: "input->form#calculNombreCaracteres" }, class:"fr-input", id:"commentaire", rows: 10, value: @avis.commentaire%>
             <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères</p>
           </div>
 
@@ -138,9 +137,12 @@
                                 </button>
                             </div>
                             <div class="fr-modal__content">
+                              <div class="fr-alert fr-alert--warning fr-mb-2w fr-hidden" id="alert_field_empty">
+                                <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les données </h3>
+                              </div>
                                 <h1 id="modal-1122-title" class="fr-modal__title">
                                     <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                                    Valider l’avis
+                                  Souhaitez-vous valider le formulaire ?
                                 </h1>
                                 <p>En cliquant sur valider, vous confirmez votre avis/note et vous ne pourrez plus le modifier.</p>
                                 <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">

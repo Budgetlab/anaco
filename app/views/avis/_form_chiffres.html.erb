@@ -4,10 +4,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="ae_i">
-        AE HT2*
+        AE HT2
       </label>
       <% if bop.dotation != "T2" %>
-        <%= f.text_field :ae_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'} , class:"fr-input", id:"ae_i",value: avis.ae_i %>
+        <%= f.text_field :ae_i, data: {action: 'input->form#changeNumber'} , class:"fr-input", id:"ae_i",value: avis.ae_i %>
       <%else %>
         <%= f.text_field :ae_i, class:"fr-input", id:"ae_i",value: 0, disabled: true%>
         <%= f.hidden_field :ae_i, value: 0 %>
@@ -17,10 +17,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="cp_i">
-        CP HT2*
+        CP HT2
       </label>
       <% if bop.dotation != "T2" %>
-        <%= f.text_field :cp_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_i",value: avis.cp_i%>
+        <%= f.text_field :cp_i, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_i",value: avis.cp_i%>
       <%else %>
         <%= f.text_field :cp_i, class:"fr-input", id:"cp_i",value: 0, disabled: true%>
         <%= f.hidden_field :cp_i, value: 0 %>
@@ -30,10 +30,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="t2_i">
-        AE/CP T2*
+        AE/CP T2
       </label>
       <% if bop.dotation != "HT2" %>
-        <%= f.text_field :t2_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"t2_i",value: avis.t2_i%>
+        <%= f.text_field :t2_i, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"t2_i",value: avis.t2_i%>
       <%else %>
         <%= f.text_field :t2_i, class:"fr-input", id:"t2_i",value: 0, disabled: true%>
         <%= f.hidden_field :t2_i, value: 0 %>
@@ -43,10 +43,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="etpt_i">
-        ETPT*
+        ETPT
       </label>
       <% if bop.dotation != "HT2" %>
-        <%= f.text_field :etpt_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"etpt_i",value: avis.etpt_i%>
+        <%= f.text_field :etpt_i, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"etpt_i",value: avis.etpt_i%>
       <%else %>
         <%= f.text_field :etpt_i, class:"fr-input", id:"etpt_i",value: 0, disabled: true%>
         <%= f.hidden_field :etpt_i, value: 0 %>
@@ -60,10 +60,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="ae_f">
-        AE HT2*
+        AE HT2
       </label>
       <% if bop.dotation != "T2" %>
-        <%= f.text_field :ae_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"ae_f", value: avis.ae_f%>
+        <%= f.text_field :ae_f, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"ae_f", value: avis.ae_f%>
       <%else %>
         <%= f.text_field :ae_f, class:"fr-input", id:"ae_f", value: 0, disabled: true%>
         <%= f.hidden_field :ae_f, value: 0 %>
@@ -73,10 +73,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="cp_f">
-        CP HT2*
+        CP HT2
       </label>
       <% if bop.dotation != "T2" %>
-        <%= f.text_field :cp_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_f",value: avis.cp_f%>
+        <%= f.text_field :cp_f, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_f",value: avis.cp_f%>
       <%else %>
         <%= f.text_field :cp_f, class:"fr-input", id:"cp_f",value: 0, disabled: true%>
         <%= f.hidden_field :cp_f, value: 0 %>
@@ -86,10 +86,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="t2_f">
-        AE/CP T2*
+        AE/CP T2
       </label>
       <% if bop.dotation != "HT2" %>
-        <%= f.text_field :t2_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'},class:"fr-input", id:"t2_f",value: avis.t2_f%>
+        <%= f.text_field :t2_f, data: {action: 'input->form#changeNumber'},class:"fr-input", id:"t2_f",value: avis.t2_f%>
       <%else %>
         <%= f.text_field :t2_f, class:"fr-input", id:"t2_f",value: 0, disabled: true%>
         <%= f.hidden_field :t2_f, value: 0 %>
@@ -99,10 +99,10 @@
   <div class="fr-col-3">
     <div class="fr-input-group">
       <label class="fr-label" for="etpt_f">
-        ETPT*
+        ETPT
       </label>
       <% if bop.dotation != "HT2" %>
-        <%= f.text_field :etpt_f, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'},class:"fr-input", id:"etpt_f",value: avis.etpt_f%>
+        <%= f.text_field :etpt_f, data: {action: 'input->form#changeNumber'},class:"fr-input", id:"etpt_f",value: avis.etpt_f%>
       <%else %>
         <%= f.text_field :etpt_f, class:"fr-input", id:"etpt_f",value: 0, disabled: true%>
         <%= f.hidden_field :etpt_f, value: 0 %>

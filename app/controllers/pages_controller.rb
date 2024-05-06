@@ -217,14 +217,14 @@ class PagesController < ApplicationController
   # fonction pour calculer les statuts des bops sur une phase
   def statut_bop(avis, avis_total, phase)
     if phase == 'CRG1'
-      statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
-      statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
-      statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? } + avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
+      statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
+      statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
+      statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
       statuts_vide = avis_total - avis.select { |a| a.phase == 'début de gestion' && a.is_crg1 == false }.count - avis.count { |a| a.phase == phase }
     else
-      statuts_positive = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).positive? }
-      statuts_nul = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).zero? }
-      statuts_negative = avis.count { |a| a.phase == phase && (a.ae_i + a.t2_i - a.ae_f - a.t2_f).negative? }
+      statuts_positive = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
+      statuts_nul = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
+      statuts_negative = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
       statuts_vide = avis_total - avis.count { |a| a.phase == phase }
     end
     [statuts_positive, statuts_nul, statuts_negative, statuts_vide]
@@ -270,7 +270,7 @@ class PagesController < ApplicationController
     avis_par_phase.each do |avis|
       hash_donnees_phase[avis.phase] = [avis.sum_ae_i, avis.sum_cp_i, avis.sum_t2_i, avis.sum_etpt_i, avis.sum_ae_f, avis.sum_cp_f, avis.sum_t2_f, avis.sum_etpt_f]
     end
-    hash_donnees_phase['CRG1'] = hash_donnees_phase['CRG1'].zip(array_somme_debut_non_crg1).map { |x, y| x + y }
+    hash_donnees_phase['CRG1'] = hash_donnees_phase['CRG1'].zip(array_somme_debut_non_crg1).map { |x, y| (x || 0) + (y || 0) }
     hash_donnees_phase
   end
 

@@ -145,32 +145,6 @@ export default class extends Controller {
     this.formTarget.submit();
   }
 
-
-  changeDateReception(e){
-    e.preventDefault();
-    const date_max = new Date(2024, 2, 1);
-    const date_reception = document.getElementById("date_reception");
-    this.setAlerteDate(date_reception, date_max, this.datealerte1Target );
-  }
-  changeDateEnvoi(e){
-    e.preventDefault();
-    const date_max = new Date(2024, 2, 15);
-    const date_envoi = document.getElementById("date_envoi");
-    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
-  }
-  changeDateCRG1(e){
-    e.preventDefault();
-    const date_max = new Date(2024, 4, 15);
-    const date_envoi = document.getElementById("date_envoi");
-    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
-  }
-  changeDateCRG2(e){
-    e.preventDefault();
-    const date_max = new Date(2024, 8, 15);
-    const date_envoi = document.getElementById("date_envoi");
-    this.setAlerteDate(date_envoi, date_max, this.datealerte2Target );
-  }
-
   setAlerteDate(date, date_max, resultat){
     if (new Date(date.value.split('/').reverse().join('/')) > date_max){
       resultat.classList.remove('fr-hidden');
@@ -191,7 +165,16 @@ export default class extends Controller {
   
   open(e){
     e.preventDefault(); 
-    this.etatTarget.value = "En attente de lecture";   
+    this.etatTarget.value = "En attente de lecture";
+    const fields = document.querySelectorAll("input[type='text'],textarea");
+    let field_empty = Array.from(fields).some(field => field.value === '');
+    const alert_message = document.getElementById("alert_field_empty")
+    if (field_empty){
+      alert_message.classList.remove("fr-hidden");
+    }else{
+      alert_message.classList.add("fr-hidden");
+    }
+
   }
   save(e){
     e.preventDefault(); 

@@ -7,8 +7,8 @@ pin "@hotwired/stimulus-loading", to: "stimulus-loading.js", preload: true
 pin_all_from "app/javascript/controllers", under: "controllers"
 pin_all_from "app/javascript/custom", under: "custom"
 pin "stimulus-flatpickr", to: "https://ga.jspm.io/npm:stimulus-flatpickr@3.0.0-0/dist/index.m.js"
-pin "flatpickr", to: "https://ga.jspm.io/npm:flatpickr@4.6.13/dist/esm/index.js"
-pin 'flatpick-fr', to: "https://ga.jspm.io/npm:flatpickr@4.6.13/dist/l10n/fr.js"
+pin "flatpickr" # @4.6.13
+pin "flatpickr/dist/l10n/fr.js", to: "flatpickr--dist--l10n--fr.js.js" # @4.6.13
 pin "highcharts", to: "https://ga.jspm.io/npm:highcharts@10.0.0/highcharts.js"
 pin "highcharts-more", to: "https://ga.jspm.io/npm:highcharts@10.0.0/highcharts-more.js"
 pin "exporting", to: "https://ga.jspm.io/npm:highcharts@10.0.0/modules/exporting.js"
