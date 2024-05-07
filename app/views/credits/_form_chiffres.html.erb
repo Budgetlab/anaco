@@ -4,25 +4,25 @@
   <div class="fr-col-4">
     <div class="fr-input-group">
       <label class="fr-label" for="ae_i">
-        AE HT2*
+        AE HT2
       </label>
-      <%= f.text_field :ae_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'} , class:"fr-input", id:"ae_i",value: credit.ae_i %>
+      <%= f.text_field :ae_i, data: {action: 'input->form#changeNumber'} , class:"fr-input", id:"ae_i",value: credit.ae_i %>
     </div>
   </div>
   <div class="fr-col-4">
     <div class="fr-input-group">
       <label class="fr-label" for="cp_i">
-        CP HT2*
+        CP HT2
       </label>
-        <%= f.text_field :cp_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_i",value: credit.cp_i%>
+        <%= f.text_field :cp_i, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"cp_i",value: credit.cp_i%>
     </div>
   </div>
   <div class="fr-col-4">
     <div class="fr-input-group">
       <label class="fr-label" for="t2_i">
-        AE/CP T2*
+        AE/CP T2
       </label>
-        <%= f.text_field :t2_i, data: {'form-target': 'fieldRequire', action: 'input->form#changeNumber'}, class:"fr-input", id:"t2_i",value: credit.t2_i%>
+        <%= f.text_field :t2_i, data: {action: 'input->form#changeNumber'}, class:"fr-input", id:"t2_i",value: credit.t2_i%>
     </div>
   </div>
 </div>
