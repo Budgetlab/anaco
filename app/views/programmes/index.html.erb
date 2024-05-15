@@ -15,8 +15,12 @@
         </nav>
       </h1>
       <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
+      <div class="fr-alert fr-alert--info fr-mb-4w">
+        <h3 class="fr-alert__title">Les crédits non répartis correspondent aux AE HT2, aux CP HT2 et aux AE/CP T2, hors réserve de précaution et hors BOP.</h3>
+        <p> Il s’agit donc des crédits conservés voire remontés au niveau du programme à des fins de pilotage. Ils ne sont ni mis à disposition ni même notifiés aux RBOP et ont vocation, à terme, à être délégués, à être virés ou transférés vers un autre programme ou à être annulés.</p>
+      </div>
       <% if @count_reste_annee_precedente > 0 %>
-        <div class="fr-alert fr-alert--warning fr-mb-6w">
+        <div class="fr-alert fr-alert--warning fr-mb-4w">
           <h3 class="fr-alert__title">Vous n’avez pas rempli tous les crédits non répartis de <%= @annee_a_afficher - 1 %>.</h3>
           <p>Pour remplir la phase de début de gestion <%= @annee_a_afficher %>, vous devez au préalable renseigner les crédits non répartis de <%= @annee_a_afficher - 1 %> <%= link_to programmes_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
         </div>
