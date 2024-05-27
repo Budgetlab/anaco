@@ -28,11 +28,12 @@ jobs:
       RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY_ANACO }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # Add or replace dependency steps here
       - name: Install Ruby and gems
-        uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+        uses: ruby/setup-ruby@v1 # v1.146.0
         with:
+          ruby-version: '3.3'
           bundler-cache: true
       # Add or replace database setup steps here
       - name: Set up database schema
@@ -45,10 +46,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Ruby and gems
-        uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+        uses: ruby/setup-ruby@v1 # v1.146.0
         with:
+          ruby-version: '3.3'
           bundler-cache: true
       # Add or replace any other lints here
       - name: Security audit dependencies

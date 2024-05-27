@@ -18,7 +18,7 @@
               <label for="date_document" class="fr-label"><% if @form == 'début de gestion' %>Date de réception du document de programmation<%else %>Date de la transmission du <%= @form %><%end%>*
                 <span class="fr-hint-text">Indiquer ici la date de <% if @form == 'début de gestion' %>réception du document de programmation<%else %>transmission du <%= @form %><%end%> par l’ordonnateur</span>
               </label>
-              <%= f.text_field :date_document, class:"fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr",flatpickr_date_format: "d/m/Y",flatpickr_min_date: Date.new(@annee_a_afficher,1,1), flatpickr_max_date: Date.new(@annee_a_afficher,12,31), flatpickr_default_date: format_date(@credit.date_document)}, value: @credit.date_document, id: "date_document", placeholder: "- sélectionner -"%>
+              <%= f.text_field :date_document, class:"fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr",flatpickr_default_date: format_date(@credit.date_document)}, value: format_date(@credit.date_document), id: "date_document", placeholder: "- sélectionner -"%>
             </div>
             <% if @form == 'début de gestion' %>
               <fieldset class="fr-fieldset fr-mb-3w">

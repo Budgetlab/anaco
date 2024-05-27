@@ -50,7 +50,7 @@
           <div class="fr-select-group">
             <label for="date_envoi" class="fr-label">Date de la note d’analyse du CRG2*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
-            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr",flatpickr_default_date: format_date(@avis.date_envoi)},value: @avis.date_envoi, id: "date_envoi", placeholder: "- sélectionner -"%>
+            <%= f.text_field :date_envoi, class:"fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr",flatpickr_default_date: format_date(@avis.date_envoi)},value: format_date(@avis.date_envoi), id: "date_envoi", placeholder: "- sélectionner -"%>
           </div>
           <div class="fr-select-group">
               <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
