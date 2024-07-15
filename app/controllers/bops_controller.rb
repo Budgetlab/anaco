@@ -9,25 +9,16 @@ class BopsController < ApplicationController
   def index
     @annee_a_afficher = annee_a_afficher
     @liste_bops = liste_bops_user(@annee_a_afficher)
-    current_user.statut == 'admin' ? variables_bops_admin : variables_bops_index(@annee_a_afficher)
+    if current_user.statut == 'admin'
+      @q = @liste_bops.ransack(params[:q])
+      @liste_bops = @q.result.includes(:user)
+      @pagy, @liste_bops_page = pagy(@liste_bops)
+    else
+      variables_bops_index(@annee_a_afficher)
+    end
     respond_to do |format|
       format.html
       format.xlsx
-    end
-  end
-
-  # filtre tableau page liste des bops vision admin
-  def filter_bop
-    @annee_a_afficher = annee_a_afficher
-    @liste_bops = liste_bops_user(@annee_a_afficher)
-    variables_bops_admin
-    filter_bops if params_present
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('table_bops', partial: 'bops/table_bops', locals: { bops: @liste_bops })
-        ]
-      end
     end
   end
 
@@ -72,19 +63,10 @@ class BopsController < ApplicationController
 
   def liste_bops_user(annee)
     if current_user.statut == 'admin'
-      Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).order(code: :asc).joins(:user).pluck(:code, :dotation, :numero_programme, :nom_programme, 'users.nom AS user_nom', :id)
+      Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).order(code: :asc)
     else
       current_user.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).pluck(:id, :code, :dotation).sort_by { |e| e[1] }
     end
-  end
-
-  # variables pour filtres table BOP vision DB
-  def variables_bops_admin
-    @codes_bop = @liste_bops.map { |el| el[0] }.uniq
-    @numeros_programmes = @liste_bops.map { |el| el[2] }.uniq
-    @users_nom = @liste_bops.map { |el| el[4] }.uniq
-    @dotations = { 'complete' => 'T2/HT2', 'T2' => 'T2', 'HT2' => 'HT2', 'aucune' => 'INACTIF', 'vide' => 'NON RENSEIGNÉ' }
-    @dotations_total = [@liste_bops.count { |el| el[1] == 'complete' }, @liste_bops.count { |el| el[1] == 'T2' }, @liste_bops.count { |el| el[1] == 'HT2' }, @liste_bops.count { |el| el[1] == 'aucune' }, @liste_bops.count { |el| el[1] == nil } ]
   end
 
   # variable concernant les BOP sur l'année en cours pour DBC et CBR
@@ -109,18 +91,4 @@ class BopsController < ApplicationController
     @count_reste_annee_precedente = liste_avis_annee_precedente_debut - liste_avis_annee_precedente_crg2
   end
 
-  # fonction qui filtre la liste des BOP a afficher pour vision DB
-  def filter_bops
-    if params[:statuts].length != 5
-      params[:statuts] = params[:statuts].append(nil) if params[:statuts].include?('vide')
-      @liste_bops = @liste_bops.select { |b| params[:statuts].include?(b[1]) }
-    end
-    @liste_bops = @liste_bops.select { |b| params[:numeros].map(&:to_i).include?(b[2]) } if params[:numeros].length != @numeros_programmes.length
-    @liste_bops = @liste_bops.select { |b| params[:users].include?(b[4]) } if params[:users].length != @users_nom.length
-    @liste_bops = @liste_bops.select { |b| params[:bops].include?(b[0]) } if params[:bops].length != @codes_bop.length
-  end
-
-  def params_present
-    params[:statuts] || params[:numeros] || params[:users] || params[:bops]
-  end
 end
