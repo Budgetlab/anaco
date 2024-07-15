@@ -52,8 +52,10 @@ gem 'caxlsx'
 gem 'caxlsx_rails'
 gem 'devise'
 gem 'dotenv-rails', '~> 2.7', '>= 2.7.6'
+gem 'pagy'
 gem 'rails_autolink'
 gem 'rails-i18n'
+gem 'ransack'
 gem 'roo', '~> 2.8.0'
 
 group :development, :test do

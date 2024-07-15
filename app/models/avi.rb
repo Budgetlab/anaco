@@ -41,4 +41,8 @@ class Avi < ApplicationRecord
       avis.save
     end
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["ae_f", "ae_i", "annee", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
+  end
 end

@@ -30,8 +30,6 @@ Rails.application.routes.draw do
   resources :avis, only: [:create, :update, :destroy]
   post 'open_modal' => 'avis#open_modal'
   post 'open_modal_brouillon' => 'avis#open_modal_brouillon'
-  post 'filter_consultation', to: 'avis#filter_consultation'
-  post 'filter_historique', to: 'avis#filter_historique'
   post 'reset_brouillon', to: 'avis#reset_brouillon'
   post 'update_etat', to: 'avis#update_etat'
   get 'ajout_avis', to: 'avis#ajout_avis'

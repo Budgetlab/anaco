@@ -3,6 +3,7 @@
 # Controller Application
 
 class ApplicationController < ActionController::Base
+  include Pagy::Backend
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound do
     flash[:warning] = 'Resource not found.'
