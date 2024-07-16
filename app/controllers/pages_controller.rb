@@ -134,10 +134,10 @@ class PagesController < ApplicationController
     end
   end
 
-  # fonction pour charger le nombre des avis à lire par le DCB (ceux des autres CBR/DCB uniquement, année actuelle)
+  # fonction pour charger le nombre des avis à lire par le DCB (ceux des autres CBR/DCB uniquement)
   def dcb_avis_a_lire
-    bops_dcb_id = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id).pluck(:id)
-    bops_dcb_id.empty? ? 0 : Avi.where(annee: @annee, bop_id: bops_dcb_id, etat: 'En attente de lecture').count
+    bops_dcb_id = current_user.consulted_bops.where.not(user_id: current_user.id).pluck(:id)
+    bops_dcb_id.empty? ? 0 : Avi.where(bop_id: bops_dcb_id, etat: 'En attente de lecture').count
   end
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
@@ -201,7 +201,7 @@ class PagesController < ApplicationController
   # fonction pour afficher la liste des programmes (nom et numero) accessibles à l'utilisateur sur l'année
   def liste_programmes(annee)
     id = current_user.id
-    scope = current_user.statut == 'admin' ? Bop : Bop.where('user_id = ? OR consultant = ?', id, id)
+    scope = current_user.statut == 'admin' ? Bop : Bop.where('user_id = ? OR consultant_id = ?', id, id)
     scope.where('created_at <= ?', Date.new(annee, 12, 31)).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h
   end
 
@@ -296,7 +296,7 @@ class PagesController < ApplicationController
 
   def variables_suivi(annee)
     @users = User.where(statut: ['CBR', 'DCB'])
-    @hash_bops_users = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).group(:user_id, :dotation, :consultant, :id).count
+    @hash_bops_users = Bop.where('bops.created_at <= ?', Date.new(annee, 12, 31)).group(:user_id, :dotation, :consultant_id, :id).count
     @hash_avis_users = Avi.where(annee: annee).group(:user_id, :phase, :statut, :etat, :is_crg1, :bop_id).count
   end
 

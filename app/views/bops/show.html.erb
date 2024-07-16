@@ -32,10 +32,10 @@
                 <p class="fr-tag"> Ministere <%= @bop.ministere%></p>
               </li>
             </ul>
-            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= User.where(id: @bop.consultant).first.nom%></p>
+            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.consultant.nom%></p>
           </div>
           <h3 class="fr-card__title">BOP n°<%= @bop.code%></h3>
-          <div class="fr-card__desc"><p class="fr-mb-1w">Programme n°<%= @bop.numero_programme%></p><p>  <%= @bop.nom_programme%></p>
+          <div class="fr-card__desc"><p class="fr-mb-1w">Programme n°<%= @bop.numero_programme%> - <%= @bop.nom_programme%></p><p>Contrôleur : <%= @bop.user.nom%></p>
             <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
             </div>
           </div>

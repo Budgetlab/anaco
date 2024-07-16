@@ -53,7 +53,6 @@
                   <thead>
                   <tr>
                     <th scope="col">Phase</th>
-                    <th scope="col">Année</th>
                     <% if current_user.statut == "admin" %>
                       <th scope="col">CBR/DCB</th>
                     <% end %>
@@ -88,8 +87,9 @@
                         <% else %>
                           <%= avis.phase %>
                         <% end %>
+                        <%= avis.annee %>
                       </td>
-                      <td><%= avis.annee %></td>
+
                       <% if current_user.statut == "admin" %>
                         <td><%= avis.user.nom %> </td>
                       <% end %>

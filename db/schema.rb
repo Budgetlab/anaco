@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_19_160338) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_16_083212) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,7 +42,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_19_160338) do
 
   create_table "bops", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.integer "consultant"
     t.string "ministere"
     t.integer "numero_programme"
     t.string "nom_programme"
@@ -50,6 +49,8 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_19_160338) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "dotation"
+    t.bigint "consultant_id"
+    t.index ["consultant_id"], name: "index_bops_on_consultant_id"
     t.index ["user_id"], name: "index_bops_on_user_id"
   end
 
@@ -98,6 +99,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_19_160338) do
   add_foreign_key "avis", "bops"
   add_foreign_key "avis", "users"
   add_foreign_key "bops", "users"
+  add_foreign_key "bops", "users", column: "consultant_id"
   add_foreign_key "credits", "programmes"
   add_foreign_key "credits", "users"
   add_foreign_key "programmes", "users"

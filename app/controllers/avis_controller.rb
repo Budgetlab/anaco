@@ -62,7 +62,7 @@ class AvisController < ApplicationController
 
   # Page de consultation des avis pour les DCB
   def consultation
-    bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
+    bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
     avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
@@ -99,7 +99,7 @@ class AvisController < ApplicationController
     @avis.assign_attributes(avi_params)
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
+    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant_id && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
     redirect_path = if @avis.phase == 'execution'
                       @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : bops_path
                     else

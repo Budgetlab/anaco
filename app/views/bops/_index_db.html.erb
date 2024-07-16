@@ -8,9 +8,8 @@
           <p class="fr-table__detail"></p>
           <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
             <li>
-              <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">Filtrer
-                les
-                résultats
+              <button class="fr-btn fr-icon-search-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">
+                Rechercher
               </button>
             </li>
             <li>
@@ -21,7 +20,7 @@
           </ul>
         </div>
         <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres" data-controller="request">
-          <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
+          <div class="fr-h4 fr-my-2w">Rechercher un BOP</div>
           <%= search_form_for @q, url: bops_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
             <div class="fr-mb-2w">
               <%= f.search_field :code_contains, class: 'fr-input', placeholder: "Rechercher un BOP", oninput: 'this.form.requestSubmit()' %>
@@ -40,6 +39,7 @@
                     <th scope="col">Dotation</th>
                     <th scope="col">Programme</th>
                     <th scope="col">Contrôleur</th>
+                    <th scope="col">DCB responsable</th>
                   </tr>
                   </thead>
 
@@ -61,6 +61,7 @@
                         <% end %></td>
                       <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
                       <td><%= bop.user.nom %></td>
+                      <td><%= bop.consultant.nom %></td>
                     </tr>
                   <% end %>
                   </tbody>

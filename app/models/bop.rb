@@ -1,5 +1,6 @@
 class Bop < ApplicationRecord
   belongs_to :user
+  belongs_to :consultant, class_name: 'User', foreign_key: 'consultant_id'
   has_many :avis, dependent: :destroy
 
   def self.import(file)
@@ -12,11 +13,11 @@ class Bop < ApplicationRecord
       unless User.where(nom: row_data['Identifiant']).first.nil?
         if Bop.exists?(code: row_data['Code CHORUS du BOP'].to_s)
           @bop = Bop.where(code: row_data['Code CHORUS du BOP'].to_s).first
-          @bop.update(user_id: User.where(nom: row_data['Identifiant']).first.id, consultant: User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i)
+          @bop.update(user_id: User.where(nom: row_data['Identifiant']).first.id, consultant_id: User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i)
         else
           bop = Bop.new
           bop.user_id = User.where(nom: row_data['Identifiant']).first.id
-          bop.consultant = User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id
+          bop.consultant_id = User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id
           bop.ministere = row_data['MINISTERE'].to_s
           bop.nom_programme = row_data['Libellé programme'].to_s
           bop.numero_programme = row_data['N°Programme'].to_i

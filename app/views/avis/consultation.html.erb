@@ -76,7 +76,7 @@
                   <td>
                     <% if avis.phase == "début de gestion" %><%= avis.phase.capitalize %>
                       <% else %><%= avis.phase %>
-                    <% end %></td>
+                    <% end %> <%= avis.annee %></td>
                   <td><%= avis.user.nom %></td>
                   <td><%= l(avis.created_at, format: "%e/%m/%y") %> </td>
                   <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>

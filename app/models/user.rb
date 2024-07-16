@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :bops
+  has_many :consulted_bops, class_name: 'Bop', foreign_key: 'consultant_id'
   has_many :avis
   has_many :programmes
   has_many :credits
