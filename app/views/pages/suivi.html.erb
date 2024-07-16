@@ -1,146 +1,186 @@
-<% content_for :title do %>Suivi des avis | ANACO <% end %>
+<% content_for :title do %>Suivi des avis | ANACO
+<% end %>
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w title-btn"><div>Suivi des avis/notes par contrôleur</div>
+      <h1 class="fr-my-6w title-btn">
+        <div>Suivi des avis/notes par contrôleur</div>
         <nav role="navigation" class="fr-pagination" aria-label="Pagination">
           <ul class="fr-pagination__list">
             <li>
               <%= link_to suivi_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
                 2023
-              <%end %>
+              <% end %>
             </li>
             <li>
-              <%= link_to suivi_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+              <%= link_to suivi_path(date: 2024), class: "fr-pagination__link", aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
                 2024
-              <%end %>
+              <% end %>
             </li>
           </ul>
         </nav>
       </h1>
       <div class="fr-download">
-        <p><%= link_to suivi_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger les tableaux
+        <p><%= link_to suivi_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger
+            les tableaux
             <span class="fr-download__detail">Format .xlsx</span>
-          <%end %></p>
+          <% end %></p>
       </div>
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="Suivi du remplissage des avis">
           <% ['début de gestion', 'CRG1', 'CRG2'].each_with_index do |phase, i| %>
             <li role="presentation">
-              <button id="tabpanel-<%= i%>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="<%= phase == @phase ? 'true' : 'false'%>" aria-controls="tabpanel-<%=i %>-panel"><span class="fr-capitalize"><%= phase %></span></button>
+              <button id="tabpanel-<%= i %>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="<%= phase == @phase ? 'true' : 'false' %>" aria-controls="tabpanel-<%= i %>-panel">
+                <span class="fr-capitalize"><%= phase %></span></button>
             </li>
-          <% end  %>
+          <% end %>
         </ul>
         <div id="tabpanel-0-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-0" tabindex="0">
-          <div class="fr-table fr-table--layout-fixed--lg">
-            <table>
-              <caption>Suivi du remplissage des avis</caption>
-              <thead>
-                <tr>
-                  <th scope="col">CBR/DCB</th>
-                  <th scope="col">Taux de remplissage</th>
-                  <th scope="col">BOP actifs</th>
-                  <th scope="col">Avis en attente</th>
-                  <th scope="col">Avis en brouillon</th>
-                  <th scope="col">Avis favorable</th>
-                  <th scope="col">Avis favorable avec réserve</th>
-                  <th scope="col">Avis défavorable</th>
-                </tr>
-              </thead>
-              <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "début de gestion"} %>
-            </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi du remplissage des avis</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">CBR/DCB</th>
+                      <th scope="col">Taux de remplissage</th>
+                      <th scope="col">BOP actifs</th>
+                      <th scope="col">Avis en attente</th>
+                      <th scope="col">Avis en brouillon</th>
+                      <th scope="col">Avis favorable</th>
+                      <th scope="col">Avis favorable avec réserve</th>
+                      <th scope="col">Avis défavorable</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "début de gestion" } %>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="fr-table fr-table--layout-fixed--lg">
-            <table>
-              <caption>Suivi de lecture des avis par les DCB</caption>
-              <thead>
-                <tr>
-                  <th scope="col">DCB responsable</th>
-                  <th scope="col">Taux de lecture</th>
-                  <th scope="col">BOP actifs / Avis à lire</th>
-                  <th scope="col">Avis non reçus</th>
-                  <th scope="col">Avis en attente de lecture</th>
-                  <th scope="col">Avis lus</th>
-                </tr>
-              </thead>
-              <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "début de gestion"} %>
-            </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi de lecture des avis par les DCB</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">DCB responsable</th>
+                      <th scope="col">Taux de lecture</th>
+                      <th scope="col">BOP actifs / Avis à lire</th>
+                      <th scope="col">Avis non reçus</th>
+                      <th scope="col">Avis en attente de lecture</th>
+                      <th scope="col">Avis lus</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_lecture', locals: { hash_phase_lecture: @hash_phase_lecture, phase: "début de gestion" } %>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="tabpanel-1-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1" tabindex="0">
-            <div class="fr-table fr-table--layout-fixed--lg">
-              <table>
-                <caption>Suivi du remplissage des avis</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">CBR/DCB</th>
-                    <th scope="col">Taux de remplissage</th>
-                    <th scope="col">BOP avec CRG1</th>
-                    <th scope="col">Notes en attente</th>
-                    <th scope="col">Notes en brouillon</th>
-                    <th scope="col">Notes risques faibles</th>
-                    <th scope="col">Notes risques modérés</th>
-                    <th scope="col">Notes risques significatifs</th>
-                  </tr>
-                </thead>
-                <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG1"} %>
-              </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi du remplissage des avis</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">CBR/DCB</th>
+                      <th scope="col">Taux de remplissage</th>
+                      <th scope="col">BOP avec CRG1</th>
+                      <th scope="col">Notes en attente</th>
+                      <th scope="col">Notes en brouillon</th>
+                      <th scope="col">Notes risques faibles</th>
+                      <th scope="col">Notes risques modérés</th>
+                      <th scope="col">Notes risques significatifs</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG1" } %>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div class="fr-table fr-table--layout-fixed--lg">
-              <table>
-                <caption>Suivi de lecture des avis par les DCB</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">DCB responsable</th>
-                    <th scope="col">Taux de lecture</th>
-                    <th scope="col">Notes à lire</th>
-                    <th scope="col">Notes non reçues</th>
-                    <th scope="col">Notes en attente de lecture</th>
-                    <th scope="col">Notes lues</th>
-                  </tr>
-                </thead>
-                <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "CRG1"} %>
-              </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi de lecture des avis par les DCB</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">DCB responsable</th>
+                      <th scope="col">Taux de lecture</th>
+                      <th scope="col">Notes à lire</th>
+                      <th scope="col">Notes non reçues</th>
+                      <th scope="col">Notes en attente de lecture</th>
+                      <th scope="col">Notes lues</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_lecture', locals: { hash_phase_lecture: @hash_phase_lecture, phase: "CRG1" } %>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
         <div id="tabpanel-2-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-2" tabindex="0">
-            <div class="fr-table fr-table--layout-fixed--lg">
-              <table>
-                <caption>Suivi du remplissage des avis</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">CBR/DCB</th>
-                    <th scope="col">Taux de remplissage</th>
-                    <th scope="col">BOP actifs</th>
-                    <th scope="col">Notes en attente</th>
-                    <th scope="col">Notes en brouillon</th>
-                    <th scope="col">Notes risques faibles</th>
-                    <th scope="col">Notes risques modérés</th>
-                    <th scope="col">Notes risques significatifs</th>
-                  </tr>
-                </thead>
-                <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG2"} %>
-              </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi du remplissage des avis</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">CBR/DCB</th>
+                      <th scope="col">Taux de remplissage</th>
+                      <th scope="col">BOP actifs</th>
+                      <th scope="col">Notes en attente</th>
+                      <th scope="col">Notes en brouillon</th>
+                      <th scope="col">Notes risques faibles</th>
+                      <th scope="col">Notes risques modérés</th>
+                      <th scope="col">Notes risques significatifs</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_remplissage', locals: { hash_phase_user: @hash_phase_user, phase: "CRG2" } %>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div class="fr-table fr-table--layout-fixed--lg">
-              <table>
-                <caption>Suivi de lecture des avis par les DCB</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">DCB responsable</th>
-                    <th scope="col">Taux de lecture</th>
-                    <th scope="col">Notes à lire</th>
-                    <th scope="col">Notes non reçues</th>
-                    <th scope="col">Notes en attente de lecture</th>
-                    <th scope="col">Notes lues</th>
-                  </tr>
-                </thead>
-                <%= render partial: 'pages/suivi_lecture', locals: {hash_phase_lecture: @hash_phase_lecture, phase: "CRG2"} %>
-              </table>
+          <div class="fr-table--lg fr-table fr-table--bordered ">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Suivi de lecture des avis par les DCB</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">DCB responsable</th>
+                      <th scope="col">Taux de lecture</th>
+                      <th scope="col">Notes à lire</th>
+                      <th scope="col">Notes non reçues</th>
+                      <th scope="col">Notes en attente de lecture</th>
+                      <th scope="col">Notes lues</th>
+                    </tr>
+                    </thead>
+                    <%= render partial: 'pages/suivi_lecture', locals: { hash_phase_lecture: @hash_phase_lecture, phase: "CRG2" } %>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
         </div>
       </div>

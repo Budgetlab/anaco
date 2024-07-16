@@ -265,3 +265,7 @@ h1, h2{
 .fr-collapse--grey{
   background-color: var(--grey-975-75) !important;
 }
+
+.fr-table--total th, .fr-table--total td {
+  background-color:var(--blue-france-950-100) !important;
+}
