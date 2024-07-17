@@ -1,58 +1,63 @@
-
-
 <footer class="fr-footer" role="contentinfo" id="footer">
-    <div class="fr-container">
-        <div class="fr-footer__body">
-            <div class="fr-footer__brand fr-enlarge-link">
-           
-                    <p class="fr-logo" title="république française">
-                        Ministère<br>de l'économie,<br>des finances<br>et de la souveraineté<br> industrielle et numérique
-                    </p>
-          
-            </div>
-            <div class="fr-footer__content">
-               
-                <ul class="fr-footer__content-list">
-                    <li class="fr-footer__content-item">
-                        <a class="fr-footer__content-link" target="_blank" href="https://legifrance.gouv.fr">legifrance.gouv.fr</a>
-                    </li>
-                    <li class="fr-footer__content-item">
-                        <a class="fr-footer__content-link" target="_blank" href="https://gouvernement.fr">gouvernement.fr</a>
-                    </li>
-                    <li class="fr-footer__content-item">
-                        <a class="fr-footer__content-link" target="_blank" href="https://service-public.fr">service-public.fr</a>
-                    </li>
-                    <li class="fr-footer__content-item">
-                        <a class="fr-footer__content-link" target="_blank" href="https://data.gouv.fr">data.gouv.fr</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="fr-footer__bottom">
-            <ul class="fr-footer__bottom-list">
-                <li class="fr-footer__bottom-item">
-                  <%= link_to plan_path, class:"fr-footer__bottom-link" do%>Plan du site<%end%>
-                </li>
-                <li class="fr-footer__bottom-item">
-                    <%= link_to accessibilite_path, class:"fr-footer__bottom-link" do%>Accessibilité: partiellement conforme<%end%>
-                </li>
-                <li class="fr-footer__bottom-item">
-                    <%= link_to mentions_legales_path, class:"fr-footer__bottom-link" do%>Mentions légales<%end%>
-                </li>
-                <li class="fr-footer__bottom-item">
-                    <%= link_to donnees_personnelles_path, class:"fr-footer__bottom-link" do%>Données personnelles & Gestion des cookies<%end%>
-                </li>
-                <li class="fr-footer__bottom-item">
-                  <button class="fr-footer__bottom-link fr-fi-theme-fill fr-link--icon-left" aria-controls="fr-theme-modal" data-fr-opened="false">Paramètres d'affichage</button>
-                </li>
+  <div class="fr-container">
+    <div class="fr-footer__body">
+      <div class="fr-footer__brand fr-enlarge-link">
 
-            </ul>
-            <div class="fr-footer__bottom-copy">
-                <p>Sauf mention contraire, tous les contenus de ce site sont sous <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank">licence etalab-2.0</a>
-                </p>
-            </div>
-        </div>
+        <p class="fr-logo" title="république française">
+          Ministère<br>de l'économie,<br>des finances<br>et de la souveraineté<br> industrielle et numérique
+        </p>
+
+      </div>
+      <div class="fr-footer__content">
+        <ul class="fr-footer__content-list">
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="info.gouv.fr - nouvelle fenêtre" href="https://info.gouv.fr">info.gouv.fr</a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="service-public.fr - nouvelle fenêtre" href="https://service-public.fr">service-public.fr</a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="legifrance.gouv.fr - nouvelle fenêtre" href="https://legifrance.gouv.fr">legifrance.gouv.fr</a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="data.gouv.fr - nouvelle fenêtre" href="https://data.gouv.fr">data.gouv.fr</a>
+          </li>
+        </ul>
+      </div>
     </div>
+    <div class="fr-footer__bottom">
+      <ul class="fr-footer__bottom-list">
+        <li class="fr-footer__bottom-item">
+          <%= link_to plan_path, class: "fr-footer__bottom-link" do %>Plan du site
+          <% end %>
+        </li>
+        <li class="fr-footer__bottom-item">
+          <%= link_to accessibilite_path, class: "fr-footer__bottom-link" do %>Accessibilité: partiellement conforme
+          <% end %>
+        </li>
+        <li class="fr-footer__bottom-item">
+          <%= link_to mentions_legales_path, class: "fr-footer__bottom-link" do %>Mentions légales
+          <% end %>
+        </li>
+        <li class="fr-footer__bottom-item">
+          <%= link_to donnees_personnelles_path, class: "fr-footer__bottom-link" do %>Données personnelles & Gestion des
+            cookies
+          <% end %>
+        </li>
+        <li class="fr-footer__bottom-item">
+          <button class="fr-footer__bottom-link fr-fi-theme-fill fr-link--icon-left" aria-controls="fr-theme-modal" data-fr-opened="false">Paramètres
+            d'affichage
+          </button>
+        </li>
+
+      </ul>
+      <div class="fr-footer__bottom-copy">
+        <p>Sauf mention contraire, tous les contenus de ce site sont sous
+          <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank">licence etalab-2.0</a>
+        </p>
+      </div>
+    </div>
+  </div>
 </footer>
 
 <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
@@ -79,7 +84,7 @@
                       <label class="fr-label" for="fr-radios-theme-light">Thème clair
                       </label>
                       <div class="fr-radio-rich__img" data-fr-inject-svg>
-                        <%= image_tag "artwork/light.svg", alt:"", class:"fr-artwork" %>
+                        <%= image_tag "artwork/light.svg", alt: "", class: "fr-artwork" %>
                         <!-- L’alternative de l’image (attribut alt) doit rester vide car l’image est illustrative et ne doit pas être restituée aux technologies d’assistance -->
                       </div>
                     </div>
