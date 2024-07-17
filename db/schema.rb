@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_083212) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_17_143018) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -50,7 +50,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_083212) do
     t.datetime "updated_at", null: false
     t.string "dotation"
     t.bigint "consultant_id"
+    t.bigint "programme_id"
     t.index ["consultant_id"], name: "index_bops_on_consultant_id"
+    t.index ["programme_id"], name: "index_bops_on_programme_id"
     t.index ["user_id"], name: "index_bops_on_user_id"
   end
 
@@ -73,12 +75,28 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_083212) do
     t.index ["user_id"], name: "index_credits_on_user_id"
   end
 
+  create_table "ministeres", force: :cascade do |t|
+    t.string "nom"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "missions", force: :cascade do |t|
+    t.string "nom"
+    t.bigint "ministere_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ministere_id"], name: "index_missions_on_ministere_id"
+  end
+
   create_table "programmes", force: :cascade do |t|
     t.integer "numero"
     t.string "nom"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "mission_id"
+    t.index ["mission_id"], name: "index_programmes_on_mission_id"
     t.index ["user_id"], name: "index_programmes_on_user_id"
   end
 
@@ -98,9 +116,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_083212) do
 
   add_foreign_key "avis", "bops"
   add_foreign_key "avis", "users"
+  add_foreign_key "bops", "programmes"
   add_foreign_key "bops", "users"
   add_foreign_key "bops", "users", column: "consultant_id"
   add_foreign_key "credits", "programmes"
   add_foreign_key "credits", "users"
+  add_foreign_key "missions", "ministeres"
+  add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"
 end
