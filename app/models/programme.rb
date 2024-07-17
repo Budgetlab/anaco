@@ -29,4 +29,12 @@ class Programme < ApplicationRecord
       end
     end
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["credits", "user"]
+  end
 end
