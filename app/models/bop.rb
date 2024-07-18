@@ -2,6 +2,7 @@ class Bop < ApplicationRecord
   belongs_to :user
   belongs_to :consultant, class_name: 'User', foreign_key: 'consultant_id'
   has_many :avis, dependent: :destroy
+  belongs_to :programme
 
   def self.import(file)
 
@@ -31,7 +32,7 @@ class Bop < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["code", "consultant", "created_at", "dotation", "id", "id_value", "ministere", "nom_programme", "numero_programme", "updated_at", "user_id", "consultant_id", "programme_id"]
+    ["code", "consultant", "created_at", "dotation", "id", "id_value", "ministeres", "nom_programme", "numero_programme", "updated_at", "user_id", "consultant_id", "programme_id"]
   end
 
   def self.ransackable_associations(auth_object = nil)

@@ -5,12 +5,12 @@ ActiveAdmin.register Bop do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  # permit_params :user_id, :ministere, :numero_programme, :nom_programme, :code, :dotation, :consultant_id, :programme_id
+  # permit_params :user_id, :ministeres, :numero_programme, :nom_programme, :code, :dotation, :consultant_id, :programme_id
   #
   # or
   #
   # permit_params do
-  #   permitted = [:user_id, :ministere, :numero_programme, :nom_programme, :code, :dotation, :consultant_id, :programme_id]
+  #   permitted = [:user_id, :ministeres, :numero_programme, :nom_programme, :code, :dotation, :consultant_id, :programme_id]
   #   permitted << :other if params[:action] == 'create' && current_user.admin?
   #   permitted
   # end

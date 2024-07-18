@@ -7,12 +7,13 @@ class ProgrammesController < ApplicationController
   include ApplicationHelper
   # Page liste des crédits non repartis par programme
   def index
-    redirect_to root_path if current_user.statut != 'DCB'
-
     @annee_a_afficher = annee_a_afficher
-    @programmes = current_user.programmes
-    @liste_credits_par_programme = @programmes.joins(:credits).where('credits.annee': @annee_a_afficher).pluck(:id, 'credits.etat AS credit_etat', 'credits.phase AS credit_phase', 'credits.is_crg1 AS credit_crg1')
-    count_reste_index(@annee_a_afficher)
+    # récupérer les programmes à afficher en fonction du profil
+    @programmes = Programme.all.order(numero: :asc)
+  end
+
+  def show
+
   end
 
   # Page pour importer le fichier des programmes
@@ -44,4 +45,5 @@ class ProgrammesController < ApplicationController
     liste_credit_annee_precedente_crg2 = liste_credits_annee_precedente.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
     @count_reste_annee_precedente = liste_credit_annee_precedente_debut - liste_credit_annee_precedente_crg2
   end
+
 end

@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   post 'import_bops' => 'bops#import'
   post 'filter_bop', to: 'bops#filter_bop'
 
+    resources :missions
+    resources :ministeres
   resources :programmes do
     resources :credits, only: [:new]
   end
