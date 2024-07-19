@@ -1,0 +1,26 @@
+<a class="fr-link" aria-describedby="<%= name %>" id="link-<%= name %>" href="#" data-controller="filter" data-action="filter#Dropdown">
+  <span class="fr-icon-question-line fr-icon--sm" aria-hidden="true"></span>
+</a>
+<span class="fr-tooltip fr-placement" id="<%= name %>" role="tooltip" aria-hidden="true">
+  <% if name == "solde_previsionnel" %>
+    Il s’agit de la vision du RPROG au moment du CRG2 de la différence entre les ressources attendues et les dépenses prévues. Un solde positif indique une capacité de financement. Un solde négatif indique un besoin de financement. Les évaluations des FDC et ADP attendues jusqu’à la fin de la gestion sont intégrées dans ce solde.
+  <% elsif name == "mer" %>
+    Il s’agit du niveau de la mise en réserve à la date du CRG2.
+  <% elsif name == "mobilisation_mer" %>
+    Il s’agit du montant à dégeler pour couvrir, même partiellement, le besoin de financement.
+    <% elsif name == "fongibilite" %>
+  Il s’agit du montant mobilisable par fongibilité asymétrique pour couvrir, même partiellement le besoin de financement.
+    <% elsif name == "decret" %>
+  Il s’agit d’un abondement ou d’une annulation de crédits prévu par un décret d’avance.
+    <% elsif name == "credits_ouverts" %>
+  Il s’agit des crédits ouverts en Loi de Finance de fin de gestion
+    <% elsif name == "solde" %>
+  Il s’agit du solde prenant en compte toutes les opérations prévues au titre des hypothèses de couverture. Le solde doit être nul ou positif. Dans ce dernier cas, il se traduit par un reliquat de crédits non employés. Si le solde est négatif, cela traduit une impasse non couverte.
+    <% elsif name == "charges_a_payer" %>
+    Il s’agit d’une évaluation des charges à payer à la fin de gestion évaluée par le RPROG.
+    <% elsif name == "reports_autre" %>
+    Il s’agit du niveau de reports de charges évalué par le RPROG.
+    <% elsif name == "credits_reports" %>
+  Ce volet permet de renseigner tous les aspects qualitatifs permettant de mieux comprendre la situation de la gestion et les hypothèses de couvertures, notamment des éventuels besoins complémentaires exprimés lors du CRG2 et les justifications des hypothèses de couverture proposées.
+  <% end %>
+</span>

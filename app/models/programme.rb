@@ -3,6 +3,8 @@ class Programme < ApplicationRecord
   has_many :credits, dependent: :destroy
   has_many :bops
   has_many :avis, through: :bops
+  has_many :gestion_schemas, dependent: :destroy
+  has_many :schemas, dependent: :destroy
 
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
@@ -14,7 +16,6 @@ class Programme < ApplicationRecord
         ministere = Ministere.find_or_create_by(nom: row_data['Ministère'])
         mission = Mission.find_or_create_by(nom: row_data['Mission'], ministere_id: ministere.id)
         user = User.find_by(nom: row_data['User'])
-        puts row_data['BOP']
         deconcentre = row_data['BOP'] == "oui" ? true : false
         if Programme.exists?(numero: row_data['Numero'].to_i)
           programme = Programme.where(numero: row_data['Numero'].to_i).first

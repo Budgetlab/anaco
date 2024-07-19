@@ -9,6 +9,8 @@ class User < ApplicationRecord
   has_many :avis
   has_many :programmes
   has_many :credits
+  has_many :gestion_schemas
+  has_many :schemas
 
   # fonction d'import des utilisateurs dans la bdd
   def self.import(file)
@@ -59,5 +61,8 @@ class User < ApplicationRecord
     ["created_at", "email", "encrypted_password", "id", "id_value", "nom", "remember_created_at", "reset_password_sent_at", "reset_password_token", "statut", "updated_at"]
   end
 
+  def programmes_without_gestion_schemas
+    self.programmes.left_outer_joins(:gestion_schemas).where(gestion_schemas: { id: nil }).count
+  end
 
 end

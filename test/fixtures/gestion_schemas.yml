@@ -1,0 +1,51 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  programme: one
+  vision: MyString
+  profil: MyString
+  annee: 1
+  prevision_solde_budgetaire_ae: 1.5
+  prevision_solde_budgetaire_cp: 1.5
+  mer_ae: 1.5
+  mer_cp: 1.5
+  mobilisation_mer_ae: 1.5
+  mobilisation_mer_cp: 1.5
+  fongibilite_ae: 1.5
+  fongibilite_cp: 1.5
+  decret_ae: 1.5
+  decret_cp: 1.5
+  credits_ouverts_ae: 1.5
+  credits_ouverts_cp: 1.5
+  charges_a_payer_ae: 1.5
+  charges_a_payer_cp: 1.5
+  credits_reports_ae: 1.5
+  credits_reports_cp: 1.5
+  reports_autre_ae: 1.5
+  reports_autre_cp: 1.5
+  commentaire: MyText
+
+two:
+  programme: two
+  vision: MyString
+  profil: MyString
+  annee: 1
+  prevision_solde_budgetaire_ae: 1.5
+  prevision_solde_budgetaire_cp: 1.5
+  mer_ae: 1.5
+  mer_cp: 1.5
+  mobilisation_mer_ae: 1.5
+  mobilisation_mer_cp: 1.5
+  fongibilite_ae: 1.5
+  fongibilite_cp: 1.5
+  decret_ae: 1.5
+  decret_cp: 1.5
+  credits_ouverts_ae: 1.5
+  credits_ouverts_cp: 1.5
+  charges_a_payer_ae: 1.5
+  charges_a_payer_cp: 1.5
+  credits_reports_ae: 1.5
+  credits_reports_cp: 1.5
+  reports_autre_ae: 1.5
+  reports_autre_cp: 1.5
+  commentaire: MyText

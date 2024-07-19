@@ -1,0 +1,44 @@
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-mt-6w fr-mb-2w ">Liste des schémas de fin de gestion</h1>
+      <div class="fr-mb-4w">
+        <div class="fr-card">
+          <div class="fr-card__body">
+            <div class="fr-card__content">
+              <h3 class="fr-card__title">Il vous
+                reste <%= pluralize(current_user.programmes_without_gestion_schemas, 'proposition', plural: 'proposition') %>
+                de contribution au schéma fin de gestion <%= Date.today.year %> à rédiger</h3>
+              <div class="fr-card__desc">
+                <% @programmes&.each do |programme| %>
+                  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+                    <div class="fr-col-lg-2 fr-col-12">
+                      <ul>
+                        <li>Programme n°<%= programme.numero %></li>
+                      </ul>
+                    </div>
+                    <div class="fr-col-lg-3 fr-col-4">
+                      <% last_schema = programme.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first %>
+                      <% if last_schema %>
+                        Version n°<%= numero_version(last_schema) %>
+                        du <%= last_schema.created_at.strftime("%d/%M%Y") %>
+                      <% else %>
+                        <p class="fr-badge fr-badge--warning fr-badge--no-icon">
+                          <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Schema fin de gestion
+                        </p>
+                      <% end %>
+                    </div>
+                    <div class="fr-col-lg-3 fr-col-4">
+                      <%= link_to new_programme_gestion_schema_path(programme.id), class: 'fr-btn' do %>Rédiger une proposition
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

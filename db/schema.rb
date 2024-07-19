@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_18_091220) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_19_073640) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -101,6 +101,40 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_18_091220) do
     t.index ["user_id"], name: "index_credits_on_user_id"
   end
 
+  create_table "gestion_schemas", force: :cascade do |t|
+    t.bigint "programme_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "schema_id", null: false
+    t.string "statut"
+    t.string "vision"
+    t.string "profil"
+    t.integer "annee"
+    t.float "prevision_solde_budgetaire_ae"
+    t.float "prevision_solde_budgetaire_cp"
+    t.float "mer_ae"
+    t.float "mer_cp"
+    t.float "mobilisation_mer_ae"
+    t.float "mobilisation_mer_cp"
+    t.float "fongibilite_ae"
+    t.float "fongibilite_cp"
+    t.float "decret_ae"
+    t.float "decret_cp"
+    t.float "credits_ouverts_ae"
+    t.float "credits_ouverts_cp"
+    t.float "charges_a_payer_ae"
+    t.float "charges_a_payer_cp"
+    t.float "credits_reports_ae"
+    t.float "credits_reports_cp"
+    t.float "reports_autre_ae"
+    t.float "reports_autre_cp"
+    t.text "commentaire"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["programme_id"], name: "index_gestion_schemas_on_programme_id"
+    t.index ["schema_id"], name: "index_gestion_schemas_on_schema_id"
+    t.index ["user_id"], name: "index_gestion_schemas_on_user_id"
+  end
+
   create_table "ministeres", force: :cascade do |t|
     t.string "nom"
     t.datetime "created_at", null: false
@@ -128,6 +162,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_18_091220) do
     t.index ["user_id"], name: "index_programmes_on_user_id"
   end
 
+  create_table "schemas", force: :cascade do |t|
+    t.bigint "programme_id", null: false
+    t.bigint "user_id", null: false
+    t.string "statut"
+    t.integer "annee"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["programme_id"], name: "index_schemas_on_programme_id"
+    t.index ["user_id"], name: "index_schemas_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -149,7 +194,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_18_091220) do
   add_foreign_key "bops", "users", column: "consultant_id"
   add_foreign_key "credits", "programmes"
   add_foreign_key "credits", "users"
+  add_foreign_key "gestion_schemas", "programmes"
+  add_foreign_key "gestion_schemas", "schemas"
+  add_foreign_key "gestion_schemas", "users"
   add_foreign_key "missions", "ministeres"
   add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"
+  add_foreign_key "schemas", "programmes"
+  add_foreign_key "schemas", "users"
 end

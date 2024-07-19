@@ -20,8 +20,12 @@ Rails.application.routes.draw do
 
     resources :missions
     resources :ministeres
+    resources :schemas
+    resources :gestion_schemas, except: [:new, :create]
+    get 'schemas_suivi' => "schemas#suivi_remplissage"
   resources :programmes do
     resources :credits, only: [:new]
+    resources :gestion_schemas, only: [:new, :create]
   end
   resources :credits, only: [:index, :create, :update, :destroy]
   post 'import_programmes' => 'programmes#import'

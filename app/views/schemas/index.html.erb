@@ -1,0 +1,76 @@
+<% content_for :title do %>Historique des schémas de fin de gestion | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mt-6w fr-mb-2w ">Historique des propositions de contribution au schéma fin de gestion</h1>
+
+        <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-6w">
+          <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Historique des schemas fin de gestion</caption>
+                    <thead>
+                    <tr>
+
+                      <th scope="col">
+                        <% sort_created_date = "" %>
+                        <% if params[:q] && params[:q][:s] == "created_at desc" %>
+                          <% sort_created_date = "asc" %>
+                        <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
+                          <% sort_created_date = "desc" %>
+                        <% end %>
+                        <div class="fr-cell--sort">
+                          <span class="fr-cell__title">Date de saisie</span>
+                          <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
+                        </div>
+                      </th>
+                      <th scope="col">Programme</th>
+                      <th scope="col">Annee</th>
+                      <th scope="col">Version</th>
+                      <th scope="col">Action</th>
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+                    <% @schemas_page&.each do |schema| %>
+                      <tr>
+                        <td><%= l(schema.updated_at, format: "%e/%m/%y") %> </td>
+                        <td><%= schema.programme.numero %></td>
+                        <td><%= schema.annee %>  </td>
+                        <td>Proposition n°<%= numero_version(schema) %></td>
+                        <td></td>
+                      </tr>
+                    <% end %>
+
+                    </tbody>
+
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="fr-table__footer">
+              <div class="fr-table__footer--start">
+                <p class="fr-table__detail"><%= @schemas.length %> résultats</p>
+                <div class="fr-select-group">
+                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                    Nombre de lignes par page
+                  </label>
+                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="fr-table__footer--middle">
+                <%== pagy_nav_custom(@pagy) %>
+              </div>
+            </div>
+          <% end  %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
