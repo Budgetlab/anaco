@@ -19,6 +19,7 @@ class GestionSchemasController < ApplicationController
   end
 
   def new
+    @programme = @schema.programme
     if @schema.statut == '1' || @schema.statut == '3'
       # prendre les données du schema précédent (valide) s'il existe
       previous_schema = @schema.programme.schemas&.where(annee: Date.today.year, statut: 'valide')&.order(created_at: :desc)&.first
@@ -37,8 +38,13 @@ class GestionSchemasController < ApplicationController
   end
 
   def create
-    @gestion_schema = @schema.gestion_schemas.new(gestion_schema_params.merge(programme_id: @programme.id, user_id: current_user.id, annee: Date.today.year))
+    @gestion_schema = @schema.gestion_schemas.new(gestion_schema_params.merge(programme_id: @schema.programme_id, user_id: current_user.id, annee: Date.today.year, statut: 'valide'))
+    assign_vision_profil
     @gestion_schema.save
+    # mettre à jour l'etape dans le statut du schema
+    steps_max = @schema.programme.dotation == 'HT2 et T2' ? 4 : 2
+    statut = @schema.statut.to_i + 1 > steps_max ? 'valide' : (@schema.statut.to_i + 1).to_s
+    @schema.update(statut: statut)
     redirect_to new_schema_gestion_schema_path(@schema)
   end
 
@@ -86,6 +92,14 @@ class GestionSchemasController < ApplicationController
 
   def redirect_if_gestion_schema_brouillon
     last_gestion_schema = @schema.gestion_schemas&.order(created_at: :desc)&.first
-    redirect_to edit_gestion_schema_path(last_gestion_schema) and return if last_gestion_schema&.statut != "valide"
+    redirect_to edit_gestion_schema_path(last_gestion_schema) and return if last_gestion_schema && last_gestion_schema&.statut != 'valide'
+  end
+
+  def assign_vision_profil
+    vision = ["RPROG", "CBCM", "RPROG", "CBCM"]
+    profil = ["HT2", "HT2", "T2", "T2"]
+    @step = @schema.statut.to_i - 1
+    @gestion_schema.vision = vision[@step]
+    @gestion_schema.profil = profil[@step]
   end
 end

@@ -5,7 +5,7 @@ ActiveAdmin.register Schema do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  # permit_params :programme_id, :user_id, :statut, :annee
+  permit_params :programme_id, :user_id, :statut, :annee
   #
   # or
   #

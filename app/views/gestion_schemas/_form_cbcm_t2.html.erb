@@ -1,0 +1,27 @@
+<% steps_max = @programme == "T2" ? 2 : 4 %>
+<% step_start = @programme == "T2" ? 1 : 3 %>
+<div class="fr-stepper">
+  <h2 class="fr-stepper__title">
+    <span class="fr-stepper__state">Étape <%=step_start %> sur <%= steps_max %></span>
+    Vision RPROG Crédits T2
+  </h2>
+  <div class="fr-stepper__steps" data-fr-current-step=<%= step_start %> data-fr-steps="<%= steps_max %>"></div>
+  <p class="fr-stepper__details">
+    <span class="fr-text--bold">Étape suivante :</span> Vision CBCM Crédits T2
+  </p>
+</div>
+
+<div class="fr-alert fr-alert--info fr-mb-2w">
+  <p>Renseignez la vision RPROG puis validez. Vous pourrez ensuite accéder à la vision CBCM pré-remplie avec les données
+    du RPROG et modifier les informations si nécessaire.</p>
+</div>
+
+<div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+  <div class="fr-col-6 fr-col-lg-6">
+
+    <div class="fr-h3"><p class="fr-badge fr-badge--beige-gris-galet">Vision RPROG</p> Crédits T2</div>
+
+    <%= render 'form_t2' %>
+  </div>
+</div>
+

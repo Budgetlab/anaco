@@ -1,7 +1,7 @@
 class Schema < ApplicationRecord
   belongs_to :programme
   belongs_to :user
-  has_many :gestion_schemas
+  has_many :gestion_schemas, dependent: :destroy
 
   def incomplete?
     self.statut != 'valide'

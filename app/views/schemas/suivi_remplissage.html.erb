@@ -19,7 +19,7 @@
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
                       <% last_schema = programme.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first %>
-                      <% if last_schema.nil? || last_schema.new?%>
+                      <% if last_schema.nil? || last_schema.new? %>
                         <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                           <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Schema fin de gestion
                         </p>
@@ -31,15 +31,17 @@
                       <% end %>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
-                      <% if last_schema.nil? || last_schema&.complete?%>
+                      <% if last_schema.nil? || last_schema&.complete? %>
                         <%= link_to programme_schemas_path(programme.id), data: { 'turbo_method': :post }, class: 'fr-btn' do %>
                           Rédiger une proposition
                         <% end %>
                       <% elsif last_schema.new? %>
-                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Rédiger une proposition
+                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Rédiger une
+                          proposition
                         <% end %>
                       <% elsif last_schema&.incomplete? %>
-                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Reprendre le brouillon
+                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Reprendre le
+                          brouillon
                         <% end %>
                       <% end %>
                     </div>

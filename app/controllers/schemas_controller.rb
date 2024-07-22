@@ -11,7 +11,8 @@ class SchemasController < ApplicationController
   end
 
   def create
-    @schema = @programme.schemas.create(user_id: @programme.user_id, annee: Date.today.year, statut: '1')
+    @statut = @programme.dotation == 'T2' ? '3' : '1'
+    @schema = @programme.schemas.create(user_id: @programme.user_id, annee: Date.today.year, statut: @statut)
 
     redirect_to new_schema_gestion_schema_path(@schema)
   end

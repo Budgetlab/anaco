@@ -38,6 +38,6 @@ class Programme < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["credits", "user", "bops", "avis"]
+    ["credits", "user", "bops", "avis", "schemas", "gestion_schemas"]
   end
 end

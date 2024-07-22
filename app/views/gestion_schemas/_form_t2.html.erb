@@ -1,0 +1,156 @@
+<%= form_with(model: [@schema, @gestion_schema]) do |f| %>
+  <div class="fr-h5">Situation à date du CRG2</div>
+  <div class="fr-h6 fr-mb-1w">Solde prévisionnel <%= render partial: "gestion_schemas/tooltip", locals: { name: "solde_previsionnel"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="prevision_solde_budgetaire_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :prevision_solde_budgetaire_ae, value: @gestion_schema.prevision_solde_budgetaire_ae, id:"prevision_solde_budgetaire_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="prevision_solde_budgetaire_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :prevision_solde_budgetaire_cp, value: @gestion_schema.prevision_solde_budgetaire_cp, id:"prevision_solde_budgetaire_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6 fr-mb-1w">Niveau de la mise en réserve <%= render partial: "gestion_schemas/tooltip", locals: { name: "mer"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="mer_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :mer_ae, value: @gestion_schema.mer_ae, id:"mer_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="mer_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :mer_cp, value: @gestion_schema.mer_cp, id:"mer_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h5">Hypothèses de couverture</div>
+  <div class="fr-h6 fr-mb-1w">Mobilisation de la mise en réserve <%= render partial: "gestion_schemas/tooltip", locals: { name: "mobilisation_mer"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="mobilisation_mer_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :mobilisation_mer_ae, value: @gestion_schema.mobilisation_mer_ae, id:"mobilisation_mer_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="mobilisation_mer_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :mobilisation_mer_cp, value: @gestion_schema.mobilisation_mer_cp, id:"mobilisation_mer_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique <%= render partial: "gestion_schemas/tooltip", locals: { name: "fongibilite"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="fongibilite_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id:"fongibilite_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="fongibilite_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :fongibilite_cp, value: @gestion_schema.fongibilite_cp, id:"fongibilite_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6 fr-mb-1w">Décret d'avance <%= render partial: "gestion_schemas/tooltip", locals: { name: "decret"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="decret_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :decret_ae, value: @gestion_schema.decret_ae, id:"decret_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="decret_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :decret_cp, value: @gestion_schema.decret_cp, id:"decret_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6 fr-mb-1w">Crédits ouverts en LFG <%= render partial: "gestion_schemas/tooltip", locals: { name: "credits_ouverts"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="credits_ouverts_ae" class="fr-label">HCAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :credits_ouverts_ae, value: @gestion_schema.credits_ouverts_ae, id:"credits_ouverts_ae", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label for="credits_ouverts_cp" class="fr-label">CAS</label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :credits_ouverts_cp, value: @gestion_schema.credits_ouverts_cp, id:"credits_ouverts_cp", class:"fr-input" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h5">Solde résultant des hypothèses de couverture <%= render partial: "gestion_schemas/tooltip", locals: { name: "solde"} %></div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-6">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">HCAS</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="solde_ae">-</p>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">CAS</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="solde_cp">-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div class="fr-input-group">
+        <label for="commentaire" class="fr-label">Commentaire de l’analyse de fin de gestion crédits T2 du RPROG</label>
+        <%= f.text_field :commentaire, value: nil, id:"commentaire", class:"fr-input" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-grid-row fr-grid-row--right">
+    <%= f.submit "Valider", class:"fr-btn" %>
+  </div>
+<% end %>
