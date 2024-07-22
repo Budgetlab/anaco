@@ -7,7 +7,7 @@
           <div class="fr-card__body">
             <div class="fr-card__content">
               <h3 class="fr-card__title">Il vous
-                reste <%= pluralize(current_user.programmes_without_gestion_schemas, 'proposition', plural: 'proposition') %>
+                reste <%= pluralize(@programmes.count - current_user.programmes_with_schemas, 'proposition', plural: 'proposition') %>
                 de contribution au schéma fin de gestion <%= Date.today.year %> à rédiger</h3>
               <div class="fr-card__desc">
                 <% @programmes&.each do |programme| %>
@@ -19,17 +19,28 @@
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
                       <% last_schema = programme.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first %>
-                      <% if last_schema %>
-                        Version n°<%= numero_version(last_schema) %>
-                        du <%= last_schema.created_at.strftime("%d/%M%Y") %>
-                      <% else %>
+                      <% if last_schema.nil? || last_schema.new?%>
                         <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                           <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Schema fin de gestion
                         </p>
+                      <% elsif last_schema&.complete? %>
+                        Version n°<%= numero_version(last_schema) %>
+                        du <%= last_schema.created_at.strftime("%d/%M%Y") %>
+                      <% elsif last_schema&.incomplete? %>
+                        <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
                       <% end %>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
-                      <%= link_to new_programme_gestion_schema_path(programme.id), class: 'fr-btn' do %>Rédiger une proposition
+                      <% if last_schema.nil? || last_schema&.complete?%>
+                        <%= link_to programme_schemas_path(programme.id), data: { 'turbo_method': :post }, class: 'fr-btn' do %>
+                          Rédiger une proposition
+                        <% end %>
+                      <% elsif last_schema.new? %>
+                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Rédiger une proposition
+                        <% end %>
+                      <% elsif last_schema&.incomplete? %>
+                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Reprendre le brouillon
+                        <% end %>
                       <% end %>
                     </div>
                   </div>

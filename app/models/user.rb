@@ -61,8 +61,8 @@ class User < ApplicationRecord
     ["created_at", "email", "encrypted_password", "id", "id_value", "nom", "remember_created_at", "reset_password_sent_at", "reset_password_token", "statut", "updated_at"]
   end
 
-  def programmes_without_gestion_schemas
-    self.programmes.left_outer_joins(:gestion_schemas).where(gestion_schemas: { id: nil }).count
+  def programmes_with_schemas
+    self.programmes.left_outer_joins(:schemas).where(schemas: { annee: Date.today.year, statut: 'valide' }).count
   end
 
 end

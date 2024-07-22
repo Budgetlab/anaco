@@ -32,6 +32,14 @@
         </div>
       </div>
     </div>
-    <%= render 'form_cbcm_ht2' %>
+    <% if @schema.statut == "1" %>
+      <%= render 'form_cbcm_ht2' %>
+    <% elsif @schema.statut == "2" %>
+      <%= render 'form_rprog_ht2' %>
+    <% elsif @schema.statut == "3" %>
+      <%= render 'form_cbcm_t2' %>
+    <% elsif @schema.statut == "4" %>
+      <%= render 'form_rprog_t2' %>
+    <% end %>
   </div>
 </main>
