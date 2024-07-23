@@ -29,9 +29,12 @@
                         </div>
                       </th>
                       <th scope="col">Programme</th>
-                      <th scope="col">Annee</th>
+                      <th scope="col">Année</th>
                       <th scope="col">Version</th>
                       <th scope="col">Action</th>
+                      <% if current_user.statut == "DCB" %>
+                        <th scope="col">Action DCB</th>
+                      <% end %>
                     </tr>
 
                     </thead>
@@ -43,8 +46,19 @@
                         <td><%= l(schema.updated_at, format: "%e/%m/%y") %> </td>
                         <td><%= schema.programme.numero %></td>
                         <td><%= schema.annee %>  </td>
-                        <td>Proposition n°<%= numero_version(schema) %></td>
-                        <td></td>
+                        <td>Version n°<%= numero_version(schema) %></td>
+                        <td>
+                          <% if schema.incomplete? && schema.user == current_user %>
+                            <%= link_to new_schema_gestion_schema_path(schema), class: "fr-btn fr-btn--secondary", data: { turbo_frame: "_top" } do %>
+                              Reprendre le brouillon
+                            <% end %>
+                          <% elsif schema.complete? %>
+
+                          <% end %>
+                        </td>
+                        <% if current_user.statut == "DCB" %>
+                          <td></td>
+                        <% end %>
                       </tr>
                     <% end %>
 
@@ -56,7 +70,7 @@
             </div>
             <div class="fr-table__footer">
               <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= @schemas.length %> résultats</p>
+                <p class="fr-table__detail"><%= pluralize(@schemas.length, 'résultat', plural: 'résultats') %></p>
                 <div class="fr-select-group">
                   <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                     Nombre de lignes par page
@@ -68,7 +82,7 @@
                 <%== pagy_nav_custom(@pagy) %>
               </div>
             </div>
-          <% end  %>
+          <% end %>
         </div>
       </div>
     </div>

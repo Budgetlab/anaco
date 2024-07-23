@@ -83,12 +83,7 @@
                     <% end %></td>
                   <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
                   <td><%= avis.statut %></td>
-                  <td>
-                    <% if avis.etat == "En attente de lecture" %>
-                      <p class="fr-badge fr-badge--purple-glycine"><%= avis.etat %></p>
-                    <% elsif avis.etat == "Lu" %>
-                      <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat %></p>
-                    <% end %></td>
+                  <td><p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p></td>
                   <td>
                     <%= link_to open_modal_path(id: avis.id), class: "fr-btn fr-btn--sm", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post } do %>
                       Consulter
@@ -104,7 +99,7 @@
       </div>
       <div class="fr-table__footer">
         <div class="fr-table__footer--start">
-          <p class="fr-table__detail"><%= @avis_all.length %> résultats</p>
+          <p class="fr-table__detail"><%= pluralize(@avis_all.length, 'résultat', plural: 'résultats') %></p>
           <div class="fr-select-group">
             <label class="fr-sr-only fr-label" for="table-footer-select-7847">
               Nombre de lignes par page

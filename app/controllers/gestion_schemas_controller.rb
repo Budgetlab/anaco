@@ -6,18 +6,6 @@ class GestionSchemasController < ApplicationController
   before_action :redirect_if_schema_complete, only: [:new, :create]
   before_action :redirect_if_gestion_schema_brouillon, only: [:new]
 
-  # Historique des schemas fin de gestion
-  def index
-    # Récupère les "gestion_schemas" en fonction du statut de l'utilisateur, puis les trie par date de création.
-    @gestion_schemas = current_user.statut == 'DCB' ? current_user.gestion_schemas : GestionSchema.all
-    @gestion_schemas = @gestion_schemas.order(created_at: :desc)
-    # Crée un objet de recherche avec Ransack, effectue la recherche et inclut les associations liées.
-    @q = @gestion_schemas.ransack(params[:q])
-    @gestion_schemas = @q.result.includes(:programme, :user)
-    # Met en place la pagination avec Pagy.
-    @pagy, @gestion_schemas_page = pagy(@gestion_schemas)
-  end
-
   def new
     @programme = @schema.programme
     if @schema.statut == '1' || @schema.statut == '3'

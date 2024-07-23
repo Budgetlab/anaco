@@ -11,33 +11,45 @@ class Programme < ApplicationRecord
     headers = data.row(1) # get header row
     data.each_with_index do |row, idx|
       next if idx == 0 # skip header
+
       row_data = Hash[[headers, row].transpose]
-      unless User.where(nom: row_data['User']).first.nil?
-        ministere = Ministere.find_or_create_by(nom: row_data['Ministère'])
-        mission = Mission.find_or_create_by(nom: row_data['Mission'], ministere_id: ministere.id)
-        user = User.find_by(nom: row_data['User'])
-        deconcentre = row_data['BOP'] == "oui" ? true : false
-        if Programme.exists?(numero: row_data['Numero'].to_i)
-          programme = Programme.where(numero: row_data['Numero'].to_i).first
-          programme.update(nom: row_data['Nom'], user_id: user.id, mission_id: mission.id, deconcentre: deconcentre)
-        else
-          programme = Programme.new
-          programme.user_id = user.id
-          programme.nom = row_data['Nom']
-          programme.numero = row_data['Numero'].to_i
-          programme.mission_id = mission.id
-          programme.deconcentre = deconcentre
-          programme.save
-        end
+      next if User.where(nom: row_data['User']).first.nil?
+
+      ministere = Ministere.find_or_create_by(nom: row_data['Ministère'])
+      mission = Mission.find_or_create_by(nom: row_data['Mission'])
+      user = User.find_by(nom: row_data['User'])
+      deconcentre = row_data['BOP'] == 'oui'
+      if Programme.exists?(numero: row_data['Numero'].to_i)
+        programme = Programme.where(numero: row_data['Numero'].to_i).first
+        programme.update(nom: row_data['Nom'], user_id: user.id, mission_id: mission.id, deconcentre: deconcentre, ministere_id: ministere.id, dotation: row_data['Dotation'])
+      else
+        programme = Programme.new
+        programme.user_id = user.id
+        programme.nom = row_data['Nom']
+        programme.numero = row_data['Numero'].to_i
+        programme.mission_id = mission.id
+        programme.ministere_id = ministere.id
+        programme.deconcentre = deconcentre
+        programme.dotation = row_data['Dotation']
+        programme.save
       end
     end
+    Programme.find_by(numero: 382).update(statut: 'Inactif')
+  end
+
+  def last_schema
+    self.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first
+  end
+
+  def gestion_schemas_empty?
+    self.gestion_schemas.empty?
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation"]
+    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation", "statut", "ministere_id"]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["credits", "user", "bops", "avis", "schemas", "gestion_schemas"]
+    ["credits", "user", "bops", "avis", "schemas", "gestion_schemas", "ministere", "mission"]
   end
 end

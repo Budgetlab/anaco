@@ -1,9 +1,8 @@
 class Ministere < ApplicationRecord
-  has_many :missions
-  has_many :programmes, through: :missions
+  has_many :programmes
 
   def self.ransackable_associations(auth_object = nil)
-    ["missions", "programmes"]
+    ["programmes"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

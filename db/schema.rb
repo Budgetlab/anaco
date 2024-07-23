@@ -143,10 +143,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_19_073640) do
 
   create_table "missions", force: :cascade do |t|
     t.string "nom"
-    t.bigint "ministere_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["ministere_id"], name: "index_missions_on_ministere_id"
   end
 
   create_table "programmes", force: :cascade do |t|
@@ -156,8 +154,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_19_073640) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "mission_id"
+    t.bigint "ministere_id"
     t.boolean "deconcentre"
     t.string "dotation"
+    t.string "statut", default: "Actif"
+    t.index ["ministere_id"], name: "index_programmes_on_ministere_id"
     t.index ["mission_id"], name: "index_programmes_on_mission_id"
     t.index ["user_id"], name: "index_programmes_on_user_id"
   end
@@ -197,7 +198,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_19_073640) do
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
-  add_foreign_key "missions", "ministeres"
+  add_foreign_key "programmes", "ministeres"
   add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"
   add_foreign_key "schemas", "programmes"

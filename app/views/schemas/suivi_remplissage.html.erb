@@ -2,12 +2,16 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w ">Liste des schémas de fin de gestion</h1>
+      <h2><%= Date.today.year %></h2>
+      <div class="fr-alert fr-alert--info fr-mb-2w">
+        <h3 class="fr-alert__title">Le bouton "Rédiger une nouvelle version" vous permet de créer un schéma de fin de gestion ou bien de le mettre à jour tout en gardant un historique des versions antérieures si elles existent.</h3>
+      </div>
       <div class="fr-mb-4w">
         <div class="fr-card">
           <div class="fr-card__body">
             <div class="fr-card__content">
               <h3 class="fr-card__title">Il vous
-                reste <%= pluralize(@programmes.count - current_user.programmes_with_schemas, 'proposition', plural: 'proposition') %>
+                reste <%= pluralize(@programmes.count - current_user.programmes_with_schemas, 'proposition', plural: 'propositions') %>
                 de contribution au schéma fin de gestion <%= Date.today.year %> à rédiger</h3>
               <div class="fr-card__desc">
                 <% @programmes&.each do |programme| %>
@@ -18,30 +22,29 @@
                       </ul>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
-                      <% last_schema = programme.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first %>
-                      <% if last_schema.nil? || last_schema.new? %>
+                      <% if programme.last_schema.nil? || programme.gestion_schemas_empty? %>
                         <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                           <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Schema fin de gestion
                         </p>
-                      <% elsif last_schema&.complete? %>
-                        Version n°<%= numero_version(last_schema) %>
-                        du <%= last_schema.created_at.strftime("%d/%M%Y") %>
-                      <% elsif last_schema&.incomplete? %>
-                        <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+                      <% elsif programme.last_schema&.complete? || programme.last_schema&.gestion_schemas_empty? %>
+                        <p class="fr-badge fr-badge--info fr-badge--no-icon">
+                          Version n°<%= numero_version(programme.last_schema) %>
+                          du <%= programme.last_schema.created_at.strftime("%d/%M%Y") %>
+                        </p>
+                      <% elsif programme.last_schema&.incomplete? %>
+                        <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon version
+                          n°<%= numero_version(programme.last_schema) %></p>
                       <% end %>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
-                      <% if last_schema.nil? || last_schema&.complete? %>
-                        <%= link_to programme_schemas_path(programme.id), data: { 'turbo_method': :post }, class: 'fr-btn' do %>
-                          Rédiger une proposition
+                      <% if programme.last_schema.nil? || programme.last_schema&.complete? %>
+                        <%= link_to programme_schemas_path(programme.id), data: { 'turbo_method': :post }, class: "fr-btn #{'fr-btn--secondary' if programme.last_schema&.complete?}" do %>
+                          Rédiger une nouvelle version
                         <% end %>
-                      <% elsif last_schema.new? %>
-                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Rédiger une
-                          proposition
-                        <% end %>
-                      <% elsif last_schema&.incomplete? %>
-                        <%= link_to new_schema_gestion_schema_path(last_schema), class: 'fr-btn' do %>Reprendre le
-                          brouillon
+                      <% else %>
+                        <%= link_to new_schema_gestion_schema_path(programme.last_schema), class: "fr-btn #{'fr-btn--secondary' if !programme.gestion_schemas_empty? && programme.last_schema&.gestion_schemas_empty?}" do %>
+                          <%= programme.last_schema&.incomplete? ? "Reprendre le
+                          brouillon" : "Rédiger une nouvelle version" %>
                         <% end %>
                       <% end %>
                     </div>

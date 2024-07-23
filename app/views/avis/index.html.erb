@@ -100,13 +100,7 @@
                       <td><%= avis.statut %></td>
 
                       <td>
-                        <% if avis.etat == "En attente de lecture" %>
-                          <p class="fr-badge fr-badge--purple-glycine"><%= avis.etat %></p>
-                        <% elsif avis.etat == "Lu" %>
-                          <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat %></p>
-                        <% elsif avis.etat == "Brouillon" %>
-                          <p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat %></p>
-                        <% end %>
+                        <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
                       </td>
 
                       <td>
@@ -133,7 +127,7 @@
           </div>
           <div class="fr-table__footer">
             <div class="fr-table__footer--start">
-              <p class="fr-table__detail"><%= @avis_all.length %> résultats</p>
+              <p class="fr-table__detail"><%= pluralize(@avis_all.length, 'résultat', plural: 'résultats') %></p>
               <div class="fr-select-group">
                 <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                   Nombre de lignes par page

@@ -29,17 +29,18 @@
         <div class="fr-h3 fr-mb-0">Programme <%= @programme.numero %> - <%= @programme.nom %></div>
         <div>
           <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Programme doté en <%= @programme.dotation %></p>
+          <p class="fr-badge fr-badge--sm fr-badge--new fr-badge--no-icon">Version n°<%= numero_version(@schema) %></p>
         </div>
       </div>
     </div>
     <% if @schema.statut == "1" %>
-      <%= render 'form_cbcm_ht2' %>
-    <% elsif @schema.statut == "2" %>
       <%= render 'form_rprog_ht2' %>
+    <% elsif @schema.statut == "2" %>
+      <%= render 'form_cbcm_ht2' %>
     <% elsif @schema.statut == "3" %>
-      <%= render 'form_cbcm_t2' %>
-    <% elsif @schema.statut == "4" %>
       <%= render 'form_rprog_t2' %>
+    <% elsif @schema.statut == "4" %>
+      <%= render 'form_cbcm_t2' %>
     <% end %>
   </div>
 </main>

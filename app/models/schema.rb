@@ -4,14 +4,14 @@ class Schema < ApplicationRecord
   has_many :gestion_schemas, dependent: :destroy
 
   def incomplete?
-    self.statut != 'valide'
+    !self.gestion_schemas.empty? && self.statut != 'valide'
   end
 
   def complete?
     self.statut == 'valide'
   end
 
-  def new?
+  def gestion_schemas_empty?
     self.gestion_schemas.empty?
   end
 

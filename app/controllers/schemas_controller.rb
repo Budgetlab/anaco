@@ -1,5 +1,6 @@
 class SchemasController < ApplicationController
   before_action :authenticate_user!
+  set_schema :set_schema, only: [:destroy]
   before_action :set_programme, only: [:create]
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]
   def index
@@ -22,7 +23,16 @@ class SchemasController < ApplicationController
     @programmes = current_user.programmes.order(numero: :asc)
   end
 
+  def destroy
+    @schema&.destroy
+    redirect_to schemas_path
+  end
+
   private
+
+  def set_schema
+    @schema = Schema.find(params[:id])
+  end
 
   def set_programme
     @programme = Programme.find(params[:programme_id])
