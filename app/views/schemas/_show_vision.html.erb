@@ -1,0 +1,119 @@
+<p class="fr-text--bold">Solde de fin de gestion selon le <%=vision %></p>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <% if !vision_ht2.nil? %>
+    <div class="fr-col-3">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">AE</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_ht2.solde_total_ae) %> €</p>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-3">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">CP</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_ht2.solde_total_cp) %> €</p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if !vision_t2.nil? %>
+    <div class="fr-col-3">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">AE</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_t2.solde_total_ae) %> €</p>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-3">
+      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-cart__body">
+          <p class="fr-text--lg fr-mb-0 text_center">CP</p>
+          <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_t2.solde_total_cp) %> €</p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+<% if !vision_ht2.nil? %>
+  <div class="fr-my-2w">
+    <p class="fr-text--bold">Commentaire synthétique de l’analyse de fin de gestion AE/CP du <%=vision %></p>
+    <p><%= vision_ht2.commentaire %></p>
+  </div>
+<% end %>
+<% if !vision_t2.nil? %>
+  <div class="fr-my-2w">
+    <p class="fr-text--bold">Commentaire synthétique de l’analyse de fin de gestion T2 du <%=vision %></p>
+    <p><%= vision_t2.commentaire %></p>
+  </div>
+<% end %>
+<p class="fr-text--bold">Détail des données budgétaires du <%=vision %></p>
+<div class="fr-table fr-table--bordered fr-table--no-caption fr-table--no-scroll" id="table-bordered-component">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table id="table-bordered">
+          <caption>
+            Détail des données budgétaires du RPROG
+          </caption>
+          <thead>
+          <tr>
+            <th scope="col"></th>
+            <% if !vision_ht2.nil? %>
+              <th scope="col">
+                AE (€)
+              </th>
+              <th scope="col">
+                CP (€)
+              </th>
+            <% end %>
+            <% if !vision_t2.nil? %>
+              <th scope="col">
+                T2 HCAS (€)
+              </th>
+              <th scope="col">
+                T2 CAS (€)
+              </th>
+            <% end %>
+          </tr>
+          </thead>
+          <tbody>
+          <% data = [
+            { title: 'Solde fin de gestion', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+            { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+            { title: 'Niveau de la MER', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+            { title: 'Mobilisation de la MER', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+            { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+          ]
+          %>
+          <% data.each_with_index do |item, index| %>
+            <tr id="table-bordered-row-key-<%= index + 1 %>" data-row-key="<%= index + 1 %>">
+              <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
+
+              <% if !vision_ht2.nil? %>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_ht2.send(item[:ae_attr])) %>
+                </td>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_ht2.send(item[:cp_attr])) %>
+                </td>
+              <% end %>
+              <% if !vision_t2.nil? %>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_t2.send(item[:ae_attr])) %>
+                </td>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_t2.send(item[:cp_attr])) %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="fr-text--bold">Liste des virements/transferts </p>

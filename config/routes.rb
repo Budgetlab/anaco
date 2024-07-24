@@ -24,6 +24,9 @@ Rails.application.routes.draw do
     resources :gestion_schemas, except: [:new, :create]
     resources :schemas, except: [:new, :create] do
       resources :gestion_schemas, only: [:new, :create]
+      member do
+        get 'confirm_delete' => "schemas#confirm_delete"
+      end
     end
     get 'schemas_suivi' => "schemas#suivi_remplissage"
     resources :programmes do
