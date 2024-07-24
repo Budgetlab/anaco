@@ -12,7 +12,7 @@ class GestionSchemasController < ApplicationController
       # prendre les données du schema précédent (valide) s'il existe
       previous_schema = @schema.programme.schemas&.where(annee: Date.today.year, statut: 'valide')&.order(created_at: :desc)&.first
       if previous_schema
-        gestion_schema_previous = previous_schema&.gestion_schemas.offset(@schema.statut.to_i - 1)
+        gestion_schema_previous = previous_schema&.gestion_schemas.offset(@schema.statut.to_i - 1).first
         @gestion_schema = @schema.gestion_schemas.new(gestion_schema_previous.attributes)
       else
         @gestion_schema = @schema.gestion_schemas.new

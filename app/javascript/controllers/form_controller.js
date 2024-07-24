@@ -7,10 +7,10 @@ export default class extends Controller {
   }
   connect() {
     this.formChange();
-    if (document.getElementById("commentaire") != null) {
+    if (this.countTargets.length > 0) {
       this.calculNombreCaracteres();
     }
-    if (document.getElementById("ae_i") != null){
+    if (document.getElementById("ae_i") != null || document.getElementById('form_schema') != null ){
       this.setNombreInput();
     }
     if (document.getElementById("ae_f") != null){
