@@ -8,7 +8,7 @@
         <div class="fr-input-group">
           <label for="prevision_solde_budgetaire_ae" class="fr-label">AE</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :prevision_solde_budgetaire_ae, value: @gestion_schema.prevision_solde_budgetaire_ae, id: "prevision_solde_budgetaire_ae", class: "fr-input", data: {action: 'input->form#changeNumber'}  %>
+            <%= f.text_field :prevision_solde_budgetaire_ae, value: @gestion_schema.prevision_solde_budgetaire_ae, id: "prevision_solde_budgetaire_ae", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "aeInputs"}  %>
           </div>
         </div>
       </div>
@@ -16,7 +16,7 @@
         <div class="fr-input-group">
           <label for="prevision_solde_budgetaire_cp" class="fr-label">CP</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :prevision_solde_budgetaire_cp, value: @gestion_schema.prevision_solde_budgetaire_cp, id: "prevision_solde_budgetaire_cp", class: "fr-input", data: {action: 'input->form#changeNumber'}  %>
+            <%= f.text_field :prevision_solde_budgetaire_cp, value: @gestion_schema.prevision_solde_budgetaire_cp, id: "prevision_solde_budgetaire_cp", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "cpInputs"}  %>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
         <div class="fr-input-group">
           <label for="mobilisation_mer_ae" class="fr-label">AE</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :mobilisation_mer_ae, value: @gestion_schema.mobilisation_mer_ae, id: "mobilisation_mer_ae", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :mobilisation_mer_ae, value: @gestion_schema.mobilisation_mer_ae, id: "mobilisation_mer_ae", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "aeInputs"} %>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
         <div class="fr-input-group">
           <label for="mobilisation_mer_cp" class="fr-label">CP</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :mobilisation_mer_cp, value: @gestion_schema.mobilisation_mer_cp, id: "mobilisation_mer_cp", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :mobilisation_mer_cp, value: @gestion_schema.mobilisation_mer_cp, id: "mobilisation_mer_cp", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "cpInputs"} %>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
         <div class="fr-input-group">
           <label for="fongibilite_ae" class="fr-label">AE</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id: "fongibilite_ae", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id: "fongibilite_ae", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "aeInputs"} %>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
         <div class="fr-input-group">
           <label for="fongibilite_cp" class="fr-label">CP</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :fongibilite_cp, value: @gestion_schema.fongibilite_cp, id: "fongibilite_cp", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :fongibilite_cp, value: @gestion_schema.fongibilite_cp, id: "fongibilite_cp", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "cpInputs"} %>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@
         <div class="fr-input-group">
           <label for="decret_ae" class="fr-label">AE</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :decret_ae, value: @gestion_schema.decret_ae, id: "decret_ae", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :decret_ae, value: @gestion_schema.decret_ae, id: "decret_ae", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "aeInputs"} %>
           </div>
         </div>
       </div>
@@ -101,20 +101,20 @@
         <div class="fr-input-group">
           <label for="decret_cp" class="fr-label">CP</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :decret_cp, value: @gestion_schema.decret_cp, id: "decret_cp", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :decret_cp, value: @gestion_schema.decret_cp, id: "decret_cp", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "cpInputs"} %>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Crédits ouverts en
+    <div class="fr-h6 fr-mb-1w">Ouverture/annulation de crédits en
       LFG <%= render partial: "gestion_schemas/tooltip", locals: { name: "credits_ouverts" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
           <label for="credits_ouverts_ae" class="fr-label">AE</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_ouverts_ae, value: @gestion_schema.credits_ouverts_ae, id: "credits_ouverts_ae", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :credits_ouverts_ae, value: @gestion_schema.credits_ouverts_ae, id: "credits_ouverts_ae", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "aeInputs"} %>
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@
         <div class="fr-input-group">
           <label for="credits_ouverts_cp" class="fr-label">CP</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_ouverts_cp, value: @gestion_schema.credits_ouverts_cp, id: "credits_ouverts_cp", class: "fr-input", data: {action: 'input->form#changeNumber'} %>
+            <%= f.text_field :credits_ouverts_cp, value: @gestion_schema.credits_ouverts_cp, id: "credits_ouverts_cp", class: "fr-input", data: {action: 'input->form#changeNumber', form_target: "cpInputs"} %>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@
         <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center">AE</p>
-            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="solde_ae">-</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldeAe">-</p>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@
         <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center">CP</p>
-            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" id="solde_cp">-</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldeCp">-</p>
           </div>
         </div>
       </div>

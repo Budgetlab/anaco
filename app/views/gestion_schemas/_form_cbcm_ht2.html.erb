@@ -107,7 +107,7 @@
           <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center">AE</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center">-</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@gestion_schema.solde_total_ae)%> €</p>
             </div>
           </div>
         </div>
@@ -115,7 +115,7 @@
           <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center">CP</p>
-              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center">-</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@gestion_schema.solde_total_cp)%> €</p>
             </div>
           </div>
         </div>
