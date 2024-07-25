@@ -3,23 +3,23 @@
 # controller Programme
 class ProgrammesController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:new, :import]
   require 'axlsx'
   include ApplicationHelper
   # Page liste des crédits non repartis par programme
   def index
-    @annee_a_afficher = annee_a_afficher
-    # récupérer les programmes à afficher en fonction du profil
-    @programmes = Programme.all.order(numero: :asc)
+    programmes = Programme.all.order(numero: :asc)
+    @q = programmes.ransack(params[:q])
+    @programmes = @q.result.includes(:schemas)
+    @pagy, @programmes_page = pagy(@programmes)
   end
 
   def show
-
+    @programme = Programme.find(params[:id])
   end
 
   # Page pour importer le fichier des programmes
-  def new
-    redirect_to root_path if current_user.statut != 'admin'
-  end
+  def new; end
 
   def import
     Programme.import(params[:file])
@@ -28,22 +28,22 @@ class ProgrammesController < ApplicationController
     end
   end
 
-  private
+  def show_last_schema
+    @programme = Programme.find(params[:id])
+    @schema = @programme.last_schema_valid
+    return unless @schema
 
-  def count_reste_index(annee)
-    phase = annee == @annee ? @phase : 'CRG2'
-    @count_reste = case phase
-                   when 'début de gestion'
-                     @programmes.length - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   when 'CRG1'
-                     @programmes.length + @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   when 'CRG2'
-                     2 * @programmes.length + @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   end
-    liste_credits_annee_precedente = current_user.credits.where(annee: annee - 1)
-    liste_credit_annee_precedente_debut = liste_credits_annee_precedente.count { |credit| credit.phase == 'début de gestion' && credit.etat != 'Brouillon' }
-    liste_credit_annee_precedente_crg2 = liste_credits_annee_precedente.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
-    @count_reste_annee_precedente = liste_credit_annee_precedente_debut - liste_credit_annee_precedente_crg2
+    @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
+    @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
+    @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')
+    @vision_cbcm_t2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'T2')
+
+  end
+
+  def show_avis
+    @programme = Programme.find(params[:id])
+    @bops = @programme.bops.includes(:user).order(code: :asc)
+    @avis = Avi.where(bop_id: @bops.pluck(:id), annee: @annee).where.not(etat: 'Brouillon')
   end
 
 end

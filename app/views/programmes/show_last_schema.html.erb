@@ -1,0 +1,29 @@
+<%= turbo_frame_tag :show do %>
+  <% if @schema %>
+    <div class="fr-tabs">
+      <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+        <li role="presentation">
+          <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">Vision
+            RPROG
+          </button>
+        </li>
+        <li role="presentation">
+          <button id="tabpanel-405" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-405-panel">Vision
+            CBCM
+          </button>
+        </li>
+      </ul>
+      <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
+        <%= render partial: 'schemas/show_vision', locals: { vision: 'RPROG', vision_ht2: @vision_rprog_ht2, vision_t2: @vision_rprog_t2 } %>
+      </div>
+      <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
+        <%= render partial: 'schemas/show_vision', locals: { vision: 'CBCM', vision_ht2: @vision_cbcm_ht2, vision_t2: @vision_cbcm_t2 } %>
+      </div>
+    </div>
+    </div>
+  <% else %>
+    <div class="fr-highlight">
+      <p>Aucune donnée pour le moment.</p>
+    </div>
+  <% end %>
+<% end %>

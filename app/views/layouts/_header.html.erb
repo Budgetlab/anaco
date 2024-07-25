@@ -73,6 +73,9 @@
                           <%= active_link_to suivi_path, class: "fr-nav__link", target: "_self" do%>Suivi des avis/notes par contrôleur<%end%>
                         </li>
                         <% end %>
+                        <li>
+                          <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions nationales<%end%>
+                        </li>
                       </ul>
                     </div>
                   </li>
@@ -95,10 +98,19 @@
                     </li>
                   <% end  %>
 
+                  <li class="fr-nav__item">
+                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) ? 'aria-current="true"' : '' %>>Listes</button>
+                    <div class="fr-collapse fr-menu" id="menu-liste">
+                      <ul class="fr-menu__list">
+                        <li>
+                          <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do%>Liste des programmes<%end%>
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
 
-                    <li class="fr-nav__item">
-                      <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions<%end%>
-                    </li>
+
+
 
                     <li class="fr-nav__item">
                       <%= active_link_to faq_path, class: "fr-nav__link", target: "_self" do%>FAQ<%end%>

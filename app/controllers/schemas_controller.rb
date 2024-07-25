@@ -5,7 +5,7 @@ class SchemasController < ApplicationController
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]
   def index
     # récupérer la liste des schémas triés par ordre croissant
-    @schemas = current_user.statut == 'DCB' ? current_user.schemas : Schema.all
+    @schemas = current_user.statut == 'DCB' ? current_user.schemas.joins(:gestion_schemas).distinct : Schema.where(statut: 'valide')
     @schemas = @schemas.order(created_at: :desc)
     # recherche filtres ransack
     @q = @schemas.ransack(params[:q])

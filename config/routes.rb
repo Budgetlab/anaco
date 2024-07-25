@@ -32,6 +32,10 @@ Rails.application.routes.draw do
     resources :programmes do
       resources :credits, only: [:new]
       resources :schemas, only: [:new, :create]
+      member do
+        get 'last_schema', to: 'programmes#show_last_schema'
+        get 'avis', to: 'programmes#show_avis'
+      end
     end
     resources :credits, only: [:index, :create, :update, :destroy]
     post 'import_programmes' => 'programmes#import'

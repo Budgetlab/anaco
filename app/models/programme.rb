@@ -1,5 +1,7 @@
 class Programme < ApplicationRecord
   belongs_to :user
+  belongs_to :mission
+  belongs_to :ministere
   has_many :credits, dependent: :destroy
   has_many :bops
   has_many :avis, through: :bops
@@ -39,6 +41,10 @@ class Programme < ApplicationRecord
 
   def last_schema
     self.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first
+  end
+
+  def last_schema_valid
+    self.schemas&.where(statut: 'valide')&.order(created_at: :desc)&.first
   end
 
   def gestion_schemas_empty?
