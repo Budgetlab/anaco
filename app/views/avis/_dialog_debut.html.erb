@@ -15,7 +15,7 @@
 						</h1>
 						<% if avis.phase == "début de gestion" %>
 
-							<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <%= avis.statut%></p>
+							<p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis : <span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon"><%= avis.statut %></span></p>
 
 							<p class="fr-my-1w"><span class="fr-text--bold">Date de réception du BOP initial :</span> <%= l(avis.date_reception,format: "%e/%m/%y")%></p>
 							<p class="fr-my-1w"><span class="fr-text--bold">Date de l’avis au BOP initial :</span> <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>

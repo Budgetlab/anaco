@@ -8,8 +8,8 @@ class ProgrammesController < ApplicationController
   include ApplicationHelper
   # Page liste des crédits non repartis par programme
   def index
-    programmes = Programme.all.order(numero: :asc)
-    @q = programmes.ransack(params[:q])
+    @programmes = Programme.all.order(numero: :asc)
+    @q = @programmes.ransack(params[:q])
     @programmes = @q.result.includes(:schemas)
     @pagy, @programmes_page = pagy(@programmes)
   end

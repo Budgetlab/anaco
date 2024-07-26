@@ -65,4 +65,8 @@ class User < ApplicationRecord
     self.programmes.left_outer_joins(:schemas).where(schemas: { annee: Date.today.year, statut: 'valide' }).count
   end
 
+  def bops_with_avis(annee)
+    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'] }).count
+  end
+
 end

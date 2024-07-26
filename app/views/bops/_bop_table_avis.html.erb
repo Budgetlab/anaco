@@ -27,12 +27,8 @@
                 <td><%= avis.phase %> </td>
                 <td><%= avis.statut %></td>
                 <td>
-                  <% if avis.etat == "En attente de lecture" %>
-                    <p class="fr-badge fr-badge--purple-glycine"><%= avis.etat %></p>
-                  <% elsif avis.etat == "Lu" %><p class="fr-badge fr-badge--info fr-badge--no-icon"><%= avis.etat %></p>
-                  <% elsif avis.etat == "Brouillon" %>
-                    <p class="fr-badge fr-badge--new fr-badge--no-icon"><%= avis.etat %></p>
-                  <% end %></td>
+                  <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
+                </td>
                 <td>
                   <% if avis.etat == "Brouillon" && avis.user == current_user %>
                     <%= link_to new_bop_avi_path(avis.bop_id), class: "fr-btn" do %>Reprendre

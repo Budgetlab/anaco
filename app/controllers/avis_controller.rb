@@ -3,6 +3,7 @@
 # controller des Avis
 class AvisController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:ajout_avis, :import]
   before_action :redirect_unless_dcb, only: %i[consultation update_etat]
   require 'axlsx'
   include ApplicationHelper
@@ -101,7 +102,7 @@ class AvisController < ApplicationController
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
     @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant_id && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
     redirect_path = if @avis.phase == 'execution'
-                      @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : bops_path
+                      @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : remplissage_avis_path
                     else
                       historique_path
                     end
@@ -125,6 +126,14 @@ class AvisController < ApplicationController
     respond_to do |format|
       format.turbo_stream { redirect_to ajout_avis_path }
     end
+  end
+
+  def suivi_remplissage
+    @annee_a_afficher = annee_a_afficher
+    @bops = current_user.bops.where('bops.created_at <= ?', Date.new(@annee_a_afficher, 12, 31)).order(code: :asc)
+    @bops_inactifs = @bops.where(dotation: 'aucune')
+    @bops_actifs = @bops.where.not(dotation: 'aucune')
+    @avis = current_user.avis.where(annee: @annee_a_afficher)
   end
 
   private
@@ -178,7 +187,29 @@ class AvisController < ApplicationController
   end
 
   def redirect_unless_bop_controller
-    redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
+    redirect_to remplissage_avis_path and return if @bop.nil? || @bop.user != current_user
+  end
+
+  # variable concernant les BOP sur l'année en cours pour DBC et CBR
+  def variables_bops_index(annee)
+    bop_annee_avis_dg_id = current_user.avis.where(annee: annee, phase: 'début de gestion').pluck(:bop_id)
+    @liste_bops_actifs = annee == @annee ? @liste_bops.reject { |el| el[2] == 'aucune' } : @liste_bops.select { |el| bop_annee_avis_dg_id.include?(el[0]) }
+    @liste_bops_inactifs = annee == @annee ? @liste_bops.select { |el| el[2] == 'aucune' } : @liste_bops.reject { |el| bop_annee_avis_dg_id.include?(el[0]) }
+    @liste_avis_par_bop = current_user.bops.joins(:avis).where('avis.annee': annee).where.not('avis.phase': 'execution').pluck(:id, 'avis.etat AS avis_etat', 'avis.phase AS avis_phase', 'avis.is_crg1 AS avis_crg1')
+    phase = annee == @annee ? @phase : 'CRG2'
+    @count_reste = case phase
+                   when 'début de gestion'
+                     @liste_bops_actifs.length - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   when 'CRG1'
+                     @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   when 'CRG2'
+                     puts @liste_bops_actifs.length
+                     2 * @liste_bops_actifs.length + @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_avis_par_bop.count { |el| el[1] != 'Brouillon' }
+                   end
+    liste_avis_annee_precedente = current_user.avis.where(annee: annee - 1)
+    liste_avis_annee_precedente_debut = liste_avis_annee_precedente.count { |avis| avis.phase == 'début de gestion' && avis.etat != 'Brouillon' }
+    liste_avis_annee_precedente_crg2 = liste_avis_annee_precedente.count { |avis| avis.phase == 'CRG2' && avis.etat != 'Brouillon' }
+    @count_reste_annee_precedente = liste_avis_annee_precedente_debut - liste_avis_annee_precedente_crg2
   end
 
 end

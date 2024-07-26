@@ -18,9 +18,9 @@ module AvisHelper
     when 'Favorable', 'Aucun risque'
       'fr-badge fr-badge--success'
     when 'Favorable avec réserve', 'Risques éventuels ou modérés', 'Risques modérés'
-      'fr-badge fr-badge--new'
-    when 'Défavorable', 'Risques certains ou significatifs', 'Risques significatifs'
       'fr-badge fr-badge--warning'
+    when 'Défavorable', 'Risques certains ou significatifs', 'Risques significatifs'
+      'fr-badge fr-badge--error'
     else
       'fr-badge'
     end

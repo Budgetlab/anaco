@@ -3,10 +3,6 @@
   <div class="fr-accordions-group fr-mb-4w">
     <% @bops.each do |bop| %>
       <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>
-
-      <% avis_bop_debut = @avis.select { |a| a.bop_id == bop.id && a.phase == "début de gestion" }.first %>
-      <% avis_bop_crg1 = @avis.select { |a| a.bop_id == bop.id && a.phase == "CRG1" }.first %>
-      <% avis_bop_crg2 = @avis.select { |a| a.bop_id == bop.id && a.phase == "CRG2" }.first %>
       <section class="fr-accordion">
         <h3 class="fr-accordion__title">
           <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%= bop.id %>">
@@ -14,66 +10,37 @@
             <% if bop.dotation == "aucune" %>
               <p class="fr-badge fr-badge--no-icon fr-ml-2w">BOP inactif</p>
             <% else %>
-              <% unless avis_bop_debut.nil? %>
-                <% avis_statut = avis_bop_debut.statut %>
-                <p class="<%= badge_class_for_statut(avis_statut) %> fr-badge--no-icon fr-ml-2w">Avis <%= avis_statut %></p>
-              <% end %>
-
-              <% if avis_bop_debut && avis_bop_debut.is_crg1 == false %>
-                <p class="fr-badge fr-badge--no-icon fr-ml-2w">PAS DE CRG1</p>
-              <% end %>
-              <% unless avis_bop_crg1.nil? %>
-                <% note_crg1_statut = avis_bop_crg1.statut %>
-                <p class="<%= badge_class_for_statut(note_crg1_statut) %> fr-badge--no-icon fr-ml-2w">CRG1
-                  : <%= note_crg1_statut %></p>
-              <% end %>
-              <% unless avis_bop_crg2.nil? %>
-                <% note_crg2_statut = avis_bop_crg2.statut %>
-                <p class="<%= badge_class_for_statut(note_crg2_statut) %> fr-badge--no-icon fr-ml-2w">CRG2
-                  : <%= note_crg2_statut %></p>
+              <% avis_bop.each do |avis| %>
+                <% unless avis.nil? %>
+                  <p class="<%= badge_class_for_statut(avis.statut) %> fr-ml-2w"><%= avis.phase %></p>
+                  <% if avis.phase == "début de gestion" && avis.is_crg1 == false %>
+                    <p class="fr-badge fr-badge--no-icon fr-ml-2w">PAS DE CRG1</p>
+                  <% end %>
+                <% end %>
               <% end %>
             <% end %>
-
           </button>
         </h3>
         <div class="fr-collapse" id="accordion-<%= bop.id %>">
           <p class="fr-tag fr-mb-2w"><%= bop.user.nom %></p>
           <ul class="fr-btns-group fr-btns-group--inline">
-            <% if avis_bop_debut.nil? %>
-              <li>
-                <button class="fr-btn" disabled>Avis début de gestion</button>
-              </li>
-            <% else %>
-              <li>
-                <%= link_to open_modal_path(id: avis_bop_debut.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
-                  Avis début de gestion
+            <li>
+              <% avis_bop.each_with_index do |avis, index| %>
+                <% if avis.nil? %>
+                  <% if index == 0 || index == 2 %>
+                    <button class="fr-btn" disabled><%= index == 0 ? 'Avis début de gestion' : 'Note CRG2' %></button>
+                  <% elsif index == 1 %>
+                    <% if avis_bop.first.nil? || avis_bop.first.is_crg1? %>
+                      <button class="fr-btn" disabled>Note CRG1</button>
+                    <% end %>
+                  <% end %>
+                <% else %>
+                  <%= link_to open_modal_path(id: avis.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
+                    <%= index == 0 ? 'Avis' : 'Note' %> <%= avis.phase %>
+                  <% end %>
                 <% end %>
-              </li>
-            <% end %>
-            <% if avis_bop_crg1.nil? %>
-              <% if avis_bop_debut.nil? || avis_bop_debut.is_crg1 == true %>
-                <li>
-                  <button class="fr-btn" disabled>Note CRG1</button>
-                </li>
               <% end %>
-            <% else %>
-              <li>
-                <%= link_to open_modal_path(id: avis_bop_crg1.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
-                  Note CRG1
-                <% end %>
-              </li>
-            <% end %>
-            <% if avis_bop_crg2.nil? %>
-              <li>
-                <button class="fr-btn" disabled>Note CRG2</button>
-              </li>
-            <% else %>
-              <li>
-                <%= link_to open_modal_path(id: avis_bop_crg2.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
-                  Note CRG2
-                <% end %>
-              </li>
-            <% end %>
+            </li>
           </ul>
         </div>
       </section>
