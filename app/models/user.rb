@@ -50,7 +50,7 @@ class User < ApplicationRecord
   end
 
   def self.authentication_keys
-    {statut: true, nom: false}
+    { statut: true, nom: false }
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -67,6 +67,29 @@ class User < ApplicationRecord
 
   def bops_with_avis(annee)
     self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'] }).count
+  end
+
+  def bops_with_crg1(annee)
+    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'], phase: 'début de gestion', is_crg1: true }).count
+  end
+
+  def bops_actifs(annee)
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+  end
+
+  def bops_inactifs(annee)
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(dotation: 'aucune')
+  end
+
+  def avis_a_remplir(annee, phase)
+    case phase
+    when 'début de gestion'
+      bops_actifs(annee).count - bops_with_avis(annee)
+    when 'CRG1'
+      bops_actifs(annee).count + bops_with_crg1(annee) - bops_with_avis(annee)
+    when 'CRG2'
+      2 * bops_actifs(annee).count + bops_with_crg1(annee) - bops_with_avis(annee)
+    end
   end
 
 end

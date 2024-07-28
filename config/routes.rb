@@ -46,7 +46,7 @@ Rails.application.routes.draw do
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'
     resources :avis, only: [:create, :update, :destroy]
-    get 'remplissage_avis' => "avis#suivi_remplissage"
+    get 'remplissage_avis' => "avis#remplissage_avis"
     post 'open_modal' => 'avis#open_modal'
     post 'open_modal_brouillon' => 'avis#open_modal_brouillon'
     post 'reset_brouillon', to: 'avis#reset_brouillon'

@@ -36,7 +36,7 @@
 
     </div>
   </div>
-  <% if @bops_actifs.count - current_user.bops_with_avis(@annee_a_afficher - 1) > 0 %>
+  <% if current_user.avis_a_remplir(@annee_a_afficher - 1, 'CRG2') > 0 %>
     <div class="fr-alert fr-alert--warning fr-mb-6w">
       <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee_a_afficher - 1 %>.</h3>
       <p>Vous pouvez renseigner les avis et notes
@@ -61,7 +61,7 @@
     </ul>
     <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
       <p class="fr-h3">Il vous
-        reste <%= pluralize(@bops_actifs.count - current_user.bops_with_avis(@annee_a_afficher), 'avis/note', plural: 'avis/notes') %>
+        reste <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher, @phase), 'avis/note', plural: 'avis/notes') %>
         à rédiger</p>
 
       <% @bops_actifs&.each do |bop| %>
