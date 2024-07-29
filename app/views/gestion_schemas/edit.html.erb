@@ -13,7 +13,7 @@
             <% end %>
           </li>
           <li>
-            <%= link_to schemas_suivi_path, class: "fr-breadcrumb__link" do %> Liste des schémas de fin de
+            <%= link_to schemas_remplissage_path, class: "fr-breadcrumb__link" do %> Liste des schémas de fin de
               gestion
             <% end %>
           </li>
@@ -32,5 +32,19 @@
         </div>
       </div>
     </div>
+
+    <% if @gestion_schema.profil == "HT2" %>
+      <% if @gestion_schema.vision == "RPROG" %>
+        <%= render 'form_rprog_ht2' %>
+      <% elsif @gestion_schema.vision == "CBCM" %>
+        <%= render 'form_cbcm_ht2' %>
+      <% end %>
+    <% elsif @gestion_schema.profil == "T2" %>
+      <% if @gestion_schema.vision == "RPROG" %>
+        <%= render 'form_rprog_t2' %>
+      <% elsif @gestion_schema.vision == "CBCM" %>
+        <%= render 'form_cbcm_t2' %>
+      <% end %>
+    <% end %>
   </div>
 </main>

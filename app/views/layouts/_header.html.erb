@@ -84,12 +84,12 @@
 
                   <% if current_user.statut != 'CBR' %>
                     <li class="fr-nav__item">
-                      <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(schemas_suivi_path) || current_page?(schemas_path) ? 'aria-current="true"' : '' %>>Schémas fin de gestion</button>
+                      <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(schemas_remplissage_path) || current_page?(schemas_path) ? 'aria-current="true"' : '' %>>Schémas fin de gestion</button>
                       <div class="fr-collapse fr-menu" id="menu-cnrep">
                         <ul class="fr-menu__list">
                           <% if current_user.statut == "DCB" %>
                             <li>
-                              <%= active_link_to schemas_suivi_path, class: "fr-nav__link", target: "_self" do%>Remplissage des schémas de fin de gestion<%end%>
+                              <%= active_link_to schemas_remplissage_path, class: "fr-nav__link", target: "_self" do%>Remplissage des schémas de fin de gestion<%end%>
                             </li>
                           <% end %>
                           <li>

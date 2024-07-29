@@ -21,14 +21,14 @@ Rails.application.routes.draw do
     resources :missions
     resources :ministeres
 
-    resources :gestion_schemas, except: [:new, :create]
+    # resources :gestion_schemas, except: [:new, :create]
     resources :schemas, except: [:new, :create] do
-      resources :gestion_schemas, only: [:new, :create]
+      resources :gestion_schemas
       member do
         get 'confirm_delete' => "schemas#confirm_delete"
       end
     end
-    get 'schemas_suivi' => "schemas#suivi_remplissage"
+    get 'schemas_remplissage' => "schemas#schemas_remplissage"
     resources :programmes do
       resources :credits, only: [:new]
       resources :schemas, only: [:new, :create]

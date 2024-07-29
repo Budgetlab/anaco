@@ -23,7 +23,7 @@ class SchemasController < ApplicationController
   end
 
   # suivi remplissage des schémas par programme pour les DCB
-  def suivi_remplissage
+  def schemas_remplissage
     @programmes = current_user.programmes.order(numero: :asc)
   end
 

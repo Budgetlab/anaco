@@ -1,26 +1,28 @@
 class GestionSchemasController < ApplicationController
   before_action :authenticate_user!
-  before_action :redirect_unless_dcb, only: [:new, :create, :edit, :update, :destroy, :suivi_remplissage]
-  before_action :set_gestion_schema, only: [:edit, :update, :destroy]
-  before_action :set_schema, only: [:new, :create]
-  before_action :redirect_if_schema_complete, only: [:new, :create]
-  before_action :redirect_if_gestion_schema_brouillon, only: [:new]
+  before_action :redirect_unless_dcb, only: [:new, :create, :edit, :update]
+  before_action :set_gestion_schema, only: [:edit, :update]
+  before_action :set_schema, only: [:new, :create, :edit, :update]
+  before_action :redirect_if_schema_complete, only: [:new, :create, :edit, :update]
+  before_action :redirect_if_gestion_schema_brouillon, only: [:new] # A voir si on garde statut dans gestion schema
 
   def new
     @programme = @schema.programme
-    if @schema.statut == '1' || @schema.statut == '3'
-      # prendre les données du schema précédent (valide) s'il existe
-      previous_schema = @schema.programme.schemas&.where(annee: Date.today.year, statut: 'valide')&.order(created_at: :desc)&.first
+    # identifier formulaire et remplissage par défaut en fonction du statut (retours gérés dans edit)
+    @step = @schema.statut.to_i
+    if @step == 1 || @step == 3
+      # vision RPROG : prendre les données du schema précédent (valide) s'il existe
+      previous_schema = @programme.last_schema_valid
       if previous_schema
-        gestion_schema_previous = previous_schema&.gestion_schemas.offset(@schema.statut.to_i - 1).first
+        gestion_schema_previous = previous_schema.gestion_schemas.where(vision: 'RPROG', profil: @step == 1 ? 'HT2' : 'T2').first
         @gestion_schema = @schema.gestion_schemas.new(gestion_schema_previous.attributes)
       else
         @gestion_schema = @schema.gestion_schemas.new
       end
 
-    elsif @schema.statut == '2' || @schema.statut == '4'
-      # si vision RPROG on récupérer les données de la vision CBCM précédente
-      gestion_schema_previous = @schema.gestion_schemas.order(created_at: :desc).first
+    elsif @step == 2 || @step == 4
+      # vision CBCM : on récupère les données de la vision RPROG précédente
+      gestion_schema_previous = @schema.last_gestion_schema
       @gestion_schema = @schema.gestion_schemas.new(gestion_schema_previous.attributes)
     end
   end
@@ -33,21 +35,32 @@ class GestionSchemasController < ApplicationController
     steps_max = @schema.programme.dotation == 'HT2 et T2' ? 4 : 2
     statut = @schema.statut.to_i + 1 > steps_max ? 'valide' : (@schema.statut.to_i + 1).to_s
     @schema.update(statut: statut)
-    redirect_to new_schema_gestion_schema_path(@schema)
+    next_path = statut == 'valide' ? schemas_path : new_schema_gestion_schema_path(@schema)
+    redirect_to next_path
   end
 
   def edit
+    # possibilité de revenir en arrière et modifier gestion schema
     @programme = @gestion_schema.programme
+    @step = if @gestion_schema.profil == 'HT2'
+              @gestion_schema.vision == 'RPROG' ? 1 : 2
+            else
+              @gestion_schema.vision == 'RPROG' ? 3 : 4
+            end
   end
 
   def update
     @gestion_schema.update(gestion_schema_params)
-    redirect_to new_schema_gestion_schema_path(@schema)
-  end
-
-  def destroy
-    @gestion_schema&.destroy
-    redirect_to gestion_schemas_path
+    # redirection en fonction de l'étape
+    if @gestion_schema.vision == 'RPROG'
+      gestion_schema_next = @schema.gestion_schemas.where(vision: 'CBCM', profil: @gestion_schema.profil)&.first
+    elsif @gestion_schema.vision == 'CBCM'
+      # edit ne peux survenir que sur le CBCM HT2 car T2 toujours dernière étape avant sauvegarde finale
+      gestion_schema_next = @schema.gestion_schemas.where(vision: 'RPROG', profil: 'T2')&.first
+    end
+    # si gestion schema d'après existe on retourne sur edit sinon on repart de new
+    next_path = gestion_schema_next ? edit_schema_gestion_schema_path(gestion_schema_next, schema_id: @schema.id) : new_schema_gestion_schema_path(@schema)
+    redirect_to next_path
   end
 
   private
@@ -75,17 +88,17 @@ class GestionSchemasController < ApplicationController
   end
 
   def redirect_if_schema_complete
-    redirect_to schemas_suivi_path if @schema&.complete?
+    redirect_to schemas_remplissage_path if @schema&.complete?
   end
 
   def redirect_if_gestion_schema_brouillon
     last_gestion_schema = @schema.gestion_schemas&.order(created_at: :desc)&.first
-    redirect_to edit_gestion_schema_path(last_gestion_schema) and return if last_gestion_schema && last_gestion_schema&.statut != 'valide'
+    redirect_to edit_schema_gestion_schema_path(last_gestion_schema, schema_id: @schema.id) and return if last_gestion_schema && last_gestion_schema&.statut != 'valide'
   end
 
   def assign_vision_profil
-    vision = ["RPROG", "CBCM", "RPROG", "CBCM"]
-    profil = ["HT2", "HT2", "T2", "T2"]
+    vision = %w[RPROG CBCM RPROG CBCM]
+    profil = %w[HT2 HT2 T2 T2]
     @step = @schema.statut.to_i - 1
     @gestion_schema.vision = vision[@step]
     @gestion_schema.profil = profil[@step]

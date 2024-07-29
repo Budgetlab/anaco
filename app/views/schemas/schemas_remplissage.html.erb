@@ -18,7 +18,7 @@
                   <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
                     <div class="fr-col-lg-2 fr-col-12">
                       <ul>
-                        <li>Programme n°<%= programme.numero %></li>
+                        <li><%= link_to programme_path(programme) do %>Programme n°<%= programme.numero %><% end %></li>
                       </ul>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">

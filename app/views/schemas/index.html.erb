@@ -70,7 +70,7 @@
                     <% @schemas_page&.each do |schema| %>
                       <tr>
                         <td><%= l(schema.updated_at, format: "%e/%m/%y") %> </td>
-                        <td><%= schema.programme.numero %></td>
+                        <td><%= link_to programme_path(schema.programme), data: {turbo_frame: '_top'} do %><%= schema.programme.numero %> - <%= schema.programme.nom %><%end %></td>
                         <td><%= schema.annee %>  </td>
                         <td>Version n°<%= numero_version(schema) %></td>
                         <td>

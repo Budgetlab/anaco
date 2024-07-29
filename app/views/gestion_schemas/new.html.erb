@@ -13,7 +13,7 @@
             <% end %>
           </li>
           <li>
-            <%= link_to schemas_suivi_path, class: "fr-breadcrumb__link" do %> Liste des schémas de fin de
+            <%= link_to schemas_remplissage_path, class: "fr-breadcrumb__link" do %> Liste des schémas de fin de
               gestion
             <% end %>
           </li>
@@ -33,13 +33,13 @@
         </div>
       </div>
     </div>
-    <% if @schema.statut == "1" %>
+    <% if @step == 1 %>
       <%= render 'form_rprog_ht2' %>
-    <% elsif @schema.statut == "2" %>
+    <% elsif @step == 2 %>
       <%= render 'form_cbcm_ht2' %>
-    <% elsif @schema.statut == "3" %>
+    <% elsif @step == 3 %>
       <%= render 'form_rprog_t2' %>
-    <% elsif @schema.statut == "4" %>
+    <% elsif @step == 4 %>
       <%= render 'form_cbcm_t2' %>
     <% end %>
   </div>

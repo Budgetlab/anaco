@@ -19,6 +19,10 @@ class Schema < ApplicationRecord
     self.programme.schemas.where(annee: Date.today_year).count == 1
   end
 
+  def last_gestion_schema
+    self.gestion_schemas.order(created_at: :desc).first
+  end
+
   def self.ransackable_associations(auth_object = nil)
     ["gestion_schemas", "programme", "user"]
   end

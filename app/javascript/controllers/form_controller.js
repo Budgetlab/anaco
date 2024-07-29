@@ -236,7 +236,7 @@ export default class extends Controller {
         } else {
             this.soldeAeTarget.classList.remove('crouge')
         }
-        if (coBalance < 0) {
+        if (cpBalance < 0) {
             this.soldeCpTarget.classList.add('crouge')
         } else {
             this.soldeCpTarget.classList.remove('crouge')
