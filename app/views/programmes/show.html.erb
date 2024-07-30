@@ -14,7 +14,7 @@
     </div>
 
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-4" data-controller="toggle">
+      <div class="fr-col-12 fr-col-lg-3" data-controller="toggle">
         <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
           <div class="fr-sidemenu__inner">
             <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
@@ -38,12 +38,12 @@
                           </button>
                         </li>
                         <li class="fr-sidemenu__item">
-                          <button class="fr-sidemenu__link" data-toggle-id="statistiques" data-action="click->toggle#changeMenuSection">
+                          <button class="fr-sidemenu__link" data-toggle-id="restitutions" data-action="click->toggle#changeMenuSection">
                             Restitutions
                           </button>
                         </li>
                         <li class="fr-sidemenu__item">
-                          <button class="fr-sidemenu__link" data-toggle-id="liste" data-action="click->toggle#changeMenuSection">Liste
+                          <button class="fr-sidemenu__link" data-toggle-id="bops" data-action="click->toggle#changeMenuSection">Liste
                             des BOP
                           </button>
                         </li>
@@ -51,18 +51,20 @@
                     </div>
                   </li>
                 <% end %>
-                <li class="fr-sidemenu__item">
-                  <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
-                    Schémas de fin de gestion
-                  <% end %>
-                </li>
+                <% if current_user.statut != "CBR" %>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
+                      Schémas de fin de gestion
+                    <% end %>
+                  </li>
+                <% end %>
               </ul>
             </div>
           </div>
         </nav>
       </div>
 
-      <div class="fr-col-12 fr-col-lg-8">
+      <div class="fr-col-12 fr-col-lg-9">
         <%= turbo_frame_tag :show, target: "_top", src: @programme.bops.empty? ? last_schema_programme_path(@programme) : avis_programme_path(@programme) %>
       </div>
     </div>

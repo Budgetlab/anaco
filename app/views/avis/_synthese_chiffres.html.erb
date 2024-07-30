@@ -1,0 +1,38 @@
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-3">
+    <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body text_center">
+        <p class="fr-text--lg fr-mb-0">AE HT2 <%= titre %></p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 <%= avis[0].negative? ? 'crouge' : '' %>"><%= format_number(avis[0])%>€</p>
+        <p class="fr-text--sm fr-mb-0 text_center <%= avis_sd[0].negative? ? 'crouge' : '' %>"><%= format_number(avis_sd[0]) %>€ en SD</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body text_center ">
+        <p class="fr-text--lg fr-mb-0">CP HT2 <%= titre %></p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 <%= avis[1].negative? ? 'crouge' : '' %>"><%= format_number(avis[1])%>€</p>
+        <p class="fr-text--sm fr-mb-0 text_center <%= avis_sd[1].negative? ? 'crouge' : '' %>"><%= format_number(avis_sd[1]) %>€ en SD</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body text_center">
+        <p class="fr-text--lg fr-mb-0">AE/CP T2 <%= titre %></p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 <%= avis[2].negative? ? 'crouge' : '' %>"><%= format_number(avis[2])%>€</p>
+        <p class="fr-text--sm fr-mb-0 text_center <%= avis_sd[2].negative? ? 'crouge' : '' %>"><%= format_number(avis_sd[2]) %>€ en SD</p>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-3">
+    <div class="fr-card <%= class_active %> fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body text_center">
+        <p class="fr-text--lg fr-mb-0 ">ETPT <%= titre %></p>
+        <p class="fr-text--lg fr-text--bold fr-mb-0 <%= avis[3].negative? ? 'crouge' : '' %>"><%= format_number(avis[3])%></p>
+        <p class="fr-text--sm fr-mb-0 text_center <%= avis_sd[3].negative? ? 'crouge' : '' %>"><%= format_number(avis_sd[3]) %> en SD</p>
+      </div>
+    </div>
+  </div>
+</div>

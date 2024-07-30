@@ -5,6 +5,8 @@ class PagesController < ApplicationController
   before_action :authenticate_user!
   require 'axlsx'
   include ApplicationHelper
+  include AvisHelper
+  include BopsHelper
   # page d'accueil suivi global des avis par phase selon le profil
   def index
     liste_variables_index # chargement dates alerte et user statut
@@ -150,34 +152,7 @@ class PagesController < ApplicationController
     avis_remplis.count { |a| !a.is_delai && a.phase == 'début de gestion' }
   end
 
-  # fonction pour afficher la répartition des statuts pour les avis début de gestion de l'année sélectionnée
-  def avis_repartition(avis, avis_total)
-    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == 'début de gestion' }
-    avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == 'début de gestion' }
-    avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == 'début de gestion' }
-    avis_vide = avis_total - avis_favorables - avis_reserves - avis_defavorables
-    [avis_favorables, avis_reserves, avis_defavorables, avis_vide]
-  end
 
-  # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
-  def avis_date_repartition(avis, avis_total, annee)
-    avis_date_1 = avis.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) && a.phase == 'début de gestion' }
-    avis_date_2 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == 'début de gestion' }
-    avis_date_3 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == 'début de gestion' }
-    avis_date_4 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) && a.phase == 'début de gestion' }
-    avis_vide = avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4
-    [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_vide]
-  end
-
-  # fonction pour afficher les graphes avec la répartition des statuts pour les notes CRG1 et CRG2
-  def notes_repartition(avis, avis_total, phase)
-    notes_counts = avis.select { |a| a.phase == phase }.group_by(&:statut).transform_values(&:count)
-    notes_sans_risque = notes_counts['Aucun risque'].to_i
-    notes_moyen = (notes_counts['Risques éventuels ou modérés'] || 0) + (notes_counts['Risques modérés'] || 0)
-    notes_red = (notes_counts['Risques certains ou significatifs'] || 0) + (notes_counts['Risques significatifs'] || 0)
-    notes_vide = avis_total - notes_sans_risque - notes_moyen - notes_red
-    [notes_sans_risque, notes_moyen, notes_red, notes_vide]
-  end
 
   # fonction pour charger crédits non rep par phase et total
   def credits_nrep(statut_user)
@@ -205,30 +180,7 @@ class PagesController < ApplicationController
     scope.where('created_at <= ?', Date.new(annee, 12, 31)).order(numero_programme: :asc).pluck(:numero_programme, :nom_programme).uniq.to_h
   end
 
-  # fonction pour afficher la répartition des statuts des BOP par phase
-  def statut_bop_repartition(avis_remplis, avis_total, annee)
-    statuts_debut = statut_bop(avis_remplis, avis_total, 'début de gestion')
-    statuts_crg1 = annee != @annee || @date_crg1 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG1') : [0, 0, 0, avis_total]
-    statuts_crg2 = annee != @annee || @date_crg2 <= Date.today ? statut_bop(avis_remplis, avis_total, 'CRG2') : [0, 0, 0, avis_total]
-    [[statuts_debut[0], statuts_crg1[0], statuts_crg2[0]], [statuts_debut[1], statuts_crg1[1], statuts_crg2[1]],
-     [statuts_debut[2], statuts_crg1[2], statuts_crg2[2]], [statuts_debut[3], statuts_crg1[3], statuts_crg2[3]]]
-  end
 
-  # fonction pour calculer les statuts des bops sur une phase
-  def statut_bop(avis, avis_total, phase)
-    if phase == 'CRG1'
-      statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
-      statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
-      statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
-      statuts_vide = avis_total - avis.select { |a| a.phase == 'début de gestion' && a.is_crg1 == false }.count - avis.count { |a| a.phase == phase }
-    else
-      statuts_positive = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
-      statuts_nul = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
-      statuts_negative = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
-      statuts_vide = avis_total - avis.count { |a| a.phase == phase }
-    end
-    [statuts_positive, statuts_nul, statuts_negative, statuts_vide]
-  end
 
   # fonction qui initialise les variables de la page restitution du programme en fonction de l'année sélectionnée
   def variables_programme_bops(annee)

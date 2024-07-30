@@ -6,6 +6,8 @@ class ProgrammesController < ApplicationController
   before_action :authenticate_admin!, only: [:new, :import]
   require 'axlsx'
   include ApplicationHelper
+  include AvisHelper
+  include BopsHelper
   # Page liste des crédits non repartis par programme
   def index
     @programmes = Programme.all.order(numero: :asc)
@@ -43,8 +45,17 @@ class ProgrammesController < ApplicationController
   def show_avis
     @annee_a_afficher = annee_a_afficher
     @programme = Programme.find(params[:id])
+    # charger la liste des BOP associés au programme
     @bops = @programme.bops.includes(:user).order(code: :asc)
-    @avis = Avi.where(bop_id: @bops.pluck(:id), annee: @annee).where.not(etat: 'Brouillon')
+    # récupérer les avis (et leurs utilisateurs associés) des BOP du programme
+    @avis = @programme.avis.joins(:user).where(annee: @annee_a_afficher).where.not(etat: 'Brouillon')
+    # extraire les avis pour les utilisateurs CBR
+    @avis_cbr = @avis.where(users: { statut: 'CBR' })
+
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
   end
 
 end

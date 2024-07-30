@@ -1,9 +1,21 @@
 <%= turbo_frame_tag :show, target: '_top' do %>
-  <div class="fr-h2">Nous sommes en phase de <%= @phase %></div>
+  <div class="fr-h2">Nous sommes en phase de <%= @phase %> <%= @annee %></div>
+  <div class="fr-mb-2w">
+    <ul class="fr-tags-group">
+      <% (2023..2024).to_a.each do |annee| %>
+        <li>
+          <button class="fr-tag" data-toggle-target="nav" data-action="click->toggle#changeNav" aria-pressed="<%= @annee_a_afficher == annee ? 'true' : 'false' %>">
+            <%= link_to avis_programme_path(@programme, date: annee), data: { turbo_frame: :show } do %>
+              <%= annee %>
+            <% end %>
+          </button>
+        </li>
+      <% end %>
+    </ul>
+  </div>
   <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
 
-  <h3 class="fr-mt-3w">Données budgétaires</h3>
-
+  <h3 class="fr-mt-3w" id="chiffres">Données budgétaires</h3>
   <div class="fr-tabs fr-mb-4w">
     <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
       <% phases.each_with_index do |phase, index| %>
@@ -14,23 +26,44 @@
     </ul>
     <% phases.each_with_index do |phase, index| %>
       <div id="tabpanel-<%= index %>-panel" class="fr-tabs__panel <%= index == 0 ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= index %>" tabindex="0">
+        <% avis_ecart = sum_chiffres_avis(@avis, phase)[0..3].zip(sum_chiffres_avis(@avis, phase)[4..7]).map { |u, v| u - v } %>
+        <% avis_ecart_cbr = sum_chiffres_avis(@avis_cbr, phase)[0..3].zip(sum_chiffres_avis(@avis_cbr, phase)[4..7]).map { |u, v| u - v } %>
+        <div class="fr-mt-2w">
+          <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[0..3], titre: 'alloué', class_active: 'fr-card--green' } %>
+        </div>
+        <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
 
-        <div class="fr-mt-2w">
-          <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3], titre: 'alloué', class_active: 'fr-card--green' } %>
-        </div>
-        <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
-        <div class="fr-mt-2w">
-          <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3] - sum_chiffres_avis(@avis, phase)[4..7], titre: 'Ecart', class_active: 'fr-card--blue' } %>
-        </div>
+        <%= render partial: "avis/synthese_chiffres", locals: { avis: avis_ecart, avis_sd: avis_ecart_cbr, titre: 'Ecart', class_active: 'fr-card--blue' } %>
       </div>
     <% end %>
   </div>
 
+  <div class="fr-h2" id="restitutions">Restitutions</div>
+  <% bops_actifs_count = bops_actifs(@bops, @annee_a_afficher).count %>
+  <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count) %>" data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>" data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div data-highcharts-target="canvasAvisDate"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-6">
+        <div data-highcharts-target="canvasNotesBar"></div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div data-highcharts-target="canvasAvis"></div>
+      </div>
+    </div>
+  </div>
 
+  <div class="fr-h2" id="bops">Liste des BOP</div>
+  <div class="fr-mb-2w">
+    <%= link_to avis_programme_path(@programme, date: @annee_a_afficher, format: :xlsx), data: { "turbo_target": "_top" }, class: "fr-link fr-link--download" do %>
+      Télécharger l'ensemble des avis <%= @annee_a_afficher %>
+      <span class="fr-link__detail">XLSX</span>
+    <% end %>
+  </div>
 
-
-  <div class="fr-h2">Restitutions</div>
-  <div class="fr-h2">Liste des BOP</div>
   <div class="fr-accordions-group fr-mb-4w">
     <% @bops.each do |bop| %>
       <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>

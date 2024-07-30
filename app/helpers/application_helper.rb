@@ -99,4 +99,8 @@ module ApplicationHelper
       ['début de gestion']
     end
   end
+
+  def bops_actifs(bops, annee)
+    bops.where('created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+  end
 end
