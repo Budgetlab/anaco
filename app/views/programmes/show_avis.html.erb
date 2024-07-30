@@ -1,4 +1,35 @@
-<%= turbo_frame_tag :show do %>
+<%= turbo_frame_tag :show, target: '_top' do %>
+  <div class="fr-h2">Nous sommes en phase de <%= @phase %></div>
+  <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
+
+  <h3 class="fr-mt-3w">Données budgétaires</h3>
+
+  <div class="fr-tabs fr-mb-4w">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
+      <% phases.each_with_index do |phase, index| %>
+        <li role="presentation">
+          <button id="tabpanel-<%= index %>" class="fr-tabs__tab" tabindex="<%= index == 0 ? "0" : "-1" %>" role="tab" aria-selected="<%= index == 0 %>" aria-controls="tabpanel-<%= index %>-panel"><%= phase %></button>
+        </li>
+      <% end %>
+    </ul>
+    <% phases.each_with_index do |phase, index| %>
+      <div id="tabpanel-<%= index %>-panel" class="fr-tabs__panel <%= index == 0 ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= index %>" tabindex="0">
+
+        <div class="fr-mt-2w">
+          <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3], titre: 'alloué', class_active: 'fr-card--green' } %>
+        </div>
+        <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
+        <div class="fr-mt-2w">
+          <%= render partial: "avis/rappel_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3] - sum_chiffres_avis(@avis, phase)[4..7], titre: 'Ecart', class_active: 'fr-card--blue' } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+
+
+
+  <div class="fr-h2">Restitutions</div>
   <div class="fr-h2">Liste des BOP</div>
   <div class="fr-accordions-group fr-mb-4w">
     <% @bops.each do |bop| %>

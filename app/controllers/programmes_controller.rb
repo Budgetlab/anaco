@@ -41,6 +41,7 @@ class ProgrammesController < ApplicationController
   end
 
   def show_avis
+    @annee_a_afficher = annee_a_afficher
     @programme = Programme.find(params[:id])
     @bops = @programme.bops.includes(:user).order(code: :asc)
     @avis = Avi.where(bop_id: @bops.pluck(:id), annee: @annee).where.not(etat: 'Brouillon')

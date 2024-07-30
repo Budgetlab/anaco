@@ -1,5 +1,6 @@
 module ApplicationHelper
   include Pagy::Frontend
+
   def format_number(nombre)
     case nombre
     when nil, ''
@@ -54,7 +55,7 @@ module ApplicationHelper
   def render_select_group(title, param_name, options)
     select_group = content_tag :div, class: 'fr-select-group' do
       label = content_tag(:label, title, for: "#{param_name}_list", class: 'fr-label fr-text--bold')
-      select = content_tag(:select, class: 'fr-select', id: "#{param_name}_list", data: { tag: "#{param_name}_tag", action: 'change->request#addTagSelected'}) do
+      select = content_tag(:select, class: 'fr-select', id: "#{param_name}_list", data: { tag: "#{param_name}_tag", action: 'change->request#addTagSelected' }) do
         option_tags = content_tag(:option, '- sélectionner -', value: '')
         options.each { |option| option_tags.concat(content_tag(:option, option, value: option)) }
         option_tags
@@ -64,7 +65,7 @@ module ApplicationHelper
     tags_group = content_tag(:ul, class: 'fr-tags-group', id: "#{param_name}_tag") do
       checkbox_tags = ''.html_safe
       options.each do |option|
-        checkbox_tags << check_box_tag("q[#{param_name}][]", option, params[:q] && params[:q][param_name].present? && params[:q][param_name]&.include?(option) ? true : false, {class: "fr-hidden"})
+        checkbox_tags << check_box_tag("q[#{param_name}][]", option, params[:q] && params[:q][param_name].present? && params[:q][param_name]&.include?(option) ? true : false, { class: "fr-hidden" })
       end
       button_tags = ''.html_safe
       if params[:q] && params[:q][param_name]
@@ -77,5 +78,25 @@ module ApplicationHelper
       checkbox_tags.concat(button_tags)
     end
     select_group.concat(tags_group)
+  end
+
+  def sum_chiffres_avis(avis, phase)
+    avis_phase = case phase
+                 when 'CRG1'
+                   avis.select { |avi| avi.phase == phase || (avi.phase == 'début de gestion' && !avi.is_crg1) }
+                 else
+                   avis.select { |avi| avi.phase == phase }
+                 end
+    avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
+  end
+
+  def display_phases(annee_a_afficher, annee, date_crg1, date_crg2)
+    if annee_a_afficher < annee || Date.today >= date_crg2
+      ['CRG2', 'CRG1', 'début de gestion']
+    elsif Date.today >= date_crg1
+      ['CRG1', 'début de gestion']
+    else
+      ['début de gestion']
+    end
   end
 end

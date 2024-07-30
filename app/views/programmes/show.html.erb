@@ -13,9 +13,6 @@
       <% end %>
     </div>
 
-
-    <div class="fr-h3">Nous sommes en phase de <%= @phase %></div>
-
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-4" data-controller="toggle">
         <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
@@ -30,7 +27,7 @@
                   <li class="fr-sidemenu__item">
                     <button class="fr-sidemenu__btn" aria-expanded="false" aria-controls="fr-sidemenu-item-0" data-action="click->toggle#updateAriaCurrent" data-toggle-target="nav" aria-current="true">
                       <%= link_to avis_programme_path(@programme), data: { turbo_frame: :show } do %>
-                        Synthèse au niveau BOP
+                        Synthèse des <%= @programme.bops.count %> BOP
                       <% end %>
                     </button>
                     <div class="fr-collapse" id="fr-sidemenu-item-0">
@@ -42,7 +39,7 @@
                         </li>
                         <li class="fr-sidemenu__item">
                           <button class="fr-sidemenu__link" data-toggle-id="statistiques" data-action="click->toggle#changeMenuSection">
-                            Statistiques
+                            Restitutions
                           </button>
                         </li>
                         <li class="fr-sidemenu__item">
