@@ -28,8 +28,8 @@
                         </p>
                       <% elsif programme.last_schema&.complete? || programme.last_schema&.gestion_schemas_empty? %>
                         <p class="fr-badge fr-badge--info fr-badge--no-icon">
-                          Version n°<%= numero_version(programme.last_schema) %>
-                          du <%= programme.last_schema.created_at.strftime("%d/%-m/%Y") %>
+                          Version n°<%= numero_version(programme.last_schema_valid) %>
+                          du <%= programme.last_schema_valid.created_at.strftime("%d/%-m/%Y") %>
                         </p>
                       <% elsif programme.last_schema&.incomplete? %>
                         <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon version

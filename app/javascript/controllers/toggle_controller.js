@@ -46,4 +46,11 @@ export default class extends Controller {
             });
         }
     }
+
+    updateAriaCurrent(event){
+        const currentTarget = event.currentTarget;
+        this.navTargets.forEach(nav => {
+            nav.setAttribute("aria-current", nav === currentTarget ? true : false);
+        });
+    }
 }

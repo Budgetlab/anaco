@@ -2,17 +2,18 @@
 <% end %>
 <main>
   <div class="fr-container">
-    <h1 class="fr-mt-6w fr-mb-2w">Programme n°<%= @programme.numero %></h1>
+    <h1 class="fr-mt-6w fr-mb-2w">Programme n°<%= @programme.numero %> <br> <%= @programme.nom %></h1>
+
+    <p class="fr-mb-1v">Mission : <%= @programme.mission.nom %></p>
+    <p class="fr-mb-1w">Ministère : <%= @programme.ministere.nom %> </p>
     <div class="fr-mb-1w">
       <p class="fr-badge fr-badge--sm fr-badge--purple-glycine"><%= @programme.user.nom %></p>
       <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Doté en <%= @programme.dotation %></p>
       <% if @programme.statut == 'Inactif' %><p class="fr-badge fr-badge--sm"><%= @programme.statut %></p>
       <% end %>
     </div>
-    <p class="fr-card__detail fr-icon-arrow-right-line fr-mb-3w">
-      <% if @programme.deconcentre %>Programme avec <%= @programme.bops&.length %> BOP
-      <% else %>Programme sans BOP déconcentrés
-      <% end %></p>
+
+
     <div class="fr-h3">Nous sommes en phase de <%= @phase %></div>
 
     <div class="fr-grid-row fr-grid-row--gutters">
@@ -25,49 +26,47 @@
             <div class="fr-collapse" id="fr-sidemenu-wrapper">
               <div class="fr-sidemenu__title" id="fr-sidemenu-title">Sections</div>
               <ul class="fr-sidemenu__list">
+                <% if !@programme.bops.empty? %>
+                  <li class="fr-sidemenu__item">
+                    <button class="fr-sidemenu__btn" aria-expanded="false" aria-controls="fr-sidemenu-item-0" data-action="click->toggle#updateAriaCurrent" data-toggle-target="nav" aria-current="true">
+                      <%= link_to avis_programme_path(@programme), data: { turbo_frame: :show } do %>
+                        Synthèse au niveau BOP
+                      <% end %>
+                    </button>
+                    <div class="fr-collapse" id="fr-sidemenu-item-0">
+                      <ul class="fr-sidemenu__list">
+                        <li class="fr-sidemenu__item">
+                          <button class="fr-sidemenu__link" data-toggle-id="chiffres" data-action="click->toggle#changeMenuSection">
+                            Données budgétaires
+                          </button>
+                        </li>
+                        <li class="fr-sidemenu__item">
+                          <button class="fr-sidemenu__link" data-toggle-id="statistiques" data-action="click->toggle#changeMenuSection">
+                            Statistiques
+                          </button>
+                        </li>
+                        <li class="fr-sidemenu__item">
+                          <button class="fr-sidemenu__link" data-toggle-id="liste" data-action="click->toggle#changeMenuSection">Liste
+                            des BOP
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                <% end %>
                 <li class="fr-sidemenu__item">
-                  <button class="fr-sidemenu__btn" aria-expanded="false" aria-controls="fr-sidemenu-item-0" aria-current="true">
-                    <%= link_to avis_programme_path(@programme), data: { turbo_frame: :show } do %>
-                      Synthèse au niveau BOP
-                    <% end %>
-                  </button>
-                  <div class="fr-collapse" id="fr-sidemenu-item-0">
-                    <ul class="fr-sidemenu__list">
-                      <li class="fr-sidemenu__item">
-                        <button class="fr-sidemenu__link" data-toggle-id="chiffres" data-action="click->toggle#changeMenuSection">
-                          Ressources
-                        </button>
-                      </li>
-                      <li class="fr-sidemenu__item">
-                        <button class="fr-sidemenu__link" data-toggle-id="statistiques" data-action="click->toggle#changeMenuSection">
-                          Statistique
-                        </button>
-                      </li>
-                      <li class="fr-sidemenu__item">
-                        <button class="fr-sidemenu__link" data-toggle-id="liste" data-action="click->toggle#changeMenuSection">Liste
-                          des BOP
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-                <li class="fr-sidemenu__item">
-
-                  <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show }, class: "fr-sidemenu__btn" do %>
-                    Schemas de fin de gestion
+                  <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
+                    Schémas de fin de gestion
                   <% end %>
-
-
                 </li>
               </ul>
             </div>
           </div>
         </nav>
-
       </div>
 
       <div class="fr-col-12 fr-col-lg-8">
-        <%= turbo_frame_tag :show, target: "_top", src: avis_programme_path(@programme) %>
+        <%= turbo_frame_tag :show, target: "_top", src: @programme.bops.empty? ? last_schema_programme_path(@programme) : avis_programme_path(@programme) %>
       </div>
     </div>
   </div>
