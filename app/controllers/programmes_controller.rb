@@ -21,7 +21,11 @@ class ProgrammesController < ApplicationController
   end
 
   # Page pour importer le fichier des programmes
-  def new; end
+  def new
+    # mettre à jour les BOP
+    @bops = Bop.where(dotation: 'complete')
+    @bops.update(dotation: 'HT2 et T2')
+  end
 
   def import
     Programme.import(params[:file])
