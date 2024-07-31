@@ -7,6 +7,8 @@ class AvisController < ApplicationController
   before_action :redirect_unless_dcb, only: %i[consultation update_etat]
   require 'axlsx'
   include ApplicationHelper
+  include AvisHelper
+  include BopsHelper
   # Page historique des avis
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
@@ -140,6 +142,14 @@ class AvisController < ApplicationController
     @controleurs = User.includes(:avis).where(statut: ['CBR', 'DCB'])
     @dcb = User.includes(consulted_bops: :avis).where(statut: 'DCB')
     @avis = Avi.where(annee: @annee_a_afficher).where.not(phase: 'execution')
+  end
+
+  def restitutions
+    @annee_a_afficher = annee_a_afficher
+    @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
+    @avis_remplis = avis_annee_remplis(@annee_a_afficher)
+    @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
+    @liste_programmes = current_user.statut == 'CBR' ? current_user.programmes : @programmes
   end
 
   private

@@ -51,6 +51,14 @@ class Programme < ApplicationRecord
     self.gestion_schemas.empty?
   end
 
+  def avis_remplis_annee(annee)
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+  end
+
+  def bops_actifs(annee)
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation", "statut", "ministere_id"]
   end

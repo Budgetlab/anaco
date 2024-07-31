@@ -141,4 +141,8 @@ class User < ApplicationRecord
     end
   end
 
+  def programmes
+    Programme.where(id: self.bops.pluck(:programme_id).uniq)
+  end
+
 end
