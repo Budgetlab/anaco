@@ -61,4 +61,60 @@ module AvisHelper
     [notes_sans_risque, notes_moyen, notes_red, notes_vide]
   end
 
+  # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
+  def avis_crg1(avis)
+    avis.count { |a| a.is_crg1 && a.phase == 'début de gestion' }
+  end
+
+  # fonction pour calculer le nombre d'avis données sans interruption du delai parmi la liste des avis remplis
+  def avis_delai(avis)
+    avis.count { |a| !a.is_delai && a.phase == 'début de gestion' }
+  end
+
+  # fonction pour charger les avis renseignés dans l'année en cours (hors avis d'éxécution et brouillon)
+  def avis_annee_remplis(annee)
+    Avi.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+  end
+
+  def avis_remplis_phase(avis, phase)
+    avis.select { |a| a.phase == phase && a.statut != 'Brouillon' }.count
+  end
+
+  def avis_brouillon_phase(avis, phase)
+    avis.select { |a| a.phase == phase && a.statut == 'Brouillon' }.count
+  end
+
+  def avis_a_remplir(avis, phase, annee)
+    case phase
+    when 'CRG1'
+      avis.select { |a| a.phase == 'début de gestion' && a.is_crg1? && a.statut != 'Brouillon' }.count
+    else
+      Bop.all.where('created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune').count
+    end
+  end
+
+  def taux_remplissage_avis(avis, phase, annee)
+    if avis_a_remplir(avis, phase, annee).zero?
+      100
+    else
+      (avis_remplis_phase(avis, phase) * 100.0 / avis_a_remplir(avis, phase, annee)).to_f.round
+    end
+  end
+
+  def avis_lus(avis, phase)
+    avis.joins(:user).where('user.statut': 'CBR').select { |a| a.phase == phase && a.etat == 'Lu' }.count
+  end
+
+  def avis_recus(avis, phase)
+    avis.joins(:user).where('user.statut': 'CBR').select { |a| a.phase == phase && a.etat != 'Brouillon' }.count
+  end
+
+  def taux_lecture_avis(avis, phase)
+    if avis_recus(avis, phase).zero?
+      100
+    else
+      (avis_lus(avis, phase) * 100.0 / avis_recus(avis, phase)).to_f.round
+    end
+  end
+
 end

@@ -14,7 +14,7 @@
 				<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
 					<div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/system/notification.svg", alt: "" %></div>
 					<div class="fr-col-lg-11 fr-col-10">
-						<div class="fr-text--lg fr-mt-1w">Vous avez <%= @avis_a_lire %> avis/notes en attente de lecture<br>
+						<div class="fr-text--lg fr-mt-1w">Vous avez <%= current_user.avis_a_lire %> avis/notes en attente de lecture<br>
 							<%= link_to consultation_path, class:"fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
 								Consulter les avis transmis par les CBR et DCB
 							<%end %>
@@ -24,13 +24,13 @@
 			<% end  %>
 			<div class="fr-grid-row fr-grid-row--gutters">
 				<div class="fr-col-12 fr-col-lg-4">
-					<%= render partial: "pages/card_index", locals: {phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: @avis_delai, valeur3: @avis_crg1 , nom_graphe: "canvasAvis", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[1]} %>
+					<%= render partial: "pages/card_index", locals: {phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: avis_delai(@avis_remplis), valeur3: avis_crg1(@avis_remplis) , nom_graphe: "canvasAvis"} %>
 				</div>
 				<div class="fr-col-12 fr-col-lg-4">
-					<%= render partial: "pages/card_index", locals: {phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: @avis_crg1, avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2] , nom_graphe: "canvasNotes1", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[2]} %>
+					<%= render partial: "pages/card_index", locals: {phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: avis_crg1(@avis_remplis), avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2] , nom_graphe: "canvasNotes1"} %>
 				</div>
 				<div class="fr-col-12 fr-col-lg-4">
-					<%= render partial: "pages/card_index", locals: {phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12,31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2] , nom_graphe: "canvasNotes2", credits_nrep_total: @credits_nrep[0], credits_nrep_a_rediger: @credits_nrep[3]} %>
+					<%= render partial: "pages/card_index", locals: {phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12,31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2] , nom_graphe: "canvasNotes2"} %>
 				</div>
 			</div>
 		</div>

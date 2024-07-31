@@ -15,17 +15,6 @@
               <p class="fr-text--sm fr-mb-3w"><% if phase == 'début de gestion' %>avis<%else %>notes <%= phase %><%end %> à rédiger</p>
             </div>
           </div>
-          <% if @statut_user != 'CBR' %>
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-2">
-                <span class="fr-icon-edit-fill fr-fi--lg cbleu " aria-hidden="true"></span>
-              </div>
-              <div class="fr-col-10">
-                <h3 class="fr-text--lg fr-mb-2v"><%= credits_nrep_a_rediger %>/<%= credits_nrep_total %> </h3>
-                <p class="fr-text--sm fr-mb-3w">crédits non répartis à rédiger</p>
-              </div>
-            </div>
-          <% end  %>
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-2">
               <span class="<%= phase == 'début de gestion' ? "fr-icon-chat-check-fill cbleu" : "fr-icon-flag-fill cbleu-minor" %> fr-fi--lg " aria-hidden="true"></span>

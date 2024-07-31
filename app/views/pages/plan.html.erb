@@ -19,7 +19,7 @@
                 <% end %></li>
             <% end %>
             <% if current_user.statut == "admin" %>
-              <li><%= link_to suivi_path do %>Suivi des avis/notes par contrôleur
+              <li><%= link_to suivi_remplissage_avis_path do %>Suivi du remplissage des avis/notes
                 <% end %></li>
             <% end %>
             <li><%= link_to restitutions_path do %>Restitutions

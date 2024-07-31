@@ -20,7 +20,9 @@
     <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
       <% phases.each_with_index do |phase, index| %>
         <li role="presentation">
-          <button id="tabpanel-<%= index %>" class="fr-tabs__tab" tabindex="<%= index == 0 ? "0" : "-1" %>" role="tab" aria-selected="<%= index == 0 %>" aria-controls="tabpanel-<%= index %>-panel"><%= phase %></button>
+          <button id="tabpanel-<%= index %>" class="fr-tabs__tab" tabindex="<%= index == 0 ? "0" : "-1" %>" role="tab" aria-selected="<%= index == 0 %>" aria-controls="tabpanel-<%= index %>-panel">
+            <span class="fr-capitalize"><%= phase %></span>
+          </button>
         </li>
       <% end %>
     </ul>

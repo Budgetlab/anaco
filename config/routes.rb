@@ -46,7 +46,8 @@ Rails.application.routes.draw do
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'
     resources :avis, only: [:create, :update, :destroy]
-    get 'remplissage_avis' => "avis#remplissage_avis"
+    get 'remplissage_avis' => 'avis#remplissage_avis'
+    get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     post 'open_modal' => 'avis#open_modal'
     post 'open_modal_brouillon' => 'avis#open_modal_brouillon'
     post 'reset_brouillon', to: 'avis#reset_brouillon'
@@ -57,7 +58,6 @@ Rails.application.routes.draw do
     get '/restitutions', to: 'pages#restitutions'
     get '/restitutions/:programme', to: 'pages#restitution_programme', as: 'specific_restitutions'
     post 'filter_restitution', to: 'pages#filter_restitution'
-    get 'suivi', to: "pages#suivi"
 
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'

@@ -1,0 +1,115 @@
+<% content_for :title do %>Suivi du remplissage des avis | ANACO
+<% end %>
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-my-6w">Suivi du remplissage des avis/notes</h1>
+
+      <div class="fr-mb-2w">
+        <ul class="fr-tags-group">
+          <% (2023..2024).to_a.each do |annee| %>
+            <li>
+              <button class="fr-tag" aria-pressed="<%= @annee_a_afficher == annee ? 'true' : 'false' %>">
+                <%= link_to suivi_remplissage_avis_path(date: annee) do %>
+                  <%= annee %>
+                <% end %>
+              </button>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
+      <div class="fr-tabs fr-mb-4w">
+        <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
+          <% phases.each_with_index do |phase, index| %>
+            <li role="presentation">
+              <button id="tabpanel-<%= index %>" class="fr-tabs__tab" tabindex="<%= index == 0 ? "0" : "-1" %>" role="tab" aria-selected="<%= index == 0 %>" aria-controls="tabpanel-<%= index %>-panel">
+                <span class="fr-capitalize"><%= phase %></span>
+              </button>
+            </li>
+          <% end %>
+        </ul>
+        <% phases.each_with_index do |phase, index| %>
+          <div id="tabpanel-<%= index %>-panel" class="fr-tabs__panel <%= index == 0 ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= index %>" tabindex="0">
+            <div class="fr-table--lg fr-table fr-table--bordered ">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table class="fr-cell--multiline">
+                      <caption>Suivi du remplissage des avis/notes de <%= phase %> <%= @annee_a_afficher %></caption>
+                      <thead>
+                      <tr>
+                        <th scope="col">CBR/DCB</th>
+                        <th scope="col">Taux de remplissage</th>
+                        <th scope="col">Avis/Notes à remplir</th>
+                        <th scope="col">Avis/Notes renseignés</th>
+                        <th scope="col">Avis/Notes en brouillon</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr class="fr-table--total">
+                        <th class="fr-cell--fixed" scope="row">Total</th>
+                        <td class="fr-cell--right"><%= taux_remplissage_avis(@avis, phase, @annee_a_afficher) %> %</td>
+                        <td class="fr-cell--right"><%= avis_a_remplir(@avis, phase, @annee_a_afficher) %></td>
+                        <td class="fr-cell--right"><%= avis_remplis_phase(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= avis_brouillon_phase(@avis, phase) %></td>
+                      </tr>
+                      <% @controleurs.sort_by { |user| [-user.taux_de_remplissage(@annee_a_afficher, phase), user.nom] }.each do |user| %>
+                        <tr>
+                          <th class="fr-cell--fixed" scope="row"><%= user.nom %></th>
+                          <td class="fr-cell--right"><%= user.taux_de_remplissage(@annee_a_afficher, phase) %> %</td>
+                          <td class="fr-cell--right"><%= user.avis_a_remplir_phase(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_remplis(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_brouillon(@annee_a_afficher, phase) %></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="fr-table--lg fr-table fr-table--bordered fr-table--no-scroll">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table class="fr-cell--multiline">
+                      <caption>Suivi de lecture des avis/notes de <%= phase %> <%= @annee_a_afficher %> par les DCB</caption>
+                      <thead>
+                      <tr>
+                        <th scope="col">DCB responsable</th>
+                        <th scope="col">Taux de lecture</th>
+                        <th scope="col">Avis/Notes reçus</th>
+                        <th scope="col">Avis/Notes lus</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr class="fr-table--total">
+                        <th class="fr-cell--fixed" scope="row">Total</th>
+                        <td class="fr-cell--right"><%= taux_lecture_avis(@avis, phase) %> %</td>
+                        <td class="fr-cell--right"><%= avis_recus(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= avis_lus(@avis, phase) %></td>
+                      </tr>
+                      <% @dcb.sort_by { |user| [-user.taux_de_lecture(@annee_a_afficher, phase), user.nom] }.each do |user| %>
+                        <tr>
+                          <th class="fr-cell--fixed" scope="row"><%= user.nom %></th>
+                          <td class="fr-cell--right"><%= user.taux_de_lecture(@annee_a_afficher, phase) %> %</td>
+                          <td class="fr-cell--right"><%= user.avis_a_lire_recus(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_lus(@annee_a_afficher, phase) %></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+</div>

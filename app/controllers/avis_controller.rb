@@ -135,6 +135,13 @@ class AvisController < ApplicationController
     @avis = current_user.avis.where(annee: @annee_a_afficher)
   end
 
+  def suivi_remplissage
+    @annee_a_afficher = annee_a_afficher
+    @controleurs = User.includes(:avis).where(statut: ['CBR', 'DCB'])
+    @dcb = User.includes(consulted_bops: :avis).where(statut: 'DCB')
+    @avis = Avi.where(annee: @annee_a_afficher).where.not(phase: 'execution')
+  end
+
   private
 
   def avi_params

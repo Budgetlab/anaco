@@ -92,4 +92,53 @@ class User < ApplicationRecord
     end
   end
 
+  def avis_a_remplir_phase(annee, phase)
+    case phase
+    when 'CRG1'
+      self.avis.where(annee: annee, phase: "début de gestion", is_crg1: true).where.not(etat: "Brouillon").count
+    else
+      bops_actifs(annee).count
+    end
+  end
+
+  def avis_remplis(annee, phase)
+    self.avis.where(annee: annee, phase: phase).where.not(etat: "Brouillon").count
+  end
+
+  def avis_remplis_annee(annee)
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+  end
+
+  def avis_brouillon(annee, phase)
+    self.avis.where(annee: annee, phase: phase).where(etat: "Brouillon").count
+  end
+
+  def taux_de_remplissage(annee, phase)
+    if avis_a_remplir_phase(annee, phase).zero?
+      100
+    else
+      ((avis_remplis(annee, phase)* 100.0 / avis_a_remplir_phase(annee, phase)).to_f ).round
+    end
+  end
+
+  def avis_a_lire_recus(annee, phase)
+    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': "Brouillon").count
+  end
+
+  def avis_a_lire
+    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'En attente de lecture').count
+  end
+
+  def avis_lus(annee, phase)
+    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'Lu', 'avis.phase': phase, 'avis.annee': annee).count
+  end
+
+  def taux_de_lecture(annee, phase)
+    if avis_a_lire_recus(annee, phase).zero?
+      100
+    else
+      ((avis_lus(annee, phase)*100.0/avis_a_lire_recus(annee, phase)).to_f).round
+    end
+  end
+
 end

@@ -54,7 +54,7 @@
                     </li>
 
                   <li class="fr-nav__item">
-                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-avis" <%= current_page?(remplissage_avis_path) || current_page?(historique_path) || current_page?(consultation_path) || current_page?(suivi_path) ? 'aria-current="true"' : '' %>>Avis/notes</button>
+                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-avis" <%= current_page?(remplissage_avis_path) || current_page?(historique_path) || current_page?(consultation_path) || current_page?(suivi_remplissage_avis_path) ? 'aria-current="true"' : '' %>>Avis/notes</button>
                     <div class="fr-collapse fr-menu" id="menu-avis">
                       <ul class="fr-menu__list">
                         <% if current_user.statut != "admin" %>
@@ -72,7 +72,7 @@
                         <% end %>
                         <% if current_user.statut == "admin" %>
                         <li>
-                          <%= active_link_to suivi_path, class: "fr-nav__link", target: "_self" do%>Suivi des avis/notes par contrôleur<%end%>
+                          <%= active_link_to suivi_remplissage_avis_path, class: "fr-nav__link", target: "_self" do%>Suivi du remplissage<%end%>
                         </li>
                         <% end %>
                         <li>
