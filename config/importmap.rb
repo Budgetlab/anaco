@@ -2,7 +2,7 @@
 
 pin "application", preload: true
 pin "@hotwired/turbo-rails", to: "turbo.min.js", preload: true
-pin "@hotwired/stimulus", to: "stimulus.min.js", preload: true
+pin "@hotwired/stimulus", to: "@hotwired--stimulus.js" # @3.2.2
 pin "@hotwired/stimulus-loading", to: "stimulus-loading.js", preload: true
 pin_all_from "app/javascript/controllers", under: "controllers"
 pin_all_from "app/javascript/custom", under: "custom"
@@ -15,3 +15,4 @@ pin "exporting", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/exporting
 pin "accessibility", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/accessibility.js"
 pin "data", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/export-data.js"
 pin "nodata", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/no-data-to-display.js"
+pin "@stimulus-components/rails-nested-form", to: "@stimulus-components--rails-nested-form.js" # @5.0.0

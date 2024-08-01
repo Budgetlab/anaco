@@ -2,6 +2,8 @@ class GestionSchema < ApplicationRecord
   belongs_to :programme
   belongs_to :user
   belongs_to :schema
+  has_many :transferts
+  accepts_nested_attributes_for :transferts, allow_destroy: true
 
   before_save :set_nil_values_to_zero
 
@@ -18,11 +20,28 @@ class GestionSchema < ApplicationRecord
   def solde_total_cp
     prevision_solde_budgetaire_cp + (mobilisation_mer_cp || 0)
   end
+
+  def transferts_entrant_ae
+    transferts.entrant.sum(:montant_ae)
+  end
+
+  def transferts_entrant_cp
+    transferts.entrant.sum(:montant_cp)
+  end
+
+  def transferts_sortant_ae
+    transferts.sortant.sum(:montant_ae)
+  end
+
+  def transferts_sortant_cp
+    transferts.sortant.sum(:montant_cp)
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     ["annee","schema_id", "updated_at", "user_id", "vision", "created_at", "profil", "programme_id","credits_lfg_ae", "credits_lfg_cp", "credits_reports_ae", "credits_reports_cp", "decret_ae", "decret_cp", "fongibilite_ae", "fongibilite_cp", "id", "id_value", "mer_ae", "mer_cp", "surgel_ae", "surgel_cp", "mobilisation_mer_ae", "mobilisation_mer_cp","mobilisation_surgel_ae", "mobilisation_surgel_cp", "ressources_ae", "ressources_cp","depenses_ae","depenses_cp", "reports_autre_ae","reports_ae", "reports_cp", "reports_autre_cp", "charges_a_payer_ae", "charges_a_payer_cp", "credits_reports_autre_ae", "credits_reports_autre_cp", "commentaire",]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["programme", "schema", "user"]
+    ["programme", "schema", "user", "transferts"]
   end
 
   private

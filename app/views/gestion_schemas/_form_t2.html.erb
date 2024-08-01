@@ -1,5 +1,5 @@
 <div data-controller="form" id="form_schema">
-  <%= form_with(model: [@schema, @gestion_schema], data: { 'form-target': "form", action: 'input->form#formChange' }) do |f| %>
+  <%= form_with(model: [@schema, @gestion_schema], data: {controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper', 'form-target': "form", action: 'input->form#formChange' }) do |f| %>
     <div class="cwarning fr-mb-1w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
     <div class="fr-h5">Situation à date du CRG2</div>
     <div class="fr-h6 fr-mb-1w">Ressources certaines à date*</div>
@@ -169,8 +169,46 @@
       </div>
     </div>
 
+    <div class="fr-h6 fr-mb-1w">Virements/Transferts entrant
+      <span class="fr-hint-text">Chaque virement doit être associé à un programme</span>
+    </div>
+
+    <template data-nested-form-target="template">
+      <%= f.fields_for :transferts, Transfert.new(nature: 'entrant'), child_index: 'NEW_RECORD' do |transfert_fields| %>
+        <%= render "transfert_form", f: transfert_fields %>
+      <% end %>
+    </template>
+
+    <%= f.fields_for :transferts, f.object.transferts.entrant do |transfert_fields| %>
+      <%= render "transfert_form", f: transfert_fields %>
+    <% end %>
+
+    <!-- Inserted elements will be injected before that target. -->
+    <div data-nested-form-target="target"></div>
+    <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">Ajouter un virement / transfert entrant</button>
+
+    <div class="fr-h6 fr-mb-1w">Virements/Transferts sortant
+      <span class="fr-hint-text">Chaque virement doit être associé à un programme</span>
+    </div>
+
+    <template data-nested-form2-target="template">
+      <%= f.fields_for :transferts, Transfert.new(nature: 'sortant'), child_index: 'NEW_RECORD' do |transfert_fields| %>
+        <%= render "transfert_form_sortant", f: transfert_fields %>
+      <% end %>
+    </template>
+
+    <%= f.fields_for :transferts, f.object.transferts.sortant do |transfert_fields| %>
+      <%= render "transfert_form_sortant", f: transfert_fields %>
+    <% end %>
+
+    <!-- Inserted elements will be injected before that target. -->
+    <div data-nested-form2-target="target"></div>
+    <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">Ajouter un virement / transfert sortant</button>
+
+
     <div class="fr-h6 fr-mb-1w">Décret
-      d'avance <%= render partial: "gestion_schemas/tooltip", locals: { name: "decret" } %></div>
+      d'avance <%= render partial: "gestion_schemas/tooltip", locals: { name: "decret" } %>
+      <span class="fr-hint-text">Renseigner une valeur négative en cas de décret négatif</span></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
@@ -191,7 +229,8 @@
     </div>
 
     <div class="fr-h6 fr-mb-1w">Ouverture/annulation de crédits en
-      LFG <%= render partial: "gestion_schemas/tooltip", locals: { name: "credits_ouverts" } %></div>
+      LFG <%= render partial: "gestion_schemas/tooltip", locals: { name: "credits_ouverts" } %>
+      <span class="fr-hint-text">Renseigner une valeur négative en cas d'annulation</span></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">

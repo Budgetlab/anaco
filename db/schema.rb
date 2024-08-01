@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_26_121302) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_01_142152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -183,6 +183,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_26_121302) do
     t.index ["user_id"], name: "index_schemas_on_user_id"
   end
 
+  create_table "transferts", force: :cascade do |t|
+    t.bigint "gestion_schema_id", null: false
+    t.string "nature"
+    t.float "montant_ae"
+    t.float "montant_cp"
+    t.bigint "programme_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gestion_schema_id"], name: "index_transferts_on_gestion_schema_id"
+    t.index ["programme_id"], name: "index_transferts_on_programme_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -212,4 +224,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_26_121302) do
   add_foreign_key "programmes", "users"
   add_foreign_key "schemas", "programmes"
   add_foreign_key "schemas", "users"
+  add_foreign_key "transferts", "gestion_schemas"
+  add_foreign_key "transferts", "programmes"
 end

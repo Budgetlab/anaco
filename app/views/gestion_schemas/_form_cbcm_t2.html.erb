@@ -131,6 +131,46 @@
         </div>
       </div>
 
+      <div class="fr-h6 fr-mb-1w">Virements/Transferts entrant</div>
+      <% @gestion_schema.transferts.entrant.each do |transfert| %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_cp) %> €</div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">Programme d'origine</div>
+            <div class="fr-text--bold fr-my-3v"><%= transfert.programme.numero%></div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="fr-h6 fr-mb-1w">Virements/Transferts sortant</div>
+      <% @gestion_schema.transferts.sortant.each do |transfert| %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_cp) %> €</div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">Programme de destination</div>
+            <div class="fr-text--bold fr-my-3v"><%= transfert.programme.numero%></div>
+          </div>
+        </div>
+      <% end %>
+
       <div class="fr-h6 fr-mb-1w">Décret d'avance</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
