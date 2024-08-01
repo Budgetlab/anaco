@@ -4,7 +4,6 @@ class GestionSchemasController < ApplicationController
   before_action :set_gestion_schema, only: [:edit, :update]
   before_action :set_schema, only: [:new, :create, :edit, :update]
   before_action :redirect_if_schema_complete, only: [:new, :create, :edit, :update]
-  before_action :redirect_if_gestion_schema_brouillon, only: [:new] # A voir si on garde statut dans gestion schema
 
   def new
     @programme = @schema.programme
@@ -28,7 +27,7 @@ class GestionSchemasController < ApplicationController
   end
 
   def create
-    @gestion_schema = @schema.gestion_schemas.new(gestion_schema_params.merge(programme_id: @schema.programme_id, user_id: current_user.id, annee: Date.today.year, statut: 'valide'))
+    @gestion_schema = @schema.gestion_schemas.new(gestion_schema_params.merge(programme_id: @schema.programme_id, user_id: current_user.id, annee: Date.today.year))
     assign_vision_profil
     @gestion_schema.save
     # mettre à jour l'etape dans le statut du schema
@@ -67,11 +66,13 @@ class GestionSchemasController < ApplicationController
 
   def gestion_schema_params
     params.require(:gestion_schema).permit(:user_id, :programme_id, :vision, :profil, :annee,
-                                           :prevision_solde_budgetaire_ae, :prevision_solde_budgetaire_cp,
-                                           :mer_ae, :mer_cp, :mobilisation_mer_ae, :mobilisation_mer_cp,
+                                           :ressources_ae, :ressources_cp, :depenses_ae, :depenses_cp,
+                                           :mer_ae, :mer_cp,  :surgel_ae, :surgel_cp, :mobilisation_mer_ae,
+                                           :mobilisation_mer_cp,:mobilisation_surgel_ae, :mobilisation_surgel_cp,
                                            :fongibilite_ae, :fongibilite_cp, :decret_ae, :decret_cp,
-                                           :credits_ouverts_ae, :credits_ouverts_cp, :charges_a_payer_ae,
-                                           :charges_a_payer_cp, :credits_reports_ae, :credits_reports_cp,
+                                           :credits_lfg_ae, :credits_lfg_cp, :reports_ae, :reports_cp,
+                                           :charges_a_payer_ae, :charges_a_payer_cp, :credits_reports_ae,
+                                           :credits_reports_cp,:credits_reports_autre_ae, :credits_reports_autre_cp,
                                            :reports_autre_ae, :reports_autre_cp, :commentaire)
   end
 
@@ -91,10 +92,6 @@ class GestionSchemasController < ApplicationController
     redirect_to schemas_remplissage_path if @schema&.complete?
   end
 
-  def redirect_if_gestion_schema_brouillon
-    last_gestion_schema = @schema.gestion_schemas&.order(created_at: :desc)&.first
-    redirect_to edit_schema_gestion_schema_path(last_gestion_schema, schema_id: @schema.id) and return if last_gestion_schema && last_gestion_schema&.statut != 'valide'
-  end
 
   def assign_vision_profil
     vision = %w[RPROG CBCM RPROG CBCM]

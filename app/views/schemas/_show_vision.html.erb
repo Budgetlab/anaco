@@ -1,89 +1,113 @@
-<p class="fr-text--bold">Solde de fin de gestion <%= vision %></p>
+
 <% ae = vision == 'HT2' ? "AE" : "CAS" %>
 <% cp = vision == 'HT2' ? "CP" : "HCAS" %>
 <div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-3">
-    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-      <div class="fr-cart__body">
-        <p class="fr-text--lg fr-mb-0 text_center"><%= ae %> RPROG</p>
-        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_ae) %> €</p>
+  <div class="fr-col-6">
+    <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> RPROG</p>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-5">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_ae) %>
+              €</p>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-5">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_cp) %>
+              €</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="fr-col-3">
-    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-      <div class="fr-cart__body">
-        <p class="fr-text--lg fr-mb-0 text_center"><%= cp %> RPROG</p>
-        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_cp) %> €</p>
+  <div class="fr-col-6">
+    <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> CBCM</p>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-5">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_ae) %>
+              €</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="fr-col-3">
-    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-      <div class="fr-cart__body">
-        <p class="fr-text--lg fr-mb-0 text_center"><%= ae %> CBCM</p>
-        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_ae) %> €</p>
-      </div>
-    </div>
-  </div>
-  <div class="fr-col-3">
-    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-      <div class="fr-cart__body">
-        <p class="fr-text--lg fr-mb-0 text_center"><%= cp %> CBCM</p>
-        <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_cp) %> €</p>
+      <div class="fr-col-5">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_cp) %>
+              €</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <div class="fr-my-2w">
-  <p class="fr-text--bold">Commentaire synthétique de l’analyse de fin de gestion du RPROG</p>
+  <p class="fr-text--bold fr-mb-1w">Commentaire synthétique de l’analyse de fin de gestion du RPROG</p>
   <p><%= vision_rprog.commentaire %></p>
 </div>
 
 
 <div class="fr-my-2w">
-  <p class="fr-text--bold">Commentaire synthétique de l’analyse de fin de gestion du CBCM</p>
+  <p class="fr-text--bold fr-mb-1w">Commentaire synthétique de l’analyse de fin de gestion du CBCM</p>
   <p><%= vision_cbcm.commentaire %></p>
 </div>
 
-<p class="fr-text--bold">Détail des données budgétaires <%= vision %></p>
-<div class="fr-table fr-table--bordered fr-table--no-caption fr-table--no-scroll" id="table-bordered-component">
+<p class="fr-text--bold">Situation <%= vision %> à date</p>
+<div class="fr-table fr-table--bordered fr-table--no-caption ">
   <div class="fr-table__wrapper">
     <div class="fr-table__container">
       <div class="fr-table__content">
-        <table id="table-bordered">
+        <table>
           <caption>
             Détail des données budgétaires <%= vision %>
           </caption>
           <thead>
           <tr>
-            <th scope="col"></th>
+            <th class="fr-cell--fixed" role="columnheader" rowspan="2" >
+              <span class="fr-sr-only">Données</span>
+            </th>
+            <th colspan="2">
+              Vision RPROG
+            </th>
+            <th colspan="2">
+              Vision CBCM
+            </th>
+          </tr>
+          <tr>
             <th scope="col">
-              <%= ae %> RPROG (€)
+              <%= ae %> (€)
             </th>
             <th scope="col">
-              <%= cp %> RPROG (€)
+              <%= cp %> (€)
             </th>
             <th scope="col">
-              <%= ae %> CBCM (€)
+              <%= ae %> (€)
             </th>
             <th scope="col">
-              <%= cp %> CBCM (€)
+              <%= cp %> (€)
             </th>
           </tr>
           </thead>
           <tbody>
           <% data = [
-            { title: 'Solde fin de gestion', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+            { title: 'Ressources', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+            { title: 'Dépenses', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
             { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
             { title: 'Niveau de la MER', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
-            { title: 'Mobilisation de la MER', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
-            { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+            { title: 'Autre réserve', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
           ]
           %>
           <% data.each_with_index do |item, index| %>
-            <tr id="table-bordered-row-key-<%= index + 1 %>" data-row-key="<%= index + 1 %>">
+            <tr data-row-key="<%= index + 1 %>">
               <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
               <td class="fr-cell--right">
                 <%= format_number(vision_rprog.send(item[:ae_attr])) %>
@@ -105,4 +129,148 @@
     </div>
   </div>
 </div>
+
+<p class="fr-text--bold">Hypothèses de couverture <%= vision %></p>
+<div class="fr-table fr-table--bordered fr-table--no-caption ">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>
+            Détail des données budgétaires <%= vision %>
+          </caption>
+          <thead>
+          <tr>
+            <th class="fr-cell--fixed" role="columnheader" rowspan="2" >
+              <span class="fr-sr-only">Données</span>
+            </th>
+            <th colspan="2">
+              Vision RPROG
+            </th>
+            <th colspan="2">
+              Vision CBCM
+            </th>
+          </tr>
+          <tr>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <% data = [
+            { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+            { title: 'Mobilisation de la MER', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+            { title: 'Mobilisation autre réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+            { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+            { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
+            { title: "Ouverture/Annulation credits LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+            { title: "Report arbitré", ae_attr: 'reports_ae', cp_attr: 'reports_cp' },
+            { title: 'Solde fin de gestion', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+          ]
+          %>
+          <% data.each_with_index do |item, index| %>
+            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde fin de gestion' %>">
+              <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:cp_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:cp_attr])) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if vision == 'HT2' %>
+<p class="fr-text--bold">Autres informations relatives à la fin de gestion</p>
+<div class="fr-table fr-table--bordered fr-table--no-caption " >
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>
+            Détail des données budgétaires <%= vision %>
+          </caption>
+          <thead>
+          <tr>
+            <th class="fr-cell--fixed" role="columnheader" rowspan="2" >
+              <span class="fr-sr-only">Données</span>
+            </th>
+            <th colspan="2" >
+              Vision RPROG
+            </th>
+            <th colspan="2" >
+              Vision CBCM
+            </th>
+          </tr>
+          <tr>
+
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <% data = [
+            { title: 'Charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
+            { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
+            { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
+            { title: 'Autres crédits à reporter', ae_attr: 'credits_reports_autre_ae', cp_attr: 'credits_reports_autre_cp' },
+          ]
+          %>
+          <% data.each_with_index do |item, index| %>
+            <tr data-row-key="<%= index + 1 %>">
+              <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:cp_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:cp_attr])) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+
 <p class="fr-text--bold">Liste des virements/transferts </p>

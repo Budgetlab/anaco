@@ -3,6 +3,15 @@ class GestionSchema < ApplicationRecord
   belongs_to :user
   belongs_to :schema
 
+  before_save :set_nil_values_to_zero
+
+  def prevision_solde_budgetaire_ae
+    (ressources_ae || 0) - (depenses_ae || 0)
+  end
+
+  def prevision_solde_budgetaire_cp
+    (ressources_cp || 0) - (depenses_cp || 0)
+  end
   def solde_total_ae
     prevision_solde_budgetaire_ae + (mobilisation_mer_ae || 0)
   end
@@ -10,9 +19,18 @@ class GestionSchema < ApplicationRecord
     prevision_solde_budgetaire_cp + (mobilisation_mer_cp || 0)
   end
   def self.ransackable_attributes(auth_object = nil)
-    ["annee", "charges_a_payer_ae", "charges_a_payer_cp", "commentaire", "created_at", "credits_ouverts_ae", "credits_ouverts_cp", "credits_reports_ae", "credits_reports_cp", "decret_ae", "decret_cp", "fongibilite_ae", "fongibilite_cp", "id", "id_value", "mer_ae", "mer_cp", "mobilisation_mer_ae", "mobilisation_mer_cp", "prevision_solde_budgetaire_ae", "prevision_solde_budgetaire_cp", "profil", "programme_id", "reports_autre_ae", "reports_autre_cp", "schema_id", "statut", "updated_at", "user_id", "vision"]
+    ["annee","schema_id", "updated_at", "user_id", "vision", "created_at", "profil", "programme_id","credits_lfg_ae", "credits_lfg_cp", "credits_reports_ae", "credits_reports_cp", "decret_ae", "decret_cp", "fongibilite_ae", "fongibilite_cp", "id", "id_value", "mer_ae", "mer_cp", "surgel_ae", "surgel_cp", "mobilisation_mer_ae", "mobilisation_mer_cp","mobilisation_surgel_ae", "mobilisation_surgel_cp", "ressources_ae", "ressources_cp","depenses_ae","depenses_cp", "reports_autre_ae","reports_ae", "reports_cp", "reports_autre_cp", "charges_a_payer_ae", "charges_a_payer_cp", "credits_reports_autre_ae", "credits_reports_autre_cp", "commentaire",]
   end
   def self.ransackable_associations(auth_object = nil)
     ["programme", "schema", "user"]
+  end
+
+  private
+  def set_nil_values_to_zero
+    self.attributes.each do |attr_name, attr_value|
+      next if %w[id programme_id schema_id user_id vision profil commentaire].include?(attr_name)
+
+      self[attr_name] = 0 if attr_value.nil?
+    end
   end
 end

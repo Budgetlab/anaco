@@ -25,51 +25,108 @@
     <div class="fr-card--shadow fr-px-2w">
       <div class="fr-h3"><p class="fr-badge fr-badge--beige-gris-galet">Vision RPROG</p></div>
       <div class="fr-h5">Situation à date du CRG2</div>
-      <div class="fr-h6 fr-mb-1w">Solde prévisionnel</div>
+      <div class="fr-h6 fr-mb-1w">Ressources certaines</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.prevision_solde_budgetaire_ae) %>€
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.ressources_ae) %>€
           </div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.prevision_solde_budgetaire_cp) %>€
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.ressources_cp) %>€
           </div>
         </div>
       </div>
+      <div class="fr-h6 fr-mb-1w">Prévision des dépenses</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.depenses_ae) %>€
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.depenses_cp) %>€
+          </div>
+        </div>
+      </div>
+      <div class="fr-h5">Solde prévisionnel</div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-6">
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">HCAS</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@gestion_schema.prevision_solde_budgetaire_ae)%> €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-6">
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">CAS</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(@gestion_schema.prevision_solde_budgetaire_cp)%> €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="fr-hr fr-mt-3w">
       <div class="fr-h6 fr-mb-1w">Niveau de la mise en réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
+          <div class="fr-label">HCAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mer_ae) %> €</div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
+          <div class="fr-label">CAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mer_cp) %> €</div>
         </div>
       </div>
+      <div class="fr-h6 fr-mb-1w">Autre réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.surgel_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.surgel_cp) %> €</div>
+        </div>
+      </div>
+      <hr class="fr-hr fr-mt-3w">
+
       <div class="fr-h5">Hypothèses de couverture</div>
       <div class="fr-h6 fr-mb-1w">Mobilisation de la mise en réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
+          <div class="fr-label">HCAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mobilisation_mer_ae) %> €</div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
+          <div class="fr-label">CAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mobilisation_mer_cp) %> €</div>
+        </div>
+      </div>
+      <div class="fr-h6 fr-mb-1w">Mobilisation autre réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mobilisation_surgel_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mobilisation_surgel_cp) %> €</div>
         </div>
       </div>
 
       <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
+          <div class="fr-label">HCAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.fongibilite_ae) %> €</div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
+          <div class="fr-label">CAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.fongibilite_cp) %> €</div>
         </div>
       </div>
@@ -77,24 +134,36 @@
       <div class="fr-h6 fr-mb-1w">Décret d'avance</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
+          <div class="fr-label">HCAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.decret_ae) %> €</div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
+          <div class="fr-label">CAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.decret_cp) %> €</div>
         </div>
       </div>
 
-      <div class="fr-h6 fr-mb-1w">Crédits ouverts en LFG</div>
+      <div class="fr-h6 fr-mb-1w">Ouverture/Annulation de crédits en LFG</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.credits_ouverts_ae) %> €</div>
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.credits_lfg_ae) %> €</div>
         </div>
         <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.credits_ouverts_cp) %> €</div>
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.credits_lfg_cp) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w">Report arbitré consensuel</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.reports_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.reports_cp) %> €</div>
         </div>
       </div>
 

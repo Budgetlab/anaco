@@ -1,0 +1,19 @@
+wb = xlsx_package.workbook
+s = wb.styles
+header_style = wb.styles.add_style(
+  bg_color: 'dae1f2', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+)
+cell_style = wb.styles.add_style(
+                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }, border: { style: :thin, color: '161616' }
+                )
+sheet_col = Array.new(30, 14)
+ wb.add_worksheet(name: "Schema de fin de gestion") do |sheet|
+    sheet.add_row [nil,"Situation à date", nil, nil, nil, nil,"Hypothèses de couverture", nil, nil, nil, nil, nil], style: header_style, height: 50
+    sheet.merge_cells("B1:F1")
+    sheet.merge_cells("G1:L1")
+
+
+
+    sheet.column_widths(*sheet_col)
+
+end

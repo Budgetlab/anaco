@@ -11,6 +11,11 @@
               <span class="fr-icon-arrow-right-line fr-icon--lg"></span>
               Schéma de fin de gestion du programme n°<%= @schema.programme.numero %>
             </h1>
+            <div class="fr-download">
+              <p><%= link_to schema_path(@schema, format: :xlsx), data: {'turbo_frame': '_top'}, class: "fr-download__link" do%>
+                Télécharger le schéma fin de gestion<span class="fr-download__detail">Format .xlsx</span>
+                <%end %></p>
+            </div>
             <div class="fr-tabs">
               <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
                 <% if @vision_rprog_ht2 %>

@@ -32,6 +32,10 @@ class SchemasController < ApplicationController
     @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
     @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')
     @vision_cbcm_t2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'T2')
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
   end
 
   def destroy

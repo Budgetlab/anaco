@@ -1,35 +1,76 @@
 <div data-controller="form" id="form_schema">
   <%= form_with(model: [@schema, @gestion_schema], data: { 'form-target': "form", action: 'input->form#formChange' }) do |f| %>
+    <div class="cwarning fr-mb-1w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
     <div class="fr-h5">Situation à date du CRG2</div>
-    <div class="fr-h6 fr-mb-1w">Solde
-      prévisionnel <%= render partial: "gestion_schemas/tooltip", locals: { name: "solde_previsionnel" } %></div>
+    <div class="fr-h6 fr-mb-1w">Ressources certaines à date*</div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
-          <label for="prevision_solde_budgetaire_ae" class="fr-label">HCAS</label>
+          <label for="ressources_ae" class="fr-label">HCAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :prevision_solde_budgetaire_ae, value: @gestion_schema.prevision_solde_budgetaire_ae, id: "prevision_solde_budgetaire_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" }  %>
+            <%= f.text_field :ressources_ae, value: @gestion_schema.ressources_ae, id: "ressources_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs fieldRequire" } %>
           </div>
         </div>
       </div>
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
-          <label for="prevision_solde_budgetaire_cp" class="fr-label">CAS</label>
+          <label for="ressources_cp" class="fr-label">CAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :prevision_solde_budgetaire_cp, value: @gestion_schema.prevision_solde_budgetaire_cp, id: "prevision_solde_budgetaire_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" }  %>
+            <%= f.text_field :ressources_cp, value: @gestion_schema.ressources_cp, id: "ressources_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs fieldRequire" } %>
           </div>
         </div>
       </div>
     </div>
 
+    <div class="fr-h6 fr-mb-1w">Prévision de dépenses*</div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="depenses_ae" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :depenses_ae, value: @gestion_schema.depenses_ae, id: "depenses_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputsNeg fieldRequire" } %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="depenses_cp" class="fr-label">CAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :depenses_cp, value: @gestion_schema.depenses_cp, id: "depenses_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputsNeg fieldRequire" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-h5">Solde prévisionnel <%= render partial: "gestion_schemas/tooltip", locals: { name: "solde_previsionnel" } %></div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-6">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center">HCAS</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldePrevAe">-</p>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center">CAS</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldePrevCp">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="fr-hr fr-mt-3w">
+
     <div class="fr-h6 fr-mb-1w">Niveau de la mise en
-      réserve <%= render partial: "gestion_schemas/tooltip", locals: { name: "mer" } %></div>
+      réserve* <%= render partial: "gestion_schemas/tooltip", locals: { name: "mer" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
           <label for="mer_ae" class="fr-label">HCAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :mer_ae, value: @gestion_schema.mer_ae, id: "mer_ae", class: "fr-input", data: { action: 'input->form#changeNumber' } %>
+            <%= f.text_field :mer_ae, value: @gestion_schema.mer_ae, id: "mer_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "fieldRequire" } %>
           </div>
         </div>
       </div>
@@ -37,11 +78,33 @@
         <div class="fr-input-group">
           <label for="mer_cp" class="fr-label">CAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :mer_cp, value: @gestion_schema.mer_cp, id: "mer_cp", class: "fr-input", data: { action: 'input->form#changeNumber' } %>
+            <%= f.text_field :mer_cp, value: @gestion_schema.mer_cp, id: "mer_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "fieldRequire" } %>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="fr-h6 fr-mb-1w">Autres cas de réserve de crédits</div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="surgel_ae" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :surgel_ae, value: @gestion_schema.surgel_ae, id: "surgel_ae", class: "fr-input", data: { action: 'input->form#changeNumber'} %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="surgel_cp" class="fr-label">CAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :surgel_cp, value: @gestion_schema.surgel_cp, id: "surgel_cp", class: "fr-input", data: { action: 'input->form#changeNumber' } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="fr-hr fr-mt-3w">
 
     <div class="fr-h5">Hypothèses de couverture</div>
     <div class="fr-h6 fr-mb-1w">Mobilisation de la mise en
@@ -65,6 +128,26 @@
       </div>
     </div>
 
+    <div class="fr-h6 fr-mb-1w">Mobilisation des autres cas de réserve</div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="mobilisation_surgel_ae" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :mobilisation_surgel_ae, value: @gestion_schema.mobilisation_surgel_ae, id: "mobilisation_surgel_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" } %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="mobilisation_surgel_cp" class="fr-label">CAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :mobilisation_surgel_cp, value: @gestion_schema.mobilisation_surgel_cp, id: "mobilisation_surgel_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="fr-h6 fr-mb-1w">Fongibilité
       asymétrique <%= render partial: "gestion_schemas/tooltip", locals: { name: "fongibilite" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -72,7 +155,7 @@
         <div class="fr-input-group">
           <label for="fongibilite_ae" class="fr-label">HCAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id: "fongibilite_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" }  %>
+            <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id: "fongibilite_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputsNeg" }  %>
           </div>
         </div>
       </div>
@@ -80,7 +163,7 @@
         <div class="fr-input-group">
           <label for="fongibilite_cp" class="fr-label">CAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :fongibilite_cp, value: @gestion_schema.fongibilite_cp, id: "fongibilite_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" }  %>
+            <%= f.text_field :fongibilite_cp, value: @gestion_schema.fongibilite_cp, id: "fongibilite_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputsNeg" }  %>
           </div>
         </div>
       </div>
@@ -107,22 +190,42 @@
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Crédits ouverts en
+    <div class="fr-h6 fr-mb-1w">Ouverture/annulation de crédits en
       LFG <%= render partial: "gestion_schemas/tooltip", locals: { name: "credits_ouverts" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
-          <label for="credits_ouverts_ae" class="fr-label">HCAS</label>
+          <label for="credits_lfg_ae" class="fr-label">HCAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_ouverts_ae, value: @gestion_schema.credits_ouverts_ae, id: "credits_ouverts_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" }  %>
+            <%= f.text_field :credits_lfg_ae, value: @gestion_schema.credits_lfg_ae, id: "credits_lfg_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" } %>
           </div>
         </div>
       </div>
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
-          <label for="credits_ouverts_cp" class="fr-label">CAS</label>
+          <label for="credits_lfg_cp" class="fr-label">CAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_ouverts_cp, value: @gestion_schema.credits_ouverts_cp, id: "credits_ouverts_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" }  %>
+            <%= f.text_field :credits_lfg_cp, value: @gestion_schema.credits_lfg_cp, id: "credits_lfg_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-h6 fr-mb-1w">Report arbitré consensuel</div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="reports_ae" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :reports_ae, value: @gestion_schema.reports_ae, id: "reports_ae", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" } %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="reports_cp" class="fr-label">CAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :reports_cp, value: @gestion_schema.reports_cp, id: "reports_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" } %>
           </div>
         </div>
       </div>
@@ -154,7 +257,7 @@
         <div class="fr-input-group">
           <label for="commentaire" class="fr-label">Commentaire de l’analyse de fin de gestion crédits T2 du
             RPROG</label>
-          <%= f.text_area :commentaire, rows: 4, value: @step == 3 ? @gestion_schema.commentaire : nil, id: "commentaire", class: "fr-input" %>
+          <%= f.text_area :commentaire, rows: 4, value: @step == 3 ? @gestion_schema.commentaire : nil, id: "commentaire", class: "fr-input", data: { form_target: "fieldRequire" } %>
         </div>
       </div>
     </div>

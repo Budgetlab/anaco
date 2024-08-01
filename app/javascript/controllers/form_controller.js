@@ -3,7 +3,7 @@ import {Controller} from "@hotwired/stimulus"
 export default class extends Controller {
     static get targets() {
         return ['form', 'submitBouton', 'fieldRequire', 'Btnvalidate', 'Btnsave', 'count', 'datealerte1', 'datealerte2', 'etat', 'dotation',
-            "aeInputs", "cpInputs", "soldeAe", "soldeCp"
+            "aeInputs", "cpInputs","aeInputsNeg", "cpInputsNeg", "soldeAe", "soldeCp", "soldePrevAe", "soldePrevCp"
         ];
     }
 
@@ -19,6 +19,7 @@ export default class extends Controller {
             this.getEcart();
         }
         if (this.soldeAeTargets.length > 0) {
+            this.calculateSoldePrev();
             this.calculateBalance();
         }
     }
@@ -126,6 +127,7 @@ export default class extends Controller {
         this.getEcart();
 
         if (this.soldeAeTargets.length > 0) {
+            this.calculateSoldePrev();
             this.calculateBalance();
         }
 
@@ -207,6 +209,25 @@ export default class extends Controller {
         }
     }
 
+    calculateSoldePrev(){
+        let soldeAe = 0;
+        let soldeCp = 0;
+
+        // ressources
+        const ressources_ae = this.numberFormat(document.getElementById("ressources_ae").value) || 0
+        const ressources_cp = this.numberFormat(document.getElementById("ressources_cp").value) || 0
+        // depenses
+        const depenses_ae = this.numberFormat(document.getElementById("depenses_ae").value) || 0
+        const depenses_cp = this.numberFormat(document.getElementById("depenses_cp").value) || 0
+
+        soldeAe = ressources_ae - depenses_ae
+        soldeCp = ressources_cp - depenses_cp
+
+        // update the balance fields
+        this.soldePrevAeTarget.innerText = soldeAe.toLocaleString("fr-FR") + ' €';
+        this.soldePrevCpTarget.innerText = soldeCp.toLocaleString("fr-FR") + ' €';
+    }
+
     calculateBalance() {
         let aeBalance = 0;
         let cpBalance = 0;
@@ -218,12 +239,24 @@ export default class extends Controller {
                 aeBalance += value;
             }
         });
+        this.aeInputsNegTargets.forEach((input) => {
+            let value = this.numberFormat(input.value);
+            if (!isNaN(value)) {
+                aeBalance -= value;
+            }
+        });
 
         // calculate cp balance
         this.cpInputsTargets.forEach((input) => {
             let value = this.numberFormat(input.value);
             if (!isNaN(value)) {
                 cpBalance += value;
+            }
+        });
+        this.cpInputsNegTargets.forEach((input) => {
+            let value = this.numberFormat(input.value);
+            if (!isNaN(value)) {
+                cpBalance -= value;
             }
         });
 

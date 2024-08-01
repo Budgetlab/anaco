@@ -12,7 +12,7 @@ class PagesController < ApplicationController
     # variables
     @statut_user = current_user.statut
     # chargement des avis
-    @avis_total = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee)
+    @avis_total = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee).count
     @avis_remplis = @statut_user == 'admin' ? avis_annee_remplis(@annee) : current_user.avis_remplis_annee(@annee)
     # graphes
     @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
