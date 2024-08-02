@@ -5,6 +5,11 @@ class GestionSchema < ApplicationRecord
   has_many :transferts
   accepts_nested_attributes_for :transferts, allow_destroy: true
 
+  scope :cbcm_t2, -> { find_by(vision: 'CBCM', profil: 'T2') }
+  scope :cbcm_ht2, -> { find_by(vision: 'CBCM', profil: 'HT2') }
+  scope :rprog_t2, -> { find_by(vision: 'RPROG', profil: 'T2') }
+  scope :rprog_ht2, -> { find_by(vision: 'RPROG', profil: 'HT2') }
+
   before_save :set_nil_values_to_zero
 
   def prevision_solde_budgetaire_ae

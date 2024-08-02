@@ -66,7 +66,7 @@
 
                     <td><%= programme.dotation %></td>
                     <td><%= format_boolean(programme.deconcentre) %></td>
-                    <td><%= programme.mission.nom %></td>
+                    <td><%= link_to mission_path(programme.mission), data:{ turbo_frame: "_top" } do%><%= programme.mission.nom %><% end %></td>
                     <td><%= programme.ministere.nom %></td>
                     <td><%= programme.user.nom %></td>
                   </tr>

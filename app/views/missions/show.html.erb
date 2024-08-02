@@ -1,6 +1,121 @@
-<% content_for :title do %>Mission <%= @mission.nom %> | ANACO <% end %>
+<% content_for :title do %>Mission <%= @mission.nom %> | ANACO
+<% end %>
 <main>
   <div class="fr-container">
     <h1 class="fr-mt-6w">Mission <%= @mission.nom %></h1>
+    <div class="fr-alert fr-alert--warning fr-mb-2w">
+      <h3 class="fr-alert__title">La vision mission peut présenter des données incomplètes car il est possible que
+        certains programmes ne soient pas renseignés dans ANACO.</h3>
+    </div>
+
+    <h2>Cumul des soldes des programmes de la mission</h2>
+
+    <div class="fr-table fr-table--bordered fr-table--no-caption ">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>
+                Détail des données budgétaires par programme
+              </caption>
+              <thead>
+              <tr>
+                <th class="fr-cell--fixed" role="columnheader" rowspan="3">
+                  <span class="fr-sr-only">Données</span>
+                </th>
+                <th colspan="4">
+                  Vision HT2
+                </th>
+                <th colspan="4">
+                  Vision T2
+                </th>
+              </tr>
+              <tr>
+                <th colspan="2">
+                  Vision RPROG
+                </th>
+                <th colspan="2">
+                  Vision CBCM
+                </th>
+                <th colspan="2">
+                  Vision RPROG
+                </th>
+                <th colspan="2">
+                  Vision CBCM
+                </th>
+              </tr>
+              <tr>
+                <th scope="col">
+                  AE (€)
+                </th>
+                <th scope="col">
+                  CP (€)
+                </th>
+                <th scope="col">
+                  AE (€)
+                </th>
+                <th scope="col">
+                  CP (€)
+                </th>
+                <th scope="col">
+                  HCAS (€)
+                </th>
+                <th scope="col">
+                  CAS (€)
+                </th>
+                <th scope="col">
+                  HCAS (€)
+                </th>
+                <th scope="col">
+                  CAS (€)
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <% @programmes.each do |programme| %>
+                <% schema = programme.last_schema_valid %>
+                <tr>
+                  <th class="fr-cell--fixed" scope="row">P <%= programme.numero %></th>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.solde_total_cp) %></td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <th class="fr-cell--fixed" scope="row">Total</th>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_ht2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_ht2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_ht2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_ht2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_t2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_t2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_t2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_t2_for_mission) %></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>Détails des schéma de fin de gestion des différents programmes de la mission</h2>
+    <div class="fr-accordions-group fr-mb-4w">
+      <% @programmes.each_with_index do |programme, index| %>
+        <section class="fr-accordion">
+          <h3 class="fr-accordion__title">
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%= index %>">Programme <%= programme.numero %></button>
+          </h3>
+          <div class="fr-collapse" id="accordion-<%= index %>">
+            <%= turbo_frame_tag :show, src: last_schema_programme_path(programme) %>
+          </div>
+        </section>
+      <% end %>
+    </div>
   </div>
 </main>
