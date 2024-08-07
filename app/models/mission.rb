@@ -33,4 +33,8 @@ class Mission < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     ["programmes"]
   end
+
+  ransacker :nom, type: :string do
+    Arel.sql("unaccent(missions.\"nom\")")
+  end
 end

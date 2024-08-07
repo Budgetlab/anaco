@@ -7,7 +7,7 @@ class BopsController < ApplicationController
   protect_from_forgery with: :null_session
 
   def index
-    @bops = current_user.statut == 'admin' ? Bop.all : current_user.bops
+    @bops = current_user.statut == 'CBR' ? current_user.bops : Bop.all
     @bops = @bops.order(code: :asc)
     @q = @bops.ransack(params[:q])
     @bops = @q.result.includes(:user)

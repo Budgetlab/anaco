@@ -10,7 +10,8 @@ class ProgrammesController < ApplicationController
   include BopsHelper
   # Page liste des crédits non repartis par programme
   def index
-    @programmes = Programme.all.order(numero: :asc)
+    @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.all
+    @programmes = @programmes.order(numero: :asc)
     @q = @programmes.ransack(params[:q])
     @programmes = @q.result.includes(:schemas)
     @pagy, @programmes_page = pagy(@programmes)

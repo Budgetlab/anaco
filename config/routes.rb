@@ -30,18 +30,13 @@ Rails.application.routes.draw do
     end
     get 'schemas_remplissage' => "schemas#schemas_remplissage"
     resources :programmes do
-      resources :credits, only: [:new]
       resources :schemas, only: [:new, :create]
       member do
         get 'last_schema', to: 'programmes#show_last_schema'
         get 'avis', to: 'programmes#show_avis'
       end
     end
-    resources :credits, only: [:index, :create, :update, :destroy]
     post 'import_programmes' => 'programmes#import'
-    get 'credits_suivi' => 'credits#suivi'
-    post 'filter_credits', to: 'credits#filter_credits'
-    post 'open_modal_credit' => 'credits#open_modal_credit'
 
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'

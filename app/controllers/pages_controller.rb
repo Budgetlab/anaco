@@ -9,7 +9,6 @@ class PagesController < ApplicationController
   include BopsHelper
   # page d'accueil suivi global des avis par phase selon le profil
   def index
-    # variables
     @statut_user = current_user.statut
     # chargement des avis
     @avis_total = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee).count

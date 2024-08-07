@@ -66,4 +66,13 @@ class Programme < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     ["credits", "user", "bops", "avis", "schemas", "gestion_schemas", "ministere", "mission"]
   end
+
+  ransacker :nom, type: :string do
+    Arel.sql("unaccent(programmes.\"nom\")")
+  end
+
+  ransacker :numero, type: :string do
+    Arel.sql("unaccent(programmes.\"numero\")")
+  end
+
 end

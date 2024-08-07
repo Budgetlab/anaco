@@ -105,7 +105,7 @@
 
                       <td>
                         <% if avis.etat == "Brouillon" %>
-                          <% if current_user.statut != "admin" %><%= link_to new_bop_avi_path(bop_id: avis.bop_id, date: @annee_a_afficher), class: "fr-btn fr-btn--sm" do %>
+                          <% if current_user.statut != "admin" %><%= link_to new_bop_avi_path(bop_id: avis.bop_id, date: @annee_a_afficher), data: { turbo_frame: '_top'}, class: "fr-btn fr-btn--sm" do %>
                               Reprendre
                             <% end %>
                           <% end %>
