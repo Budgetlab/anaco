@@ -3,7 +3,7 @@ class GestionSchema < ApplicationRecord
   belongs_to :user
   belongs_to :schema
   has_many :transferts
-  accepts_nested_attributes_for :transferts, allow_destroy: true
+  accepts_nested_attributes_for :transferts, reject_if: :all_blank, allow_destroy: true
 
   scope :cbcm_t2, -> { find_by(vision: 'CBCM', profil: 'T2') }
   scope :cbcm_ht2, -> { find_by(vision: 'CBCM', profil: 'HT2') }

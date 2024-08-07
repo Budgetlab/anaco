@@ -2,8 +2,5 @@
 
 one:
   nom: MyString
-  ministere: one
 
-two:
-  nom: MyString
-  ministere: two
+
