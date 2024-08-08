@@ -43,6 +43,7 @@ class GestionSchemasController < ApplicationController
   def edit
     # possibilité de revenir en arrière et modifier gestion schema
     @programme = @gestion_schema.programme
+    @edit = true
     @step = if @gestion_schema.profil == 'HT2'
               @gestion_schema.vision == 'RPROG' ? 1 : 2
             else

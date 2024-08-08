@@ -5,7 +5,7 @@
     <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> RPROG</p>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-5">
-        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-card <%= colorful_card_css_class(vision_rprog.solde_total_ae) %> fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
             <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_ae) %>
@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="fr-col-5">
-        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-card <%= colorful_card_css_class(vision_rprog.solde_total_cp) %> fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
             <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_cp) %>
@@ -28,7 +28,7 @@
     <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> CBCM</p>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-5">
-        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-card <%= colorful_card_css_class(vision_cbcm.solde_total_ae) %> fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
             <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_ae) %>
@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="fr-col-5">
-        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+        <div class="fr-card <%= colorful_card_css_class(vision_cbcm.solde_total_cp) %> fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
             <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_cp) %>

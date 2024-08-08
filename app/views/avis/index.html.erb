@@ -41,6 +41,13 @@
               <div class="fr-col-4">
                 <%= render_select_group("Statut/Risque", :statut_in, ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs"]) %>
               </div>
+              <div class="fr-col-4">
+                <%= render_select_group("Programme", :bop_programme_numero_in, Programme.all.order(numero: :asc).map {|p| p.numero}) %>
+              </div>
+              <div class="fr-col-4">
+                <label class="fr-label fr-text--bold">BOP</label>
+                <%= f.search_field :bop_code_contains, class: "fr-input", placeholder: 'Rechercher un BOP par son code', oninput: 'this.form.requestSubmit()' %>
+              </div>
             </div>
           <% end %>
         </div>

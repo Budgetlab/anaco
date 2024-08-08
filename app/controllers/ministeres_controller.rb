@@ -7,5 +7,6 @@ class MinisteresController < ApplicationController
 
   def show
     @ministere = Ministere.find(params[:id])
+    @programmes = @ministere.programmes.includes(schemas: :gestion_schemas)
   end
 end

@@ -226,6 +226,9 @@ export default class extends Controller {
         // update the balance fields
         this.soldePrevAeTarget.innerText = soldeAe.toLocaleString("fr-FR") + ' €';
         this.soldePrevCpTarget.innerText = soldeCp.toLocaleString("fr-FR") + ' €';
+
+        this.updateCard(soldeAe, this.soldePrevAeTarget);
+        this.updateCard(soldeCp, this.soldePrevCpTarget);
     }
 
     calculateBalance() {
@@ -264,15 +267,19 @@ export default class extends Controller {
         this.soldeAeTarget.innerText = aeBalance.toLocaleString("fr-FR") + ' €';
         this.soldeCpTarget.innerText = cpBalance.toLocaleString("fr-FR") + ' €';
 
-        if (aeBalance < 0) {
-            this.soldeAeTarget.classList.add('crouge')
+        this.updateCard(aeBalance, this.soldeAeTarget)
+        this.updateCard(cpBalance, this.soldeCpTarget)
+
+    }
+
+    updateCard(amount, target) {
+        let parentCard = target.closest('.fr-card');
+        if (amount < 0) {
+            parentCard.classList.remove("fr-card--blue")
+            parentCard.classList.add("fr-card--red")
         } else {
-            this.soldeAeTarget.classList.remove('crouge')
-        }
-        if (cpBalance < 0) {
-            this.soldeCpTarget.classList.add('crouge')
-        } else {
-            this.soldeCpTarget.classList.remove('crouge')
+            parentCard.classList.remove("fr-card--red")
+            parentCard.classList.add("fr-card--blue")
         }
     }
 

@@ -80,6 +80,13 @@ h1, h2{
   --active: var(--background-contrast-orange-terre-battue);
   color: var(--text-label-orange-terre-battue);
 }
+.fr-card--red{
+  background-color: var(--background-contrast-error) !important;
+  --idle: transparent;
+  --hover: var(--background-contrast-error);
+  --active: var(--background-contrast-error);
+  color: var(--red-marianne-main-472);
+}
 
 .fr-card--creme{
   color: var(--text-label-brown-cafe-creme);

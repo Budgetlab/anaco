@@ -169,8 +169,8 @@
         </div>
       </div>
     </div>
-    <div class="fr-h6 fr-mb-1w">Virements/Transferts entrant
-      <span class="fr-hint-text">Chaque virement doit être associé à un programme</span>
+    <div class="fr-h6 fr-mb-1w">Virements/Transferts entrant <%= render partial: "gestion_schemas/tooltip", locals: { name: "transferts_entrant" } %>
+      <span class="fr-hint-text">Chaque virement doit être associé à un programme et ne pas contenir de valeur vide</span>
     </div>
 
     <template data-nested-form-target="template">
@@ -187,8 +187,8 @@
     <div data-nested-form-target="target"></div>
     <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">Ajouter un virement / transfert entrant</button>
 
-    <div class="fr-h6 fr-mb-1w">Virements/Transferts sortant
-      <span class="fr-hint-text">Chaque virement doit être associé à un programme</span>
+    <div class="fr-h6 fr-mb-1w">Virements/Transferts sortant <%= render partial: "gestion_schemas/tooltip", locals: { name: "transferts_sortant" } %>
+      <span class="fr-hint-text">Chaque virement doit être associé à un programme et ne pas contenir de valeur vide</span>
     </div>
 
     <template data-nested-form2-target="template">
@@ -380,7 +380,7 @@
         <div class="fr-input-group">
           <label for="commentaire" class="fr-label">Commentaire de l’analyse de fin de gestion AE/CP
             du <%= @step == 1 ? 'RPROG' : 'CBCM' %></label>
-          <%= f.text_area :commentaire,rows: 4, value: @step == 1 ? @gestion_schema.commentaire : nil, id: "commentaire", class: "fr-input", data: { form_target: "fieldRequire" } %>
+          <%= f.text_area :commentaire,rows: 4, value: @step == 1 || @edit ? @gestion_schema.commentaire : nil, id: "commentaire", class: "fr-input", data: { form_target: "fieldRequire" } %>
         </div>
       </div>
     </div>

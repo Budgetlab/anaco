@@ -87,7 +87,14 @@ module ApplicationHelper
                  else
                    avis.select { |avi| avi.phase == phase }
                  end
-    avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
+    if avis_phase.empty?
+      [0, 0, 0, 0, 0, 0, 0, 0]
+    else
+      [:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f].map do |attribute|
+        avis_phase.map { |avis| avis.send(attribute) || 0 }.sum
+      end
+    end
+    # avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
   end
 
   def display_phases(annee_a_afficher, annee, date_crg1, date_crg2)
@@ -102,5 +109,9 @@ module ApplicationHelper
 
   def bops_actifs(bops, annee)
     bops.where('created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+  end
+
+  def colorful_card_css_class(amount)
+    amount.negative? ? 'fr-card--red' : 'fr-card--blue'
   end
 end
