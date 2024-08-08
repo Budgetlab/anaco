@@ -102,7 +102,7 @@ class AvisController < ApplicationController
     @avis.assign_attributes(avi_params)
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant_id && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
+    @avis.update(etat: 'Lu') if @bop.user_id == @bop.dcb_id && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
     redirect_path = if @avis.phase == 'execution'
                       @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : remplissage_avis_path
                     else

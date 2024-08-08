@@ -34,7 +34,7 @@
                 <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map {|u| u.nom}) %>
               </div>
               <div class="fr-col-4">
-                <%= render_select_group("DCB responsable", :consultant_nom_in, User.where(statut: ['DCB']).order(nom: :asc).map {|u| u.nom}) %>
+                <%= render_select_group("DCB responsable", :dcb_nom_in, User.where(statut: ['DCB']).order(nom: :asc).map {|u| u.nom}) %>
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@
                       </td>
                       <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
                       <td><%= bop.user.nom %></td>
-                      <td><%= bop.consultant.nom %></td>
+                      <td><%= bop.dcb.nom %></td>
                     </tr>
                   <% end %>
                   </tbody>

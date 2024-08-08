@@ -76,9 +76,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_07_084011) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "dotation"
-    t.bigint "consultant_id"
     t.bigint "programme_id"
-    t.index ["consultant_id"], name: "index_bops_on_consultant_id"
+    t.bigint "dcb_id"
+    t.index ["dcb_id"], name: "index_bops_on_dcb_id"
     t.index ["programme_id"], name: "index_bops_on_programme_id"
     t.index ["user_id"], name: "index_bops_on_user_id"
   end
@@ -214,7 +214,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_07_084011) do
   add_foreign_key "avis", "users"
   add_foreign_key "bops", "programmes"
   add_foreign_key "bops", "users"
-  add_foreign_key "bops", "users", column: "consultant_id"
+  add_foreign_key "bops", "users", column: "dcb_id"
   add_foreign_key "credits", "programmes"
   add_foreign_key "credits", "users"
   add_foreign_key "gestion_schemas", "programmes"

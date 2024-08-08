@@ -2,7 +2,7 @@ class GestionSchema < ApplicationRecord
   belongs_to :programme
   belongs_to :user
   belongs_to :schema
-  has_many :transferts
+  has_many :transferts, dependent: :destroy
   accepts_nested_attributes_for :transferts, reject_if: proc { |attributes| attributes['montant_ae'].blank? || attributes['montant_cp'].blank? || attributes['programme_id'].blank? }, allow_destroy: true
 
   scope :cbcm_t2, -> { find_by(vision: 'CBCM', profil: 'T2') }
