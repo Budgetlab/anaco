@@ -1,24 +1,32 @@
 <%= turbo_frame_tag :show do %>
   <% if @schema %>
+    <div class="fr-h2">Schémas de fin de gestion du programme</div>
+    <div class="fr-mb-2w">Dernière mise à jour le <%= @schema.updated_at.strftime(("%e/%-m/%Y")) %></div>
     <div class="fr-tabs fr-mb-4w">
-      <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
-        <li role="presentation">
-          <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">Vision
-            HT2
-          </button>
-        </li>
-        <li role="presentation">
-          <button id="tabpanel-405" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-405-panel">Vision
-            T2
-          </button>
-        </li>
+      <ul class="fr-tabs__list" role="tablist" aria-label="Vision">
+        <% if @vision_rprog_ht2 %>
+          <li role="presentation">
+            <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">HT2
+            </button>
+          </li>
+        <% end %>
+        <% if @vision_rprog_t2 %>
+          <li role="presentation">
+            <button id="tabpanel-405" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-405-panel">T2
+            </button>
+          </li>
+        <% end %>
       </ul>
-      <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
-        <%= render partial: 'schemas/show_vision', locals: { vision: 'HT2', vision_rprog: @vision_rprog_ht2, vision_cbcm: @vision_cbcm_ht2 } %>
-      </div>
-      <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
-        <%= render partial: 'schemas/show_vision', locals: { vision: 'T2', vision_rprog: @vision_rprog_t2, vision_cbcm: @vision_cbcm_t2 } %>
-      </div>
+      <% if @vision_rprog_ht2 %>
+        <div id="tabpanel-404-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-404" tabindex="0">
+          <%= render partial: 'schemas/show_vision', locals: { vision: 'HT2', vision_rprog: @vision_rprog_ht2, vision_cbcm: @vision_cbcm_ht2 } %>
+        </div>
+      <% end %>
+      <% if @vision_rprog_t2 %>
+        <div id="tabpanel-405-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-405" tabindex="0">
+          <%= render partial: 'schemas/show_vision', locals: { vision: 'T2', vision_rprog: @vision_rprog_t2, vision_cbcm: @vision_cbcm_t2 } %>
+        </div>
+      <% end %>
     </div>
     </div>
   <% else %>

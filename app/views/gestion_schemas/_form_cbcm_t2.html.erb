@@ -1,5 +1,5 @@
-<% steps_max = @programme == "T2" ? 2 : 4 %>
-<% step_current = @programme == "T2" ? 2 : 4 %>
+<% steps_max = @programme.dotation == "T2" ? 2 : 4 %>
+<% step_current = @programme.dotation == "T2" ? 2 : 4 %>
 <div class="fr-stepper">
   <h2 class="fr-stepper__title">
     <span class="fr-stepper__state">Étape <%= step_current %> sur <%= steps_max %></span>

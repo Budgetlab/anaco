@@ -24,7 +24,7 @@ class ProgrammesController < ApplicationController
   # Page pour importer le fichier des programmes
   def new
     # mettre à jour les BOP
-    AdminUser.create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
+    AdminUser.first_or_create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
     @bops = Bop.where(dotation: 'complete')
     @bops.update(dotation: 'HT2 et T2')
   end

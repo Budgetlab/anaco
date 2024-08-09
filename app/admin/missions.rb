@@ -5,7 +5,7 @@ ActiveAdmin.register Mission do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  # permit_params :nom
+  permit_params :nom
   #
   # or
   #

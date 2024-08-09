@@ -5,7 +5,7 @@ ActiveAdmin.register Bop do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  # permit_params :user_id, :ministeres, :numero_programme, :nom_programme, :code, :dotation, :dcb_id, :programme_id
+  permit_params :user_id, :ministeres, :numero_programme, :nom_programme, :code, :dotation, :dcb_id, :programme_id
   #
   # or
   #

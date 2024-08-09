@@ -30,10 +30,8 @@ class GestionSchemasController < ApplicationController
     @gestion_schema = @schema.gestion_schemas.new(gestion_schema_params.merge(programme_id: @schema.programme_id, user_id: current_user.id, annee: Date.today.year))
     assign_vision_profil
     @gestion_schema.save
-    puts "GestionSchema errors: #{@gestion_schema.errors.full_messages.to_sentence}"
-    puts "Transferts errors: #{@gestion_schema.transferts.map { |t| t.errors.full_messages.to_sentence }}"
     # mettre à jour l'etape dans le statut du schema
-    steps_max = @schema.programme.dotation == 'HT2 et T2' ? 4 : 2
+    steps_max = @schema.programme.dotation == 'HT2' ? 2 : 4
     statut = @schema.statut.to_i + 1 > steps_max ? 'valide' : (@schema.statut.to_i + 1).to_s
     @schema.update(statut: statut)
     next_path = statut == 'valide' ? schemas_path : new_schema_gestion_schema_path(@schema)
