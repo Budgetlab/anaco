@@ -29,7 +29,7 @@
       <div class="fr-h3"><p class="fr-badge fr-badge--beige-gris-galet">Vision RPROG</p></div>
       <div class="cwarning fr-mb-1w">Rappel des données Crédits HT2 - AE/CP du RPROG.</div>
       <div class="fr-h5">Situation à date du CRG2</div>
-      <div class="fr-h6 fr-mb-1w">Ressources certaines</div>
+      <div class="fr-h6 fr-mb-1w">Ressources certaines à date</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-      <div class="fr-h6 fr-mb-1w">Prévision des dépenses</div>
+      <div class="fr-h6 fr-mb-1w">Prévision de dépenses</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -89,7 +89,7 @@
           <div class="fr-text--bold fr-my-3v"><%= format_number(@gestion_schema.mer_cp) %> €</div>
         </div>
       </div>
-      <div class="fr-h6 fr-mb-1w">Autre réserve</div>
+      <div class="fr-h6 fr-mb-1w">Autres cas de réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      <div class="fr-h6 fr-mb-1w">Mobilisation autre réserve</div>
+      <div class="fr-h6 fr-mb-1w">Mobilisation des autres cas de réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -139,7 +139,7 @@
         </div>
       </div>
 
-      <div class="fr-h6 fr-mb-1w">Virements/Transferts entrant</div>
+      <div class="fr-h6 fr-mb-1w">Virements/transferts entrants</div>
       <% if @gestion_schema.transferts.entrant.empty?%>
         <div class="fr-label fr-mb-3w">Aucun</div>
       <% end %>
@@ -162,7 +162,7 @@
         </div>
       <% end %>
 
-      <div class="fr-h6 fr-mb-1w">Virements/Transferts sortant</div>
+      <div class="fr-h6 fr-mb-1w">Virements/transferts sortants</div>
       <% if @gestion_schema.transferts.sortant.empty?%>
         <div class="fr-label fr-mb-3w">Aucun</div>
       <% end %>
@@ -197,7 +197,7 @@
         </div>
       </div>
 
-      <div class="fr-h6 fr-mb-1w">Ouverture/Annulation de crédits en LFG</div>
+      <div class="fr-h6 fr-mb-1w">Ouverture/annulation de crédits en LFG</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -209,7 +209,7 @@
         </div>
       </div>
 
-      <div class="fr-h6 fr-mb-1w">Report arbitré consensuel</div>
+      <div class="fr-h6 fr-mb-1w">Report arbitré ou consensuel</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>
@@ -246,7 +246,7 @@
       <hr class="fr-hr fr-mt-3w">
       <div class="fr-h5">Autres informations relatives à la fin de gestion</div>
 
-      <div class="fr-h6 fr-mb-1w">Charge à payer</div>
+      <div class="fr-h6 fr-mb-1w">Charges à payer</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">AE</div>

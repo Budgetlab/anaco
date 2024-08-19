@@ -1,127 +1,154 @@
 <header role="banner" class="fr-header">
-    <div class="fr-header__body">
-        <div class="fr-container">
-            <div class="fr-header__body-row">
-                <div class="fr-header__brand fr-enlarge-link">
-                    <div class="fr-header__brand-top">
-                        <div class="fr-header__logo">
-                            <p class="fr-logo">
-                                Ministère
-                                <br>de l'économie,<br>des finances<br>et de la souveraineté<br> industrielle et numérique
-                            </p>
-                        </div>
-                      <% if user_signed_in? %>
-                        <div class="fr-header__navbar">
-                            <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-530" aria-haspopup="menu" id="button-531" title="Menu">
-                                Menu
-                            </button>
-                        </div>
-                      <% end %>
-                    </div>
-                    <div class="fr-header__service">
-                        <%= link_to root_path, title: "Accueil - ANACO" do %>
-                          <p class="fr-header__service-title">ANACO <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
-                        <%end %>
-                        <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
-                    </div>
-                </div>
-                <% if user_signed_in? %>
-                <div class="fr-header__tools">
-                    <div class="fr-header__tools-links ">
-                        <ul class="fr-btns-group">                                                    
-                                <li>
-                                    <%= link_to "Se déconnecter", destroy_user_session_path, data: { "turbo-method": :delete }, class:"fr-btn fr-fi-logout-box-r-line" %>
-                                </li>
-                        </ul>
-                    </div>
-                </div>
-                <% end %>
+  <div class="fr-header__body">
+    <div class="fr-container">
+      <div class="fr-header__body-row">
+        <div class="fr-header__brand fr-enlarge-link">
+          <div class="fr-header__brand-top">
+            <div class="fr-header__logo">
+              <p class="fr-logo">
+                Ministère
+                <br>de l'économie,<br>des finances<br>et de la souveraineté<br> industrielle et numérique
+              </p>
             </div>
+            <% if user_signed_in? %>
+              <div class="fr-header__navbar">
+                <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-530" aria-haspopup="menu" id="button-531" title="Menu">
+                  Menu
+                </button>
+              </div>
+            <% end %>
+          </div>
+          <div class="fr-header__service">
+            <%= link_to root_path, title: "Accueil - ANACO" do %>
+              <p class="fr-header__service-title">ANACO
+                <span class="fr-badge fr-badge--sm fr-badge--green-emeraude">BÊTA</span></p>
+            <% end %>
+            <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
+          </div>
         </div>
+        <% if user_signed_in? %>
+          <div class="fr-header__tools">
+            <div class="fr-header__tools-links ">
+              <ul class="fr-btns-group">
+                <li>
+                  <%= link_to "Se déconnecter", destroy_user_session_path, data: { "turbo-method": :delete }, class: "fr-btn fr-fi-logout-box-r-line" %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
- 
-    <% if user_signed_in? %>
+  </div>
+
+  <% if user_signed_in? %>
     <div class="fr-header__menu fr-modal" id="modal-530" aria-labelledby="button-531">
-        <div class="fr-container">
-            <button class="fr-btn--close fr-btn" aria-controls="modal-530" title="Fermer">
-                Fermer
-            </button>
-            <div class="fr-header__menu-links"></div>
-            <nav class="fr-nav" id="fr-navigation" role="navigation" aria-label="Menu principal">
-                <ul class="fr-nav__list">
-                    <li class="fr-nav__item">
-                        <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'],['index']] do%>Accueil<%end%>
+      <div class="fr-container">
+        <button class="fr-btn--close fr-btn" aria-controls="modal-530" title="Fermer">
+          Fermer
+        </button>
+        <div class="fr-header__menu-links"></div>
+        <nav class="fr-nav" id="fr-navigation" role="navigation" aria-label="Menu principal">
+          <ul class="fr-nav__list">
+            <li class="fr-nav__item">
+              <%= active_link_to root_path, class: "fr-nav__link", target: "_self", :active => [['pages'], ['index']] do %>
+                Accueil
+              <% end %>
+            </li>
+
+            <li class="fr-nav__item">
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-avis" <%= current_page?(remplissage_avis_path) || current_page?(historique_path) || current_page?(consultation_path) || current_page?(suivi_remplissage_avis_path) ? 'aria-current="true"' : '' %>>Avis/notes</button>
+              <div class="fr-collapse fr-menu" id="menu-avis">
+                <ul class="fr-menu__list">
+                  <% if current_user.statut != "admin" %>
+                    <li>
+                      <%= active_link_to remplissage_avis_path, class: "fr-nav__link", target: "_self" do %>Remplissage
+                        des avis/notes
+                      <% end %>
                     </li>
-
-                  <li class="fr-nav__item">
-                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-avis" <%= current_page?(remplissage_avis_path) || current_page?(historique_path) || current_page?(consultation_path) || current_page?(suivi_remplissage_avis_path) ? 'aria-current="true"' : '' %>>Avis/notes</button>
-                    <div class="fr-collapse fr-menu" id="menu-avis">
-                      <ul class="fr-menu__list">
-                        <% if current_user.statut != "admin" %>
-                        <li>
-                          <%= active_link_to remplissage_avis_path, class: "fr-nav__link", target: "_self" do%>Remplissage des avis/notes<%end%>
-                        </li>
-                        <%end %>
-                        <li>
-                          <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do%>Historique <% if current_user.statut != "admin" %>de mes<%else %>des <% end %> avis/notes<%end%>
-                        </li>
-                        <% if current_user.statut == "DCB" %>
-                          <li>
-                            <%= active_link_to consultation_path, class: "fr-nav__link", target: "_self" do%>Consultation des avis/notes des CBR<%end%>
-                          </li>
-                        <% end %>
-                        <% if current_user.statut == "admin" %>
-                        <li>
-                          <%= active_link_to suivi_remplissage_avis_path, class: "fr-nav__link", target: "_self" do%>Suivi du remplissage<%end%>
-                        </li>
-                        <% end %>
-                        <li>
-                          <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do%>Restitutions nationales<%end%>
-                        </li>
-                      </ul>
-                    </div>
+                  <% end %>
+                  <li>
+                    <%= active_link_to historique_path, class: "fr-nav__link", target: "_self" do %>Historique
+                      <% if current_user.statut != "admin" %>de mes
+                      <% else %>des
+                      <% end %> avis/notes
+                    <% end %>
                   </li>
-
-                  <% if current_user.statut != 'CBR' %>
-                    <li class="fr-nav__item">
-                      <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(schemas_remplissage_path) || current_page?(schemas_path) ? 'aria-current="true"' : '' %>>Schémas fin de gestion</button>
-                      <div class="fr-collapse fr-menu" id="menu-cnrep">
-                        <ul class="fr-menu__list">
-                          <% if current_user.statut == "DCB" %>
-                            <li>
-                              <%= active_link_to schemas_remplissage_path, class: "fr-nav__link", target: "_self" do%>Remplissage des schémas de fin de gestion<%end%>
-                            </li>
-                          <% end %>
-                          <li>
-                            <%= active_link_to schemas_path, class: "fr-nav__link", target: "_self" do%>Historique des schémas de fin de gestion<%end%>
-                          </li>
-                        </ul>
-                      </div>
+                  <% if current_user.statut == "DCB" %>
+                    <li>
+                      <%= active_link_to consultation_path, class: "fr-nav__link", target: "_self" do %>Consultation des
+                        avis/notes des CBR
+                      <% end %>
                     </li>
-                  <% end  %>
-
-                  <li class="fr-nav__item">
-                    <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) || current_page?(bops_path) || current_page?(faq_path) ? 'aria-current="true"' : '' %>>Informations</button>
-                    <div class="fr-collapse fr-menu" id="menu-liste">
-                      <ul class="fr-menu__list">
-                        <li>
-                          <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do%>Liste des programmes<%end%>
-                        </li>
-                        <li>
-                          <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do%>Liste des BOP<%end%>
-                        </li>
-                        <li>
-                          <%= active_link_to faq_path, class: "fr-nav__link", target: "_self" do%>FAQ<%end%>
-                        </li>
-                      </ul>
-                    </div>
+                  <% end %>
+                  <% if current_user.statut == "admin" %>
+                    <li>
+                      <%= active_link_to suivi_remplissage_avis_path, class: "fr-nav__link", target: "_self" do %>Suivi
+                        du remplissage
+                      <% end %>
+                    </li>
+                  <% end %>
+                  <li>
+                    <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Restitutions
+                      nationales
+                    <% end %>
                   </li>
-
-
                 </ul>
-            </nav>
-        </div>
+              </div>
+            </li>
+
+            <% if current_user.statut != 'CBR' %>
+              <li class="fr-nav__item">
+                <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(schemas_remplissage_path) || current_page?(schemas_path) ? 'aria-current="true"' : '' %>>Schémas
+                  fin de gestion
+                </button>
+                <div class="fr-collapse fr-menu" id="menu-cnrep">
+                  <ul class="fr-menu__list">
+                    <% if current_user.statut == "DCB" %>
+                      <li>
+                        <%= active_link_to schemas_remplissage_path, class: "fr-nav__link", target: "_self" do %>
+                          Remplissage des schémas de fin de gestion
+                        <% end %>
+                      </li>
+                    <% end %>
+                    <li>
+                      <%= active_link_to schemas_path, class: "fr-nav__link", target: "_self" do %>Historique des
+                        schémas de fin de gestion
+                      <% end %>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            <% end %>
+
+            <li class="fr-nav__item">
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) || current_page?(bops_path) || current_page?(faq_path) ? 'aria-current="true"' : '' %>>Informations</button>
+              <div class="fr-collapse fr-menu" id="menu-liste">
+                <ul class="fr-menu__list">
+                  <% if current_user.statut != 'CBR' %>
+                    <li>
+                      <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do %>Liste des
+                        programmes
+                      <% end %>
+                    </li>
+                  <% end %>
+                  <li>
+                    <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do %>Liste des BOP
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= active_link_to faq_path, class: "fr-nav__link", target: "_self" do %>FAQ
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+
+          </ul>
+        </nav>
+      </div>
     </div>
-    <% end %>
+  <% end %>
 </header>
 

@@ -6,6 +6,6 @@ class MissionsController < ApplicationController
 
   def show
     @mission = Mission.find(params[:id])
-    @programmes = @mission.programmes.includes(schemas: :gestion_schemas)
+    @programmes = @mission.programmes.includes(schemas: :gestion_schemas).order(numero: :asc)
   end
 end

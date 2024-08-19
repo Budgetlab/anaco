@@ -5,10 +5,10 @@ class GestionSchema < ApplicationRecord
   has_many :transferts, dependent: :destroy
   accepts_nested_attributes_for :transferts, reject_if: proc { |attributes| attributes['montant_ae'].blank? || attributes['montant_cp'].blank? || attributes['programme_id'].blank? }, allow_destroy: true
 
-  scope :cbcm_t2, -> { find_by(vision: 'CBCM', profil: 'T2') }
-  scope :cbcm_ht2, -> { find_by(vision: 'CBCM', profil: 'HT2') }
-  scope :rprog_t2, -> { find_by(vision: 'RPROG', profil: 'T2') }
-  scope :rprog_ht2, -> { find_by(vision: 'RPROG', profil: 'HT2') }
+  scope :cbcm_t2, -> { where(vision: 'CBCM', profil: 'T2') }
+  scope :cbcm_ht2, -> { where(vision: 'CBCM', profil: 'HT2') }
+  scope :rprog_t2, -> { where(vision: 'RPROG', profil: 'T2') }
+  scope :rprog_ht2, -> { where(vision: 'RPROG', profil: 'HT2') }
 
   before_save :set_nil_values_to_zero
 
@@ -20,10 +20,10 @@ class GestionSchema < ApplicationRecord
     (ressources_cp || 0) - (depenses_cp || 0)
   end
   def solde_total_ae
-    prevision_solde_budgetaire_ae + (mobilisation_mer_ae || 0)
+    (prevision_solde_budgetaire_ae || 0) + (mobilisation_mer_ae || 0)
   end
   def solde_total_cp
-    prevision_solde_budgetaire_cp + (mobilisation_mer_cp || 0)
+    (prevision_solde_budgetaire_cp || 0) + (mobilisation_mer_cp || 0)
   end
 
   def transferts_entrant_ae

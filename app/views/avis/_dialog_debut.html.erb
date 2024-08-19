@@ -27,7 +27,7 @@
 							<% end  %>
 							<p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= avis.annee %></p>
 						<%else %>
-							<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <%= avis.statut %></p>
+							<p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire : <span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon"><%= avis.statut %></span></p>
 							<p class="fr-my-1w"><span class="fr-text--bold">Observations :</span> <%= auto_link(simple_format(avis.commentaire), :html => { :target => '_blank' })%></p>
 							<p class="fr-my-1w"><span class="fr-text--bold">Date de la note d’analyse du <%= avis.phase %> :</span> <%= l(avis.date_envoi,format: "%e/%m/%y")%></p>
 						<%end %>

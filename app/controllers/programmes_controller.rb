@@ -4,6 +4,7 @@
 class ProgrammesController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:new, :import]
+  before_action :redirect_if_cbr, only: [:index]
   require 'axlsx'
   include ApplicationHelper
   include AvisHelper

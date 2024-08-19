@@ -52,6 +52,8 @@
                       <th scope="col">Programme</th>
                       <th scope="col">Année</th>
                       <th scope="col">Version</th>
+                      <th scope="col">Besoin de financement selon RPROG</th>
+                      <th scope="col">Besoin de financement selon CBCM</th>
                       <th scope="col">Action</th>
                       <% if current_user.statut == "DCB" %>
                         <th scope="col"></th>
@@ -68,6 +70,24 @@
                         <td><%= link_to programme_path(schema.programme), data: {turbo_frame: '_top'} do %><%= schema.programme.numero %> - <%= schema.programme.nom %><%end %></td>
                         <td><%= schema.annee %>  </td>
                         <td>Version n°<%= numero_version(schema) %></td>
+                        <td>
+                          <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %>
+                            <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %>
+                            <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
+                          <% end %>
+                        </td>
                         <td>
                           <% if schema.incomplete? && schema.user == current_user %>
                             <%= link_to new_schema_gestion_schema_path(schema), class: "fr-btn fr-btn--secondary", data: { turbo_frame: "_top" } do %>

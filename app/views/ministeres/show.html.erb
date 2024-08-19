@@ -74,14 +74,14 @@
                 <% schema = programme.last_schema_valid %>
                 <tr>
                   <th class="fr-cell--fixed" scope="row">P <%= programme.numero %></th>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.solde_total_ae) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.solde_total_cp) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.solde_total_ae) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.solde_total_cp) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.solde_total_ae) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.solde_total_cp) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.solde_total_ae) %></td>
-                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.first&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.first&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.first&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_t2&.first&.solde_total_cp) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.first&.solde_total_ae) %></td>
+                  <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.cbcm_t2&.first&.solde_total_cp) %></td>
                 </tr>
               <% end %>
               <tr class="fr-table--total">
