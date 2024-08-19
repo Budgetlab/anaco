@@ -2,7 +2,6 @@
 
 one:
   user: two
-  consultant: one
   ministere: "Justice"
   numero_programme: 1
   nom_programme: "Programme 101"
