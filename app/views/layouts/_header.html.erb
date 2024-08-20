@@ -31,7 +31,7 @@
             <div class="fr-header__tools-links ">
               <ul class="fr-btns-group">
                 <li>
-                  <%= link_to "Se déconnecter", destroy_user_session_path, data: { "turbo-method": :delete }, class: "fr-btn fr-fi-logout-box-r-line" %>
+                  <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete , class: "fr-btn fr-fi-logout-box-r-line" %>
                 </li>
               </ul>
             </div>

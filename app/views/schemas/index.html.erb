@@ -73,8 +73,8 @@
                         <td>
                           <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
                           <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
-                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
-                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
                           <% if !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %>
                             <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
                           <% end %>
@@ -82,8 +82,8 @@
                         <td>
                           <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
                           <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
-                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
-                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
                           <% if !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %>
                             <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
                           <% end %>

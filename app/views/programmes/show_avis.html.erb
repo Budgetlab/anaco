@@ -1,21 +1,22 @@
-<%= turbo_frame_tag :show, target: '_top' do %>
+<%= turbo_frame_tag :show do %>
   <div class="fr-h2">Nous sommes en phase de <%= @phase %> <%= @annee %></div>
   <div class="fr-mb-2w">
     <ul class="fr-tags-group">
       <% (2023..2024).to_a.each do |annee| %>
         <li>
-          <button class="fr-tag" data-toggle-target="nav" data-action="click->toggle#changeNav" aria-pressed="<%= @annee_a_afficher == annee ? 'true' : 'false' %>">
-            <%= link_to avis_programme_path(@programme, date: annee), data: { turbo_frame: :show } do %>
+
+
+            <%= link_to avis_programme_path(@programme, date: annee), data: { turbo_frame: :show }, class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
               <%= annee %>
             <% end %>
-          </button>
+
         </li>
       <% end %>
     </ul>
   </div>
   <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
 
-  <h3 class="fr-mt-3w" id="chiffres">Données budgétaires</h3>
+  <h3 class="fr-mt-3w" id="chiffres">Données budgétaires <%= @annee_a_afficher %></h3>
   <div class="fr-tabs fr-mb-4w">
     <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
       <% phases.each_with_index do |phase, index| %>
