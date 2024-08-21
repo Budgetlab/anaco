@@ -12,29 +12,28 @@
       </div>
     </div>
 
-    <% if @statut_user != "CBR" %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
-        <div class="fr-col-12 fr-col-lg-12">
-          <%= form_with url: global_search_path, data: { turbo_frame: 'global_search' }, method: :get do |form| %>
-            <div class="fr-search-bar" id="header-search" role="search">
-              <label class="fr-label" for="search-784-input">
-                Rechercher un programme, un ministère, une mission, un BOP
-              </label>
-              <%= form.text_field :query, value: params[:query], autofocus: true, class: 'fr-input', id: "search-784-input", placeholder: "Rechercher un programme, un ministère, une mission, un BOP", oninput: 'this.form.requestSubmit()', data: { action: "keyup->search#collapse" } %>
-              <button class="fr-btn" title="Rechercher" aria-controls="modal-autocomplete" aria-expanded="false" data-search-target="button">
-                Rechercher un programme, un ministère, une mission, un BOP
-              </button>
-            </div>
-          <% end %>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
+      <div class="fr-col-12 fr-col-lg-12">
+        <% label = @statut_user != "CBR" ? "Rechercher un programme, un ministère, une mission, un BOP" : "Recherche un BOP" %>
+        <%= form_with url: global_search_path, data: { turbo_frame: 'global_search' }, method: :get do |form| %>
+          <div class="fr-search-bar" id="header-search" role="search">
+            <label class="fr-label" for="search-784-input">
+              <%= label %>
+            </label>
+            <%= form.text_field :query, value: params[:query], autofocus: true, class: 'fr-input', id: "search-784-input", placeholder: label, oninput: 'this.form.requestSubmit()', data: { action: "keyup->search#collapse" } %>
+            <button class="fr-btn" title="Rechercher" aria-controls="modal-autocomplete" aria-expanded="false" data-search-target="button">
+              <%= label %>
+            </button>
+          </div>
+        <% end %>
 
-          <div id="modal-autocomplete" class="fr-collapse shadow">
-            <div class="fr-container fr-p-0">
-              <div class="fr-grid-row">
-                <div class="fr-col-12">
-                  <div class="fr-modal__body fr-modal--body-search">
-                    <div class="fr-modal__content fr-mb-4w">
-                      <%= turbo_frame_tag :global_search, target: "_top" %>
-                    </div>
+        <div id="modal-autocomplete" class="fr-collapse shadow">
+          <div class="fr-container fr-p-0">
+            <div class="fr-grid-row">
+              <div class="fr-col-12">
+                <div class="fr-modal__body fr-modal--body-search">
+                  <div class="fr-modal__content fr-mb-4w">
+                    <%= turbo_frame_tag :global_search, target: "_top" %>
                   </div>
                 </div>
               </div>
@@ -42,7 +41,8 @@
           </div>
         </div>
       </div>
-    <% end %>
+    </div>
+
 
     <% if @statut_user == "DCB" %>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
