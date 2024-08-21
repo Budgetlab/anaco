@@ -19,6 +19,20 @@ class PagesController < ApplicationController
     @notes_crg2 = @date_crg2 <= Date.today ? notes_repartition(@avis_remplis, @avis_total, 'CRG2') : []
   end
 
+  def global_search
+    if params[:query].present?
+      @programmes = Programme.where('nom ILIKE ? OR numero ILIKE ?',"%#{params[:query]}%", "%#{params[:query]}%")
+      @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")
+      @ministeres = Ministere.where('nom ILIKE ?', "%#{params[:query]}%")
+      @bops = Bop.where('code ILIKE ?', "%#{params[:query]}%")
+    else
+      @programmes = []
+      @missions = []
+      @ministeres = []
+      @bops = []
+    end
+  end
+
   def mentions_legales; end
 
   def accessibilite; end

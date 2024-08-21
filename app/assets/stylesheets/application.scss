@@ -294,3 +294,10 @@ a.fr-tag[aria-pressed=true]:not(:disabled):active {
 a.fr-tag[aria-pressed=true]::after{
   color: var(--text-action-high-blue-france);
 }
+
+.fr-modal__body.fr-modal--body-search{
+  max-height: 30vh !important;
+}
+.shadow {
+  filter: drop-shadow(var(--lifted-shadow)) !important;
+}

@@ -7,6 +7,7 @@ Rails.application.routes.draw do
                controllers: { sessions: 'sessions' }
 
     root 'pages#index'
+    get 'global_search', to: 'pages#global_search'
     get 'utilisateurs' => 'users#index'
     post 'import_users' => 'users#import'
     post 'import_nom_users' => 'users#import_nom'
