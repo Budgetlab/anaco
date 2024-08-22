@@ -9,11 +9,9 @@
         <ul class="fr-tags-group">
           <% (2023..2024).to_a.each do |annee| %>
             <li>
-              <button class="fr-tag" aria-pressed="<%= @annee_a_afficher == annee ? 'true' : 'false' %>">
-                <%= link_to suivi_remplissage_avis_path(date: annee) do %>
-                  <%= annee %>
-                <% end %>
-              </button>
+              <%= link_to suivi_remplissage_avis_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
+                <%= annee %>
+              <% end %>
             </li>
           <% end %>
         </ul>
@@ -76,7 +74,8 @@
                 <div class="fr-table__container">
                   <div class="fr-table__content">
                     <table class="fr-cell--multiline">
-                      <caption>Suivi de lecture des avis/notes de <%= phase %> <%= @annee_a_afficher %> par les DCB</caption>
+                      <caption>Suivi de lecture des avis/notes de <%= phase %> <%= @annee_a_afficher %> par les DCB
+                      </caption>
                       <thead>
                       <tr>
                         <th scope="col">DCB responsable</th>
