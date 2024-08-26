@@ -23,7 +23,7 @@ default: &default
 
 development:
   <<: *default
-  database: avisbop_development
+  database: avisbop_development_main
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -57,7 +57,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: avisbop_test
+  database: avisbop_test_main
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
