@@ -9,7 +9,7 @@
           <div class="fr-modal__content">
             <h1 id="fr-modal-2-title" class="fr-modal__title">
               <span class="fr-icon-arrow-right-line fr-icon--lg"></span>
-              Schéma de fin de gestion du programme n°<%= @schema.programme.numero %>
+              Schéma de fin de gestion du programme n°<%= @schema.programme.numero %> <span class="fr-text--italic fr-text--light">(version n°<%= numero_version(@schema) %> du <%= l(@schema.updated_at, format: "%e/%m/%y") %>)</span>
             </h1>
             <div class="fr-tabs">
               <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">

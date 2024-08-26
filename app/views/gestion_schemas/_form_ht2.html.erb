@@ -2,7 +2,7 @@
   <%= form_with(model: [@schema, @gestion_schema], data: {controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper', 'form-target': "form", action: 'input->form#formChange' }) do |f| %>
     <div class="cwarning fr-mb-1w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
     <div class="fr-h5">Situation à date du CRG2</div>
-    <div class="fr-h6 fr-mb-1w">Ressources certaines à date*</div>
+    <div class="fr-h6 fr-mb-1w">Ressources certaines à date* <%= render partial: "gestion_schemas/tooltip", locals: { name: "ressources" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Prévision de dépenses*</div>
+    <div class="fr-h6 fr-mb-1w">Prévision de dépense* <%= render partial: "gestion_schemas/tooltip", locals: { name: "depense" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
@@ -85,7 +85,7 @@
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Autres cas de réserve de crédits</div>
+    <div class="fr-h6 fr-mb-1w">Autres cas de réserve de crédits <%= render partial: "gestion_schemas/tooltip", locals: { name: "surgel" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
@@ -249,7 +249,7 @@
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Report arbitré ou consensuel</div>
+    <div class="fr-h6 fr-mb-1w">Report arbitré ou consensuel <%= render partial: "gestion_schemas/tooltip", locals: { name: "reports" } %></div>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-6 fr-col-lg-6">
         <div class="fr-input-group">
@@ -355,31 +355,11 @@
       </div>
     </div>
 
-    <div class="fr-h6 fr-mb-1w">Autres crédits à reporter</div>
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-      <div class="fr-col-6 fr-col-lg-6">
-        <div class="fr-input-group">
-          <label for="credits_reports_autre_ae" class="fr-label">AE</label>
-          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_reports_autre_ae, value: @gestion_schema.credits_reports_autre_ae, id: "credits_reports_autre_ae", class: "fr-input", data: { action: 'input->form#changeNumber' } %>
-          </div>
-        </div>
-      </div>
-      <div class="fr-col-6 fr-col-lg-6">
-        <div class="fr-input-group">
-          <label for="credits_reports_autre_cp" class="fr-label">CP</label>
-          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :credits_reports_autre_cp, value: @gestion_schema.credits_reports_autre_cp, id: "credits_reports_autre_cp", class: "fr-input", data: { action: 'input->form#changeNumber' } %>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-input-group">
           <label for="commentaire" class="fr-label">Commentaire de l’analyse de fin de gestion AE/CP
-            du <%= @step == 1 ? 'RPROG' : 'CBCM' %>*</label>
+            du <%= @step == 1 ? 'RPROG' : 'CBCM' %>* <%= render partial: "gestion_schemas/tooltip", locals: { name: "commentaire" } %></label>
           <%= f.text_area :commentaire,rows: 4, value: @step == 1 || @edit ? @gestion_schema.commentaire : nil, id: "commentaire", class: "fr-input", data: { form_target: "fieldRequire" } %>
         </div>
       </div>
