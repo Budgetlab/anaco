@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
     @annee = Date.today.year
     @date_debut = Date.new(@annee, 1, 10)
     @date_crg1 = Date.new(@annee, 5, 1)
-    @date_crg2 = Date.new(@annee, 8, 1)
+    @date_crg2 = Date.new(@annee, 9, 1)
     if Date.today < @date_crg1
       @phase = 'début de gestion'
     elsif @date_crg1 <= Date.today && Date.today < @date_crg2
