@@ -3,6 +3,11 @@
     <div>
       <div class="fr-h2">Schéma de fin de gestion du programme</div>
       <div class="fr-mb-2w">Dernière mise à jour le <%= @schema.updated_at.strftime(("%e/%-m/%Y")) %></div>
+      <div class="fr-download">
+        <p><%= link_to schema_path(@schema, format: :xlsx), class: "fr-download__link" do %> Télécharger le schéma de fin de gestion
+            <span class="fr-download__detail">Format .xlsx</span>
+          <%end %></p>
+      </div>
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="Vision">
           <% if @vision_rprog_ht2 %>

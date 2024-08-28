@@ -98,11 +98,11 @@
           </thead>
           <tbody>
           <% data = [
-            { title: 'Ressources', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
-            { title: 'Dépenses', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
+            { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+            { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
             { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
-            { title: 'Niveau de la MER', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
-            { title: 'Autre réserve', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
+            { title: 'Niveau de la mise en réserve', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+            { title: 'Autre cas de réserve de crédits', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
           ]
           %>
           <% data.each_with_index do |item, index| %>
@@ -168,19 +168,19 @@
           <tbody>
           <% data = [
             { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
-            { title: 'Mobilisation de la MER', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
-            { title: 'Mobilisation autre réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+            { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+            { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
             { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
             { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
             { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
             { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
-            { title: "Ouverture/Annulation crédits LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+            { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
             { title: "Report arbitré ou consensuel", ae_attr: 'reports_ae', cp_attr: 'reports_cp' },
-            { title: 'Solde fin de gestion', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+            { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
           ]
           %>
           <% data.each_with_index do |item, index| %>
-            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde fin de gestion' %>">
+            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde final' %>">
               <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
               <td class="fr-cell--right">
                 <%= format_number(vision_rprog.send(item[:ae_attr])) %>
@@ -243,7 +243,7 @@
             </thead>
             <tbody>
             <% data = [
-              { title: 'Charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
+              { title: 'Prévision de charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
               { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
               { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
             ]

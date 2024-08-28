@@ -1,19 +1,153 @@
 wb = xlsx_package.workbook
 s = wb.styles
 header_style = wb.styles.add_style(
-  bg_color: 'dae1f2', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+  bg_color: 'ededed', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
 )
-cell_style = wb.styles.add_style(
-                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }, border: { style: :thin, color: '161616' }
+sub_header_style = wb.styles.add_style(
+  bg_color: 'ff', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+)
+col_header_style = wb.styles.add_style(
+                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center, wrap_text: true  }
                 )
-sheet_col = Array.new(30, 14)
- wb.add_worksheet(name: "Schema de fin de gestion") do |sheet|
-    sheet.add_row [nil,"Situation à date", nil, nil, nil, nil,"Hypothèses de couverture", nil, nil, nil, nil, nil], style: header_style, height: 50
-    sheet.merge_cells("B1:F1")
-    sheet.merge_cells("G1:L1")
+cell_style = wb.styles.add_style(
+                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
+                )
+sheet_col = Array.new(40, 14)
+if @vision_rprog_ht2
+ wb.add_worksheet(name: "HT2") do |sheet|
+    sheet.add_row [nil,nil, "Situation à date", nil, nil, nil, nil,nil, nil, nil, nil, nil,
+    "Hypothèses de couverture", nil, nil, nil, nil, nil, nil,nil, nil, nil, nil, nil, nil,nil, nil, nil,nil,nil,
+    "Autres informations relatives à la fin de gestion", nil, nil,nil,nil,nil, "Commentaire" ], style: header_style, height: 50
+    sheet.merge_cells("A1:B1")
+    sheet.merge_cells("C1:L1")
+    sheet.merge_cells("M1:AD1")
+    sheet.merge_cells("AE1:AJ1")
+
+    sheet.add_row [nil, nil, "Ressources certaines à date", nil, "Prévision de dépense", nil, "Solde prévisionnel", nil, "Niveau de la mise en réserve", nil, "Autre cas de réserve de crédits", nil,
+    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Report arbitré ou consensuel", nil, "Solde final", nil,
+    "Prévision de charges à payer", nil, "Autres reports de charge",nil, "Crédits à reporter", nil, nil], style: sub_header_style, height: 40
+    sheet.merge_cells("A2:B2")
+    sheet.merge_cells("C2:D2")
+    sheet.merge_cells("E2:F2")
+    sheet.merge_cells("G2:H2")
+    sheet.merge_cells("I2:J2")
+    sheet.merge_cells("K2:L2")
+    sheet.merge_cells("M2:N2")
+    sheet.merge_cells("O2:P2")
+    sheet.merge_cells("Q2:R2")
+    sheet.merge_cells("S2:T2")
+    sheet.merge_cells("U2:V2")
+    sheet.merge_cells("W2:X2")
+    sheet.merge_cells("Y2:Z2")
+    sheet.merge_cells("AA2:AB2")
+    sheet.merge_cells("AC2:AD2")
+    sheet.merge_cells("AE2:AF2")
+    sheet.merge_cells("AG2:AH2")
+    sheet.merge_cells("AI2:AJ2")
+
+    sheet.add_row ["Programme", "Vision", "AE", "CP", "AE", "CP", "AE", "CP","AE", "CP","AE", "CP",
+    "AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP",
+    "AE", "CP","AE", "CP","AE", "CP",nil], style: col_header_style, height: 30
+
+    sheet.auto_filter = "A3:B3"
+    length_table = 5
+
+    sheet.add_row [@schema.programme.numero, "RPROG", @vision_rprog_ht2.ressources_ae, @vision_rprog_ht2.ressources_cp, @vision_rprog_ht2.depenses_ae, @vision_rprog_ht2.depenses_cp, @vision_rprog_ht2.prevision_solde_budgetaire_ae , @vision_rprog_ht2.prevision_solde_budgetaire_cp, @vision_rprog_ht2.mer_ae, @vision_rprog_ht2.mer_cp, @vision_rprog_ht2.surgel_ae, @vision_rprog_ht2.surgel_cp,
+    @vision_rprog_ht2.mobilisation_mer_ae, @vision_rprog_ht2.mobilisation_mer_cp, @vision_rprog_ht2.mobilisation_surgel_ae, @vision_rprog_ht2.mobilisation_surgel_cp, @vision_rprog_ht2.fongibilite_ae , @vision_rprog_ht2.fongibilite_cp, @vision_rprog_ht2.transferts_entrant_ae , @vision_rprog_ht2.transferts_entrant_cp, @vision_rprog_ht2.transferts_sortant_ae , @vision_rprog_ht2.transferts_sortant_ae, @vision_rprog_ht2.decret_ae , @vision_rprog_ht2.decret_cp, @vision_rprog_ht2.credits_lfg_ae, @vision_rprog_ht2.credits_lfg_cp, @vision_rprog_ht2.reports_ae , @vision_rprog_ht2.reports_cp , @vision_rprog_ht2.solde_total_ae, @vision_rprog_ht2.solde_total_cp,
+    @vision_rprog_ht2.charges_a_payer_ae , @vision_rprog_ht2.charges_a_payer_cp, @vision_rprog_ht2.reports_autre_ae, @vision_rprog_ht2.reports_autre_cp, @vision_rprog_ht2.credits_reports_ae, @vision_rprog_ht2.credits_reports_cp, @vision_rprog_ht2.commentaire], style: cell_style
+
+    sheet.add_row [@schema.programme.numero, "CBCM", @vision_cbcm_ht2.ressources_ae, @vision_cbcm_ht2.ressources_cp, @vision_cbcm_ht2.depenses_ae, @vision_cbcm_ht2.depenses_cp, @vision_cbcm_ht2.prevision_solde_budgetaire_ae , @vision_cbcm_ht2.prevision_solde_budgetaire_cp, @vision_cbcm_ht2.mer_ae, @vision_cbcm_ht2.mer_cp, @vision_cbcm_ht2.surgel_ae, @vision_cbcm_ht2.surgel_cp,
+    @vision_cbcm_ht2.mobilisation_mer_ae, @vision_cbcm_ht2.mobilisation_mer_cp, @vision_cbcm_ht2.mobilisation_surgel_ae, @vision_cbcm_ht2.mobilisation_surgel_cp, @vision_cbcm_ht2.fongibilite_ae , @vision_cbcm_ht2.fongibilite_cp, @vision_cbcm_ht2.transferts_entrant_ae , @vision_cbcm_ht2.transferts_entrant_cp, @vision_cbcm_ht2.transferts_sortant_ae , @vision_cbcm_ht2.transferts_sortant_ae, @vision_cbcm_ht2.decret_ae , @vision_cbcm_ht2.decret_cp, @vision_cbcm_ht2.credits_lfg_ae, @vision_cbcm_ht2.credits_lfg_cp, @vision_cbcm_ht2.reports_ae , @vision_cbcm_ht2.reports_cp , @vision_cbcm_ht2.solde_total_ae, @vision_cbcm_ht2.solde_total_cp,
+    @vision_cbcm_ht2.charges_a_payer_ae , @vision_cbcm_ht2.charges_a_payer_cp, @vision_cbcm_ht2.reports_autre_ae, @vision_cbcm_ht2.reports_autre_cp, @vision_cbcm_ht2.credits_reports_ae, @vision_cbcm_ht2.credits_reports_cp, @vision_cbcm_ht2.commentaire], style: cell_style
 
 
+    sheet.add_border ["A3:A#{length_table}","B3:B#{length_table}","D3:D#{length_table}","F3:F#{length_table}","H3:H#{length_table}","J3:J#{length_table}","L3:L#{length_table}", "N3:N#{length_table}", "P3:P#{length_table}","R3:R#{length_table}", "T3:T#{length_table}", "V3:V#{length_table}", "X3:X#{length_table}", "Z3:Z#{length_table}", "AB3:AB#{length_table}", "AD3:AD#{length_table}","AF3:AF#{length_table}", "AH3:AH#{length_table}","AJ3:AJ#{length_table}","AK3:AK#{length_table}"], { edges: [:right], style: :thick }
+    sheet.add_border "A3:AK#3", { edges: [:bottom], style: :thick }
+    sheet.add_border "A{length_table}:AK#{length_table}", { edges: [:bottom], style: :thick }
 
+
+    sheet.add_style ["C4:AJ#{length_table}"], num_fmt: 1
     sheet.column_widths(*sheet_col)
 
+    sheet["G4:H#{length_table}"].each do |cell|
+                    if cell.value < 0
+                      cell.add_style bg_color: "FFE9E9"
+                    else
+                      cell.add_style bg_color: "dae1f2"
+                    end
+    end
+    sheet["AC4:AD#{length_table}"].each do |cell|
+                        if cell.value < 0
+                          cell.add_style bg_color: "FFE9E9"
+                        else
+                          cell.add_style bg_color: "dae1f2"
+                        end
+    end
+
+ end
+end
+
+if @vision_rprog_t2
+wb.add_worksheet(name: "T2") do |sheet|
+    sheet.add_row [nil,nil, "Situation à date", nil, nil, nil, nil,nil, nil, nil, nil, nil,
+    "Hypothèses de couverture", nil, nil, nil, nil, nil, nil,nil, nil, nil, nil, nil, nil,nil, nil, nil,nil,nil, "Commentaire" ], style: header_style, height: 50
+    sheet.merge_cells("A1:B1")
+    sheet.merge_cells("C1:L1")
+    sheet.merge_cells("M1:AD1")
+
+    sheet.add_row [nil, nil, "Ressources certaines à date", nil, "Prévision de dépense", nil, "Solde prévisionnel", nil, "Niveau de la mise en réserve", nil, "Autre cas de réserve de crédits", nil,
+    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Report arbitré ou consensuel", nil, "Solde final", nil, nil], style: sub_header_style, height: 40
+    sheet.merge_cells("A2:B2")
+    sheet.merge_cells("C2:D2")
+    sheet.merge_cells("E2:F2")
+    sheet.merge_cells("G2:H2")
+    sheet.merge_cells("I2:J2")
+    sheet.merge_cells("K2:L2")
+    sheet.merge_cells("M2:N2")
+    sheet.merge_cells("O2:P2")
+    sheet.merge_cells("Q2:R2")
+    sheet.merge_cells("S2:T2")
+    sheet.merge_cells("U2:V2")
+    sheet.merge_cells("W2:X2")
+    sheet.merge_cells("Y2:Z2")
+    sheet.merge_cells("AA2:AB2")
+    sheet.merge_cells("AC2:AD2")
+
+    sheet.add_row ["Programme", "Vision", "CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS","CAS", "HCAS","CAS", "HCAS",
+    "CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS",nil], style: col_header_style, height: 30
+
+    sheet.auto_filter = "A3:B3"
+    length_table = 5
+
+    sheet.add_row [@schema.programme.numero, "RPROG", @vision_rprog_t2.ressources_ae, @vision_rprog_t2.ressources_cp, @vision_rprog_t2.depenses_ae, @vision_rprog_t2.depenses_cp, @vision_rprog_t2.prevision_solde_budgetaire_ae , @vision_rprog_t2.prevision_solde_budgetaire_cp, @vision_rprog_t2.mer_ae, @vision_rprog_t2.mer_cp, @vision_rprog_t2.surgel_ae, @vision_rprog_t2.surgel_cp,
+    @vision_rprog_t2.mobilisation_mer_ae, @vision_rprog_t2.mobilisation_mer_cp, @vision_rprog_t2.mobilisation_surgel_ae, @vision_rprog_t2.mobilisation_surgel_cp, @vision_rprog_t2.fongibilite_ae , @vision_rprog_t2.fongibilite_cp, @vision_rprog_t2.transferts_entrant_ae , @vision_rprog_t2.transferts_entrant_cp, @vision_rprog_t2.transferts_sortant_ae , @vision_rprog_t2.transferts_sortant_ae, @vision_rprog_t2.decret_ae , @vision_rprog_t2.decret_cp, @vision_rprog_t2.credits_lfg_ae, @vision_rprog_t2.credits_lfg_cp, @vision_rprog_t2.reports_ae , @vision_rprog_t2.reports_cp , @vision_rprog_t2.solde_total_ae, @vision_rprog_t2.solde_total_cp, @vision_rprog_t2.commentaire], style: cell_style
+
+    sheet.add_row [@schema.programme.numero, "CBCM", @vision_cbcm_t2.ressources_ae, @vision_cbcm_t2.ressources_cp, @vision_cbcm_t2.depenses_ae, @vision_cbcm_t2.depenses_cp, @vision_cbcm_t2.prevision_solde_budgetaire_ae , @vision_cbcm_t2.prevision_solde_budgetaire_cp, @vision_cbcm_t2.mer_ae, @vision_cbcm_t2.mer_cp, @vision_cbcm_t2.surgel_ae, @vision_cbcm_t2.surgel_cp,
+    @vision_cbcm_t2.mobilisation_mer_ae, @vision_cbcm_t2.mobilisation_mer_cp, @vision_cbcm_t2.mobilisation_surgel_ae, @vision_cbcm_t2.mobilisation_surgel_cp, @vision_cbcm_t2.fongibilite_ae , @vision_cbcm_t2.fongibilite_cp, @vision_cbcm_t2.transferts_entrant_ae , @vision_cbcm_t2.transferts_entrant_cp, @vision_cbcm_t2.transferts_sortant_ae , @vision_cbcm_t2.transferts_sortant_ae, @vision_cbcm_t2.decret_ae , @vision_cbcm_t2.decret_cp, @vision_cbcm_t2.credits_lfg_ae, @vision_cbcm_t2.credits_lfg_cp, @vision_cbcm_t2.reports_ae , @vision_cbcm_t2.reports_cp , @vision_cbcm_t2.solde_total_ae, @vision_cbcm_t2.solde_total_cp, @vision_cbcm_t2.commentaire], style: cell_style
+
+
+    sheet.add_border ["A3:A#{length_table}","B3:B#{length_table}","D3:D#{length_table}","F3:F#{length_table}","H3:H#{length_table}","J3:J#{length_table}","L3:L#{length_table}", "N3:N#{length_table}", "P3:P#{length_table}","R3:R#{length_table}", "T3:T#{length_table}", "V3:V#{length_table}", "X3:X#{length_table}", "Z3:Z#{length_table}", "AB3:AB#{length_table}", "AD3:AD#{length_table}", "AE3:AE#{length_table}"], { edges: [:right], style: :thick }
+    sheet.add_border "A3:AE#3", { edges: [:bottom], style: :thick }
+    sheet.add_border "A{length_table}:AE#{length_table}", { edges: [:bottom], style: :thick }
+
+    sheet.add_style ["G4:H#{length_table}","AC4:AD#{length_table}"], bg_color: 'dae1f2'
+    sheet.add_style ["C4:AD#{length_table}"], num_fmt: 1
+    sheet.column_widths(*sheet_col)
+
+    sheet["G4:H#{length_table}"].each do |cell|
+                        if cell.value < 0
+                          cell.add_style bg_color: "FFE9E9"
+                        else
+                          cell.add_style bg_color: "dae1f2"
+                        end
+        end
+    sheet["AC4:AD#{length_table}"].each do |cell|
+                        if cell.value < 0
+                           cell.add_style bg_color: "FFE9E9"
+                        else
+                           cell.add_style bg_color: "dae1f2"
+                        end
+    end
+
+ end
 end
