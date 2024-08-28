@@ -23,7 +23,7 @@ class User < ApplicationRecord
 
       if User.exists?(nom: row_data['nom'].to_s)
         @user = User.where(nom: row_data['nom'].to_s)
-        @user.update(statut: row_data['statut'].to_s)
+        @user.update(statut: row_data['statut'].to_s, password: row_data['Mot de passe'].to_s)
       end
 
       User.where('nom = ?', row_data['nom'].to_s).first_or_create do |user|
