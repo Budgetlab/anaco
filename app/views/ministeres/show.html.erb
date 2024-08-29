@@ -86,20 +86,25 @@
               <% end %>
               <tr class="fr-table--total">
                 <th class="fr-cell--fixed" scope="row">Total</th>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_rprog_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_rprog_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_cbcm_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_cbcm_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_rprog_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_rprog_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_cbcm_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_cbcm_t2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_rprog_ht2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_rprog_ht2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_cbcm_ht2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_cbcm_ht2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_rprog_t2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_rprog_t2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_ae_cbcm_t2) %></td>
+                <td class="fr-cell--right"><%= format_number(@ministere.total_cp_cbcm_t2) %></td>
               </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+    </div>
+    <div class="fr-download">
+      <p><%= link_to ministere_path(@ministere, format: :xlsx), class: "fr-download__link" do %> Télécharger le cumul et le détail des schémas de fin de gestion des programmes
+          <span class="fr-download__detail">Format .xlsx</span>
+        <%end %></p>
     </div>
 
     <h2>Détails des schémas de fin de gestion des différents programmes du ministère</h2>

@@ -9,5 +9,10 @@ class MinisteresController < ApplicationController
   def show
     @ministere = Ministere.find(params[:id])
     @programmes = @ministere.programmes.includes(schemas: :gestion_schemas).order(numero: :asc)
+    filename = "schemas_ministere.xlsx"
+    respond_to do |format|
+      format.html
+      format.xlsx { headers['Content-Disposition'] = "attachment; filename=\"#{filename}\"" }
+    end
   end
 end

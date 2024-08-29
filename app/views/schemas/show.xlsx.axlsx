@@ -45,9 +45,9 @@ if @vision_rprog_ht2
     sheet.merge_cells("AG2:AH2")
     sheet.merge_cells("AI2:AJ2")
 
-    sheet.add_row ["Programme", "Vision", "AE", "CP", "AE", "CP", "AE", "CP","AE", "CP","AE", "CP",
-    "AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP","AE", "CP",
-    "AE", "CP","AE", "CP","AE", "CP",nil], style: col_header_style, height: 30
+    sheet.add_row ["Programme", "Vision", "AE (€)", "CP (€)", "AE (€)", "CP (€)", "AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)",
+    "AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)",
+    "AE (€)", "CP (€)","AE (€)", "CP (€)","AE (€)", "CP (€)",nil], style: col_header_style, height: 30
 
     sheet.auto_filter = "A3:B3"
     length_table = 5
@@ -113,8 +113,8 @@ wb.add_worksheet(name: "T2") do |sheet|
     sheet.merge_cells("AA2:AB2")
     sheet.merge_cells("AC2:AD2")
 
-    sheet.add_row ["Programme", "Vision", "CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS","CAS", "HCAS","CAS", "HCAS",
-    "CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS", "CAS", "HCAS","CAS", "HCAS",nil], style: col_header_style, height: 30
+    sheet.add_row ["Programme", "Vision", "HCAS (€)", "CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)",
+    "CAS (€)", "HCAS (€)", "CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)", "CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)", "CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)", "CAS (€)", "HCAS (€)","CAS (€)", "HCAS (€)","CAS (€)",nil], style: col_header_style, height: 30
 
     sheet.auto_filter = "A3:B3"
     length_table = 5

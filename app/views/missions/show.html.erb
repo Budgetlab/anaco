@@ -9,7 +9,6 @@
     </div>
 
     <h2>Cumul des soldes des programmes de la mission</h2>
-
     <div class="fr-table fr-table--bordered fr-table--no-caption ">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
@@ -103,7 +102,11 @@
         </div>
       </div>
     </div>
-
+    <div class="fr-download">
+      <p><%= link_to mission_path(@mission, format: :xlsx), class: "fr-download__link" do %> Télécharger le cumul et le détail des schémas de fin de gestion des programmes
+          <span class="fr-download__detail">Format .xlsx</span>
+        <%end %></p>
+    </div>
     <h2>Détails des schémas de fin de gestion des différents programmes de la mission</h2>
     <div class="fr-accordions-group fr-mb-4w">
       <% @programmes.each_with_index do |programme, index| %>

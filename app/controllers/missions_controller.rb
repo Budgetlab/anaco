@@ -8,5 +8,10 @@ class MissionsController < ApplicationController
   def show
     @mission = Mission.find(params[:id])
     @programmes = @mission.programmes.includes(schemas: :gestion_schemas).order(numero: :asc)
+    filename = "schemas_mission.xlsx"
+    respond_to do |format|
+      format.html
+      format.xlsx { headers['Content-Disposition'] = "attachment; filename=\"#{filename}\"" }
+    end
   end
 end
