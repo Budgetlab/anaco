@@ -69,20 +69,69 @@ if @vision_rprog_ht2
     sheet.add_style ["C4:AJ#{length_table}"], num_fmt: 1
     sheet.column_widths(*sheet_col)
 
-    sheet["G4:H#{length_table}"].each do |cell|
-                    if cell.value < 0
-                      cell.add_style bg_color: "FFE9E9"
-                    else
-                      cell.add_style bg_color: "dae1f2"
-                    end
+    color_cells(sheet, "G4:H#{length_table}")
+    color_cells(sheet, "AC4:AD#{length_table}")
+
+
+ end
+
+ wb.add_worksheet(name: "Virements transferts HT2") do |sheet|
+    sheet.add_row ["Virements/transferts entrants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+    sheet.merge_cells("B1:D1")
+    sheet.merge_cells("E1:G1")
+
+    sheet.add_row [nil,"Programme", "AE (€)", "CP (€)", "Programme", "AE (€)", "CP (€)"], style: col_header_style, height: 40
+    rprog_data = @vision_rprog_ht2.transferts.entrant.map do |transfert|
+        [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
     end
-    sheet["AC4:AD#{length_table}"].each do |cell|
-                        if cell.value < 0
-                          cell.add_style bg_color: "FFE9E9"
-                        else
-                          cell.add_style bg_color: "dae1f2"
-                        end
+
+    cbcm_data = @vision_cbcm_ht2.transferts.entrant.map do |transfert|
+        [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
     end
+
+    # Normalize data arrays to be of the same length
+    [rprog_data, cbcm_data].each { |data| data << [nil, nil, nil] while data.length < [rprog_data.length, cbcm_data.length].max }
+    length_dv = [rprog_data.length, cbcm_data.length].max + 2 || 2
+
+    # Combine and insert data into the sheet
+    rprog_data.zip(cbcm_data).each do |rprog_row, cbcm_row|
+        sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+    end
+
+    sheet.add_row ["Total", nil, @vision_rprog_ht2.transferts_entrant_ae, @vision_rprog_ht2.transferts_entrant_cp, nil, @vision_cbcm_ht2.transferts_entrant_ae, @vision_cbcm_ht2.transferts_entrant_cp], style: cell_style
+
+    sheet.add_row
+    sheet.add_row
+    sheet.add_row ["Virements/transferts sortants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+    sheet.merge_cells("B#{length_dv+4}:D#{length_dv+4}")
+    sheet.merge_cells("E#{length_dv+4}:G#{length_dv+4}")
+
+    sheet.add_row [nil,"Programme", "AE (€)", "CP (€)", "Programme", "AE (€)", "CP (€)"], style: col_header_style, height: 40
+    rprog_data_sortant = @vision_rprog_ht2.transferts.sortant.map do |transfert|
+        [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+    end
+
+    cbcm_data_sortant = @vision_cbcm_ht2.transferts.sortant.map do |transfert|
+        [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+    end
+
+    # Normalize data arrays to be of the same length
+    [rprog_data_sortant, cbcm_data_sortant].each { |data| data << [nil, nil, nil] while data.length < [rprog_data_sortant.length, cbcm_data_sortant.length].max }
+    length_dt = [rprog_data_sortant.length, cbcm_data_sortant.length].max + 2 || 2
+
+    # Combine and insert data into the sheet
+    rprog_data_sortant.zip(cbcm_data_sortant).each do |rprog_row, cbcm_row|
+        sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+    end
+
+    sheet.add_row ["Total", nil, @vision_rprog_ht2.transferts_sortant_ae, @vision_rprog_ht2.transferts_sortant_cp, nil, @vision_cbcm_ht2.transferts_sortant_ae, @vision_cbcm_ht2.transferts_sortant_cp], style: cell_style
+
+
+    sheet.column_widths(*sheet_col)
+    sheet.add_border ["B2:G2","A#{length_dv}:G#{length_dv}", "A#{length_dv+1}:G#{length_dv+1}","B#{length_dv+5}:G#{length_dv+5}", "A#{length_dv+length_dt+3}:G#{length_dv+length_dt+3}","A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], { edges: [:bottom], style: :thick }
+    sheet.add_border ["A2:A#{length_dv+1}","D2:D#{length_dv+1}","G2:G#{length_dv+1}", "A#{length_dv+5}:A#{length_dv+1+length_dt+3}","D#{length_dv+5}:D#{length_dv+1+length_dt+3}","G#{length_dv+5}:G#{length_dv+1+length_dt+3}"], { edges: [:right], style: :thick }
+    sheet.add_style ["A#{length_dv+1}:G#{length_dv+1}", "A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], bg_color: "dae1f2"
+    sheet.add_style ["C3:D#{length_dv+1}", "F3:G#{length_dv+1}", "C#{length_dv+5}:D#{length_dv+1+length_dt+3}", "F#{length_dv+5}:G#{length_dv+1+length_dt+3}"], num_fmt: 1
 
  end
 end
@@ -134,20 +183,69 @@ wb.add_worksheet(name: "T2") do |sheet|
     sheet.add_style ["C4:AD#{length_table}"], num_fmt: 1
     sheet.column_widths(*sheet_col)
 
-    sheet["G4:H#{length_table}"].each do |cell|
-                        if cell.value < 0
-                          cell.add_style bg_color: "FFE9E9"
-                        else
-                          cell.add_style bg_color: "dae1f2"
-                        end
-        end
-    sheet["AC4:AD#{length_table}"].each do |cell|
-                        if cell.value < 0
-                           cell.add_style bg_color: "FFE9E9"
-                        else
-                           cell.add_style bg_color: "dae1f2"
-                        end
-    end
+    color_cells(sheet, "G4:H#{length_table}")
+    color_cells(sheet, "AC4:AD#{length_table}")
 
  end
+
+ wb.add_worksheet(name: "Virements transferts T2") do |sheet|
+     sheet.add_row ["Virements/transferts entrants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+     sheet.merge_cells("B1:D1")
+     sheet.merge_cells("E1:G1")
+
+     sheet.add_row [nil,"Programme", "AE (€)", "CP (€)", "Programme", "AE (€)", "CP (€)"], style: col_header_style, height: 40
+     rprog_data = @vision_rprog_t2.transferts.entrant.map do |transfert|
+         [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+     end
+
+     cbcm_data = @vision_cbcm_t2.transferts.entrant.map do |transfert|
+         [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+     end
+
+     # Normalize data arrays to be of the same length
+     [rprog_data, cbcm_data].each { |data| data << [nil, nil, nil] while data.length < [rprog_data.length, cbcm_data.length].max }
+     length_dv = [rprog_data.length, cbcm_data.length].max + 2 || 2
+
+     # Combine and insert data into the sheet
+     rprog_data.zip(cbcm_data).each do |rprog_row, cbcm_row|
+         sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+     end
+
+     sheet.add_row ["Total", nil, @vision_rprog_t2.transferts_entrant_ae, @vision_rprog_t2.transferts_entrant_cp, nil, @vision_cbcm_t2.transferts_entrant_ae, @vision_cbcm_t2.transferts_entrant_cp], style: cell_style
+
+     sheet.add_row
+     sheet.add_row
+     sheet.add_row ["Virements/transferts sortants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+     sheet.merge_cells("B#{length_dv+4}:D#{length_dv+4}")
+     sheet.merge_cells("E#{length_dv+4}:G#{length_dv+4}")
+
+     sheet.add_row [nil,"Programme", "AE (€)", "CP (€)", "Programme", "AE (€)", "CP (€)"], style: col_header_style, height: 40
+     rprog_data_sortant = @vision_rprog_t2.transferts.sortant.map do |transfert|
+         [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+     end
+
+     cbcm_data_sortant = @vision_cbcm_t2.transferts.sortant.map do |transfert|
+         [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+     end
+
+     # Normalize data arrays to be of the same length
+     [rprog_data_sortant, cbcm_data_sortant].each { |data| data << [nil, nil, nil] while data.length < [rprog_data_sortant.length, cbcm_data_sortant.length].max }
+     length_dt = [rprog_data_sortant.length, cbcm_data_sortant.length].max + 2 || 2
+
+     # Combine and insert data into the sheet
+     rprog_data_sortant.zip(cbcm_data_sortant).each do |rprog_row, cbcm_row|
+         sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+     end
+
+     sheet.add_row ["Total", nil, @vision_rprog_t2.transferts_sortant_ae, @vision_rprog_t2.transferts_sortant_cp, nil, @vision_cbcm_t2.transferts_sortant_ae, @vision_cbcm_t2.transferts_sortant_cp], style: cell_style
+
+
+     sheet.column_widths(*sheet_col)
+     sheet.add_border ["B2:G2","A#{length_dv}:G#{length_dv}", "A#{length_dv+1}:G#{length_dv+1}","B#{length_dv+5}:G#{length_dv+5}", "A#{length_dv+length_dt+3}:G#{length_dv+length_dt+3}","A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], { edges: [:bottom], style: :thick }
+     sheet.add_border ["A2:A#{length_dv+1}","D2:D#{length_dv+1}","G2:G#{length_dv+1}", "A#{length_dv+5}:A#{length_dv+1+length_dt+3}","D#{length_dv+5}:D#{length_dv+1+length_dt+3}","G#{length_dv+5}:G#{length_dv+1+length_dt+3}"], { edges: [:right], style: :thick }
+     sheet.add_style ["A#{length_dv+1}:G#{length_dv+1}", "A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], bg_color: "dae1f2"
+     sheet.add_style ["C3:D#{length_dv+1}", "F3:G#{length_dv+1}", "C#{length_dv+5}:D#{length_dv+1+length_dt+3}", "F#{length_dv+5}:G#{length_dv+1+length_dt+3}"], num_fmt: 1
+
+  end
+
 end

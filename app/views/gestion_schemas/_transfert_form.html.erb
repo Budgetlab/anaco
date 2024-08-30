@@ -21,7 +21,7 @@
     <div class="fr-col-6 fr-col-lg-6">
       <div class="fr-select-group">
         <label class="fr-label">Programme d'origine</label>
-        <%= f.select :programme_id, Programme.all.order(numero: :asc).map {|p| [p.numero, p.id] }, {prompt: "Sélectionner"}, class: "fr-select" %>
+        <%= f.select :programme_id, Programme.all.order(numero: :asc).reject{ |p| p.id == @programme.id }.map {|p| [p.numero, p.id] }, {prompt: "Sélectionner"}, class: "fr-select" %>
       </div>
     </div>
   </div>
