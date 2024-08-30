@@ -24,7 +24,7 @@ if @vision_rprog_ht2
     sheet.merge_cells("AE1:AJ1")
 
     sheet.add_row [nil, nil, "Ressources certaines à date", nil, "Prévision de dépense", nil, "Solde prévisionnel", nil, "Niveau de la mise en réserve", nil, "Autre cas de réserve de crédits", nil,
-    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Report arbitré ou consensuel", nil, "Solde final", nil,
+    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Reports arbitrés ou consensuels", nil, "Solde final", nil,
     "Prévision de charges à payer", nil, "Autres reports de charge",nil, "Crédits à reporter", nil, nil], style: sub_header_style, height: 40
     sheet.merge_cells("A2:B2")
     sheet.merge_cells("C2:D2")
@@ -145,7 +145,7 @@ wb.add_worksheet(name: "T2") do |sheet|
     sheet.merge_cells("M1:AD1")
 
     sheet.add_row [nil, nil, "Ressources certaines à date", nil, "Prévision de dépense", nil, "Solde prévisionnel", nil, "Niveau de la mise en réserve", nil, "Autre cas de réserve de crédits", nil,
-    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Report arbitré ou consensuel", nil, "Solde final", nil, nil], style: sub_header_style, height: 40
+    "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Reports arbitrés ou consensuels", nil, "Solde final", nil, nil], style: sub_header_style, height: 40
     sheet.merge_cells("A2:B2")
     sheet.merge_cells("C2:D2")
     sheet.merge_cells("E2:F2")

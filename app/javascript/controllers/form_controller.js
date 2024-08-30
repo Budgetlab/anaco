@@ -98,6 +98,67 @@ export default class extends Controller {
         }
     }
 
+    changeNumberPositive(event) {
+        const inputElement = event.target;
+        const end = inputElement.selectionEnd;
+        const orginalLength = inputElement.value.length
+        // Supprimez tous les caractères non numériques
+        let element = inputElement.value.replace(/[^0-9]/g, "");
+        const parsedValue = this.numberFormat(element);
+        if (!isNaN(parsedValue)) {
+            // Formatage du nombre avec séparateur de milliers
+            const formattedValue = parsedValue.toLocaleString("fr-FR");
+            // Mettez à jour la valeur du champ de formulaire avec le format souhaité
+            inputElement.value = formattedValue;
+            const lengthDiff = inputElement.value.length - orginalLength;
+            inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
+        } else {
+            inputElement.value = null;
+        }
+
+        if (this.soldeAeTargets.length > 0) {
+            this.calculateSoldePrev();
+            this.calculateBalance();
+        }
+
+    }
+
+    changeNumberNegative(event) {
+        const inputElement = event.target;
+        const end = inputElement.selectionEnd;
+        let orginalLength = inputElement.value.length
+        // Supprimez tous les caractères non numériques
+        let element = inputElement.value.replace(/[^0-9-]/g, "");
+        // Si la valeur ne commence pas par un '-', ajoutez-le
+        if (!element.startsWith('-') && !element.startsWith('0')) {
+            element = '-' + element;
+        }
+        // Enlevez tout signe moins supplémentaire qui pourrait exister dans la chaîne
+        // après le premier caractère
+        element = element[0] + element.slice(1).replace(/-/g, '');
+        if (inputElement.value.length == 1 && inputElement.value == "-") {
+            inputElement.value = "-";
+        } else {
+            const parsedValue = this.numberFormat(element);
+            if (!isNaN(parsedValue)) {
+                // Formatage du nombre avec séparateur de milliers
+                const formattedValue = parsedValue.toLocaleString("fr-FR");
+                // Mettez à jour la valeur du champ de formulaire avec le format souhaité
+                inputElement.value = formattedValue;
+                const lengthDiff = inputElement.value.length - orginalLength;
+                inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
+            } else {
+                inputElement.value = null;
+            }
+
+            if (this.soldeAeTargets.length > 0) {
+                this.calculateSoldePrev();
+                this.calculateBalance();
+            }
+        }
+
+    }
+
     changeNumber(event) {
         const inputElement = event.target;
         const orginalLength = inputElement.value.length
@@ -220,8 +281,8 @@ export default class extends Controller {
         const depenses_ae = this.numberFormat(document.getElementById("depenses_ae").value) || 0
         const depenses_cp = this.numberFormat(document.getElementById("depenses_cp").value) || 0
 
-        soldeAe = ressources_ae - depenses_ae
-        soldeCp = ressources_cp - depenses_cp
+        soldeAe = ressources_ae + depenses_ae
+        soldeCp = ressources_cp + depenses_cp
 
         // update the balance fields
         this.soldePrevAeTarget.innerText = soldeAe.toLocaleString("fr-FR") + ' €';
@@ -281,6 +342,18 @@ export default class extends Controller {
             parentCard.classList.remove("fr-card--red")
             parentCard.classList.add("fr-card--blue")
         }
+    }
+
+    saveDraft(event){
+        this.changeTextToFloat(event);
+        event.preventDefault()
+        var form = this.formTarget
+        var input = document.createElement("input")
+        input.setAttribute("type", "hidden")
+        input.setAttribute("name", "brouillon")
+        input.setAttribute("value", "true")
+        form.appendChild(input)
+        form.submit()
     }
 
 }

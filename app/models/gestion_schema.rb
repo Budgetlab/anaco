@@ -13,17 +13,17 @@ class GestionSchema < ApplicationRecord
   before_save :set_nil_values_to_zero
 
   def prevision_solde_budgetaire_ae
-    (ressources_ae || 0) - (depenses_ae || 0)
+    (ressources_ae || 0) + (depenses_ae || 0)
   end
 
   def prevision_solde_budgetaire_cp
-    (ressources_cp || 0) - (depenses_cp || 0)
+    (ressources_cp || 0) + (depenses_cp || 0)
   end
   def solde_total_ae
-    (prevision_solde_budgetaire_ae || 0) + (mobilisation_mer_ae || 0)
+    prevision_solde_budgetaire_ae + mobilisation_mer_ae + mobilisation_surgel_ae + fongibilite_ae + transferts_entrant_ae + transferts_sortant_ae + decret_ae + credits_lfg_ae + reports_ae
   end
   def solde_total_cp
-    (prevision_solde_budgetaire_cp || 0) + (mobilisation_mer_cp || 0)
+    prevision_solde_budgetaire_cp + mobilisation_mer_cp + mobilisation_surgel_cp + fongibilite_cp + transferts_entrant_cp + transferts_sortant_cp + decret_cp + credits_lfg_cp + reports_cp
   end
 
   def transferts_entrant_ae
@@ -40,6 +40,14 @@ class GestionSchema < ApplicationRecord
 
   def transferts_sortant_cp
     transferts.sortant.sum(:montant_cp)
+  end
+
+  def step
+    if profil == 'HT2'
+      vision == 'RPROG' ? 1 : 2
+    else
+      vision == 'RPROG' ? 3 : 4
+    end
   end
 
   def self.ransackable_attributes(auth_object = nil)

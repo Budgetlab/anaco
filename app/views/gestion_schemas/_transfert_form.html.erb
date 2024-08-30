@@ -4,7 +4,7 @@
       <div class="fr-input-group">
         <label class="fr-label"><%= @step <= 2 ? 'AE' : 'HCAS' %></label>
         <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-          <%= f.text_field :montant_ae, class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "aeInputs" } %>
+          <%= f.text_field :montant_ae, class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "aeInputs" } %>
         </div>
       </div>
     </div>
@@ -12,7 +12,7 @@
       <div class="fr-input-group">
         <label class="fr-label"><%= @step <= 2 ? 'CP' : 'CAS' %></label>
         <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-          <%= f.text_field :montant_cp, class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" } %>
+          <%= f.text_field :montant_cp, class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "cpInputs" } %>
         </div>
       </div>
     </div>
