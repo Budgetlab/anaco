@@ -323,7 +323,7 @@
           <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
             <div class="fr-modal__body">
               <div class="fr-modal__header">
-                <button class="fr-btn--close fr-btn" aria-controls="fr-modal-brouillon" title="Fermer">
+                <button class="fr-btn--close fr-btn" aria-controls="fr-modal-brouillon" title="Fermer" data-action="click->form#preventDefault">
                   Fermer
                 </button>
               </div>
@@ -339,7 +339,7 @@
                 <div>
                   <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
                     <li>
-                      <button class="fr-btn fr-btn--secondary" aria-controls="fr-modal-1" title="Annuler">Annuler</button>
+                      <button class="fr-btn fr-btn--secondary" aria-controls="fr-modal-brouillon" title="Annuler" data-action="click->form#preventDefault">Annuler</button>
                     </li>
                     <li>
                       <button type="button" class="fr-btn" data-action="click->form#saveDraft">

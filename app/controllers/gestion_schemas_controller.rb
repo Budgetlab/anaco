@@ -23,7 +23,7 @@ class GestionSchemasController < ApplicationController
         transfert.attributes.except('id')
       end
       @gestion_schema.transferts.build(transferts_attributes)
-      @edit = true
+      @edit = true # récupérer les commentaires
     else
       # vision CBCM : on récupère les données de la vision RPROG précédente
       if @step == 2 || @step == 4
@@ -63,26 +63,27 @@ class GestionSchemasController < ApplicationController
   def update
     @gestion_schema.transferts.destroy_all
     @gestion_schema.update(gestion_schema_params)
-    # si quitte formulaire
+    # si enregistre en brouillon
     if params[:brouillon]
       next_path = schemas_path
     else
       @step = @gestion_schema.step
       # redirection en fonction de l'étape
-      if @gestion_schema.vision == 'RPROG'
+      if @step == 1 || @step == 3 # vision RPROG, on va sur la vision CBCM du meme profil
         gestion_schema_next = @schema.gestion_schemas.where(vision: 'CBCM', profil: @gestion_schema.profil)&.first
-      elsif @gestion_schema.vision == 'CBCM'
+      elsif @step == 2
         # edit ne peux survenir que sur le CBCM HT2 car T2 toujours dernière étape avant sauvegarde finale
-        gestion_schema_next = @schema.gestion_schemas.where(vision: 'RPROG', profil: 'T2')&.first
+        gestion_schema_next = @schema.gestion_schemas.rprog_t2&.first
       end
-      # si gestion schema d'après existe on retourne sur edit sinon on repart de new et on met à jour statut du schema
+      # si gestion schema d'après n'existe pas on met à jour statut du schema par validation pour passer à l'étape suivante
       unless gestion_schema_next
         steps_max = @schema.programme.dotation == 'HT2' ? 2 : 4
-        puts @step
         statut = @step + 1 > steps_max ? 'valide' : (@step + 1).to_s
         @schema.update(statut: statut)
+        next_path_new = statut == 'valide' ? schemas_path : new_schema_gestion_schema_path(@schema)
       end
-      next_path = gestion_schema_next ? edit_schema_gestion_schema_path(gestion_schema_next, schema_id: @schema.id) : new_schema_gestion_schema_path(@schema)
+      # si gestion schema d'après existe on retourne sur edit sinon on repart de new ou termine process si dernière étape
+      next_path = gestion_schema_next ? edit_schema_gestion_schema_path(gestion_schema_next, schema_id: @schema.id) : next_path_new
     end
     redirect_to next_path
   end

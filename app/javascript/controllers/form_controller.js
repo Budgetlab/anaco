@@ -356,6 +356,10 @@ export default class extends Controller {
         form.submit()
     }
 
+    preventDefault(event) {
+        event.preventDefault()
+    }
+
 }
 
 function getSelectedValues(event) {
