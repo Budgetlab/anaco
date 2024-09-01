@@ -27,9 +27,11 @@ Rails.application.routes.draw do
       resources :gestion_schemas
       member do
         get 'confirm_delete' => "schemas#confirm_delete"
+        get 'pdf_vision' => "schemas#pdf_vision"
       end
     end
     get 'schemas_remplissage' => "schemas#schemas_remplissage"
+
     resources :programmes do
       resources :schemas, only: [:new, :create]
       member do

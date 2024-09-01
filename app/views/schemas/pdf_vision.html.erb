@@ -1,0 +1,8 @@
+<div class="fr-container fr-container--fluid fr-container-md">
+  <h1 class="fr-mt-6w fr-mb-2w">
+    Schéma de fin de gestion du programme n°<%= @schema.programme.numero %>
+  </h1>
+  <h2 class="fr-mb-1w">Vision <%= @vision %></h2>
+  <div class="fr-text--italic fr-text--light fr-my-2w">Version du <%= l(@schema.updated_at, format: "%e/%m/%y") %></div>
+  <%= render partial: 'show_vision', locals: { vision: @vision, vision_rprog: @vision_rprog, vision_cbcm: @vision_cbcm } %>
+</div>

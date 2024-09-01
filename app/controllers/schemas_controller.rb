@@ -1,8 +1,9 @@
 class SchemasController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_schema, only: [:destroy, :show, :confirm_delete]
+  before_action :authenticate_user!, except: [:pdf_vision]
+  before_action :set_schema, only: [:destroy, :show, :confirm_delete, :pdf_vision]
   before_action :set_programme, only: [:create]
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]
+
   def index
     # récupérer la liste des schémas triés par ordre croissant
     @schemas = current_user.statut == 'DCB' ? current_user.schemas.joins(:gestion_schemas).distinct : Schema.where(statut: 'valide')
@@ -45,6 +46,24 @@ class SchemasController < ApplicationController
   end
 
   def confirm_delete; end
+
+  def pdf_vision
+    @vision = params[:vision]
+    @vision_rprog = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: @vision)
+    @vision_cbcm = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: @vision)
+    respond_to do |format|
+      format.html
+      format.pdf do
+        url = pdf_vision_schema_url(@schema, vision: @vision)
+        pdf_data = UrlToPdfJob.perform_now(url)
+        send_data(pdf_data,
+                  filename: "schema_P#{@schema.programme.numero}_#{@vision}.pdf",
+                  type: "application/pdf",
+                  disposition: "attachment") # inline open in browser
+        # disposition: "attachment") # default # download
+      end
+    end
+  end
 
   private
 
