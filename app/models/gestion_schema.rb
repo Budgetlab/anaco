@@ -27,19 +27,19 @@ class GestionSchema < ApplicationRecord
   end
 
   def transferts_entrant_ae
-    transferts.entrant.sum(:montant_ae)
+    transferts.select { |t| t.nature == 'entrant' }.sum(&:montant_ae)
   end
 
   def transferts_entrant_cp
-    transferts.entrant.sum(:montant_cp)
+    transferts.select { |t| t.nature == 'entrant' }.sum(&:montant_cp)
   end
 
   def transferts_sortant_ae
-    transferts.sortant.sum(:montant_ae)
+    transferts.select { |t| t.nature == 'sortant' }.sum(&:montant_ae)
   end
 
   def transferts_sortant_cp
-    transferts.sortant.sum(:montant_cp)
+    transferts.select { |t| t.nature == 'sortant' }.sum(&:montant_cp)
   end
 
   def step

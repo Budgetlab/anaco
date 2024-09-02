@@ -12,6 +12,9 @@ col_header_style = wb.styles.add_style(
 cell_style = wb.styles.add_style(
                   bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
                 )
+cell_style_grey = wb.styles.add_style(
+                  bg_color: 'dedede', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
+                )
 sheet_col = Array.new(40, 14)
 if @vision_rprog_ht2
  wb.add_worksheet(name: "HT2") do |sheet|
@@ -54,7 +57,7 @@ if @vision_rprog_ht2
 
     sheet.add_row [@schema.programme.numero, "RPROG", @vision_rprog_ht2.ressources_ae, @vision_rprog_ht2.ressources_cp, @vision_rprog_ht2.depenses_ae, @vision_rprog_ht2.depenses_cp, @vision_rprog_ht2.prevision_solde_budgetaire_ae , @vision_rprog_ht2.prevision_solde_budgetaire_cp, @vision_rprog_ht2.mer_ae, @vision_rprog_ht2.mer_cp, @vision_rprog_ht2.surgel_ae, @vision_rprog_ht2.surgel_cp,
     @vision_rprog_ht2.mobilisation_mer_ae, @vision_rprog_ht2.mobilisation_mer_cp, @vision_rprog_ht2.mobilisation_surgel_ae, @vision_rprog_ht2.mobilisation_surgel_cp, @vision_rprog_ht2.fongibilite_ae , @vision_rprog_ht2.fongibilite_cp, @vision_rprog_ht2.transferts_entrant_ae , @vision_rprog_ht2.transferts_entrant_cp, @vision_rprog_ht2.transferts_sortant_ae , @vision_rprog_ht2.transferts_sortant_ae, @vision_rprog_ht2.decret_ae , @vision_rprog_ht2.decret_cp, @vision_rprog_ht2.credits_lfg_ae, @vision_rprog_ht2.credits_lfg_cp, @vision_rprog_ht2.reports_ae , @vision_rprog_ht2.reports_cp , @vision_rprog_ht2.solde_total_ae, @vision_rprog_ht2.solde_total_cp,
-    @vision_rprog_ht2.charges_a_payer_ae , @vision_rprog_ht2.charges_a_payer_cp, @vision_rprog_ht2.reports_autre_ae, @vision_rprog_ht2.reports_autre_cp, @vision_rprog_ht2.credits_reports_ae, @vision_rprog_ht2.credits_reports_cp, @vision_rprog_ht2.commentaire], style: cell_style
+    @vision_rprog_ht2.charges_a_payer_ae , @vision_rprog_ht2.charges_a_payer_cp, @vision_rprog_ht2.reports_autre_ae, @vision_rprog_ht2.reports_autre_cp, @vision_rprog_ht2.credits_reports_ae, @vision_rprog_ht2.credits_reports_cp, @vision_rprog_ht2.commentaire], style: cell_style_grey
 
     sheet.add_row [@schema.programme.numero, "CBCM", @vision_cbcm_ht2.ressources_ae, @vision_cbcm_ht2.ressources_cp, @vision_cbcm_ht2.depenses_ae, @vision_cbcm_ht2.depenses_cp, @vision_cbcm_ht2.prevision_solde_budgetaire_ae , @vision_cbcm_ht2.prevision_solde_budgetaire_cp, @vision_cbcm_ht2.mer_ae, @vision_cbcm_ht2.mer_cp, @vision_cbcm_ht2.surgel_ae, @vision_cbcm_ht2.surgel_cp,
     @vision_cbcm_ht2.mobilisation_mer_ae, @vision_cbcm_ht2.mobilisation_mer_cp, @vision_cbcm_ht2.mobilisation_surgel_ae, @vision_cbcm_ht2.mobilisation_surgel_cp, @vision_cbcm_ht2.fongibilite_ae , @vision_cbcm_ht2.fongibilite_cp, @vision_cbcm_ht2.transferts_entrant_ae , @vision_cbcm_ht2.transferts_entrant_cp, @vision_cbcm_ht2.transferts_sortant_ae , @vision_cbcm_ht2.transferts_sortant_ae, @vision_cbcm_ht2.decret_ae , @vision_cbcm_ht2.decret_cp, @vision_cbcm_ht2.credits_lfg_ae, @vision_cbcm_ht2.credits_lfg_cp, @vision_cbcm_ht2.reports_ae , @vision_cbcm_ht2.reports_cp , @vision_cbcm_ht2.solde_total_ae, @vision_cbcm_ht2.solde_total_cp,

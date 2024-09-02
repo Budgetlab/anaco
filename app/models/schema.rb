@@ -2,6 +2,7 @@ class Schema < ApplicationRecord
   belongs_to :programme
   belongs_to :user
   has_many :gestion_schemas, dependent: :destroy
+  has_one_attached :document_pdf
 
   def incomplete?
     !self.gestion_schemas.empty? && self.statut != 'valide'
@@ -28,7 +29,7 @@ class Schema < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["annee", "created_at", "id", "id_value", "programme_id", "statut", "updated_at", "user_id"]
+    ["annee", "created_at", "id", "id_value", "programme_id", "statut", "updated_at", "user_id", "document_pdf_attachment_id_eq", "document_pdf_blob_id_eq"]
   end
 
 end

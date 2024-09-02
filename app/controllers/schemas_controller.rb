@@ -48,19 +48,31 @@ class SchemasController < ApplicationController
   def confirm_delete; end
 
   def pdf_vision
-    @vision = params[:vision]
-    @vision_rprog = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: @vision)
-    @vision_cbcm = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: @vision)
+    gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
+    @vision_rprog_ht2 = gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'HT2' }&.first
+    @vision_rprog_t2 = gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'T2' }&.first
+    @vision_cbcm_ht2 = gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'HT2' }&.first
+    @vision_cbcm_t2 = gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'T2' }&.first
+
     respond_to do |format|
       format.html
       format.pdf do
-        url = pdf_vision_schema_url(@schema, vision: @vision)
-        pdf_data = UrlToPdfJob.perform_now(url)
+        url = pdf_vision_schema_url(@schema)
+        tmp_path = UrlToPdfJob.perform_now(url)
+        # envoyer le pdf en réponse
+        pdf_data = File.read(tmp_path)
         send_data(pdf_data,
-                  filename: "schema_P#{@schema.programme.numero}_#{@vision}.pdf",
+                  filename: "schema_P#{@schema.programme.numero}.pdf",
                   type: "application/pdf",
                   disposition: "attachment") # inline open in browser
         # disposition: "attachment") # default # download
+        # ouvrir le fichier temporaire et attacher au modèle Schema
+        File.open(tmp_path) do |file|
+          @schema.document_pdf.attach(io: file, filename: "schema_P#{@schema.programme.numero}.pdf")
+        end
+
+        # assurez-vous de supprimer le fichier temporaire après son utilisation
+        File.delete(tmp_path)
       end
     end
   end
@@ -68,7 +80,7 @@ class SchemasController < ApplicationController
   private
 
   def set_schema
-    @schema = Schema.find(params[:id])
+    @schema = Schema.includes(:programme).find(params[:id])
   end
 
   def set_programme

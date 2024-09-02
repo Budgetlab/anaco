@@ -305,7 +305,7 @@
               </thead>
               <tbody>
 
-              <% vision_rprog.transferts.entrant.each_with_index do |transfert, index| %>
+              <% vision_rprog.transferts.select{ |t| t.nature == "entrant"}.each_with_index do |transfert, index| %>
                 <tr data-row-key="<%= index + 1 %>">
                   <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
                   <td class="fr-cell--right">
@@ -358,7 +358,7 @@
               </thead>
               <tbody>
 
-              <% vision_cbcm.transferts.entrant.each_with_index do |transfert, index| %>
+              <% vision_cbcm.transferts.select{ |t| t.nature == "entrant"}.each_with_index do |transfert, index| %>
                 <tr data-row-key="<%= index + 1 %>">
                   <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
                   <td class="fr-cell--right">
@@ -415,7 +415,7 @@
               </thead>
               <tbody>
 
-              <% vision_rprog.transferts.sortant.each_with_index do |transfert, index| %>
+              <% vision_rprog.transferts.select{ |t| t.nature == "sortant"}.each_with_index do |transfert, index| %>
                 <tr data-row-key="<%= index + 1 %>">
                   <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
                   <td class="fr-cell--right">
@@ -468,7 +468,7 @@
               </thead>
               <tbody>
 
-              <% vision_cbcm.transferts.sortant.each_with_index do |transfert, index| %>
+              <% vision_cbcm.transferts.select{ |t| t.nature == "sortant"}.each_with_index do |transfert, index| %>
                 <tr data-row-key="<%= index + 1 %>">
                   <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
                   <td class="fr-cell--right">

@@ -16,10 +16,12 @@ class UrlToPdfJob < ApplicationJob
       format: :A4,
       preferCSSPageSize: false,
       printBackground: true)
-    File.read(tmp.path)
+
+    tmp.path
+    # File.read(tmp.path)
   ensure
-    browser&.quit
-    tmp.close
-    tmp.unlink
+    browser.quit
+    # tmp.close
+    # tmp.unlink
   end
 end
