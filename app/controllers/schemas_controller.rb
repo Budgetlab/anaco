@@ -29,6 +29,7 @@ class SchemasController < ApplicationController
   end
 
   def show
+    @gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
     @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
     @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
     @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')

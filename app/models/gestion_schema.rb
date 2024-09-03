@@ -19,6 +19,12 @@ class GestionSchema < ApplicationRecord
   def prevision_solde_budgetaire_cp
     (ressources_cp || 0) + (depenses_cp || 0)
   end
+  def solde_prev_reports_ae
+    prevision_solde_budgetaire_ae + reports_ae
+  end
+  def solde_prev_reports_cp
+    prevision_solde_budgetaire_cp + reports_cp
+  end
   def solde_total_ae
     prevision_solde_budgetaire_ae + mobilisation_mer_ae + mobilisation_surgel_ae + fongibilite_ae + transferts_entrant_ae + transferts_sortant_ae + decret_ae + credits_lfg_ae + reports_ae
   end

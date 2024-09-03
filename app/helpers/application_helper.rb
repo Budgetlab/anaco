@@ -117,7 +117,7 @@ module ApplicationHelper
 
   def color_cells(sheet, range)
     sheet[range].each do |cell|
-      color = cell.value < 0 ? "FFE9E9" : "dae1f2"
+      color = cell.value.to_i < 0 ? "FFE9E9" : "dae1f2"
       cell.add_style bg_color: color
     end
   end
