@@ -1,0 +1,62 @@
+<% content_for :title do %>Suivi du remplissage des schemas | ANACO
+<% end %>
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-my-6w">Suivi du remplissage des schémas</h1>
+
+
+      <% total_programmes, total_a_remplir, total_remplis, total_brouillon = 0, 0, 0, 0 %>
+      <div class="fr-table--lg fr-table fr-table--bordered ">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table class="fr-cell--multiline">
+                <caption>Suivi du remplissage des schémas <%= @annee_a_afficher %></caption>
+                <thead>
+                <tr>
+                  <th scope="col">DCB</th>
+                  <th scope="col">Taux de remplissage</th>
+                  <th scope="col">Nombre de programmes</th>
+                  <th scope="col">Schémas à remplir</th>
+                  <th scope="col">Total de versions de schémas renseignés</th>
+                  <th scope="col">Schémas en brouillon</th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                <% @user_data.each do |data| %>
+                  <% # update totals
+                     total_programmes += data[:total_programmes]
+                     total_a_remplir += data[:total_programmes] - data[:programmes_with_schema]
+                     total_remplis += data[:valide_count]
+                     total_brouillon += data[:brouillon_count]
+                  %>
+
+                  <tr>
+                    <th class="fr-cell--fixed" scope="row"><%= data[:nom] %></th>
+                    <td class="fr-cell--right"><%= data[:total_programmes].zero? ? 'N/A' : "#{data[:taux]}%" %></td>
+                    <td class="fr-cell--right"><%= data[:total_programmes] %></td>
+                    <td class="fr-cell--right"><%= data[:total_programmes] - data[:programmes_with_schema] %></td>
+                    <td class="fr-cell--right"><%= data[:valide_count] %></td>
+                    <td class="fr-cell--right"><%= data[:brouillon_count] %></td>
+                  </tr>
+                <% end %>
+                <tr class="fr-table--total">
+                  <th class="fr-cell--fixed" scope="row">Total</th>
+                  <td class="fr-cell--right"><%= total_programmes.zero? ? 0 : (((total_programmes-total_a_remplir)*100.0)/total_programmes).round %>%</td>
+                  <td class="fr-cell--right"><%= total_programmes %></td>
+                  <td class="fr-cell--right"><%= total_a_remplir %></td>
+                  <td class="fr-cell--right"><%= total_remplis %></td>
+                  <td class="fr-cell--right"><%= total_brouillon %></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

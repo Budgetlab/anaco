@@ -116,6 +116,12 @@
                         schémas de fin de gestion
                       <% end %>
                     </li>
+                    <% if current_user.statut == "admin" %>
+                      <li>
+                        <%= active_link_to suivi_remplissage_schemas_path, class: "fr-nav__link", target: "_self" do %>Suivi du remplissage
+                        <% end %>
+                      </li>
+                    <% end %>
                   </ul>
                 </div>
               </li>

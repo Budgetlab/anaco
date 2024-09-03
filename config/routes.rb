@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     post 'import_nom_users' => 'users#import_nom'
     post '/select_nom' => 'users#select_nom'
 
+    get 'suivi_remplissage_schemas', to: 'users#suivi_remplissage_schemas'
+
     resources :bops do
       resources :avis, only: [:new]
     end
