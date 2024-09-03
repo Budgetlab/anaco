@@ -3,7 +3,7 @@ import {Controller} from "@hotwired/stimulus"
 export default class extends Controller {
     static get targets() {
         return ['form', 'submitBouton', 'fieldRequire', 'Btnvalidate', 'Btnsave', 'count', 'datealerte1', 'datealerte2', 'etat', 'dotation',
-            "aeInputs", "cpInputs","aeInputsNeg", "cpInputsNeg", "soldeAe", "soldeCp", "soldePrevAe", "soldePrevCp"
+            "aeInputs", "cpInputs","aeInputsNeg", "cpInputsNeg", "soldeAe", "soldeCp", "soldePrevAe", "soldePrevCp", 'soldePrevReportsAe', "soldePrevReportsCp"
         ];
     }
 
@@ -290,6 +290,23 @@ export default class extends Controller {
 
         this.updateCard(soldeAe, this.soldePrevAeTarget);
         this.updateCard(soldeCp, this.soldePrevCpTarget);
+        this.calculateSoldePrevReports(soldeAe, soldeCp)
+    }
+
+    calculateSoldePrevReports(soldeAe, soldeCp){
+        // reports
+        const reports_ae = this.numberFormat(document.getElementById("reports_ae").value) || 0
+        const reports_cp = this.numberFormat(document.getElementById("reports_cp").value) || 0
+
+        soldeAe = soldeAe + reports_ae
+        soldeCp = soldeCp + reports_cp
+
+        // update the balance fields
+        this.soldePrevReportsAeTarget.innerText = soldeAe.toLocaleString("fr-FR") + ' €';
+        this.soldePrevReportsCpTarget.innerText = soldeCp.toLocaleString("fr-FR") + ' €';
+
+        this.updateCard(soldeAe, this.soldePrevReportsAeTarget);
+        this.updateCard(soldeCp, this.soldePrevReportsCpTarget);
     }
 
     calculateBalance() {
@@ -303,24 +320,12 @@ export default class extends Controller {
                 aeBalance += value;
             }
         });
-        this.aeInputsNegTargets.forEach((input) => {
-            let value = this.numberFormat(input.value);
-            if (!isNaN(value)) {
-                aeBalance -= value;
-            }
-        });
 
         // calculate cp balance
         this.cpInputsTargets.forEach((input) => {
             let value = this.numberFormat(input.value);
             if (!isNaN(value)) {
                 cpBalance += value;
-            }
-        });
-        this.cpInputsNegTargets.forEach((input) => {
-            let value = this.numberFormat(input.value);
-            if (!isNaN(value)) {
-                cpBalance -= value;
             }
         });
 

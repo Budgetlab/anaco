@@ -3,10 +3,28 @@
     <div>
       <div class="fr-h2">Schéma de fin de gestion du programme</div>
       <div class="fr-mb-2w">Dernière mise à jour le <%= @schema.updated_at.strftime(("%e/%-m/%Y")) %></div>
-      <div class="fr-download">
-        <p><%= link_to schema_path(@schema, format: :xlsx), class: "fr-download__link" do %> Télécharger le schéma de fin de gestion
-            <span class="fr-download__detail">Format .xlsx</span>
-          <%end %></p>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-1w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div>
+            <%= link_to schema_path(@schema, format: :xlsx), class: "fr-link fr-link--download" do %>
+              Télécharger le schéma au format XLSX <span class="fr-link__detail">Format .xlsx</span>
+            <% end %>
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div>
+            <% if @schema.document_pdf.attached? %>
+              <%= link_to rails_blob_path(@schema.document_pdf, disposition: "attachment"), target: :_blank, class: "fr-link fr-link--download" do %>
+                Télécharger le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
+              <% end %>
+            <% else %>
+              <%= link_to pdf_vision_schema_path(@schema, format: :pdf), target: :_blank, class: "fr-link fr-link--download" do %>
+                Générer le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
+              <% end %>
+            <% end %>
+
+          </div>
+        </div>
       </div>
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="Vision">

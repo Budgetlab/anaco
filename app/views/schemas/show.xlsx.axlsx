@@ -189,7 +189,9 @@ data_array2 =[
           sheet.add_row ["Total", nil, vision_rprog.transferts_sortant_ae, vision_rprog.transferts_sortant_cp, nil, vision_cbcm.transferts_sortant_ae, vision_cbcm.transferts_sortant_cp], style: cell_style
 
 
-          sheet.column_widths(*sheet_col)
+          (1..6).each do |col|
+             sheet.column_info[col].width = 20
+          end
           sheet.add_border ["B2:G2","A#{length_dv}:G#{length_dv}", "A#{length_dv+1}:G#{length_dv+1}","B#{length_dv+5}:G#{length_dv+5}", "A#{length_dv+length_dt+3}:G#{length_dv+length_dt+3}","A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], { edges: [:bottom], style: :thick }
           sheet.add_border ["A2:A#{length_dv+1}","D2:D#{length_dv+1}","G2:G#{length_dv+1}", "A#{length_dv+5}:A#{length_dv+1+length_dt+3}","D#{length_dv+5}:D#{length_dv+1+length_dt+3}","G#{length_dv+5}:G#{length_dv+1+length_dt+3}"], { edges: [:right], style: :thick }
           sheet.add_style ["A#{length_dv+1}:G#{length_dv+1}", "A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], bg_color: "dae1f2"

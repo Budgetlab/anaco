@@ -85,6 +85,40 @@
           </div>
         </div>
       </div>
+
+
+      <div class="fr-h6 fr-mb-1w fr-mt-2w">Reports arbitrés ou consensuels</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_cp) %> €</div>
+        </div>
+      </div>
+      <div class="fr-h5">Solde prévisionnel  corrigé des reports arbitrés ou consensuels</div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_prev_reports_ae) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">HCAS</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_prev_reports_ae) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_prev_reports_cp) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">CAS</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_prev_reports_cp) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <hr class="fr-hr fr-mt-3w">
       <div class="fr-h6 fr-mb-1w">Niveau de la mise en réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -213,18 +247,6 @@
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-label">CAS</div>
           <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.credits_lfg_cp) %> €</div>
-        </div>
-      </div>
-
-      <div class="fr-h6 fr-mb-1w">Reports arbitrés ou consensuels</div>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-        <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">HCAS</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_ae) %> €</div>
-        </div>
-        <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CAS</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_cp) %> €</div>
         </div>
       </div>
 

@@ -13,11 +13,11 @@
               <span class="fr-text--italic fr-text--light">(version n°<%= numero_version(@schema) %>
                 du <%= l(@schema.updated_at, format: "%e/%m/%y") %>)</span>
             </h1>
-            <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-1w">
               <div class="fr-col-6 fr-col-lg-6">
                 <div>
                   <%= link_to schema_path(@schema, format: :xlsx), class: "fr-link fr-link--download" do %>
-                    Télécharger le schéma au format XLSX <span class="fr-link__detail">XLSX</span>
+                    Télécharger le schéma au format XLSX <span class="fr-link__detail">Format .xlsx</span>
                   <% end %>
                 </div>
               </div>
@@ -25,7 +25,7 @@
                 <div>
                   <% if @schema.document_pdf.attached? %>
                     <%= link_to rails_blob_path(@schema.document_pdf, disposition: "attachment"), target: :_blank, class: "fr-link fr-link--download" do %>
-                      Télécharger le schéma au format PDF <span class="fr-link__detail">PDF</span>
+                      Télécharger le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
                     <% end %>
                   <% else %>
                     <%= link_to "Générer le schéma au format PDF", pdf_vision_schema_path(@schema, format: :pdf), target: :_blank, class: "fr-link fr-link--download" %>
@@ -35,7 +35,7 @@
               </div>
             </div>
             <div class="fr-tabs">
-              <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+              <ul class="fr-tabs__list" role="tablist" aria-label="Schema fin de gestion">
                 <% if @vision_rprog_ht2 %>
                   <li role="presentation">
                     <button id="tabpanel-404" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-404-panel">

@@ -30,10 +30,10 @@ class SchemasController < ApplicationController
 
   def show
     @gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
-    @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
-    @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
-    @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')
-    @vision_cbcm_t2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'T2')
+    @vision_rprog_ht2 = @gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'HT2' }&.first
+    @vision_rprog_t2 = @gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'T2' }&.first
+    @vision_cbcm_ht2 = @gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'HT2' }&.first
+    @vision_cbcm_t2 = @gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'T2' }&.first
     filename = "Schema_fin_de_gestion_P#{@schema.programme.numero}.xlsx"
     respond_to do |format|
       format.html

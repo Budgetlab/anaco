@@ -61,6 +61,45 @@
         </div>
       </div>
     </div>
+
+    <div class="fr-h6 fr-mb-1w fr-mt-2w">Reports arbitrés ou consensuels <%= render partial: "gestion_schemas/tooltip", locals: { name: "reports" } %></div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="reports_ae" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :reports_ae, value: @gestion_schema.reports_ae, id: "reports_ae", class: "fr-input", data: { action: 'input->form#changeNumberNegative', form_target: "aeInputs" } %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="reports_cp" class="fr-label">CAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :reports_cp, value: @gestion_schema.reports_cp, id: "reports_cp", class: "fr-input", data: { action: 'input->form#changeNumberNegative', form_target: "cpInputs" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fr-h5">Solde prévisionnel corrigé des reports arbitrés ou consensuels</div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-6">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center">HCAS</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldePrevReportsAe">-</p>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6">
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center">CAS</p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center" data-form-target="soldePrevReportsCp">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <hr class="fr-hr fr-mt-3w">
 
     <div class="fr-h6 fr-mb-1w">Niveau de la mise en
@@ -245,26 +284,6 @@
           <label for="credits_lfg_cp" class="fr-label">CAS</label>
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
             <%= f.text_field :credits_lfg_cp, value: @gestion_schema.credits_lfg_cp, id: "credits_lfg_cp", class: "fr-input", data: { action: 'input->form#changeNumber', form_target: "cpInputs" } %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="fr-h6 fr-mb-1w">Reports arbitrés ou consensuels <%= render partial: "gestion_schemas/tooltip", locals: { name: "reports" } %></div>
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-      <div class="fr-col-6 fr-col-lg-6">
-        <div class="fr-input-group">
-          <label for="reports_ae" class="fr-label">HCAS</label>
-          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :reports_ae, value: @gestion_schema.reports_ae, id: "reports_ae", class: "fr-input", data: { action: 'input->form#changeNumberNegative', form_target: "aeInputs" } %>
-          </div>
-        </div>
-      </div>
-      <div class="fr-col-6 fr-col-lg-6">
-        <div class="fr-input-group">
-          <label for="reports_cp" class="fr-label">CAS</label>
-          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
-            <%= f.text_field :reports_cp, value: @gestion_schema.reports_cp, id: "reports_cp", class: "fr-input", data: { action: 'input->form#changeNumberNegative', form_target: "cpInputs" } %>
           </div>
         </div>
       </div>
