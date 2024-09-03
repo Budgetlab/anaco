@@ -13,7 +13,7 @@
 
 <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
   <div class="fr-col-12 fr-col-lg-6">
-    <button type="button" class="fr-link fr-icon-arrow-left-line fr-link--icon-left" data-fr-opened="false" aria-controls="fr-modal-1">
+    <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-arrow-go-back-line fr-mb-1w" data-fr-opened="false" aria-controls="fr-modal-1">
       Retour <% if @programme.dotation == 'T2' %>aux schémas <% else %>à la vision HT2<% end %>
     </button>
     <div class="fr-h3"><p class="fr-badge fr-badge--beige-gris-galet">Vision RPROG</p> Crédits T2</div>
@@ -26,9 +26,12 @@
         <div class="fr-notice__body">
           <p>
             <span class="fr-notice__title">Information</span>
-            <span class="fr-notice__desc">Par convention, les champs qui augmentent le solde sont à renseigner en positif tandis que ceux qui le diminuent doivent être négatifs. <br>Les soldes sont ensuite calculés automatiquement.</span>
+            <% if numero_version(@schema) == 1 %>
+              <span class="fr-notice__desc">Par convention, les champs qui augmentent le solde sont à renseigner en positif tandis que ceux qui le diminuent doivent être négatifs. <br>Les soldes sont ensuite calculés automatiquement.</span>
+            <% else %>
+              <span class="fr-notice__desc">Les données pour chaque vision sont pré-remplies avec celles enregistrées dans la version précédente.</span>
+            <% end %>
           </p>
-          <button title="Masquer le message" onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" id="button-1299" class="fr-btn--close fr-btn">Masquer le message</button>
         </div>
       </div>
     </div>

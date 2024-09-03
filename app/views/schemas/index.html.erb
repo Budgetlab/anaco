@@ -39,14 +39,14 @@
 
                       <th scope="col">
                         <% sort_created_date = "" %>
-                        <% if params[:q] && params[:q][:s] == "created_at desc" %>
+                        <% if params[:q] && params[:q][:s] == "updated_at desc" %>
                           <% sort_created_date = "asc" %>
-                        <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
+                        <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
                           <% sort_created_date = "desc" %>
                         <% end %>
                         <div class="fr-cell--sort">
                           <span class="fr-cell__title">Date de saisie</span>
-                          <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
+                          <%= sort_link(@q, :updated_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
                         </div>
                       </th>
                       <th scope="col">Programme</th>
