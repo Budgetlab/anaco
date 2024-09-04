@@ -5,9 +5,20 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-my-6w">Suivi du remplissage des schémas</h1>
 
+      <div class="fr-mb-2w">
+        <ul class="fr-tags-group">
+          <% (2024..Date.today.year).to_a.each do |annee| %>
+            <li>
+              <%= link_to suivi_remplissage_schemas_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
+                <%= annee %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
 
       <% total_programmes, total_a_remplir, total_remplis, total_brouillon = 0, 0, 0, 0 %>
-      <div class="fr-table--lg fr-table fr-table--bordered ">
+      <div class="fr-table--lg fr-table fr-table--bordered">
         <div class="fr-table__wrapper">
           <div class="fr-table__container">
             <div class="fr-table__content">
@@ -21,7 +32,6 @@
                   <th scope="col">Schémas à remplir</th>
                   <th scope="col">Total de versions de schémas renseignés</th>
                   <th scope="col">Schémas en brouillon</th>
-
                 </tr>
                 </thead>
                 <tbody>
@@ -45,7 +55,8 @@
                 <% end %>
                 <tr class="fr-table--total">
                   <th class="fr-cell--fixed" scope="row">Total</th>
-                  <td class="fr-cell--right"><%= total_programmes.zero? ? 0 : (((total_programmes-total_a_remplir)*100.0)/total_programmes).round %>%</td>
+                  <td class="fr-cell--right"><%= total_programmes.zero? ? 0 : (((total_programmes - total_a_remplir) * 100.0) / total_programmes).round %>%
+                  </td>
                   <td class="fr-cell--right"><%= total_programmes %></td>
                   <td class="fr-cell--right"><%= total_a_remplir %></td>
                   <td class="fr-cell--right"><%= total_remplis %></td>

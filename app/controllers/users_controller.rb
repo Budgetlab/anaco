@@ -34,7 +34,7 @@ class UsersController < ApplicationController
 
   def suivi_remplissage_schemas
     @annee_a_afficher = annee_a_afficher
-    users = User.where(statut: 'DCB').includes(:programmes, :schemas)
+    users = User.where(statut: 'DCB').includes(:programmes, :schemas).order(nom: :asc)
     @user_data = users.map do |user|
       total_programmes = user.programmes.count
       # ajuster les requêtes schema pour prendre en compte l'année
