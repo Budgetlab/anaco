@@ -7,7 +7,10 @@ class UsersController < ApplicationController
   include ApplicationHelper
 
   # Page pour ajouter les utilisateurs
-  def index; end
+  def index
+    @users = User.all
+    AdminUser.first_or_create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
+  end
 
   # fonction d'import des utilisateurs dans la bdd par un fichier externe
   def import
@@ -39,7 +42,7 @@ class UsersController < ApplicationController
       total_programmes = user.programmes.count
       # ajuster les requêtes schema pour prendre en compte l'année
       schemas_for_year = user.schemas.where(annee: @annee_a_afficher)
-      programmes_with_schema = user.programmes.where(id: schemas_for_year.pluck(:programme_id)).count
+      programmes_with_schema = user.programmes_with_schemas(@annee_a_afficher)
       taux = total_programmes.zero? ? 0 : (programmes_with_schema * 100.0) / total_programmes
       {
         nom: user.nom,

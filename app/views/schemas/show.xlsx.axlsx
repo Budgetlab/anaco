@@ -39,8 +39,8 @@ data_array2 =[
                { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
              ]
 ['HT2', 'T2'].each do |vision|
-  vision_rprog = @gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == vision }&.first
-  vision_cbcm = @gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == vision }&.first
+  vision_rprog = find_gestion_schema_vision(@gestion_schemas, "RPROG", vision)
+  vision_cbcm = find_gestion_schema_vision(@gestion_schemas, "CBCM", vision)
   ae = vision == 'HT2' ? "AE" : "HCAS"
   cp = vision == 'HT2' ? "CP" : "CAS"
   if vision_rprog

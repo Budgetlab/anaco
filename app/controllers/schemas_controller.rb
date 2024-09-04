@@ -1,8 +1,10 @@
 class SchemasController < ApplicationController
-  before_action :authenticate_user!, except: [:pdf_vision]
+  before_action :authenticate_dcb_or_admin!, except: [:pdf_vision]
   before_action :set_schema, only: [:destroy, :show, :confirm_delete, :pdf_vision]
   before_action :set_programme, only: [:create]
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]
+  include ApplicationHelper
+  include GestionSchemasHelper
 
   def index
     # récupérer la liste des schémas triés par ordre croissant
@@ -10,7 +12,7 @@ class SchemasController < ApplicationController
     @schemas = @schemas.order(updated_at: :desc)
     # recherche filtres ransack
     @q = @schemas.ransack(params[:q])
-    @schemas = @q.result.includes(:programme, :user)
+    @schemas = @q.result.includes(:programme, :user, gestion_schemas: :transferts)
     # paginger les résultats
     @pagy, @schemas_page = pagy(@schemas)
   end
@@ -30,10 +32,6 @@ class SchemasController < ApplicationController
 
   def show
     @gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
-    @vision_rprog_ht2 = @gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'HT2' }&.first
-    @vision_rprog_t2 = @gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'T2' }&.first
-    @vision_cbcm_ht2 = @gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'HT2' }&.first
-    @vision_cbcm_t2 = @gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'T2' }&.first
     filename = "Schema_fin_de_gestion_P#{@schema.programme.numero}.xlsx"
     respond_to do |format|
       format.html
@@ -49,11 +47,7 @@ class SchemasController < ApplicationController
   def confirm_delete; end
 
   def pdf_vision
-    gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
-    @vision_rprog_ht2 = gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'HT2' }&.first
-    @vision_rprog_t2 = gestion_schemas.select { |gs| gs.vision == 'RPROG' && gs.profil == 'T2' }&.first
-    @vision_cbcm_ht2 = gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'HT2' }&.first
-    @vision_cbcm_t2 = gestion_schemas.select { |gs| gs.vision == 'CBCM' && gs.profil == 'T2' }&.first
+    @gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
 
     respond_to do |format|
       format.html

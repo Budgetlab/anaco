@@ -1,35 +1,68 @@
-<% content_for :title do %>Questions fréquentes | ANACO<% end %>
+<% content_for :title do %>Questions fréquentes | ANACO
+<% end %>
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-my-6w">Questions fréquentes </h1>
 
-      <div class="fr-mb-4w">Cette foire aux questions se propose de recenser et d’apporter des éléments de réponse aux interrogations des acteurs du dispositif. Pour toutes vos questions et besoins de renseignements supplémentaires, veuillez nous contacter par mail à l'adresse mail suivante : <a href="mailto:2rec.budget@finances.gouv.fr" target="_blank">2rec.budget@finances.gouv.fr</a></div>
+      <div class="fr-mb-4w">Cette foire aux questions se propose de recenser et d’apporter des éléments de réponse aux
+        interrogations des acteurs du dispositif. Pour toutes vos questions et besoins de renseignements
+        supplémentaires, veuillez nous contacter par mail à l'adresse mail suivante :
+        <a href="mailto:2rec.budget@finances.gouv.fr" target="_blank">2rec.budget@finances.gouv.fr</a></div>
 
+      <div class="fr-mb-2w fr-downloads-group fr-downloads-group--bordered">
+        <ul>
+          <li>
+            <div class="fr-download"><p>
+              <a class="fr-download__link" href="/Guide_utilisateur_avis.pdf" download>Télécharger le guide utilisateur
+                des avis aux BOP et notes CRG <span class="fr-download__detail">PDF – 4Mo</span></a></p></div>
+          </li>
+          <% if current_user.statut != "CBR" %>
+            <li>
+              <div class="fr-download"><p>
+                <a class="fr-download__link" href="/Guide_utilisateur_schema_fin_gestion.pdf" download>Télécharger le
+                  guide utilisateur des schémas de fin de gestion <span class="fr-download__detail">PDF – 3Mo</span></a>
+              </p></div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
 
       <h2 class="fr-my-2w">Liste des questions</h2>
       <div class="fr-accordions-group fr-mb-4w">
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-114">Comment faire part du contenu des documents adressés en réponse à l’ordonnateur (avis au BOP ou note de CRG) ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-114">Comment faire part du
+              contenu des documents adressés en réponse à l’ordonnateur (avis au BOP ou note de CRG) ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-114">
-            Il convient de déposer sur la plateforme <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank">RESANA</a>, dans les dossiers dédiés, les avis et notes CRG adressés aux ordonnateurs et de renvoyer vers eux via un lien hypertexte intégré à la fin des synthèses et observations à usage interne inscrites dans ANACO.</div>
+            Il convient de déposer sur la plateforme
+            <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank">RESANA</a>,
+            dans les dossiers dédiés, les avis et notes CRG adressés aux ordonnateurs et de renvoyer vers eux via un
+            lien hypertexte intégré à la fin des synthèses et observations à usage interne inscrites dans ANACO.
+          </div>
         </section>
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-115">Un DCB peut-il entrer un avis au programme ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-115">Un DCB peut-il entrer
+              un avis au programme ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-115">
 
-            Non, à ce stade, les avis et les CRG au niveau programme ont vocation à être déposés et consultés sur Turgot.</div>
+            Non, à ce stade, les avis et les CRG au niveau programme ont vocation à être déposés et consultés sur
+            Turgot.
+          </div>
         </section>
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-116">Pourquoi certains programmes sont-ils absents d’ANACO ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-116">Pourquoi certains
+              programmes sont-ils absents d’ANACO ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-116">
             A ce stade, les programmes sans BOP déconcentrés ne sont pas inclus dans ANACO.
@@ -38,54 +71,85 @@
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-117">Que faire en présence d’un BOP déconcentré non doté ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-117">Que faire en présence
+              d’un BOP déconcentré non doté ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-117">
-            Un BOP peut être considéré comme utilisable dans Chorus mais ne pas être mobilisé. Dans ce cas, il conviendra d'indiquer dans l'outil que le BOP n'est pas doté.</div>
+            Un BOP peut être considéré comme utilisable dans Chorus mais ne pas être mobilisé. Dans ce cas, il
+            conviendra d'indiquer dans l'outil que le BOP n'est pas doté.
+          </div>
         </section>
 
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-119">La date de réception du BOP initial doit-elle s’entendre comme date de réception des premiers éléments ou comme date de réception de tous les éléments utiles ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-119">La date de réception
+              du BOP initial doit-elle s’entendre comme date de réception des premiers éléments ou comme date de
+              réception de tous les éléments utiles ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-119">
-            La date de réception du BOP initial à indiquer est celle correspondant à l'envoi par le RBOP de sa programmation. Le délai nécessaire pour compléter éventuellement le dossier ou tenir une réunion relève du délai de suspension.</div>
-        </section>
-
-        <section class="fr-accordion">
-          <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-120">Pour un BOP comportant du T2 et du HT2, est-il possible de retracer dans ANACO son traitement en deux temps distincts : un pour la programmation du HT2 et un autre pour la programmation du T2 ?</button>
-          </h3>
-          <div class="fr-collapse" id="accordion-120">
-
-            Il convient de reporter sur ANACO seulement la date de réception la plus tardive et l’avis consolidé (HT2 + T2). En cas de suspension de CRG1 ne valant que pour la programmation du HT2 ou que pour la programmation du T2, il convient de répondre « non » à la question « CRG1 suspendu ? »</div>
-        </section>
-
-        <section class="fr-accordion">
-          <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-121">S'agissant des ressources allouées, faut-il reporter les montants figurant dans le DRICE ou le DPU, même si des délégations allant au-delà ont déjà été notifiées au RBOP ?</button>
-          </h3>
-          <div class="fr-collapse" id="accordion-121">
-            Il convient de saisir la dotation au BOP la plus récemment connue, quelle que soit la façon dont les ressources allouées sont rendues certaines. Toutefois, en cas de disjonction avec les indications portées au DRICE ou au DPU, une mention explicative doit être intégrée dans les commentaires du contrôleur.
+            La date de réception du BOP initial à indiquer est celle correspondant à l'envoi par le RBOP de sa
+            programmation. Le délai nécessaire pour compléter éventuellement le dossier ou tenir une réunion relève du
+            délai de suspension.
           </div>
         </section>
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-122">Comment indiquer les allègements de visa d’actes accordés par un contrôleur pour un BOP donné ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-120">Pour un BOP comportant
+              du T2 et du HT2, est-il possible de retracer dans ANACO son traitement en deux temps distincts : un pour
+              la programmation du HT2 et un autre pour la programmation du T2 ?
+            </button>
           </h3>
-          <div class="fr-collapse" id="accordion-122">
-            A ce stade, ANACO ne permet pas le suivi de l’activité liée au contrôle a priori des actes. Lorsque des allègements autres que la suspension de CRG1 sont accordés par le contrôleur budgétaire, il convient de les préciser dans la synthèse de l’avis.</div>
+          <div class="fr-collapse" id="accordion-120">
+
+            Il convient de reporter sur ANACO seulement la date de réception la plus tardive et l’avis consolidé (HT2 +
+            T2). En cas de suspension de CRG1 ne valant que pour la programmation du HT2 ou que pour la programmation du
+            T2, il convient de répondre « non » à la question « CRG1 suspendu ? »
+          </div>
         </section>
 
         <section class="fr-accordion">
           <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-123">Que signifie « consommation à la ressource » ?</button>
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-121">S'agissant des
+              ressources allouées, faut-il reporter les montants figurant dans le DRICE ou le DPU, même si des
+              délégations allant au-delà ont déjà été notifiées au RBOP ?
+            </button>
+          </h3>
+          <div class="fr-collapse" id="accordion-121">
+            Il convient de saisir la dotation au BOP la plus récemment connue, quelle que soit la façon dont les
+            ressources allouées sont rendues certaines. Toutefois, en cas de disjonction avec les indications portées au
+            DRICE ou au DPU, une mention explicative doit être intégrée dans les commentaires du contrôleur.
+          </div>
+        </section>
+
+        <section class="fr-accordion">
+          <h3 class="fr-accordion__title">
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-122">Comment indiquer les
+              allègements de visa d’actes accordés par un contrôleur pour un BOP donné ?
+            </button>
+          </h3>
+          <div class="fr-collapse" id="accordion-122">
+            A ce stade, ANACO ne permet pas le suivi de l’activité liée au contrôle a priori des actes. Lorsque des
+            allègements autres que la suspension de CRG1 sont accordés par le contrôleur budgétaire, il convient de les
+            préciser dans la synthèse de l’avis.
+          </div>
+        </section>
+
+        <section class="fr-accordion">
+          <h3 class="fr-accordion__title">
+            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-123">Que signifie «
+              consommation à la ressource » ?
+            </button>
           </h3>
           <div class="fr-collapse" id="accordion-123">
 
-            Absence d'écart négatif ou positif significatif entre allocation des ressources et estimation des besoins. Autrement dit, cette expression doit s’entendre comme « consommation des crédits à hauteur de la ressource allouée ».</div>
+            Absence d'écart négatif ou positif significatif entre allocation des ressources et estimation des besoins.
+            Autrement dit, cette expression doit s’entendre comme « consommation des crédits à hauteur de la ressource
+            allouée ».
+          </div>
         </section>
 
       </div>

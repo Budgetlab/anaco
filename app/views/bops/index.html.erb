@@ -61,7 +61,7 @@
                       <td><%= link_to bop_path(bop.id), data: { turbo_frame: "_top" } do %><%= bop.code %>
                         <% end %></td>
                       <td>
-                        <% if bop.dotation.nil? %>
+                        <% if bop.dotation.nil? || bop.dotation.blank? %>
                           Non renseigné
                         <% elsif bop.dotation == "aucune" %>
                           inactif

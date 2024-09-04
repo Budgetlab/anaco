@@ -33,10 +33,9 @@
               <div class="fr-table__container">
                 <div class="fr-table__content">
                   <table class="fr-cell--multiline">
-                    <caption>Historique des schemas fin de gestion</caption>
+                    <caption>Historique des schémas fin de gestion</caption>
                     <thead>
                     <tr>
-
                       <th scope="col">
                         <% sort_created_date = "" %>
                         <% if params[:q] && params[:q][:s] == "updated_at desc" %>
@@ -65,26 +64,31 @@
 
                     <tbody>
                     <% @schemas_page&.each do |schema| %>
+                      <% gestion_schemas = schema.gestion_schemas %>
+                      <% vision_rprog_ht2 = find_gestion_schema_vision(gestion_schemas, "RPROG", "HT2") %>
+                      <% vision_rprog_t2 = find_gestion_schema_vision(gestion_schemas, "RPROG", "T2")  %>
+                      <% vision_cbcm_ht2 = find_gestion_schema_vision(gestion_schemas, "CBCM", "HT2") %>
+                      <% vision_cbcm_t2 = find_gestion_schema_vision(gestion_schemas, "CBCM", "T2")  %>
                       <tr>
                         <td><%= l(schema.updated_at, format: "%e/%m/%y") %> </td>
                         <td><%= link_to programme_path(schema.programme), data: {turbo_frame: '_top'} do %><%= schema.programme.numero %> - <%= schema.programme.nom %><%end %></td>
                         <td><%= schema.annee %>  </td>
                         <td>Version n°<%= numero_version(schema) %></td>
                         <td>
-                          <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
-                          <% if schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
-                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
-                          <% if schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
-                          <% if !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.rprog_t2&.first&.solde_total_cp&.negative? %>
+                          <% if vision_rprog_ht2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if vision_rprog_ht2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if vision_rprog_t2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if vision_rprog_t2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if !vision_rprog_ht2&.solde_total_ae&.negative? && !vision_rprog_ht2&.solde_total_cp&.negative? && !vision_rprog_t2&.solde_total_ae&.negative? && !vision_rprog_t2&.solde_total_cp&.negative? %>
                             <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
                           <% end %>
                         </td>
                         <td>
-                          <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
-                          <% if schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
-                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
-                          <% if schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
-                          <% if !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_ae&.negative? && !schema.gestion_schemas&.cbcm_t2&.first&.solde_total_cp&.negative? %>
+                          <% if vision_cbcm_ht2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if vision_cbcm_ht2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if vision_cbcm_t2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if vision_cbcm_t2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if !vision_cbcm_ht2&.solde_total_ae&.negative? && !vision_cbcm_ht2&.solde_total_cp&.negative? && !vision_cbcm_t2&.solde_total_ae&.negative? && !vision_cbcm_t2&.solde_total_cp&.negative? %>
                             <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
                           <% end %>
                         </td>

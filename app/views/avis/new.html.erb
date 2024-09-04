@@ -1,6 +1,6 @@
 <% content_for :title do %>Formulaire création d'avis | ANACO <% end %>
 <main role="main" class="containtAll">
-  <% if @bop.dotation.nil? %>
+  <% if @bop.dotation.nil? || @bop.dotation.blank? %>
     <%= render 'bops/form_bop_dotation'%>
   <% elsif @bop.dotation != "aucune"  %>
     <% if  @form == "execution" %>
