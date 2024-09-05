@@ -108,7 +108,7 @@
           ]
           %>
           <% data.each_with_index do |item, index| %>
-            <tr data-row-key="<%= index + 1 %>">
+            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde prévisionnel corrigé des reports arbitrés ou consensuels' %>">
               <th class="fr-cell--fixed fr-cell--multiline" scope="row"><%= item[:title] %></th>
               <td class="fr-cell--right">
                 <%= format_number(vision_rprog.send(item[:ae_attr])) %>

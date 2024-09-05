@@ -9,7 +9,6 @@ class UsersController < ApplicationController
   # Page pour ajouter les utilisateurs
   def index
     @users = User.all
-    AdminUser.first_or_create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
   end
 
   # fonction d'import des utilisateurs dans la bdd par un fichier externe
