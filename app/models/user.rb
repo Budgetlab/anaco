@@ -54,11 +54,11 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avis", "bops", "consulted_bops", "credits", "programmes", "schemas", "gestion_schemas"]
+    ['avis', 'bops', 'consulted_bops', 'credits', 'programmes', 'schemas', 'gestion_schemas']
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "email", "encrypted_password", "id", "id_value", "nom", "remember_created_at", "reset_password_sent_at", "reset_password_token", "statut", "updated_at"]
+    ['created_at', 'email', 'encrypted_password', 'id', 'id_value', 'nom', 'remember_created_at', 'reset_password_sent_at', 'reset_password_token', 'statut', 'updated_at']
   end
 
   def programmes_with_schemas(annee)
@@ -74,7 +74,7 @@ class User < ApplicationRecord
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(dotation: ['HT2','T2','HT2 et T2','', nil])
   end
 
   def bops_inactifs(annee)
@@ -95,14 +95,14 @@ class User < ApplicationRecord
   def avis_a_remplir_phase(annee, phase)
     case phase
     when 'CRG1'
-      self.avis.where(annee: annee, phase: "début de gestion", is_crg1: true).where.not(etat: "Brouillon").count
+      self.avis.where(annee: annee, phase: 'début de gestion', is_crg1: true).where.not(etat: 'Brouillon').count
     else
       bops_actifs(annee).count
     end
   end
 
   def avis_remplis(annee, phase)
-    self.avis.where(annee: annee, phase: phase).where.not(etat: "Brouillon").count
+    self.avis.where(annee: annee, phase: phase).where.not(etat: 'Brouillon').count
   end
 
   def avis_remplis_annee(annee)
@@ -110,7 +110,7 @@ class User < ApplicationRecord
   end
 
   def avis_brouillon(annee, phase)
-    self.avis.where(annee: annee, phase: phase).where(etat: "Brouillon").count
+    self.avis.where(annee: annee, phase: phase).where(etat: 'Brouillon').count
   end
 
   def taux_de_remplissage(annee, phase)
@@ -122,7 +122,7 @@ class User < ApplicationRecord
   end
 
   def avis_a_lire_recus(annee, phase)
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': "Brouillon").count
+    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': 'Brouillon').count
   end
 
   def avis_a_lire

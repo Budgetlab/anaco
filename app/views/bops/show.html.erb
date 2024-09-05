@@ -35,7 +35,9 @@
             <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom%></p>
           </div>
           <h3 class="fr-card__title">BOP n°<%= @bop.code%></h3>
-          <div class="fr-card__desc"><p class="fr-mb-1w">Programme n°<%= @bop.numero_programme%> - <%= @bop.nom_programme%></p><p>Contrôleur : <%= @bop.user.nom%></p>
+          <div class="fr-card__desc">
+            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.numero_programme%> - <%= @bop.nom_programme%><% end %></p>
+            <p>Contrôleur : <%= @bop.user.nom%></p>
             <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation.nil? || @bop.dotation.blank? %>Dotation non renseignée<%else %>BOP doté en <%= @bop.dotation %><%end %></p>
             </div>
           </div>

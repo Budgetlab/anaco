@@ -3,9 +3,16 @@
 <main>
   <div class="fr-container">
     <h1 class="fr-mt-6w fr-mb-2w">Programme n°<%= @programme.numero %> <br> <%= @programme.nom %></h1>
-
-    <p class="fr-mb-1v">Mission : <%= link_to mission_path(@programme.mission) do%><%= @programme.mission.nom %><% end %></p>
-    <p class="fr-mb-1w">Ministère : <%= link_to ministere_path(@programme.ministere) do%><%= @programme.ministere.nom %><%end %> </p>
+    <% if current_user.statut == "CBR" %>
+      <p class="fr-mb-1v">Mission : <%= @programme.mission.nom %></p>
+      <p class="fr-mb-1w">Ministère : <%= @programme.ministere.nom %></p>
+    <% else %>
+      <p class="fr-mb-1v">Mission : <%= link_to mission_path(@programme.mission) do %><%= @programme.mission.nom %>
+        <% end %></p>
+      <p class="fr-mb-1w">Ministère
+        : <%= link_to ministere_path(@programme.ministere) do %><%= @programme.ministere.nom %>
+        <% end %> </p>
+    <% end %>
     <div class="fr-mb-1w">
       <p class="fr-badge fr-badge--sm fr-badge--purple-glycine"><%= @programme.user.nom %></p>
       <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Doté en <%= @programme.dotation %></p>
