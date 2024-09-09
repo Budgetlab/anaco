@@ -290,7 +290,10 @@ export default class extends Controller {
 
         this.updateCard(soldeAe, this.soldePrevAeTarget);
         this.updateCard(soldeCp, this.soldePrevCpTarget);
-        this.calculateSoldePrevReports(soldeAe, soldeCp)
+        if (document.getElementById("reports_ae") != null){
+            this.calculateSoldePrevReports(soldeAe, soldeCp)
+        }
+
     }
 
     calculateSoldePrevReports(soldeAe, soldeCp){

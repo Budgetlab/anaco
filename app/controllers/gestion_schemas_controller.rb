@@ -58,6 +58,7 @@ class GestionSchemasController < ApplicationController
     @programme = @gestion_schema.programme
     @edit = true
     @step = @gestion_schema.step
+    @vision = @step == 1 || @step == 3 ? 'RPROG' : 'CBCM'
   end
 
   def update

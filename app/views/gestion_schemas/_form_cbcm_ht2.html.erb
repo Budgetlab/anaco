@@ -101,7 +101,7 @@
           <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_cp) %> €</div>
         </div>
       </div>
-      <div class="fr-h5">Solde prévisionnel  corrigé des reports arbitrés ou consensuels</div>
+      <div class="fr-h5">Solde prévisionnel corrigé des reports arbitrés ou consensuels</div>
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-6">
           <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_prev_reports_ae) %> fr-p-2w fr-card--no-border">
@@ -173,18 +173,19 @@
           <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_surgel_cp) %> €</div>
         </div>
       </div>
-
-      <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique</div>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-        <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">AE</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_ae) %> €</div>
+      <% if @programme.dotation == "HT2 et T2" %>
+        <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique</div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cp) %> €</div>
+          </div>
         </div>
-        <div class="fr-col-6 fr-col-lg-6">
-          <div class="fr-label">CP</div>
-          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cp) %> €</div>
-        </div>
-      </div>
+      <% end %>
 
       <div class="fr-h6 fr-mb-1w">Virements/transferts entrants</div>
       <% if gestion_schema_rprog.transferts.entrant.empty? %>
