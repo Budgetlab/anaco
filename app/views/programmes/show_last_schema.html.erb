@@ -14,7 +14,7 @@
         <div class="fr-col-6 fr-col-lg-6">
           <div>
             <% if @schema.document_pdf.attached? %>
-              <%= link_to rails_blob_path(@schema.document_pdf, disposition: "attachment"), target: :_blank, class: "fr-link fr-link--download" do %>
+              <%= link_to @schema.document_pdf.url(disposition: "attachment"), class: "fr-link fr-link--download" do %>
                 Télécharger le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
               <% end %>
             <% else %>
