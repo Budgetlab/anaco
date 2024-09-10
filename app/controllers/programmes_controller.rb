@@ -9,6 +9,7 @@ class ProgrammesController < ApplicationController
   include ApplicationHelper
   include AvisHelper
   include BopsHelper
+
   # Page liste des crédits non repartis par programme
   def index
     @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.all
