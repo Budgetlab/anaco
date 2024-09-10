@@ -2,16 +2,8 @@
 
 one:
   user: two
-  consultant: 1
   ministere: "Justice"
   numero_programme: 1
   nom_programme: "Programme 101"
   code: "101-CCAS"
 
-two:
-  user: two
-  consultant: 1
-  ministere: "Culture"
-  numero_programme: 1
-  nom_programme: "Programme 102"
-  code: "102-CBAS"

@@ -1,0 +1,34 @@
+<div class="nested-form-wrapper" data-new-record="<%= f.object.new_record? %>">
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label class="fr-label"><%= @step <= 2 ? 'AE' : 'HCAS' %></label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :montant_ae, class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "aeInputs" } %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-input-group">
+        <label class="fr-label"><%= @step <= 2 ? 'CP' : 'CAS' %></label>
+        <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+          <%= f.text_field :montant_cp, class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "cpInputs" } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+    <div class="fr-col-6 fr-col-lg-6">
+      <div class="fr-select-group">
+        <label class="fr-label">Programme d'origine</label>
+        <%= f.select :programme_id, Programme.all.order(numero: :asc).reject{ |p| p.id == @programme.id }.map {|p| [p.numero, p.id] }, {prompt: "Sélectionner"}, class: "fr-select" %>
+      </div>
+    </div>
+  </div>
+
+
+  <button type="button" data-action="nested-form#remove" class="fr-icon-delete-line fr-link--icon-left fr-mb-2w">Supprimer ce virement/transfert</button>
+
+  <%= f.hidden_field :_destroy %>
+  <%= f.hidden_field :nature, value: 'entrant' %>
+</div>

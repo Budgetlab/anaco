@@ -1,8 +1,10 @@
-<% if Date.today >= @date_alerte_debut_gestion && Date.today < @date_crg1 && @avis_repartition[3] > 0%>
+<% date_alerte_debut_gestion = Date.new(@annee, 3, 15) %>
+<% date_alerte_crg1 = Date.new(@annee, 6, 15) %>
+<% if Date.today >= date_alerte_debut_gestion && Date.today < @date_crg1 && @avis_repartition[3] > 0%>
   <div class="fr-notice notice--warning">
       <div class="fr-container">
           <div class="fr-notice__body">
-              <p class="fr-notice__title">Attention, la phase de début de gestion est bientôt terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+              <p class="fr-notice__title">Attention, la phase de début de gestion est bientôt terminée et vous n’avez pas renseigné tous vos avis. <%= link_to remplissage_avis_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
           </div>
       </div>
   </div>
@@ -10,15 +12,15 @@
   <div class="fr-notice notice--red">
       <div class="fr-container">
           <div class="fr-notice__body">
-              <p class="fr-notice__title">Attention, la phase de début de gestion est terminée et vous n’avez pas renseigné tous vos avis. <%= link_to bops_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
+              <p class="fr-notice__title">Attention, la phase de début de gestion est terminée et vous n’avez pas renseigné tous vos avis. <%= link_to remplissage_avis_path, rel:'noopener' do%>Remplir mes avis<%end%></p>
           </div>
       </div>
   </div>
-<% elsif Date.today >= @date_alerte_crg1 && Date.today < @date_crg2 && @notes_crg1[3] > 0%>
+<% elsif Date.today >= date_alerte_crg1 && Date.today < @date_crg2 && @notes_crg1[3] > 0%>
   <div class="fr-notice notice--warning">
     <div class="fr-container">
       <div class="fr-notice__body">
-        <p class="fr-notice__title">Attention, la phase de CRG1 est bientôt terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to bops_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
+        <p class="fr-notice__title">Attention, la phase de CRG1 est bientôt terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to remplissage_avis_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
       </div>
     </div>
   </div>
@@ -26,7 +28,7 @@
   <div class="fr-notice notice--red">
     <div class="fr-container">
       <div class="fr-notice__body">
-        <p class="fr-notice__title">Attention, la phase de CRG1 est terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to bops_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
+        <p class="fr-notice__title">Attention, la phase de CRG1 est terminée et vous n’avez pas renseigné toutes vos notes. <%= link_to remplissage_avis_path, rel:'noopener' do%>Remplir mes notes<%end%></p>
       </div>
     </div>
   </div>
@@ -34,7 +36,7 @@
   <div class="fr-notice fr-notice--info">
     <div class="fr-container">
       <div class="fr-notice__body">
-        <p class="fr-notice__title">Nous sommes en phase de <%=@phase %>. Vous pouvez remplir vos avis depuis la page <%= link_to bops_path, rel:'noopener' do%>BOP et avis<%end%> <% if @statut_user == 'DCB' %>et vos crédits non répartis depuis la page <%= link_to programmes_path do%>Liste des crédits non répartis<%end %><%end %></p>
+        <p class="fr-notice__title">Nous sommes en phase de <%=@phase %>. Vous pouvez remplir vos avis depuis la page <%= link_to remplissage_avis_path, rel:'noopener' do%>Remplissage des avis/notes<%end %></p>
         <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)">
           Masquer le message
         </button>

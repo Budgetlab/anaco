@@ -1,0 +1,144 @@
+<% content_for :title do %>Historique des schémas de fin de gestion | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mt-6w fr-mb-2w ">Historique des propositions de contribution au schéma fin de gestion</h1>
+
+        <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-6w">
+          <div class="fr-table__header">
+            <p class="fr-table__detail"></p>
+            <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
+              <li>
+                <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">Filtrer
+                  les
+                  résultats
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres" data-controller="request">
+            <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
+            <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-4">
+                  <%= render_select_group("Programme", :programme_numero_in, Programme.all.order(numero: :asc).map {|p| p.numero}) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Historique des schémas fin de gestion</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">
+                        <% sort_created_date = "" %>
+                        <% if params[:q] && params[:q][:s] == "updated_at desc" %>
+                          <% sort_created_date = "asc" %>
+                        <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
+                          <% sort_created_date = "desc" %>
+                        <% end %>
+                        <div class="fr-cell--sort">
+                          <span class="fr-cell__title">Date de saisie</span>
+                          <%= sort_link(@q, :updated_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
+                        </div>
+                      </th>
+                      <th scope="col">Programme</th>
+                      <th scope="col">Année</th>
+                      <th scope="col">Version</th>
+                      <th scope="col">Besoin de financement final selon RPROG</th>
+                      <th scope="col">Besoin de financement final selon CBCM</th>
+                      <th scope="col">Action</th>
+                      <% if current_user.statut == "DCB" %>
+                        <th scope="col"></th>
+                      <% end %>
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+                    <% @schemas_page&.each do |schema| %>
+                      <% gestion_schemas = schema.gestion_schemas %>
+                      <% vision_rprog_ht2 = find_gestion_schema_vision(gestion_schemas, "RPROG", "HT2") %>
+                      <% vision_rprog_t2 = find_gestion_schema_vision(gestion_schemas, "RPROG", "T2")  %>
+                      <% vision_cbcm_ht2 = find_gestion_schema_vision(gestion_schemas, "CBCM", "HT2") %>
+                      <% vision_cbcm_t2 = find_gestion_schema_vision(gestion_schemas, "CBCM", "T2")  %>
+                      <tr>
+                        <td><%= l(schema.updated_at, format: "%e/%m/%y") %> </td>
+                        <td><%= link_to programme_path(schema.programme), data: {turbo_frame: '_top'} do %><%= schema.programme.numero %> - <%= schema.programme.nom %><%end %></td>
+                        <td><%= schema.annee %>  </td>
+                        <td>Version n°<%= numero_version(schema) %></td>
+                        <td>
+                          <% if vision_rprog_ht2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if vision_rprog_ht2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if vision_rprog_t2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if vision_rprog_t2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if !vision_rprog_ht2&.solde_total_ae&.negative? && !vision_rprog_ht2&.solde_total_cp&.negative? && !vision_rprog_t2&.solde_total_ae&.negative? && !vision_rprog_t2&.solde_total_cp&.negative? %>
+                            <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% if vision_cbcm_ht2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">AE</p><% end %>
+                          <% if vision_cbcm_ht2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CP</p><% end %>
+                          <% if vision_cbcm_t2&.solde_total_ae&.negative? %><p class="fr-badge fr-badge--warning">HCAS</p><% end %>
+                          <% if vision_cbcm_t2&.solde_total_cp&.negative? %><p class="fr-badge fr-badge--warning">CAS</p><% end %>
+                          <% if !vision_cbcm_ht2&.solde_total_ae&.negative? && !vision_cbcm_ht2&.solde_total_cp&.negative? && !vision_cbcm_t2&.solde_total_ae&.negative? && !vision_cbcm_t2&.solde_total_cp&.negative? %>
+                            <p class="fr-badge fr-badge--success fr-badge--no-icon">Aucun</p>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% if schema.incomplete? && schema.user == current_user %>
+                            <%= link_to new_schema_gestion_schema_path(schema), class: "fr-btn fr-btn--secondary", data: { turbo_frame: "_top" } do %>
+                              Reprendre le brouillon
+                            <% end %>
+                          <% elsif schema.complete? %>
+                            <a href="<%= schema_path(schema) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="fr-modal-2">
+                              Consulter
+                            </a>
+                          <% end %>
+                        </td>
+                        <% if current_user.statut == "DCB" %>
+                          <td>
+                            <a href="<%= confirm_delete_schema_path(schema) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-bin-line" data-fr-opened="false" aria-controls="fr-modal-2">
+                              Supprimer
+                            </a>
+                          </td>
+                        <% end %>
+                      </tr>
+                    <% end %>
+
+                    </tbody>
+
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="fr-table__footer">
+              <div class="fr-table__footer--start">
+                <p class="fr-table__detail"><%= pluralize(@schemas.length, 'résultat', plural: 'résultats') %></p>
+                <div class="fr-select-group">
+                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                    Nombre de lignes par page
+                  </label>
+                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="fr-table__footer--middle">
+                <%== pagy_nav_custom(@pagy) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <dialog aria-labelledby="fr-modal-2-title" id="fr-modal-2" class="fr-modal" role="dialog">
+    <%= turbo_frame_tag :modal, target: "_top" %>
+  </dialog>
+</main>

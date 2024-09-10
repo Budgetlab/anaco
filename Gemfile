@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.3.4'
+ruby '3.3.5'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 7.1', '>= 7.1.3.4'
@@ -48,13 +48,18 @@ gem 'sassc-rails'
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 gem 'active_link_to'
+gem 'activeadmin'
 gem 'caxlsx'
 gem 'caxlsx_rails'
 gem 'devise'
 gem 'dotenv-rails', '~> 2.7', '>= 2.7.6'
+gem 'pagy'
 gem 'rails_autolink'
 gem 'rails-i18n'
+gem 'ransack'
 gem 'roo', '~> 2.8.0'
+gem 'ferrum'
+gem 'google-cloud-storage'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

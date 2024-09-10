@@ -1,6 +1,8 @@
 class Bop < ApplicationRecord
   belongs_to :user
+  belongs_to :dcb, class_name: 'User', foreign_key: 'dcb_id'
   has_many :avis, dependent: :destroy
+  belongs_to :programme
 
   def self.import(file)
 
@@ -12,21 +14,28 @@ class Bop < ApplicationRecord
       unless User.where(nom: row_data['Identifiant']).first.nil?
         if Bop.exists?(code: row_data['Code CHORUS du BOP'].to_s)
           @bop = Bop.where(code: row_data['Code CHORUS du BOP'].to_s).first
-          @bop.update(user_id: User.where(nom: row_data['Identifiant']).first.id, consultant: User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i )
+          @bop.update(user_id: User.where(nom: row_data['Identifiant']).first.id, dcb_id: User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i)
         else
           bop = Bop.new
           bop.user_id = User.where(nom: row_data['Identifiant']).first.id
-          bop.consultant = User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id
+          bop.dcb_id = User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id
           bop.ministere = row_data['MINISTERE'].to_s
           bop.nom_programme = row_data['Libellé programme'].to_s
           bop.numero_programme = row_data['N°Programme'].to_i
           bop.code = row_data['Code CHORUS du BOP'].to_s
           bop.created_at = Date.new(2024, 1, 1)
           bop.save
-       	end
+        end
       end
 
+    end
+  end
 
-    end
-    end
+  def self.ransackable_attributes(auth_object = nil)
+    ["code", "dcb", "created_at", "dotation", "id", "id_value", "ministere", "nom_programme", "numero_programme", "updated_at", "user_id", "dcb_id", "programme_id"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["avis", "user", "programme", "dcb"]
+  end
 end

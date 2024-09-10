@@ -1,0 +1,202 @@
+wb = xlsx_package.workbook
+s = wb.styles
+header_style = wb.styles.add_style(
+  bg_color: 'ededed', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+)
+sub_header_style = wb.styles.add_style(
+  bg_color: 'ff', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+)
+col_header_style = wb.styles.add_style(
+                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center, wrap_text: true  }
+                )
+cell_style = wb.styles.add_style(
+                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
+                )
+cell_style_grey = wb.styles.add_style(
+                  bg_color: 'dedede', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
+                )
+sheet_col = Array.new(40, 14)
+data_array = [ # Votre tableau de données à partir du code HTML.
+  { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+  { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
+  { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+  { title: "Reports arbitrés ou consensuels", ae_attr: 'reports_ae', cp_attr: 'reports_cp' },
+  { title: "Solde prévisionnel corrigé des reports arbitrés ou consensuels", ae_attr: 'solde_prev_reports_ae', cp_attr: 'solde_prev_reports_cp' },
+  { title: 'Niveau de la mise en réserve', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+  { title: 'Autre cas de réserve de crédits', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
+  { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+  { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+  { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+  { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
+  { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
+  { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
+  { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+  { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+]
+data_array2 =[
+               { title: 'Prévision de charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
+               { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
+               { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
+             ]
+['HT2', 'T2'].each do |vision|
+  vision_rprog = find_gestion_schema_vision(@gestion_schemas, "RPROG", vision)
+  vision_cbcm = find_gestion_schema_vision(@gestion_schemas, "CBCM", vision)
+  ae = vision == 'HT2' ? "AE" : "HCAS"
+  cp = vision == 'HT2' ? "CP" : "CAS"
+  if vision_rprog
+      wb.add_worksheet(name: vision) do |sheet|
+
+        # Les headers de vos colonnes.
+        sheet.add_row ["Vision #{vision}", "Vision RPROG", nil, "Vision CBCM", nil], style: header_style, height: 50
+        sheet.merge_cells("B1:C1")
+        sheet.merge_cells("D1:E1")
+
+        sheet.add_row [nil, "#{ae} (€)", "#{cp} (€)", "#{ae} (€)", "#{cp} (€)"], style: sub_header_style, height: 40
+        sheet.merge_cells("A1:A2")
+        length_table = vision == 'HT2' ? 20 : 17
+        data_array.each do |item|
+            row = [
+              item[:title],
+              format_number(vision_rprog.send(item[:ae_attr])),
+              format_number(vision_rprog.send(item[:cp_attr])),
+              format_number(vision_cbcm.send(item[:ae_attr])),
+              format_number(vision_cbcm.send(item[:cp_attr])),
+            ]
+            sheet.add_row row, style: cell_style
+        end
+        if vision == "HT2"
+          data_array2.each do |item|
+                row = [
+                  item[:title],
+                  format_number(vision_rprog.send(item[:ae_attr])),
+                  format_number(vision_rprog.send(item[:cp_attr])),
+                  format_number(vision_cbcm.send(item[:ae_attr])),
+                  format_number(vision_cbcm.send(item[:cp_attr])),
+                ]
+                sheet.add_row row, style: cell_style
+          end
+        end
+        sheet.add_border ["A3:A#{length_table}","E3:E#{length_table}","C3:C#{length_table}"], { edges: [:right], style: :thick }
+        sheet.add_border ["A9:E9","A16:E16","A17:E17","A#{length_table}:E#{length_table}"], { edges: [:bottom], style: :thick }
+
+        sheet.add_style ["B3:E#{length_table}"], num_fmt: 1
+        sheet.add_style "A17:E17", bg_color: 'dae1f2'
+
+        color_cells(sheet, "B17:E17")
+        (1..4).each do |col|
+          sheet.column_info[col].width = 20
+        end
+      end
+
+      wb.add_worksheet(name: "#{vision}_format_COL") do |sheet|
+          col_headers = [nil,nil, "Situation à date", nil, nil, nil, nil,nil, nil, nil, nil, nil,
+          "Hypothèses de couverture", nil, nil, nil, nil, nil, nil,nil, nil, nil, nil, nil, nil,nil, nil, nil,nil,nil]
+          col_headers = vision == 'HT2' ? col_headers + ["Autres informations relatives à la fin de gestion", nil, nil,nil,nil,nil, "Commentaire" ] : col_headers + ['Commentaire']
+          sheet.add_row col_headers, style: header_style, height: 50
+          sheet.merge_cells("A1:B1")
+          sheet.merge_cells("C1:L1")
+          sheet.merge_cells("M1:AD1")
+          sheet.merge_cells("AE1:AJ1") if vision == 'HT2'
+
+          sub_headers = [nil, nil, "Ressources certaines à date", nil, "Prévision de dépense", nil, "Solde prévisionnel", nil, "Niveau de la mise en réserve", nil, "Autre cas de réserve de crédits", nil,
+          "Mobilisation de la mise en réserve", nil, "Mobilisation des autres cas de réserve", nil, "Fongibilité asymétrique", nil, "Virements/transferts entrants", nil, "Virements/transferts sortants", nil, "Décret d'avance", nil, "Ouverture/Annulation de crédits en LFG", nil, "Reports arbitrés ou consensuels", nil, "Solde final", nil]
+          sub_headers = vision == 'HT2' ? sub_headers + ["Prévision de charges à payer", nil, "Autres reports de charge",nil, "Crédits à reporter", nil, nil] : sub_headers + [nil]
+          sheet.add_row sub_headers, style: sub_header_style, height: 40
+          range = vision == 'HT2' ? ("A".."AJ") : ("A".."AD")
+          range.step(2).each do |c|
+            sheet.merge_cells("#{c}2:#{c.succ}2")
+          end
+          number = vision == 'HT2' ? 17 : 14
+          header_entries = ["Programme", "Vision"] + ["#{ae} (€)", "#{cp} (€)"]*number + [nil]
+          sheet.add_row header_entries, style: col_header_style, height: 30
+
+          sheet.auto_filter = "A3:B3"
+          length_table = 5
+
+          [vision_rprog, vision_cbcm].each do |vision_gs|
+              rows = [@schema.programme.numero, vision_gs.vision, vision_gs.ressources_ae, vision_gs.ressources_cp, vision_gs.depenses_ae, vision_gs.depenses_cp, vision_gs.prevision_solde_budgetaire_ae , vision_gs.prevision_solde_budgetaire_cp, vision_gs.mer_ae, vision_gs.mer_cp, vision_gs.surgel_ae, vision_gs.surgel_cp,
+                                         vision_gs.mobilisation_mer_ae, vision_gs.mobilisation_mer_cp, vision_gs.mobilisation_surgel_ae, vision_gs.mobilisation_surgel_cp, vision_gs.fongibilite_ae , vision_gs.fongibilite_cp, vision_gs.transferts_entrant_ae , vision_gs.transferts_entrant_cp, vision_gs.transferts_sortant_ae , vision_gs.transferts_sortant_ae, vision_gs.decret_ae , vision_gs.decret_cp, vision_gs.credits_lfg_ae, vision_gs.credits_lfg_cp, vision_gs.reports_ae ,vision_gs.reports_cp ,vision_gs.solde_total_ae, vision_gs.solde_total_cp]
+              rows = vision == "HT2" ? rows + [vision_gs.charges_a_payer_ae , vision_gs.charges_a_payer_cp, vision_gs.reports_autre_ae, vision_gs.reports_autre_cp, vision_gs.credits_reports_ae, vision_gs.credits_reports_cp, vision_gs.commentaire]: rows + [vision_gs.commentaire]
+              sheet.add_row rows, style: cell_style
+          end
+
+          max_col_1 = vision == 'HT2' ? 'AK' : 'AE'
+          max_col_2 = vision == 'HT2' ? 'AJ' : 'AD'
+          sheet.add_style ["A4:#{max_col_1}4"], bg_color: 'dedede'
+          sheet.add_border ["A3:A#{length_table}","B3:B#{length_table}","D3:D#{length_table}","F3:F#{length_table}","H3:H#{length_table}","J3:J#{length_table}","L3:L#{length_table}", "N3:N#{length_table}", "P3:P#{length_table}","R3:R#{length_table}", "T3:T#{length_table}", "V3:V#{length_table}", "X3:X#{length_table}", "Z3:Z#{length_table}", "AB3:AB#{length_table}", "AD3:AD#{length_table}","#{max_col_1}3:#{max_col_1}#{length_table}"], { edges: [:right], style: :thick }
+          if vision == 'HT2'
+          sheet.add_border ["AF3:AF#{length_table}", "AH3:AH#{length_table}","AJ3:AJ#{length_table}"], { edges: [:right], style: :thick }
+          end
+          sheet.add_border "A3:#{max_col_1}#3", { edges: [:bottom], style: :thick }
+          sheet.add_border "A#{length_table}:#{max_col_1}#{length_table}", { edges: [:bottom], style: :thick }
+          sheet.add_style ["C4:#{max_col_2}#{length_table}"], num_fmt: 1
+
+          sheet.column_widths(*sheet_col)
+
+          color_cells(sheet, "G4:H#{length_table}")
+          color_cells(sheet, "AC4:AD#{length_table}")
+      end
+
+      wb.add_worksheet(name: "Virements_transferts_#{vision}") do |sheet|
+          sheet.add_row ["Virements/transferts entrants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+          sheet.merge_cells("B1:D1")
+          sheet.merge_cells("E1:G1")
+
+          sheet.add_row [nil,"Programme", "#{ae} (€)", "#{cp} (€)", "Programme", "#{ae} (€)", "#{cp} (€)"], style: col_header_style, height: 40
+          rprog_data = vision_rprog.transferts.entrant.map do |transfert|
+              [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+          end
+
+          cbcm_data = vision_cbcm.transferts.entrant.map do |transfert|
+              [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+          end
+
+          # Normalize data arrays to be of the same length
+          [rprog_data, cbcm_data].each { |data| data << [nil, nil, nil] while data.length < [rprog_data.length, cbcm_data.length].max }
+          length_dv = [rprog_data.length, cbcm_data.length].max + 2 || 2
+
+          # Combine and insert data into the sheet
+          rprog_data.zip(cbcm_data).each do |rprog_row, cbcm_row|
+              sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+          end
+
+          sheet.add_row ["Total", nil, vision_rprog.transferts_entrant_ae, vision_rprog.transferts_entrant_cp, nil, vision_cbcm.transferts_entrant_ae, vision_cbcm.transferts_entrant_cp], style: cell_style
+
+          sheet.add_row
+          sheet.add_row
+          sheet.add_row ["Virements/transferts sortants", "Vision RPROG", nil,nil, "Vision CBCM", nil, nil], style: header_style, height: 50
+          sheet.merge_cells("B#{length_dv+4}:D#{length_dv+4}")
+          sheet.merge_cells("E#{length_dv+4}:G#{length_dv+4}")
+
+          sheet.add_row [nil,"Programme", "#{ae} (€)", "#{cp} (€)", "Programme", "#{ae} (€)", "#{cp} (€)"], style: col_header_style, height: 40
+          rprog_data_sortant = vision_rprog.transferts.sortant.map do |transfert|
+              [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+          end
+
+          cbcm_data_sortant = vision_cbcm.transferts.sortant.map do |transfert|
+              [transfert.programme.numero, transfert.montant_ae, transfert.montant_cp]
+          end
+
+          # Normalize data arrays to be of the same length
+          [rprog_data_sortant, cbcm_data_sortant].each { |data| data << [nil, nil, nil] while data.length < [rprog_data_sortant.length, cbcm_data_sortant.length].max }
+          length_dt = [rprog_data_sortant.length, cbcm_data_sortant.length].max + 2 || 2
+
+          # Combine and insert data into the sheet
+          rprog_data_sortant.zip(cbcm_data_sortant).each do |rprog_row, cbcm_row|
+              sheet.add_row [nil] + rprog_row + cbcm_row, style: cell_style
+          end
+
+          sheet.add_row ["Total", nil, vision_rprog.transferts_sortant_ae, vision_rprog.transferts_sortant_cp, nil, vision_cbcm.transferts_sortant_ae, vision_cbcm.transferts_sortant_cp], style: cell_style
+
+
+          (1..6).each do |col|
+             sheet.column_info[col].width = 20
+          end
+          sheet.add_border ["B2:G2","A#{length_dv}:G#{length_dv}", "A#{length_dv+1}:G#{length_dv+1}","B#{length_dv+5}:G#{length_dv+5}", "A#{length_dv+length_dt+3}:G#{length_dv+length_dt+3}","A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], { edges: [:bottom], style: :thick }
+          sheet.add_border ["A2:A#{length_dv+1}","D2:D#{length_dv+1}","G2:G#{length_dv+1}", "A#{length_dv+5}:A#{length_dv+1+length_dt+3}","D#{length_dv+5}:D#{length_dv+1+length_dt+3}","G#{length_dv+5}:G#{length_dv+1+length_dt+3}"], { edges: [:right], style: :thick }
+          sheet.add_style ["A#{length_dv+1}:G#{length_dv+1}", "A#{length_dv+1+length_dt+3}:G#{length_dv+1+length_dt+3}"], bg_color: "dae1f2"
+          sheet.add_style ["C3:D#{length_dv+1}", "F3:G#{length_dv+1}", "C#{length_dv+5}:D#{length_dv+1+length_dt+3}", "F#{length_dv+5}:G#{length_dv+1+length_dt+3}"], num_fmt: 1
+
+       end
+  end
+end

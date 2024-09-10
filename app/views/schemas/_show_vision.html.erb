@@ -1,0 +1,500 @@
+<% ae = vision == 'HT2' ? "AE" : "HCAS" %>
+<% cp = vision == 'HT2' ? "CP" : "CAS" %>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-6">
+    <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> RPROG</p>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-5">
+        <div class="fr-card <%= colorful_card_css_class(vision_rprog.solde_total_ae) %> fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_ae) %>
+              €</p>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-5">
+        <div class="fr-card <%= colorful_card_css_class(vision_rprog.solde_total_cp) %> fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_rprog.solde_total_cp) %>
+              €</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-6">
+    <p class="fr-text--bold fr-mb-1w">Solde fin de gestion <%= vision %> CBCM</p>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-5">
+        <div class="fr-card <%= colorful_card_css_class(vision_cbcm.solde_total_ae) %> fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= ae %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_ae) %>
+              €</p>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-5">
+        <div class="fr-card <%= colorful_card_css_class(vision_cbcm.solde_total_cp) %> fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center"><%= cp %></p>
+            <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(vision_cbcm.solde_total_cp) %>
+              €</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fr-my-2w">
+  <p class="fr-text--bold fr-mb-1w">Commentaire synthétique de l’analyse de fin de gestion du RPROG</p>
+  <p><%= vision_rprog.commentaire %></p>
+</div>
+
+
+<div class="fr-my-2w">
+  <p class="fr-text--bold fr-mb-1w">Commentaire synthétique de l’analyse de fin de gestion du CBCM</p>
+  <p><%= vision_cbcm.commentaire %></p>
+</div>
+
+<p class="fr-text--bold">Situation <%= vision %> à date</p>
+<div class="fr-table fr-table--bordered fr-table--no-caption ">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>
+            Détail des données budgétaires <%= vision %>
+          </caption>
+          <thead>
+          <tr>
+            <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+              <span class="fr-sr-only">Données</span>
+            </th>
+            <th colspan="2">
+              Vision RPROG
+            </th>
+            <th colspan="2">
+              Vision CBCM
+            </th>
+          </tr>
+          <tr>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <% data = vision == "HT2" ? [
+            { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+            { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
+            { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+            { title: "Reports arbitrés ou consensuels", ae_attr: 'reports_ae', cp_attr: 'reports_cp' },
+            { title: "Solde prévisionnel corrigé des reports arbitrés ou consensuels", ae_attr: 'solde_prev_reports_ae', cp_attr: 'solde_prev_reports_cp' },
+            { title: 'Niveau de la mise en réserve', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+            { title: 'Autre cas de réserve de crédits', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
+          ] : [
+            { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+            { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
+            { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+            { title: 'Niveau de la mise en réserve', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+            { title: 'Autre cas de réserve de crédits', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
+          ]
+          %>
+          <% data.each_with_index do |item, index| %>
+            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde prévisionnel corrigé des reports arbitrés ou consensuels' %>">
+              <th class="fr-cell--fixed fr-cell--multiline" scope="row"><%= item[:title] %></th>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:cp_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:cp_attr])) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="fr-text--bold">Hypothèses de couverture <%= vision %></p>
+<div class="fr-table fr-table--bordered fr-table--no-caption ">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>
+            Détail des données budgétaires <%= vision %>
+          </caption>
+          <thead>
+          <tr>
+            <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+              <span class="fr-sr-only">Données</span>
+            </th>
+            <th colspan="2">
+              Vision RPROG
+            </th>
+            <th colspan="2">
+              Vision CBCM
+            </th>
+          </tr>
+          <tr>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+            <th scope="col">
+              <%= ae %> (€)
+            </th>
+            <th scope="col">
+              <%= cp %> (€)
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <% data = [
+            { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+            { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+            { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+            { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
+            { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
+            { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
+            { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+            { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+          ]
+          %>
+          <% data.each_with_index do |item, index| %>
+            <tr data-row-key="<%= index + 1 %>" class="<%= "fr-table--total" if item[:title] == 'Solde final' %>">
+              <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_rprog.send(item[:cp_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:ae_attr])) %>
+              </td>
+              <td class="fr-cell--right">
+                <%= format_number(vision_cbcm.send(item[:cp_attr])) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if vision == 'HT2' %>
+  <p class="fr-text--bold">Autres informations relatives à la fin de gestion</p>
+  <div class="fr-table fr-table--bordered fr-table--no-caption ">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>
+              Détail des données budgétaires <%= vision %>
+            </caption>
+            <thead>
+            <tr>
+              <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+                <span class="fr-sr-only">Données</span>
+              </th>
+              <th colspan="2">
+                Vision RPROG
+              </th>
+              <th colspan="2">
+                Vision CBCM
+              </th>
+            </tr>
+            <tr>
+
+              <th scope="col">
+                <%= ae %> (€)
+              </th>
+              <th scope="col">
+                <%= cp %> (€)
+              </th>
+              <th scope="col">
+                <%= ae %> (€)
+              </th>
+              <th scope="col">
+                <%= cp %> (€)
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <% data = [
+              { title: 'Prévision de charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
+              { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
+              { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
+            ]
+            %>
+            <% data.each_with_index do |item, index| %>
+              <tr data-row-key="<%= index + 1 %>">
+                <th class="fr-cell--fixed" scope="row"><%= item[:title] %></th>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_rprog.send(item[:ae_attr])) %>
+                </td>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_rprog.send(item[:cp_attr])) %>
+                </td>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_cbcm.send(item[:ae_attr])) %>
+                </td>
+                <td class="fr-cell--right">
+                  <%= format_number(vision_cbcm.send(item[:cp_attr])) %>
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<p class="fr-text--bold fr-mb-1w">Liste des virements/transferts entrants</p>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-6">
+    <div class="fr-table fr-table--bordered fr-table--no-caption">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>
+                Détail des virements <%= vision %>
+              </caption>
+              <thead>
+              <tr>
+                <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+                  <span class="fr-sr-only">Données</span>
+                </th>
+                <th colspan="2">
+                  Vision RPROG
+                </th>
+              </tr>
+              <tr>
+
+                <th scope="col">
+                  <%= ae %> (€)
+                </th>
+                <th scope="col">
+                  <%= cp %> (€)
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+
+              <% vision_rprog.transferts.select{ |t| t.nature == "entrant"}.each_with_index do |transfert, index| %>
+                <tr data-row-key="<%= index + 1 %>">
+                  <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_ae) %>
+                  </td>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_cp) %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <th class="fr-cell--fixed" scope="row">Total</th>
+                <td class="fr-cell--right"><%= format_number(vision_rprog.transferts_entrant_ae) %></td>
+                <td class="fr-cell--right"><%= format_number(vision_rprog.transferts_entrant_cp) %></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-6">
+    <div class="fr-table fr-table--bordered fr-table--no-caption">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>
+                Détail des virements <%= vision %>
+              </caption>
+              <thead>
+              <tr>
+                <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+                  <span class="fr-sr-only">Données</span>
+                </th>
+                <th colspan="2">
+                  Vision CBCM
+                </th>
+              </tr>
+              <tr>
+
+                <th scope="col">
+                  <%= ae %> (€)
+                </th>
+                <th scope="col">
+                  <%= cp %> (€)
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+
+              <% vision_cbcm.transferts.select{ |t| t.nature == "entrant"}.each_with_index do |transfert, index| %>
+                <tr data-row-key="<%= index + 1 %>">
+                  <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_ae) %>
+                  </td>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_cp) %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <th class="fr-cell--fixed" scope="row">Total</th>
+                <td class="fr-cell--right"><%= format_number(vision_cbcm.transferts_entrant_ae) %></td>
+                <td class="fr-cell--right"><%= format_number(vision_cbcm.transferts_entrant_cp) %></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="fr-text--bold fr-mb-1w">Liste des virements/transferts sortants</p>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-6">
+    <div class="fr-table fr-table--bordered fr-table--no-caption">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>
+                Détail des virements <%= vision %>
+              </caption>
+              <thead>
+              <tr>
+                <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+                  <span class="fr-sr-only">Données</span>
+                </th>
+                <th colspan="2">
+                  Vision RPROG
+                </th>
+              </tr>
+              <tr>
+
+                <th scope="col">
+                  <%= ae %> (€)
+                </th>
+                <th scope="col">
+                  <%= cp %> (€)
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+
+              <% vision_rprog.transferts.select{ |t| t.nature == "sortant"}.each_with_index do |transfert, index| %>
+                <tr data-row-key="<%= index + 1 %>">
+                  <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_ae) %>
+                  </td>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_cp) %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <th class="fr-cell--fixed" scope="row">Total</th>
+                <td class="fr-cell--right"><%= format_number(vision_rprog.transferts_sortant_ae) %></td>
+                <td class="fr-cell--right"><%= format_number(vision_rprog.transferts_sortant_cp) %></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-col-6">
+    <div class="fr-table fr-table--bordered fr-table--no-caption">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>
+                Détail des virements <%= vision %>
+              </caption>
+              <thead>
+              <tr>
+                <th class="fr-cell--fixed" role="columnheader" rowspan="2">
+                  <span class="fr-sr-only">Données</span>
+                </th>
+                <th colspan="2">
+                  Vision CBCM
+                </th>
+              </tr>
+              <tr>
+
+                <th scope="col">
+                  <%= ae %> (€)
+                </th>
+                <th scope="col">
+                  <%= cp %> (€)
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+
+              <% vision_cbcm.transferts.select{ |t| t.nature == "sortant"}.each_with_index do |transfert, index| %>
+                <tr data-row-key="<%= index + 1 %>">
+                  <th class="fr-cell--fixed" scope="row">P <%= format_number(transfert.programme.numero) %></th>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_ae) %>
+                  </td>
+                  <td class="fr-cell--right">
+                    <%= format_number(transfert.montant_cp) %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <th class="fr-cell--fixed" scope="row">Total</th>
+                <td class="fr-cell--right"><%= format_number(vision_cbcm.transferts_sortant_ae) %></td>
+                <td class="fr-cell--right"><%= format_number(vision_cbcm.transferts_sortant_cp) %></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

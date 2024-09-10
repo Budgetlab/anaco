@@ -30,7 +30,7 @@
 				<% end %>
 			</div>
 
-    <div class="fr-my-4w"><%= User.all.count%> utilisateurs : <%= User.all.pluck(:nom) %></div>
+    <div class="fr-my-4w"><%= @users.count%> utilisateurs : <%= @users.pluck(:nom) %></div>
 </div>
 </div>
 </main>

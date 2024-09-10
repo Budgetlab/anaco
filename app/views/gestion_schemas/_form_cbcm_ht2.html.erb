@@ -1,0 +1,370 @@
+<% steps_max = @programme.dotation == "HT2" ? 2 : 4 %>
+<div class="fr-stepper">
+  <h2 class="fr-stepper__title">
+    <span class="fr-stepper__state">Étape 2 sur <%= steps_max %></span>
+    Vision CBCM Crédits HT2 - AE/CP
+  </h2>
+  <div class="fr-stepper__steps" data-fr-current-step="2" data-fr-steps="<%= steps_max %>"></div>
+  <% if steps_max == 4 %>
+    <p class="fr-stepper__details">
+      <span class="fr-text--bold">Étape suivante :</span> Vision RPROG Crédits T2
+    </p>
+  <% end %>
+</div>
+
+<div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+  <div class="fr-col-12 fr-col-lg-6">
+    <button type="button" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-arrow-go-back-line fr-mb-1w" data-fr-opened="false" aria-controls="fr-modal-1">
+      Retour à la vision RPROG
+    </button>
+    <div class="fr-h3"><p class="fr-badge fr-badge--orange-terre-battue">Vision CBCM</p> Crédits HT2 - AE/CP</div>
+
+    <%= render 'form_ht2' %>
+  </div>
+  <div class="fr-col-12 fr-col-lg-6">
+    <div class="fr-notice fr-notice--info fr-mb-2w">
+      <div class="fr-container">
+        <div class="fr-notice__body">
+          <p>
+            <span class="fr-notice__title">Information</span>
+            <% if numero_version(@schema) == 1 %>
+              <span class="fr-notice__desc">Par convention, les champs qui augmentent le solde sont à renseigner en positif tandis que ceux qui le diminuent doivent être négatifs. <br>Les soldes sont ensuite calculés automatiquement.</span>
+            <% else %>
+              <span class="fr-notice__desc">Les données pour chaque vision sont pré-remplies avec celles enregistrées dans la version précédente.</span>
+            <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-card--shadow fr-px-2w">
+      <div class="fr-h3"><p class="fr-badge fr-badge--beige-gris-galet">Vision RPROG</p></div>
+      <div class="cwarning fr-mb-1w">Rappel des données Crédits HT2 - AE/CP du RPROG.</div>
+      <% gestion_schema_rprog = @schema.gestion_schemas.rprog_ht2.first %>
+      <div class="fr-h5">Situation à date du CRG2</div>
+      <div class="fr-h6 fr-mb-1w">Ressources certaines à date</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.ressources_ae) %> €
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.ressources_cp) %> €
+          </div>
+        </div>
+      </div>
+      <div class="fr-h6 fr-mb-1w">Prévision de dépenses</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.depenses_ae) %> €
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.depenses_cp) %> €
+          </div>
+        </div>
+      </div>
+      <div class="fr-h5">Solde prévisionnel</div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.prevision_solde_budgetaire_ae) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">AE</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.prevision_solde_budgetaire_ae) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.prevision_solde_budgetaire_cp) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">CP</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.prevision_solde_budgetaire_cp) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w fr-mt-2w">Reports arbitrés ou consensuels</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_cp) %> €</div>
+        </div>
+      </div>
+      <div class="fr-h5">Solde prévisionnel corrigé des reports arbitrés ou consensuels</div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_prev_reports_ae) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">AE</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_prev_reports_ae) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_prev_reports_cp) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">CP</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_prev_reports_cp) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="fr-hr fr-mt-3w">
+
+      <div class="fr-h6 fr-mb-1w">Niveau de la mise en réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mer_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mer_cp) %> €</div>
+        </div>
+      </div>
+      <div class="fr-h6 fr-mb-1w">Autres cas de réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.surgel_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.surgel_cp) %> €</div>
+        </div>
+      </div>
+      <hr class="fr-hr fr-mt-3w">
+
+      <div class="fr-h5">Hypothèses de couverture</div>
+      <div class="fr-h6 fr-mb-1w">Mobilisation de la mise en réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_mer_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_mer_cp) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w">Mobilisation des autres cas de réserve</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_surgel_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_surgel_cp) %> €</div>
+        </div>
+      </div>
+      <% if @programme.dotation == "HT2 et T2" %>
+        <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique</div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cp) %> €</div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="fr-h6 fr-mb-1w">Virements/transferts entrants</div>
+      <% if gestion_schema_rprog.transferts.entrant.empty? %>
+        <div class="fr-label fr-mb-3w">Aucun</div>
+      <% end %>
+      <% gestion_schema_rprog.transferts.entrant.each do |transfert| %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_cp) %> €</div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">Programme d'origine</div>
+            <div class="fr-text--bold fr-my-3v"><%= transfert.programme.numero %></div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="fr-h6 fr-mb-1w">Virements/transferts sortants</div>
+      <% if gestion_schema_rprog.transferts.sortant.empty? %>
+        <div class="fr-label fr-mb-3w">Aucun</div>
+      <% end %>
+      <% gestion_schema_rprog.transferts.sortant.each do |transfert| %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">AE</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CP</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(transfert.montant_cp) %> €</div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">Programme de destination</div>
+            <div class="fr-text--bold fr-my-3v"><%= transfert.programme.numero %></div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="fr-h6 fr-mb-1w">Décret d'avance</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.decret_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.decret_cp) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w">Ouverture/annulation de crédits en LFG</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.credits_lfg_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.credits_lfg_cp) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h5">Solde résultant des hypothèses de couverture</div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_total_ae) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">AE</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_total_ae) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-6">
+          <div class="fr-card <%= colorful_card_css_class(gestion_schema_rprog.solde_total_cp) %> fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">CP</p>
+              <p class="fr-text--lg fr-text--bold fr-mb-0 text_center"><%= format_number(gestion_schema_rprog.solde_total_cp) %>
+                €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="fr-hr fr-mt-3w">
+      <div class="fr-h5">Autres informations relatives à la fin de gestion</div>
+
+      <div class="fr-h6 fr-mb-1w">Prévision de charge à payer</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.charges_a_payer_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.charges_a_payer_cp) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w">Autres reports de charge</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_autre_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.reports_autre_ae) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-h6 fr-mb-1w">Crédits à reporter</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">AE</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.credits_reports_ae) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CP</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.credits_reports_ae) %> €</div>
+        </div>
+      </div>
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-12 fr-col-lg-12">
+          <div class="fr-label">Commentaire</div>
+          <div class="fr-text--bold fr-my-1w"><%= gestion_schema_rprog.commentaire %> </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<dialog id="fr-modal-1" class="fr-modal">
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="fr-modal-1" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <div class="fr-alert fr-alert--warning fr-mb-4w">
+              <h3 class="fr-alert__title">Vous êtes sur le point de retourner à l’étape précédente</h3>
+            </div>
+            <h1 id="modal-1-title" class="fr-modal__title">
+              <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+              Les informations de l’étape n’ont pas été enregistrées
+            </h1>
+            <p class="fr-my-1w">En cliquant sur “Confirmer” vous retournerez à l’étape précédente et les informations
+              ajoutées dans cette étape seront perdues. Pour rester sur la page et enregistrer, cliquez sur
+              "Annuler"</p>
+            <div>
+              <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+                <li>
+                  <button class="fr-btn fr-btn--secondary" aria-controls="fr-modal-1" title="Annuler">Annuler</button>
+                </li>
+                <li>
+                  <%= link_to edit_schema_gestion_schema_path(gestion_schema_rprog, schema_id: @schema.id), class: "fr-btn" do %>
+                    Confirmer
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>

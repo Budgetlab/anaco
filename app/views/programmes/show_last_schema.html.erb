@@ -1,0 +1,62 @@
+<%= turbo_frame_tag :show do %>
+  <% if @schema %>
+    <div>
+      <div class="fr-h2">Schéma de fin de gestion du programme</div>
+      <div class="fr-mb-2w">Dernière mise à jour le <%= @schema.updated_at.strftime(("%e/%-m/%Y")) %></div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-1w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div>
+            <%= link_to schema_path(@schema, format: :xlsx), class: "fr-link fr-link--download" do %>
+              Télécharger le schéma au format XLSX <span class="fr-link__detail">Format .xlsx</span>
+            <% end %>
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div>
+            <% if @schema.document_pdf.attached? %>
+              <%= link_to @schema.document_pdf.url(disposition: "attachment"), class: "fr-link fr-link--download" do %>
+                Télécharger le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
+              <% end %>
+            <% else %>
+              <%= link_to pdf_vision_schema_path(@schema, format: :pdf), target: :_blank, class: "fr-link fr-link--download" do %>
+                Générer le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
+              <% end %>
+            <% end %>
+
+          </div>
+        </div>
+      </div>
+      <div class="fr-tabs fr-mb-4w">
+        <ul class="fr-tabs__list" role="tablist" aria-label="Vision">
+          <% if @vision_rprog_ht2 %>
+            <li role="presentation">
+              <button id="tabpanel-<%= @vision_rprog_ht2.id %>" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-<%= @vision_rprog_ht2.id %>-panel">HT2
+              </button>
+            </li>
+          <% end %>
+          <% if @vision_rprog_t2 %>
+            <li role="presentation">
+              <button id="tabpanel-<%= @vision_rprog_t2.id %>" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-<%= @vision_rprog_t2.id %>-panel">T2
+              </button>
+            </li>
+          <% end %>
+        </ul>
+        <% if @vision_rprog_ht2 %>
+          <div id="tabpanel-<%= @vision_rprog_ht2.id %>-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-<%= @vision_rprog_ht2.id %>" tabindex="0">
+            <%= render partial: 'schemas/show_vision', locals: { vision: 'HT2', vision_rprog: @vision_rprog_ht2, vision_cbcm: @vision_cbcm_ht2 } %>
+          </div>
+        <% end %>
+        <% if @vision_rprog_t2 %>
+          <div id="tabpanel-<%= @vision_rprog_t2.id %>-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-<%= @vision_rprog_t2.id %>" tabindex="0">
+            <%= render partial: 'schemas/show_vision', locals: { vision: 'T2', vision_rprog: @vision_rprog_t2, vision_cbcm: @vision_cbcm_t2 } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  <% else %>
+    <div class="fr-highlight">
+      <p>Aucune donnée pour le moment.</p>
+    </div>
+  <% end %>
+<% end %>

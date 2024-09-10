@@ -3,36 +3,22 @@
 # controller des Avis
 class AvisController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:ajout_avis, :import]
+  before_action :redirect_unless_dcb, only: %i[consultation update_etat]
   require 'axlsx'
   include ApplicationHelper
+  include AvisHelper
+  include BopsHelper
   # Page historique des avis
   def index
-    @annee_a_afficher = annee_a_afficher
-    @avis_all = liste_avis_annee(@annee_a_afficher)
-    @avis_all_n1 = current_user.statut == 'admin' ? Avi.includes(:bop, :user) : current_user.avis.includes(:bop, :user)
-    @avis_all_n1_exec = @avis_all_n1.where(annee: @annee_a_afficher - 1).where(phase: 'execution').order('bops.code ASC')
-    @avis_all_n1_crg2 = @avis_all_n1.where(annee: @annee_a_afficher - 1).where(phase: 'CRG2').pluck(:bop_id, :ae_i, :cp_i, :t2_i, :etpt_i)
-    # filtres table
-    variables_filtres_table
+    scope = current_user.statut == 'admin' ? Avi : current_user.avis
+    avis_all = scope.where.not(phase: 'execution').order(created_at: :desc)
+    @q = avis_all.ransack(params[:q])
+    @avis_all = @q.result.includes(:bop, :user)
+    @pagy, @avis_page = pagy(@avis_all)
     respond_to do |format|
       format.html
       format.xlsx
-    end
-  end
-
-  # fonction qui filtre le tableau de la page historique en fonction des paramètres choisis
-  def filter_historique
-    @annee_a_afficher = annee_a_afficher
-    @avis_all = liste_avis_annee(@annee_a_afficher)
-    variables_filtres_table
-    filter_avis_all if params_present_and_avis_all_not_empty
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('table_historique', partial: 'avis/table_historique', locals: { liste_avis: @avis_all }),
-          turbo_stream.update('total_table', partial: 'avis/table_total', locals: { total: @avis_all.length })
-        ]
-      end
     end
   end
 
@@ -79,10 +65,11 @@ class AvisController < ApplicationController
 
   # Page de consultation des avis pour les DCB
   def consultation
-    redirect_unless_dcb
-    @annee_a_afficher = annee_a_afficher
-    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
-    variables_filtres_table
+    bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
+    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
+    @q = avis_all.ransack(params[:q])
+    @avis_all = @q.result.includes(:bop, :user)
+    @pagy, @avis_page = pagy(@avis_all)
     respond_to do |format|
       format.html
       format.xlsx
@@ -91,27 +78,9 @@ class AvisController < ApplicationController
 
   # fonction qui met à jour l'état de l'avis comme Lu
   def update_etat
-    redirect_unless_dcb
     @avis = Avi.find(params[:id])
     @avis&.update(etat: 'Lu')
-    @annee_a_afficher = annee_a_afficher
-    redirect_to consultation_path(date: @annee_a_afficher), flash: { notice: 'Lu' }
-  end
-
-  # fonction qui filtre le tableau de la page consultation en fonction des paramètres choisis
-  def filter_consultation
-    @annee_a_afficher = annee_a_afficher
-    @avis_all = liste_dcb_avis_annee(@annee_a_afficher)
-    variables_filtres_table
-    filter_avis_all if params_present_and_avis_all_not_empty
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('table', partial: 'avis/table', locals: { liste_avis: @avis_all}),
-          turbo_stream.update('total_table', partial: 'avis/table_total', locals: { total: @avis_all.length })
-        ]
-      end
-    end
+    redirect_to consultation_path, flash: { notice: 'Lu' }
   end
 
   # Page de création d'un nouvel avis
@@ -133,9 +102,9 @@ class AvisController < ApplicationController
     @avis.assign_attributes(avi_params)
     @avis.save
     @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-    @avis.update(etat: 'Lu') if @bop.user_id == @bop.consultant && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
+    @avis.update(etat: 'Lu') if @bop.user_id == @bop.dcb_id && params[:avi][:etat] != 'Brouillon' && @avis.phase != 'execution' # si DCB lui même
     redirect_path = if @avis.phase == 'execution'
-                      @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : bops_path
+                      @avis.etat == 'valide' ? new_bop_avi_path(@bop.id) : remplissage_avis_path
                     else
                       historique_path
                     end
@@ -161,55 +130,34 @@ class AvisController < ApplicationController
     end
   end
 
+  def remplissage_avis
+    @annee_a_afficher = annee_a_afficher
+    @bops_inactifs = current_user.bops_inactifs(@annee_a_afficher).order(code: :asc)
+    @bops_actifs = current_user.bops_actifs(@annee_a_afficher).order(code: :asc)
+    @avis = current_user.avis.where(annee: @annee_a_afficher)
+  end
+
+  def suivi_remplissage
+    @annee_a_afficher = annee_a_afficher
+    @controleurs = User.includes(:avis).where(statut: ['CBR', 'DCB'])
+    @dcb = User.includes(consulted_bops: :avis).where(statut: 'DCB')
+    @avis = Avi.where(annee: @annee_a_afficher).where.not(phase: 'execution')
+  end
+
+  def restitutions
+    @annee_a_afficher = annee_a_afficher
+    @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
+    @avis_remplis = avis_annee_remplis(@annee_a_afficher)
+    @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
+    @liste_programmes = current_user.statut == 'CBR' ? current_user.programmes_access : @programmes
+  end
+
   private
 
   def avi_params
     params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee)
   end
 
-  def variables_filtres_table
-    @users_nom = @avis_all.map { |el| el[18] }.uniq.sort
-    @codes_bop = @avis_all.map { |el| el[19] }.uniq.sort
-    @numeros_programmes = @avis_all.map { |el| el[21] }.uniq.sort
-  end
-
-  def params_present_and_avis_all_not_empty
-    params_present? && !@avis_all.empty?
-  end
-
-  def params_present?
-    params[:phases] || params[:statuts] || params[:etats] || params[:numeros] || params[:users] || params[:bops]
-  end
-
-  def filter_avis_all
-    @avis_all = @avis_all.select { |el| params[:phases].include?(el[1]) } if params[:phases].length != 3
-    @avis_all = @avis_all.select { |el| params[:statuts].include?(el[4]) } if params[:statuts].length != 8
-    @avis_all = @avis_all.select { |el| params[:etats].include?(el[2]) } if params[:etats].length != 3
-    @avis_all = @avis_all.select { |el| params[:numeros].map(&:to_i).include?(el[21]) } if params[:numeros].length != @numeros_programmes.length
-    @avis_all = @avis_all.select { |el| params[:users].include?(el[18]) } if params[:users] && params[:users].length != @users_nom.length
-    @avis_all = @avis_all.select { |el| params[:bops].include?(el[19])  } if params[:bops].length != @codes_bop.length
-
-  end
-
-  def liste_avis_annee(annee)
-    scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where(annee: annee).where.not(phase: 'execution').order(created_at: :desc)
-    avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                       :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                       :date_envoi, :date_reception, 'users.nom AS user_nom',
-                                       'bops.code AS bop_code', 'bops.id AS bop_id',
-                                       'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
-  end
-
-  def liste_dcb_avis_annee(annee)
-    bops_consultation = Bop.where(consultant: current_user.id).where.not(user_id: current_user.id)
-    avis_all = Avi.where(annee: annee, bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
-    avis_all.joins(:bop, :user).pluck(:id, :phase, :etat, :created_at, :statut, :is_crg1, :is_delai, :ae_i,
-                                      :ae_f, :cp_i, :cp_f, :etpt_i, :etpt_f, :t2_i, :t2_f, :commentaire,
-                                      :date_envoi, :date_reception, 'users.nom AS user_nom',
-                                      'bops.code AS bop_code', 'bops.id AS bop_id',
-                                      'bops.numero_programme AS bop_numero', 'bops.nom_programme AS bop_nom')
-  end
 
   def set_avis_phase(annee)
     avis_annee_courante = @bop.avis.where(annee: annee)
@@ -255,7 +203,7 @@ class AvisController < ApplicationController
   end
 
   def redirect_unless_bop_controller
-    redirect_to bops_path and return if @bop.nil? || @bop.user != current_user
+    redirect_to remplissage_avis_path and return if @bop.nil? || @bop.user != current_user
   end
 
 end

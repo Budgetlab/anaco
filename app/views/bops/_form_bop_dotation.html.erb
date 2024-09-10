@@ -7,7 +7,7 @@
           <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
         </li>
         <li>
-          <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
+          <%= link_to remplissage_avis_path, class:"fr-breadcrumb__link" do %> Remplissage des avis/notes <%end %>
         </li>
         <li>
           <a class="fr-breadcrumb__link" aria-current="page">Formulaire début de gestion</a>
@@ -28,7 +28,7 @@
         <div class="fr-select-group">
           <label for="dotation" class="fr-label">Dotation du BOP*
             <span class="fr-hint-text">Si le BOP est non doté, il n'y aura alors pas d'avis sur celui-ci et sera considéré comme un BOP inactif.</span></label>
-          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','complete'],['BOP doté uniquement en HT2','HT2'],['BOP doté uniquement en T2','T2'], ['BOP non doté','aucune']],{selected: @bop.dotation}, { data: {'form-target': 'fieldRequire' }, class:"fr-select", id:"dotation"} %>
+          <%= f.select :dotation,[["- sélectionner -",""],['BOP doté en HT2 et T2','HT2 et T2'],['BOP doté uniquement en HT2','HT2'],['BOP doté uniquement en T2','T2'], ['BOP non doté','aucune']],{selected: @bop.dotation}, { data: {'form-target': 'fieldRequire' }, class:"fr-select", id:"dotation"} %>
         </div>
         <div><%= f.submit "Valider et continuer", class: "fr-btn",data: {'form-target': "Btnvalidate"}, aria: { label: "Valider et continuer"}%></div>
       </div>

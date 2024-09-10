@@ -9,7 +9,7 @@
             <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
           </li>
           <li>
-            <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
+            <%= link_to bops_path, class:"fr-breadcrumb__link" do %> Liste des BOP<%end %>
           </li>
           <li>
             <a class="fr-breadcrumb__link" aria-current="page">BOP n°<%= @bop.code%></a>
@@ -32,11 +32,13 @@
                 <p class="fr-tag"> Ministere <%= @bop.ministere%></p>
               </li>
             </ul>
-            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= User.where(id: @bop.consultant).first.nom%></p>
+            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom%></p>
           </div>
           <h3 class="fr-card__title">BOP n°<%= @bop.code%></h3>
-          <div class="fr-card__desc"><p class="fr-mb-1w">Programme n°<%= @bop.numero_programme%></p><p>  <%= @bop.nom_programme%></p>
-            <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
+          <div class="fr-card__desc">
+            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.numero_programme%> - <%= @bop.nom_programme%><% end %></p>
+            <p>Contrôleur : <%= @bop.user.nom%></p>
+            <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation.nil? || @bop.dotation.blank? %>Dotation non renseignée<%else %>BOP doté en <%= @bop.dotation %><%end %></p>
             </div>
           </div>
         </div>

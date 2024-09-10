@@ -117,7 +117,7 @@ export default class extends Controller {
               ]
           }]
     }
-    this.chart = new Highcharts.chart(this.canvasAvisTarget, options);
+    this.chart = Highcharts.chart(this.canvasAvisTarget, options);
     this.chart.reflow();
   }
 
@@ -202,7 +202,7 @@ export default class extends Controller {
                 ]
             }]
         }
-        this.chart = new Highcharts.chart(this.canvasAvisDateTarget, options);
+        this.chart = Highcharts.chart(this.canvasAvisDateTarget, options);
         this.chart.reflow();
     }
 
@@ -283,7 +283,7 @@ export default class extends Controller {
                 data: data[0],
             },]
         }
-        this.chart = new Highcharts.chart(this.canvasNotesBarTarget, options);
+        this.chart = Highcharts.chart(this.canvasNotesBarTarget, options);
         this.chart.reflow();
     }
     syntheseNote1(){
@@ -367,7 +367,7 @@ export default class extends Controller {
                 ]
             }]
         }
-        this.chart = new Highcharts.chart(this.canvasNotes1Target, options);
+        this.chart = Highcharts.chart(this.canvasNotes1Target, options);
         this.chart.reflow();
     }
 
@@ -451,7 +451,7 @@ export default class extends Controller {
                 ]
             }]
         }
-        this.chart = new Highcharts.chart(this.canvasNotes2Target, options);
+        this.chart = Highcharts.chart(this.canvasNotes2Target, options);
         this.chart.reflow();
     }
 

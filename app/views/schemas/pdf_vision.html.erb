@@ -1,0 +1,14 @@
+<div class="fr-container fr-container--fluid fr-container-md">
+  <h1 class="fr-mt-6w fr-mb-2w">
+    Schéma de fin de gestion du programme n°<%= @schema.programme.numero %>
+  </h1>
+  <div class="fr-text--italic fr-text--light fr-my-2w">Version du <%= l(@schema.updated_at, format: "%e/%m/%y") %></div>
+  <% if find_gestion_schema_vision(@gestion_schemas, "RPROG", "HT2")  %>
+    <h2 class="fr-mb-1w">Vision HT2</h2>
+    <%= render partial: 'show_vision', locals: { vision: "HT2", vision_rprog: find_gestion_schema_vision(@gestion_schemas, "RPROG", "HT2") , vision_cbcm: find_gestion_schema_vision(@gestion_schemas, "CBCM", "HT2")  } %>
+  <% end %>
+  <% if find_gestion_schema_vision(@gestion_schemas, "RPROG", "T2")  %>
+    <h2 class="fr-mb-1w">Vision T2</h2>
+    <%= render partial: 'show_vision', locals: { vision: "T2", vision_rprog: find_gestion_schema_vision(@gestion_schemas, "RPROG", "T2") , vision_cbcm: find_gestion_schema_vision(@gestion_schemas, "CBCM", "T2")  } %>
+  <% end %>
+</div>

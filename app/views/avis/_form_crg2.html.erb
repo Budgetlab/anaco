@@ -7,7 +7,7 @@
           <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
         </li>
         <li>
-          <%= link_to bops_path, class:"fr-breadcrumb__link" do %> BOP et avis <%end %>
+          <%= link_to remplissage_avis_path, class:"fr-breadcrumb__link" do %> Remplissage des avis/notes <%end %>
         </li>
         <li>
           <a class="fr-breadcrumb__link" aria-current="page">Formulaire CRG2</a>
@@ -25,7 +25,7 @@
       <h1>Formulaire CRG2 <%= @annee_a_afficher %></h1>
       <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code%></div>
       <div>
-        <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation == "complete" %>BOP doté en HT2 et T2<%elsif @bop.dotation == "HT2" %>BOP doté uniquement en HT2<%elsif @bop.dotation == "T2" %>BOP doté uniquement en T2<%else %>BOP actif<%end %></p>
+        <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.nil? %>BOP actif<%else %>BOP doté en <%= @bop.dotation %><%end %></p>
       </div>
     </div>
   </div>

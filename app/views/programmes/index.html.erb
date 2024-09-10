@@ -1,95 +1,97 @@
-<% content_for :title do %>Crédits non répartis aux programmes | ANACO <% end %>
-<div class="fr-container">
-  <div class="fr-grid-row fr-grid-row--gutters">
-    <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w fr-mb-2w title-btn">
-        <div>Liste des crédits non répartis</div>
-        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
-          <ul class="fr-pagination__list">
+<% content_for :title do %>Liste des programmes | ANACO
+<% end %>
+<main>
+  <div class="fr-container">
+    <h1 class="fr-my-6w">Liste des programmes</h1>
+
+    <div class="fr-table--lg fr-table fr-table--no-caption" data-controller="request">
+      <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+        <div class="fr-table__header">
+          <div class="fr-table__detail">
+            <div class="fr-search-bar" id="header-search" role="search">
+              <%= f.search_field :numero_or_nom_or_mission_nom_or_ministere_nom_contains, class: 'fr-input', placeholder: "Rechercher un programme, une mission, un ministère", oninput: 'this.form.requestSubmit()' %>
+              <button class="fr-btn" title="Rechercher">
+                Rechercher
+              </button>
+            </div>
+          </div>
+
+          <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
             <li>
-              <%= link_to programmes_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
-                2024
-              <%end %>
+              <button type="button" class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">
+                Filtrer
+              </button>
             </li>
           </ul>
-        </nav>
-      </h1>
-      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
-      <div class="fr-alert fr-alert--info fr-mb-4w">
-        <h3 class="fr-alert__title">Les crédits non répartis correspondent aux AE HT2, aux CP HT2 et aux AE/CP T2, hors réserve de précaution et hors BOP.</h3>
-        <p> Il s’agit donc des crédits conservés voire remontés au niveau du programme à des fins de pilotage. Ils ne sont ni mis à disposition ni même notifiés aux RBOP et ont vocation, à terme, à être délégués, à être virés ou transférés vers un autre programme ou à être annulés.</p>
-      </div>
-      <% if @count_reste_annee_precedente > 0 %>
-        <div class="fr-alert fr-alert--warning fr-mb-4w">
-          <h3 class="fr-alert__title">Vous n’avez pas rempli tous les crédits non répartis de <%= @annee_a_afficher - 1 %>.</h3>
-          <p>Pour remplir la phase de début de gestion <%= @annee_a_afficher %>, vous devez au préalable renseigner les crédits non répartis de <%= @annee_a_afficher - 1 %> <%= link_to programmes_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
+        </div>
+        <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres" >
+          <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-4">
+              <%= render_tag_group 'Dotation', :dotation_in, ["HT2 et T2", "HT2", "T2"] %>
+            </div>
+            <div class="fr-col-4">
+              <%= render_tag_group 'Programme avec BOP déconcentrés', :deconcentre_in, ['true', 'false'] %>
+            </div>
+            <div class="fr-col-4">
+              <%= render_select_group("DCB responsable", :user_nom_in, User.where(statut: ['DCB']).order(nom: :asc).map {|u| u.nom}) %>
+            </div>
+          </div>
         </div>
       <% end %>
 
-      <div class="fr-mb-4w">
-      <div class="fr-card">
-        <div class="fr-card__body">
-          <div class="fr-card__content">
-            <h3 class="fr-card__title">Il vous reste <%=pluralize(@count_reste, 'formulaire', plural: 'formulaires')%> à remplir</h3>
-              <div class="fr-card__desc">
-                <% @programmes.each do |programme| %>
-                  <% etat_debut = @liste_credits_par_programme.select { |el| el[0] == programme.id && el[2] == "début de gestion"} %>
-                  <% etat_crg1 = @liste_credits_par_programme.select { |el| el[0] == programme.id && el[2] == "CRG1"} %>
-                  <% etat_crg2 = @liste_credits_par_programme.select { |el| el[0] == programme.id && el[2] == "CRG2"} %>
+      <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table class="fr-cell--multiline">
+                <caption>BOP</caption>
+                <thead>
+                <tr>
+                  <th scope="col">Programme</th>
+                  <th scope="col">Dotation</th>
+                  <th scope="col">BOP déconcentrés</th>
+                  <th scope="col">Mission</th>
+                  <th scope="col">Ministère</th>
+                  <th scope="col">DCB responsable</th>
+                </tr>
+                </thead>
 
-                  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-                    <div class="fr-col-lg-2 fr-col-12"><ul><li>Programme <%= programme.numero %></li></ul></div>
-                    <div class="fr-col-lg-3 fr-col-4">
-                      <% if etat_debut.empty? %><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
-                      <% elsif etat_debut[0][1] == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                      <%elsif etat_debut[0][1] != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
-                      <%end%>
-                    </div>
+                <tbody>
+                <% @programmes_page&.each do |programme| %>
+                  <tr>
+                    <td><%= link_to programme_path(programme), data: { turbo_frame: "_top" } do %>
+                        <%= programme.numero %> - <%= programme.nom %>
+                      <% end %></td>
 
-                    <div class="fr-col-lg-2 fr-col-4">
-                      <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( @annee_a_afficher == @annee && Date.today < @date_crg1 && etat_debut[0][3] == true )%>
-                        <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                      <% elsif etat_debut[0][3] == true %>
-                        <% if etat_crg1.empty? %>
-                          <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                        <%elsif etat_crg1[0][1] != "Brouillon"%>
-                          <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                        <% elsif etat_crg1[0][1] == "Brouillon"%>
-                          <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                        <%end%>
-                      <% end %>
-                    </div>
-
-                    <div class="fr-col-lg-2 fr-col-4">
-                      <% if (@annee_a_afficher == @annee && Date.today < @date_crg2) || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
-                        <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                      <% else %>
-                        <% if etat_crg2.empty? %>
-                          <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                        <%elsif etat_crg2[0][1] != "Brouillon"%>
-                          <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                        <% elsif etat_crg2[0][1] == "Brouillon"%>
-                          <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                        <%end%>
-                      <% end %>
-                    </div>
-
-                    <div class="fr-col-lg-3 fr-col-12">
-                      <% if (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
-                        <%= link_to new_programme_credit_path(programme.id), class: "fr-btn" do %>Rédiger l'avis<%end %>
-                      <%elsif Date.today >= @date_crg1 && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
-                        <%= link_to new_programme_credit_path(programme.id), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
-                      <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (etat_crg2.empty? || etat_crg2[0][1] == "Brouillon")%>
-                        <%= link_to new_programme_credit_path(programme.id), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
-                      <% end%>
-                    </div>
-                  </div>
+                    <td><%= programme.dotation %></td>
+                    <td><%= format_boolean(programme.deconcentre) %></td>
+                    <td><%= link_to mission_path(programme.mission), data:{ turbo_frame: "_top" } do%><%= programme.mission.nom %><% end %></td>
+                    <td><%= link_to ministere_path(programme.ministere), data:{ turbo_frame: "_top" } do%><%= programme.ministere.nom %><% end %></td>
+                    <td><%= programme.user.nom %></td>
+                  </tr>
                 <% end %>
-              </div>
+                </tbody>
+
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      </div>
+        <div class="fr-table__footer">
+          <div class="fr-table__footer--start">
+            <p class="fr-table__detail"><%= pluralize(@programmes.length, 'résultat', 'résultats') %></p>
+            <div class="fr-select-group">
+              <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                Nombre de lignes par page
+              </label>
+              <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="fr-table__footer--middle">
+            <%== pagy_nav_custom(@pagy) %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
-</div>
+</main>

@@ -3,21 +3,31 @@
 # controller Programme
 class ProgrammesController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:new, :import]
+  before_action :redirect_if_cbr, only: [:index]
   require 'axlsx'
   include ApplicationHelper
+  include AvisHelper
+  include BopsHelper
   # Page liste des crédits non repartis par programme
   def index
-    redirect_to root_path if current_user.statut != 'DCB'
+    @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.all
+    @programmes = @programmes.order(numero: :asc)
+    @q = @programmes.ransack(params[:q])
+    @programmes = @q.result.includes(:schemas)
+    @pagy, @programmes_page = pagy(@programmes)
+  end
 
-    @annee_a_afficher = annee_a_afficher
-    @programmes = current_user.programmes
-    @liste_credits_par_programme = @programmes.joins(:credits).where('credits.annee': @annee_a_afficher).pluck(:id, 'credits.etat AS credit_etat', 'credits.phase AS credit_phase', 'credits.is_crg1 AS credit_crg1')
-    count_reste_index(@annee_a_afficher)
+  def show
+    @programme = Programme.find(params[:id])
   end
 
   # Page pour importer le fichier des programmes
   def new
-    redirect_to root_path if current_user.statut != 'admin'
+    # mettre à jour les BOP
+    AdminUser.first_or_create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
+    @bops = Bop.where(dotation: 'complete')
+    @bops.update(dotation: 'HT2 et T2')
   end
 
   def import
@@ -27,21 +37,32 @@ class ProgrammesController < ApplicationController
     end
   end
 
-  private
+  def show_last_schema
+    @programme = Programme.find(params[:id])
+    @schema = @programme.last_schema_valid
+    return unless @schema
 
-  def count_reste_index(annee)
-    phase = annee == @annee ? @phase : 'CRG2'
-    @count_reste = case phase
-                   when 'début de gestion'
-                     @programmes.length - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   when 'CRG1'
-                     @programmes.length + @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   when 'CRG2'
-                     2 * @programmes.length + @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' && el[2] == 'début de gestion' && el[3] == true } - @liste_credits_par_programme.count { |el| el[1] != 'Brouillon' }
-                   end
-    liste_credits_annee_precedente = current_user.credits.where(annee: annee - 1)
-    liste_credit_annee_precedente_debut = liste_credits_annee_precedente.count { |credit| credit.phase == 'début de gestion' && credit.etat != 'Brouillon' }
-    liste_credit_annee_precedente_crg2 = liste_credits_annee_precedente.count { |credit| credit.phase == 'CRG2' && credit.etat != 'Brouillon' }
-    @count_reste_annee_precedente = liste_credit_annee_precedente_debut - liste_credit_annee_precedente_crg2
+    @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
+    @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
+    @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')
+    @vision_cbcm_t2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'T2')
+
   end
+
+  def show_avis
+    @annee_a_afficher = annee_a_afficher
+    @programme = Programme.find(params[:id])
+    # charger la liste des BOP associés au programme
+    @bops = @programme.bops.includes(:user).order(code: :asc)
+    # récupérer les avis (et leurs utilisateurs associés) des BOP du programme
+    @avis = @programme.avis.joins(:user).where(annee: @annee_a_afficher).where.not(etat: 'Brouillon')
+    # extraire les avis pour les utilisateurs CBR
+    @avis_cbr = @avis.where(users: { statut: 'CBR' })
+
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
+
 end

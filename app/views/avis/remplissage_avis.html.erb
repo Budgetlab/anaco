@@ -1,0 +1,139 @@
+<% content_for :title do %>Remplissage des avis/notes | ANACO
+<% end %>
+
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <h1 class="fr-mt-6w fr-mb-2w title-btn">
+        <div>Remplissage des avis/notes</div>
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
+          <ul class="fr-pagination__list">
+            <li>
+              <%= link_to remplissage_avis_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
+                2023
+              <% end %>
+            </li>
+            <li>
+              <%= link_to remplissage_avis_path(date: 2024), class: "fr-pagination__link", aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
+                2024
+              <% end %>
+            </li>
+          </ul>
+        </nav>
+      </h1>
+      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
+      <% end %>
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/document/document-download.svg", alt: "" %></div>
+        <div class="fr-col-lg-11 fr-col-10">
+          <div class="fr-text--lg fr-mt-1w">Les avis et notes CRG complets et adressés aux ordonnateurs sont à déposer
+            sur Resana dans le dossier vous concernant.<br>
+            <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank" class="fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right">Cliquez
+              ici pour y accéder</a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <% if current_user.avis_a_remplir(@annee - 1, 'CRG2') > 0 %>
+    <div class="fr-alert fr-alert--warning fr-mb-6w">
+      <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee - 1 %>.</h3>
+      <p>Vous pouvez renseigner les avis et notes
+        de <%= @annee - 1 %> <%= link_to remplissage_avis_path(date: @annee - 1) do %>ici
+        <% end %></p>
+    </div>
+  <% end %>
+  <%= render partial: 'bops/notice' %>
+
+  <div class="fr-tabs fr-mb-2w">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
+      <li role="presentation">
+        <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP
+          actifs (<%= @bops_actifs.count %>)
+        </button>
+      </li>
+      <li role="presentation">
+        <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP
+          inactifs (<%= @bops_inactifs.count %>)
+        </button>
+      </li>
+    </ul>
+    <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
+      <p class="fr-h3">Il vous reste
+        <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher, @annee_a_afficher == @annee ? @phase : 'CRG2'), 'avis/note', plural: 'avis/notes') %>
+        à rédiger</p>
+
+      <% @bops_actifs&.each do |bop| %>
+        <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+          <div class="fr-col-lg-2 fr-col-12">
+            <ul>
+              <li>
+                <%= link_to bop_path(bop) do %>BOP <%= bop.code %>
+                <% end %>
+              </li>
+            </ul>
+          </div>
+          <% phases = ["début de gestion", "CRG1", "CRG2"] %>
+          <% avis_bop.each_with_index do |avis, index| %>
+            <div class="<%= index == 0 ? 'fr-col-lg-3' : 'fr-col-lg-2' %> fr-col-4">
+              <% if avis.nil? %>
+                <% if index == 0 || @annee_a_afficher < @annee || (index == 1 && Date.today >= @date_crg1 && avis_bop.first&.is_crg1?) || (index == 2 && Date.today >= @date_crg2) %>
+                  <p class="fr-badge fr-badge--warning fr-badge--no-icon">
+                    <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phases[index] %>
+                  </p>
+                <% elsif (index == 1 && (avis_bop.first.nil? || avis_bop.first&.is_crg1?)) || index == 2 %>
+                  <p class="fr-badge">
+                    <span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>
+                    <%= phases[index] %>
+                  </p>
+                <% end %>
+              <% elsif avis.etat == "Brouillon" %>
+                <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+              <% else %>
+                <p class="fr-badge fr-badge--info fr-badge--no-icon">
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= avis.phase %></p>
+              <% end %>
+            </div>
+          <% end %>
+
+
+          <div class="fr-col-lg-3 fr-col-12">
+            <% if (@annee_a_afficher != @annee || Date.today >= @date_debut) && (avis_bop.first.nil? || avis_bop.first.etat == "Brouillon") %>
+              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis
+              <% end %>
+            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_crg1) && avis_bop.first.is_crg1? && (avis_bop.second.nil? || avis_bop.second.etat == "Brouillon") %>
+              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la
+                note CRG1
+              <% end %>
+            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (avis_bop.last.nil? || avis_bop.last.etat == "Brouillon") %>
+              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la
+                note CRG2
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
+      <p class="fr-h3">BOP inactifs (<%= @bops_inactifs.count %>)</p>
+      <% @bops_inactifs&.each do |bop| %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+          <div class="fr-col-lg-2 fr-col-6">
+            <ul>
+              <li><%= link_to bop_path(bop) do %>BOP <%= bop.code %>
+                <% end %></li>
+            </ul>
+          </div>
+          <% if @annee_a_afficher == @annee %>
+            <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop), class: "fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>
+                Modifier la dotation
+              <% end %></div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

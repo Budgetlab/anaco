@@ -1,0 +1,2 @@
+module MinisteresHelper
+end

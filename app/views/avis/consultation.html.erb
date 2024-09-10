@@ -1,193 +1,123 @@
-<% content_for :title do %>Consultation des avis | ANACO <% end %>
-<div class="fr-container" data-controller="filter">
+<% content_for :title do %>Consultation des avis | ANACO
+<% end %>
+<div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-my-6w title-btn">
-        <div>Consultation des avis/notes</div>
-        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
-          <ul class="fr-pagination__list">
-            <li>
-              <%= link_to consultation_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
-                2023
-              <%end %>
-            </li>
-            <li>
-              <%= link_to consultation_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
-                2024
-              <%end %>
-            </li>
-          </ul>
-        </nav>
-      </h1>
-      <%= render 'avis/success'%>
-      <div class="fr-download">
-        <p><%= link_to consultation_path(date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger l'historique des avis/notes <%= @annee_a_afficher %> reçus
-            <span class="fr-download__detail">Format .xlsx</span>
-          <%end %></p>
-      </div>
+      <h1 class="fr-mt-6w">Consultation des avis/notes</h1>
+      <%= render 'avis/success' %>
     </div>
   </div>
 
-  <%= form_with(url: filter_consultation_path(date: @annee_a_afficher), method: :post, data: {'filter-target': "form"}) do |f|%>
-    <div class="fr-table fr-table--bordered fr-table--layout-fixed--lg fr-table--vscroll fr-mb-6w">
-      <table>
-        <caption>Liste des résultats <span id="total_table"><%= render partial: "avis/table_total", locals: { total: @avis_all.length} %></span></caption>
-        <thead>
-        <tr>
-          <th scope="col">Phase
-            <div class="fr-translate fr-nav fr-nav-filter">
-              <button class="filter-table-btn2" aria-controls="translate-1291" aria-expanded="false" title="Filtrer par phase" data-action="click->filter#Dropdown">
-              </button>
-              <div class="fr-collapse fr-menu" id="translate-1291">
-                <ul class="fr-menu__list filter-table-list">
-                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-phase" aria-labelledby="checkboxes-phase-legend checkboxes-phase-messages">
-                    <div class="fr-fieldset__element">
-                      <% ["début de gestion","CRG1","CRG2"].each_with_index do |phase,i| %>
-                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "phases[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-phase-#{i}"}, phase%>
-                          <label class="fr-label" for="checkboxes-phase-<%=i %>"><%= phase %></label>
-                          <div class="fr-messages-group" id="checkboxes-phase-<%=i %>-messages" aria-live="assertive"></div>
-                        </div>
-                      <%end %>
-                    </div>
-                    <div class="fr-messages-group" id="checkboxes-phase-messages" aria-live="assertive"></div>
-                  </fieldset></li>
-                </ul>
-              </div>
-            </div>
-          </th>
-
-          <th scope="col">CBR
-              <div class="fr-translate fr-nav fr-nav-filter">
-                <button class="filter-table-btn2" aria-controls="translate-1292" aria-expanded="false" title="Filtrer par controleur" data-action="click->filter#Dropdown">
-                </button>
-                <div class="fr-collapse fr-menu" id="translate-1292">
-                  <ul class="fr-menu__list filter-table-list">
-                    <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-controleur-legend checkboxes-controleur-messages">
-                      <div class="fr-fieldset__element">
-                        <% @users_nom.each_with_index do |name,i| %>
-                          <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                            <%= f.check_box "users[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-controleur-#{i}"}, name %>
-                            <label class="fr-label" for="checkboxes-controleur-<%=i %>"><%= name %></label>
-                            <div class="fr-messages-group" id="checkboxes-controleur-<%=i %>-messages" aria-live="assertive"></div>
-                          </div>
-                        <%end %>
-                      </div>
-                      <div class="fr-messages-group" id="checkboxes-controleur-messages" aria-live="assertive"></div>
-                    </fieldset></li>
-                  </ul>
-                </div>
-              </div>
-            </th>
-
-          <th scope="col">Date de saisie</th>
-
-          <th scope="col">BOP
-            <div class="fr-translate fr-nav fr-nav-filter">
-              <button class="filter-table-btn2" aria-controls="translate-1290" aria-expanded="false" title="Filtrer par BOP" data-action="click->filter#Dropdown">
-              </button>
-              <div class="fr-collapse fr-menu" id="translate-1290">
-                <ul class="fr-menu__list filter-table-list">
-                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-bop-legend checkboxes-bop-messages">
-
-                    <div class="fr-fieldset__element">
-                      <% @codes_bop.each_with_index do |code,i| %>
-                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "bops[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-bop-#{i}"}, code%>
-                          <label class="fr-label" for="checkboxes-bop-<%=i %>"><%= code %></label>
-                          <div class="fr-messages-group" id="checkboxes-bop-<%=i %>-messages" aria-live="assertive"></div>
-                        </div>
-                      <%end %>
-                    </div>
-                    <div class="fr-messages-group" id="checkboxes-bop-messages" aria-live="assertive"></div>
-                  </fieldset></li>
-                </ul>
-              </div>
-            </div>
-          </th>
-
-          <th scope="col">Programme
-            <div class="fr-translate fr-nav fr-nav-filter">
-              <button class="filter-table-btn2" aria-controls="translate-1293" aria-expanded="false" title="Filtrer par programme" data-action="click->filter#Dropdown">
-              </button>
-              <div class="fr-collapse fr-menu" id="translate-1293">
-                <ul class="fr-menu__list filter-table-list">
-                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-prog-legend checkboxes-prog-messages">
-                    <div class="fr-fieldset__element">
-                      <% @numeros_programmes.each_with_index do |numero,i| %>
-                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "numeros[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-prog-#{i}"}, numero%>
-                          <label class="fr-label" for="checkboxes-prog-<%=i %>"><%= numero %></label>
-                          <div class="fr-messages-group" id="checkboxes-prog-<%=i %>-messages" aria-live="assertive"></div>
-                        </div>
-                      <%end %>
-                    </div>
-                    <div class="fr-messages-group" id="checkboxes-prog-messages" aria-live="assertive"></div>
-                  </fieldset></li>
-                </ul>
-              </div>
-            </div>
-          </th>
-
-          <th scope="col">Statut/Risque
-            <div class="fr-translate fr-nav fr-nav-filter">
-              <button class="filter-table-btn2" aria-controls="translate-1294" aria-expanded="false" title="Filtrer par statut" data-action="click->filter#Dropdown">
-              </button>
-              <div class="fr-collapse fr-menu" id="translate-1294">
-                <ul class="fr-menu__list filter-table-list">
-                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-small-legend checkboxes-small-messages">
-                    <div class="fr-fieldset__element">
-                      <% ["Favorable","Favorable avec réserve","Défavorable","Aucun risque","Risques éventuels ou modérés","Risques certains ou significatifs","Risques modérés","Risques significatifs"].each_with_index do |statut,i| %>
-                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "statuts[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-#{i}"}, statut%>
-                          <label class="fr-label" for="checkboxes-<%=i %>">
-                            <% if statut == "Risques éventuels ou modérés" %>Risques éventuels<%elsif statut == "Risques certains ou significatifs"%>Risques certains<%else %><%= statut %><%end %>
-                          </label>
-                          <div class="fr-messages-group" id="checkboxes-small-<%=i %>-messages" aria-live="assertive"></div>
-                        </div>
-                      <%end %>
-                    </div>
-                    <div class="fr-messages-group" id="checkboxes-small-messages" aria-live="assertive"></div>
-                  </fieldset></li>
-                </ul>
-              </div>
-            </div></th>
-
-          <th scope="col">État
-            <div class="fr-translate fr-nav fr-nav-filter">
-              <button class="filter-table-btn2" aria-controls="translate-1295" aria-expanded="false" title="Filtrer par état" data-action="click->filter#Dropdown">
-              </button>
-              <div class="fr-collapse fr-menu" id="translate-1295">
-                <ul class="fr-menu__list filter-table-list">
-                  <li><fieldset class="fr-fieldset fr-mt-1w " id="checkboxes-small" aria-labelledby="checkboxes-etat-legend checkboxes-etat-messages">
-                    <div class="fr-fieldset__element">
-                      <% ["Brouillon","En attente de lecture","Lu"].each_with_index do |etat,i| %>
-                        <div class="fr-checkbox-group fr-checkbox-group--sm fr-mb-1w">
-                          <%= f.check_box "etats[]", {data: {action: "change->filter#submitFilter"}, id: "checkboxes-etat-#{i}"}, etat%>
-                          <label class="fr-label" for="checkboxes-etat-<%=i %>"><%= etat %></label>
-                          <div class="fr-messages-group" id="checkboxes-etat-<%=i %>-messages" aria-live="assertive"></div>
-                        </div>
-                      <%end %>
-                    </div>
-                    <div class="fr-messages-group" id="checkboxes-etat-messages" aria-live="assertive"></div>
-                  </fieldset></li>
-                </ul>
-              </div>
-            </div>
-          </th>
-          <th scope="col"> </th>
-        </tr>
-        </thead>
-        <tbody id="table">
-          <%= render partial: 'avis/table', locals: { liste_avis: @avis_all } %>
-        </tbody>
-      </table>
+  <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-6w">
+    <div class="fr-table__header">
+      <p class="fr-table__detail"></p>
+      <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
+        <li>
+          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">
+            Filtrer les résultats
+          </button>
+        </li>
+        <li>
+          <button class="fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary">
+            <%= link_to consultation_path(format: :xlsx) do %>Télécharger les avis/notes
+            <% end %>
+          </button>
+        </li>
+      </ul>
     </div>
-  <%end %>
+    <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres" data-controller="request">
+      <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
+      <%= search_form_for @q, url: consultation_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-4">
+            <%= render_tag_group 'Phase', :phase_in, ["début de gestion", "CRG1", "CRG2"] %>
+          </div>
+          <div class="fr-col-4">
+            <%= render_tag_group 'Année', :annee_in, ["2023", "2024"] %>
+          </div>
+          <div class="fr-col-4">
+            <%= render_tag_group 'État', :etat_in, ["Lu", "En attente de lecture"] %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table class="fr-cell--multiline">
+              <caption>Consultation des avis/notes</caption>
+              <thead>
+              <tr>
+                <th scope="col">Phase</th>
+                <th scope="col">CBR</th>
+                <th scope="col">
+                  <% sort_created_date = "" %>
+                  <% if params[:q] && params[:q][:s] == "created_at desc" %>
+                    <% sort_created_date = "asc" %>
+                  <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
+                    <% sort_created_date = "desc" %>
+                  <% end %>
+                  <div class="fr-cell--sort">
+                    <span class="fr-cell__title">Date de saisie</span>
+                    <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
+                  </div>
+                </th>
+                <th scope="col">BOP</th>
+                <th scope="col">Programme</th>
+                <th scope="col">Statut/Risque</th>
+                <th scope="col">État</th>
+                <th scope="col">Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              <% @avis_page&.each do |avis| %>
+                <tr>
+                  <td>
+                    <% if avis.phase == "début de gestion" %><%= avis.phase.capitalize %>
+                      <% else %><%= avis.phase %>
+                    <% end %> <%= avis.annee %></td>
+                  <td><%= avis.user.nom %></td>
+                  <td><%= l(avis.created_at, format: "%e/%m/%y") %> </td>
+                  <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
+                    <% end %></td>
+                  <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+                  <td><%= avis.statut %></td>
+                  <td><p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p></td>
+                  <td>
+                    <%= link_to open_modal_path(id: avis.id), class: "fr-btn fr-btn--sm", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post } do %>
+                      Consulter
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="fr-table__footer">
+        <div class="fr-table__footer--start">
+          <p class="fr-table__detail"><%= pluralize(@avis_all.length, 'résultat', plural: 'résultats') %></p>
+          <div class="fr-select-group">
+            <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+              Nombre de lignes par page
+            </label>
+            <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="fr-table__footer--middle">
+          <%== pagy_nav_custom(@pagy) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
 
   <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
     <div id="debut">
-      <%= render partial: 'avis/dialog_debut',locals: {avis: nil} %>
+      <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
     </div>
   </dialog>
 

@@ -1,0 +1,42 @@
+<a class="fr-link" aria-describedby="<%= name %>" id="link-<%= name %>" href="#" data-controller="filter" data-action="filter#Dropdown">
+  <span class="fr-icon-question-line fr-icon--sm" aria-hidden="true"></span>
+</a>
+<span class="fr-tooltip fr-placement" id="<%= name %>" role="tooltip" aria-hidden="true">
+  <% if name == "solde_previsionnel" %>
+    Il s’agit de la différence entre les ressources attendues et les dépenses prévues. Un solde positif indique une capacité de financement. Un solde négatif indique un besoin de financement. Les évaluations des FDC et ADP attendues jusqu’à la fin de la gestion sont intégrées dans ce solde.
+  <% elsif name == "mer" %>
+    Il s’agit du niveau de la mise en réserve à la date du CRG2.
+  <% elsif name == "mobilisation_mer" %>
+    Il s’agit du montant à dégeler pour couvrir, même partiellement, le besoin de financement.
+    <% elsif name == "fongibilite" %>
+  Il s’agit du montant mobilisable par fongibilité asymétrique pour couvrir, même partiellement le besoin de financement.
+    <% elsif name == "decret" %>
+  Il s’agit d’un abondement ou d’une annulation de crédits prévu par un décret d’avance.
+    <% elsif name == "credits_ouverts" %>
+  Il s’agit des crédits ouverts en Loi de Finances de fin de gestion
+    <% elsif name == "solde" %>
+  Il s’agit du solde prenant en compte toutes les opérations prévues au titre des hypothèses de couverture. Le solde doit être nul ou positif. Dans ce dernier cas, il se traduit par un reliquat de crédits non employés. Si le solde est négatif, cela traduit une impasse non couverte.
+    <% elsif name == "charges_a_payer" %>
+    Il s’agit d’une évaluation des charges à payer à la fin de gestion évaluée par le RPROG.
+    <% elsif name == "reports_autre" %>
+    Il s’agit du niveau de reports de charges évalué par le RPROG.
+    <% elsif name == "credits_reports" %>
+  Il s’agit des crédits à reporter. Ils incluent les reports arbitrés consensuels et les autres reports prévus ou sollicités par le RPROG au moment du CRG2.
+    <% elsif name == "transferts_entrant" %>
+  Il s’agit du montant mobilisable par décret de virement ou de transfert pour couvrir, même partiellement le besoin de financement. Renseigner une ligne pour chaque mouvement prévu et indiquer le programme d’origine. Ce champs inclut les mouvements éventuels au titres des dépenses accidentelles et imprévisibles (DDAI).
+    <% elsif name == "transferts_sortant" %>
+  Il s’agit du montant mobilisable par décret de virement ou de transfert pour abonder un autre programme. Renseigner une ligne pour chaque mouvement prévu et indiquer le programme de destination. Ce champs inclut les mouvements éventuels au titres des dépenses accidentelles et imprévisibles (DDAI).
+    <% elsif name == "ressources" %>
+  Il s’agit de l’ensemble des ressources considérées comme certaines. Elles incluent les mouvements à venir (DV/DT, DA) considérés comme acquis. Elles incluent également un niveau crédible de fonds de concours et d’attributions de produits que le RPROG doit pouvoir justifier.<br>
+  Le CBCM peut avoir une appréciation différente de celle du RPROG du niveau des ressources certaines.
+    <% elsif name == "depense" %>
+  Il s’agit de la prévision de dépense la plus fiable.<br>
+Le CBCM peut avoir une appréciation différente de celle du RPROG du niveau de dépense crédible (Pax exemple, en cas de prévision d’engagements et de décaissements trop optimiste sur les derniers mois).
+    <% elsif name == "surgel" %>
+  Il s’agit d’autres cas de mise en réserve qui peuvent être prévus, par exemple, en lettre plafond ou de blocages spécifiques de crédits par le CBCM. Ces crédits doivent être décomptés des crédits disponibles (ex: MER spécifique prévue dans la lettre plafond pour couvrir certains aléas de gestion). Ne rentrent pas dans cette catégorie les «mises en réserve ministérielles» qui restent des crédits disponibles à la main du RPROG.
+    <% elsif name == "reports" %>
+  Il s’agit de reports de crédits arbitrés ou consensuels. Ils contribuent donc à dégrader le solde résultant des hypothèses de couverture.
+    <% elsif name == "commentaire" %>
+  Ce volet permet de renseigner tous les aspects qualitatifs permettant de mieux comprendre la situation de la gestion et les hypothèses de couvertures, notamment des éventuels besoins complémentaires exprimés lors du CRG2 et les justifications des hypothèses de couverture proposées.
+  <% end %>
+</span>

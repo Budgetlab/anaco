@@ -1,123 +1,101 @@
-<% content_for :title do %>BOP et avis | ANACO <% end %>
-<% if current_user.statut == "admin" %>
-  <%= render 'index_db' %>
-<%else %>
+<% content_for :title do %>Liste des BOP | ANACO
+<% end %>
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
-      <h1 class="fr-mt-6w fr-mb-2w title-btn">
-        <div>Liste des BOP et avis</div>
-        <nav role="navigation" class="fr-pagination" aria-label="Pagination">
-          <ul class="fr-pagination__list">
-            <li>
-              <%= link_to bops_path(date: 2023), class: "fr-pagination__link", aria: (@annee_a_afficher == 2023 ? { current: 'page' } : {}) do %>
-                2023
-              <%end %>
-            </li>
-            <li>
-              <%= link_to bops_path(date: 2024), class: "fr-pagination__link",aria: (@annee_a_afficher == 2024 ? { current: 'page' } : {}) do %>
-                2024
-              <%end %>
-            </li>
-          </ul>
-        </nav>
-      </h1>
-      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2><%end %>
+      <h1 class="fr-mt-6w">Liste des BOP</h1>
 
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-        <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/document/document-download.svg", alt: "" %></div>
-        <div class="fr-col-lg-11 fr-col-10">
-          <div class="fr-text--lg fr-mt-1w">Les avis et notes CRG complets et adressés aux ordonnateurs sont à déposer sur Resana dans le dossier vous concernant.<br>
-            <a href='https://resana.numerique.gouv.fr/public/perimetre/consulter/277653' target="_blank" class="fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right">Cliquez ici pour y accéder</a></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <% if @count_reste_annee_precedente > 0 %>
-    <div class="fr-alert fr-alert--warning fr-mb-6w">
-      <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee_a_afficher - 1 %>.</h3>
-      <p>Vous pouvez renseigner les avis et notes de <%= @annee_a_afficher - 1 %> <%= link_to bops_path(date: @annee_a_afficher - 1) do %>ici<% end %></p>
-    </div>
-  <% end %>
-  <%= render partial: 'bops/notice' %>
-
-    <div class="fr-tabs fr-mb-2w">
-      <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
-        <li role="presentation">
-          <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP actifs (<%= @liste_bops_actifs.length %>)</button>
-        </li>
-        <li role="presentation">
-          <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP inactifs (<%= @liste_bops_inactifs.length %>)</button>
-        </li>
-      </ul>
-      <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
-        <p class="fr-h3">Il vous reste <%=pluralize(@count_reste, 'avis/note', plural: 'avis/notes')%> à rédiger</p>
-        <% @liste_bops_actifs.each do |bop|%>
-          <% etat_debut = @liste_avis_par_bop.select { |el| el[0] == bop[0] && el[2] == "début de gestion"} %>
-          <% etat_crg1 = @liste_avis_par_bop.select { |el| el[0] == bop[0] && el[2] == "CRG1"} %>
-          <% etat_crg2 = @liste_avis_par_bop.select { |el| el[0] == bop[0] && el[2] == "CRG2"} %>
-          <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-            <div class="fr-col-lg-2 fr-col-12"><ul><li><%= link_to bop_path(bop[0]) do%>BOP <%= bop[1]%><%end%></li></ul></div>
-
-            <div class="fr-col-lg-3 fr-col-4">
-              <% if etat_debut.empty? %><p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
-              <% elsif etat_debut[0][1] == "Brouillon"%><p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-              <%elsif etat_debut[0][1] != "Brouillon"%><p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Avis début de gestion</p>
-              <%end%></div>
-
-            <div class="fr-col-lg-2 fr-col-4">
-              <% if etat_debut.empty? || etat_debut[0][1] == "Brouillon" || ( @annee_a_afficher == @annee && Date.today < @date_crg1 && etat_debut[0][3] == true )%>
-                <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-              <% elsif etat_debut[0][3] == true %>
-                <% if etat_crg1.empty? %>
-                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                <%elsif etat_crg1[0][1] != "Brouillon"%>
-                  <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG1</p>
-                <% elsif etat_crg1[0][1] == "Brouillon"%>
-                  <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                <%end%>
-              <% end %>
+      <div class="fr-table--lg fr-table fr-table--no-caption" data-controller="request">
+        <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+          <div class="fr-table__header">
+            <div class="fr-table__detail">
+              <div class="fr-search-bar" id="header-search" role="search">
+                <%= f.search_field :code_contains, class: 'fr-input', placeholder: "Rechercher un BOP par son code", oninput: 'this.form.requestSubmit()' %>
+                <button class="fr-btn" title="Rechercher">
+                  Rechercher
+                </button>
+              </div>
             </div>
-
-            <div class="fr-col-lg-2 fr-col-4">
-              <% if (@annee_a_afficher == @annee && Date.today < @date_crg2) || etat_debut.empty?  || etat_debut[0][1] == "Brouillon" || (etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon"))%>
-                <p class="fr-badge"><span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-              <% else %>
-                <% if etat_crg2.empty? %>
-                  <p class="fr-badge fr-badge--warning fr-badge--no-icon"><span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                <%elsif etat_crg2[0][1] != "Brouillon"%>
-                  <p class="fr-badge fr-badge--info fr-badge--no-icon"><span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>Note CRG2</p>
-                <% elsif etat_crg2[0][1] == "Brouillon"%>
-                  <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-                <%end%>
-              <% end %>
+            <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
+              <li>
+                <button type="button" class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">
+                  Filtrer
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres">
+            <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-4">
+                <%= render_tag_group 'Dotation', :dotation_in, ["HT2 et T2", "HT2", "T2"] %>
+              </div>
+              <div class="fr-col-4">
+                <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map {|u| u.nom}) %>
+              </div>
+              <div class="fr-col-4">
+                <%= render_select_group("DCB responsable", :dcb_nom_in, User.where(statut: ['DCB']).order(nom: :asc).map {|u| u.nom}) %>
+              </div>
             </div>
+          </div>
+        <% end %>
+        <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+          <div class="fr-table__wrapper">
+            <div class="fr-table__container">
+              <div class="fr-table__content">
+                <table class="fr-cell--multiline">
+                  <caption>BOP</caption>
+                  <thead>
+                  <tr>
+                    <th scope="col">BOP</th>
+                    <th scope="col">Dotation</th>
+                    <th scope="col">Programme</th>
+                    <th scope="col">Contrôleur</th>
+                    <th scope="col">DCB responsable</th>
+                  </tr>
+                  </thead>
 
-            <div class="fr-col-lg-3 fr-col-12">
-              <% if (@annee_a_afficher != @annee || Date.today >= @date_debut) && (etat_debut.empty? || etat_debut[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis<%end %>
-              <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg1) && etat_debut[0][3] == true && (etat_crg1.empty? || etat_crg1[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la note CRG1<%end %>
-              <%elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (etat_crg2.empty? || etat_crg2[0][1] == "Brouillon")%>
-                <%= link_to new_bop_avi_path(bop_id: bop[0], date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la note CRG2<%end %>
-              <% end%>
+                  <tbody>
+                  <% @bops_page&.each do |bop| %>
+                    <tr>
+                      <td><%= link_to bop_path(bop.id), data: { turbo_frame: "_top" } do %><%= bop.code %>
+                        <% end %></td>
+                      <td>
+                        <% if bop.dotation.nil? || bop.dotation.blank? %>
+                          Non renseigné
+                        <% elsif bop.dotation == "aucune" %>
+                          inactif
+                        <% else %>
+                          <%= bop.dotation %>
+                        <% end %>
+                      </td>
+                      <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
+                      <td><%= bop.user.nom %></td>
+                      <td><%= bop.dcb.nom %></td>
+                    </tr>
+                  <% end %>
+                  </tbody>
+
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="fr-table__footer">
+            <div class="fr-table__footer--start">
+              <p class="fr-table__detail"><%= @bops.length %> résultats</p>
+              <div class="fr-select-group">
+                <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                  Nombre de lignes par page
+                </label>
+                <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+              </div>
+            </div>
+            <div class="fr-table__footer--middle">
+              <%== pagy_nav_custom(@pagy) %>
             </div>
           </div>
         <% end %>
       </div>
-      <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
-        <p class="fr-h3">BOP inactifs (<%= @liste_bops_inactifs.length %>)</p>
-        <% @liste_bops_inactifs.each do |bop|%>
-          <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-            <div class="fr-col-lg-2 fr-col-6"><ul><li><%= link_to bop_path(bop[0]) do%>BOP <%= bop[1]%><%end %></li></ul></div>
-            <% if @annee_a_afficher == @annee %>
-              <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop[0]), class:"fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>Modifier la dotation<% end %></div>
-            <% end  %>
-          </div>
-        <%end %>
-      </div>
     </div>
-
+  </div>
 </div>
-<% end  %>
