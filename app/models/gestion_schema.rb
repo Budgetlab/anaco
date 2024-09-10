@@ -11,6 +11,7 @@ class GestionSchema < ApplicationRecord
   scope :rprog_ht2, -> { where(vision: 'RPROG', profil: 'HT2') }
 
   before_save :set_nil_values_to_zero
+  before_save :set_fongibilite
 
   def prevision_solde_budgetaire_ae
     (ressources_ae || 0) + (depenses_ae || 0)
@@ -70,5 +71,9 @@ class GestionSchema < ApplicationRecord
 
       self[attr_name] = 0 if attr_value.nil?
     end
+  end
+
+  def set_fongibilite
+    self.fongibilite_cp = self.fongibilite_ae if self.profil == 'HT2'
   end
 end

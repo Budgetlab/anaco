@@ -68,7 +68,7 @@
     <% if @programme.dotation == "HT2 et T2" %>
       <% gestion_schema_ht2 = @schema.gestion_schemas.find_by(vision: @vision, profil: "HT2") %>
       <%= f.hidden_field :fongibilite_ae, value: -gestion_schema_ht2.fongibilite_ae %>
-      <%= f.hidden_field :fongibilite_cp, value: -gestion_schema_ht2.fongibilite_cp %>
+      <%= f.hidden_field :fongibilite_cp, value: 0 %>
       <div class="fr-h6 fr-mb-1w fr-mt-2w">Fongibilité
         asymétrique <%= render partial: "gestion_schemas/tooltip", locals: { name: "fongibilite" } %></div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -81,7 +81,7 @@
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-input-group">
             <label for="fongibilite_cp" class="fr-label">CAS</label>
-            <div class="fr-text--bold fr-my-3v"><%= format_number(-gestion_schema_ht2.fongibilite_cp) %> €</div>
+            <div class="fr-text--bold fr-my-3v">0 €</div>
           </div>
         </div>
       </div>
