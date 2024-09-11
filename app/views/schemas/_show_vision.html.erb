@@ -174,10 +174,20 @@
           </tr>
           </thead>
           <tbody>
-          <% data = [
+          <% data = vision == 'HT2' ? [
             { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
             { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
             { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+            { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
+            { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
+            { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
+            { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+            { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+          ] : [
+            { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+            { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+            { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+            { title: 'Fongibilité HCAS/CAS', ae_attr: 'fongibilite_hcas', cp_attr: 'fongibilite_cas' },
             { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
             { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
             { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },

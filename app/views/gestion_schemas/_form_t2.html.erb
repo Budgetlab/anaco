@@ -67,8 +67,8 @@
 
     <% if @programme.dotation == "HT2 et T2" %>
       <% gestion_schema_ht2 = @schema.gestion_schemas.find_by(vision: @vision, profil: "HT2") %>
-      <%= f.hidden_field :fongibilite_ae, value: -gestion_schema_ht2.fongibilite_ae %>
-      <%= f.hidden_field :fongibilite_cp, value: 0 %>
+      <%= f.hidden_field :fongibilite_ae, value: -gestion_schema_ht2.fongibilite_ae, data: {form_target: "aeInputs" } %>
+      <%= f.hidden_field :fongibilite_cp, value: 0, data: {form_target: "cpInputs" } %>
       <div class="fr-h6 fr-mb-1w fr-mt-2w">Fongibilité
         asymétrique <%= render partial: "gestion_schemas/tooltip", locals: { name: "fongibilite" } %></div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -171,6 +171,26 @@
           <div class="fr-input-wrap fr-icon-money-euro-circle-line">
             <%= f.text_field :mobilisation_surgel_cp, value: @gestion_schema.mobilisation_surgel_cp, id: "mobilisation_surgel_cp", class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "cpInputs" } %>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-h6 fr-mb-1w">Fongibilité
+      HCAS/CAS</div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="fongibilite_hcas" class="fr-label">HCAS</label>
+          <div class="fr-input-wrap fr-icon-money-euro-circle-line">
+            <%= f.text_field :fongibilite_hcas, value: @gestion_schema.fongibilite_hcas, id: "fongibilite_hcas", class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "aeInputs" } %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-6 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="fongibilite_cp" class="fr-label">CAS</label>
+          <div class="fr-text--bold fr-my-3v" id="fongibilite_cas"></div>
+          <%= f.hidden_field :fongibilite_cas, id: 'fongibilite_cas_input', data: {'form-target': 'cpInputs'} %>
         </div>
       </div>
     </div>

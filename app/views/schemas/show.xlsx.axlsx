@@ -16,7 +16,7 @@ cell_style_grey = wb.styles.add_style(
                   bg_color: 'dedede', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }
                 )
 sheet_col = Array.new(40, 14)
-data_array = [ # Votre tableau de données à partir du code HTML.
+data_array_ht2 = [ # Votre tableau de données à partir du code HTML.
   { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
   { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
   { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
@@ -32,17 +32,33 @@ data_array = [ # Votre tableau de données à partir du code HTML.
   { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
   { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
   { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+  { title: 'Prévision de charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
+  { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
+  { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
 ]
-data_array2 =[
-               { title: 'Prévision de charges à payer', ae_attr: 'charges_a_payer_ae', cp_attr: 'charges_a_payer_cp' },
-               { title: 'Autres reports de charge', ae_attr: 'reports_autre_ae', cp_attr: 'reports_autre_cp' },
-               { title: 'Crédits à reporter', ae_attr: 'credits_reports_ae', cp_attr: 'credits_reports_cp' },
-             ]
+data_array_t2 = [ # Votre tableau de données à partir du code HTML.
+  { title: 'Ressources certaines à date', ae_attr: 'ressources_ae', cp_attr: 'ressources_cp' },
+  { title: 'Prévision de dépense', ae_attr: 'depenses_ae', cp_attr: 'depenses_cp' },
+  { title: 'Solde prévisionnel', ae_attr: 'prevision_solde_budgetaire_ae', cp_attr: 'prevision_solde_budgetaire_cp' },
+  { title: 'Niveau de la mise en réserve', ae_attr: 'mer_ae', cp_attr: 'mer_cp' },
+  { title: 'Autre cas de réserve de crédits', ae_attr: 'surgel_ae', cp_attr: 'surgel_cp' },
+  { title: 'Mobilisation de la mise en réserve', ae_attr: 'mobilisation_mer_ae', cp_attr: 'mobilisation_mer_cp' },
+  { title: 'Mobilisation des autres cas de réserve', ae_attr: 'mobilisation_surgel_ae', cp_attr: 'mobilisation_surgel_cp' },
+  { title: 'Fongibilité asymétrique', ae_attr: 'fongibilite_ae', cp_attr: 'fongibilite_cp' },
+  { title: 'Fongibilité HCAS/CAS', ae_attr: 'fongibilite_hcas', cp_attr: 'fongibilite_cas' },
+  { title: 'Virements/transferts entrants', ae_attr: 'transferts_entrant_ae', cp_attr: 'transferts_entrant_cp' },
+  { title: 'Virements/transferts sortants', ae_attr: 'transferts_sortant_ae', cp_attr: 'transferts_sortant_cp' },
+  { title: "Décret d'avance", ae_attr: 'decret_ae', cp_attr: 'decret_cp' },
+  { title: "Ouverture/Annulation de crédits en LFG", ae_attr: 'credits_lfg_ae', cp_attr: 'credits_lfg_cp' },
+  { title: 'Solde final', ae_attr: 'solde_total_ae', cp_attr: 'solde_total_cp' },
+]
+
 ['HT2', 'T2'].each do |vision|
   vision_rprog = find_gestion_schema_vision(@gestion_schemas, "RPROG", vision)
   vision_cbcm = find_gestion_schema_vision(@gestion_schemas, "CBCM", vision)
   ae = vision == 'HT2' ? "AE" : "HCAS"
   cp = vision == 'HT2' ? "CP" : "CAS"
+  data_array = vision == 'HT2' ? data_array_ht2 : data_array_t2
   if vision_rprog
       wb.add_worksheet(name: vision) do |sheet|
 
@@ -53,7 +69,8 @@ data_array2 =[
 
         sheet.add_row [nil, "#{ae} (€)", "#{cp} (€)", "#{ae} (€)", "#{cp} (€)"], style: sub_header_style, height: 40
         sheet.merge_cells("A1:A2")
-        length_table = vision == 'HT2' ? 20 : 17
+        length_table = vision == 'HT2' ? 20 : 16
+        total_length = vision == 'HT2' ? 17 : 16
         data_array.each do |item|
             row = [
               item[:title],
@@ -64,25 +81,14 @@ data_array2 =[
             ]
             sheet.add_row row, style: cell_style
         end
-        if vision == "HT2"
-          data_array2.each do |item|
-                row = [
-                  item[:title],
-                  format_number(vision_rprog.send(item[:ae_attr])),
-                  format_number(vision_rprog.send(item[:cp_attr])),
-                  format_number(vision_cbcm.send(item[:ae_attr])),
-                  format_number(vision_cbcm.send(item[:cp_attr])),
-                ]
-                sheet.add_row row, style: cell_style
-          end
-        end
+
         sheet.add_border ["A3:A#{length_table}","E3:E#{length_table}","C3:C#{length_table}"], { edges: [:right], style: :thick }
-        sheet.add_border ["A9:E9","A16:E16","A17:E17","A#{length_table}:E#{length_table}"], { edges: [:bottom], style: :thick }
+        sheet.add_border ["A9:E9","A#{total_length-1}:E#{total_length-1}","A#{total_length}:E#{total_length}","A#{length_table}:E#{length_table}"], { edges: [:bottom], style: :thick }
 
         sheet.add_style ["B3:E#{length_table}"], num_fmt: 1
-        sheet.add_style "A17:E17", bg_color: 'dae1f2'
+        sheet.add_style "A#{total_length}:E#{total_length}", bg_color: 'dae1f2'
 
-        color_cells(sheet, "B17:E17")
+        color_cells(sheet, "B#{total_length}:E#{total_length}")
         (1..4).each do |col|
           sheet.column_info[col].width = 20
         end

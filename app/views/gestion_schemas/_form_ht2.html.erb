@@ -201,10 +201,17 @@
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
           <div class="fr-input-group">
-            <label for="fongibilite_ae" class="fr-label">AE/CP</label>
+            <label for="fongibilite_ae" class="fr-label">AE</label>
             <div class="fr-input-wrap fr-icon-money-euro-circle-line">
               <%= f.text_field :fongibilite_ae, value: @gestion_schema.fongibilite_ae, id: "fongibilite_ae", class: "fr-input", data: { action: 'input->form#changeNumberPositive', form_target: "aeInputs" } %>
             </div>
+          </div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-input-group">
+            <label for="fongibilite_cp" class="fr-label">CP (=AE)</label>
+            <div class="fr-text--bold fr-my-3v" id="fongibilite_cp"></div>
+            <%= f.hidden_field :fongibilite_cp, id: 'fongibilite_cp_input', data: {'form-target': 'cpInputs'} %>
           </div>
         </div>
 

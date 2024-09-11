@@ -21,6 +21,11 @@ export default class extends Controller {
         if (this.soldeAeTargets.length > 0) {
             this.calculateSoldePrev();
             this.calculateBalance();
+            if (document.getElementById("fongibilite_cas") != null) {
+                this.ChangeFongibiliteHCAS();
+            }else if (document.getElementById("fongibilite_cp_input") != null){
+                this.ChangeFongibilite();
+            }
         }
     }
 
@@ -117,6 +122,11 @@ export default class extends Controller {
         }
 
         if (this.soldeAeTargets.length > 0) {
+            if (document.getElementById("fongibilite_cas") != null) {
+                this.ChangeFongibiliteHCAS();
+            } else if (document.getElementById("fongibilite_cp_input") != null){
+                this.ChangeFongibilite();
+            }
             this.calculateSoldePrev();
             this.calculateBalance();
         }
@@ -350,6 +360,23 @@ export default class extends Controller {
             parentCard.classList.remove("fr-card--red")
             parentCard.classList.add("fr-card--blue")
         }
+    }
+
+    ChangeFongibiliteHCAS(){
+        const fongibilite_hcas = this.numberFormat(document.getElementById("fongibilite_hcas").value) || 0
+        const fongibilite_cas_input = document.getElementById("fongibilite_cas_input")
+        const fongibilite_cas = document.getElementById("fongibilite_cas")
+        fongibilite_cas_input.value = -fongibilite_hcas
+        const value = -fongibilite_hcas
+        fongibilite_cas.innerText = value.toLocaleString("fr-FR") + ' €';
+    }
+
+    ChangeFongibilite(){
+        const fongibilite_ae = this.numberFormat(document.getElementById("fongibilite_ae").value) || 0
+        const fongibilite_cp_input = document.getElementById("fongibilite_cp_input")
+        const fongibilite_cp = document.getElementById("fongibilite_cp")
+        fongibilite_cp_input.value = fongibilite_ae
+        fongibilite_cp.innerText = fongibilite_ae.toLocaleString("fr-FR") + ' €';
     }
 
     saveDraft(event){

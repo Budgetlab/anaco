@@ -100,7 +100,8 @@ class GestionSchemasController < ApplicationController
                                            :credits_lfg_ae, :credits_lfg_cp, :reports_ae, :reports_cp,
                                            :charges_a_payer_ae, :charges_a_payer_cp, :credits_reports_ae,
                                            :credits_reports_cp, :credits_reports_autre_ae, :credits_reports_autre_cp,
-                                           :reports_autre_ae, :reports_autre_cp, :commentaire, transferts_attributes: [:_destroy, :nature, :montant_ae, :montant_cp, :programme_id])
+                                           :reports_autre_ae, :reports_autre_cp, :commentaire, :fongibilite_hcas,
+                                           :fongibilite_cas, transferts_attributes: [:_destroy, :nature, :montant_ae, :montant_cp, :programme_id])
   end
 
   def set_gestion_schema

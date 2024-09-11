@@ -27,10 +27,10 @@ class GestionSchema < ApplicationRecord
     prevision_solde_budgetaire_cp + reports_cp
   end
   def solde_total_ae
-    prevision_solde_budgetaire_ae + mobilisation_mer_ae + mobilisation_surgel_ae + fongibilite_ae + transferts_entrant_ae + transferts_sortant_ae + decret_ae + credits_lfg_ae + reports_ae
+    prevision_solde_budgetaire_ae + mobilisation_mer_ae + mobilisation_surgel_ae + fongibilite_ae + fongibilite_hcas + transferts_entrant_ae + transferts_sortant_ae + decret_ae + credits_lfg_ae + reports_ae
   end
   def solde_total_cp
-    prevision_solde_budgetaire_cp + mobilisation_mer_cp + mobilisation_surgel_cp + fongibilite_cp + transferts_entrant_cp + transferts_sortant_cp + decret_cp + credits_lfg_cp + reports_cp
+    prevision_solde_budgetaire_cp + mobilisation_mer_cp + mobilisation_surgel_cp + fongibilite_cp + fongibilite_cas + transferts_entrant_cp + transferts_sortant_cp + decret_cp + credits_lfg_cp + reports_cp
   end
 
   def transferts_entrant_ae
@@ -58,7 +58,7 @@ class GestionSchema < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["annee","schema_id", "updated_at", "user_id", "vision", "created_at", "profil", "programme_id","credits_lfg_ae", "credits_lfg_cp", "credits_reports_ae", "credits_reports_cp", "decret_ae", "decret_cp", "fongibilite_ae", "fongibilite_cp", "id", "id_value", "mer_ae", "mer_cp", "surgel_ae", "surgel_cp", "mobilisation_mer_ae", "mobilisation_mer_cp","mobilisation_surgel_ae", "mobilisation_surgel_cp", "ressources_ae", "ressources_cp","depenses_ae","depenses_cp", "reports_autre_ae","reports_ae", "reports_cp", "reports_autre_cp", "charges_a_payer_ae", "charges_a_payer_cp", "credits_reports_autre_ae", "credits_reports_autre_cp", "commentaire",]
+    ["annee","schema_id", "updated_at", "user_id", "vision", "created_at", "profil", "programme_id","credits_lfg_ae", "credits_lfg_cp", "credits_reports_ae", "credits_reports_cp", "decret_ae", "decret_cp", "fongibilite_ae", "fongibilite_cp", "id", "id_value", "mer_ae", "mer_cp", "surgel_ae", "surgel_cp", "mobilisation_mer_ae", "mobilisation_mer_cp","mobilisation_surgel_ae", "mobilisation_surgel_cp", "ressources_ae", "ressources_cp","depenses_ae","depenses_cp", "reports_autre_ae","reports_ae", "reports_cp", "reports_autre_cp", "charges_a_payer_ae", "charges_a_payer_cp", "credits_reports_autre_ae", "credits_reports_autre_cp", "commentaire", "fongibilite_hcas", "fongibilite_cas"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["programme", "schema", "user", "transferts"]
@@ -75,5 +75,6 @@ class GestionSchema < ApplicationRecord
 
   def set_fongibilite
     self.fongibilite_cp = self.fongibilite_ae if self.profil == 'HT2'
+    self.fongibilite_cas = -self.fongibilite_hcas if self.profil == 'T2'
   end
 end

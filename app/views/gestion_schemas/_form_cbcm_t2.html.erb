@@ -149,6 +149,18 @@
         </div>
       </div>
 
+      <div class="fr-h6 fr-mb-1w">Fongibilité HCAS/CAS</div>
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">HCAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_hcas) %> €</div>
+        </div>
+        <div class="fr-col-6 fr-col-lg-6">
+          <div class="fr-label">CAS</div>
+          <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cas) %> €</div>
+        </div>
+      </div>
+
       <div class="fr-h6 fr-mb-1w">Virements/transferts entrants</div>
       <% if gestion_schema_rprog.transferts.entrant.empty? %>
         <div class="fr-label fr-mb-3w">Aucun</div>
