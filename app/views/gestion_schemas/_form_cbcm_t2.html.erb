@@ -86,20 +86,6 @@
         </div>
       </div>
 
-      <% if @programme.dotation == "HT2 et T2" %>
-        <div class="fr-h6 fr-mb-1w fr-mt-2w">Fongibilité asymétrique</div>
-        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-          <div class="fr-col-6 fr-col-lg-6">
-            <div class="fr-label">HCAS</div>
-            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_ae) %> €</div>
-          </div>
-          <div class="fr-col-6 fr-col-lg-6">
-            <div class="fr-label">CAS</div>
-            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cp) %> €</div>
-          </div>
-        </div>
-      <% end %>
-
       <hr class="fr-hr fr-mt-3w">
       <div class="fr-h6 fr-mb-1w">Niveau de la mise en réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -125,7 +111,7 @@
       </div>
       <hr class="fr-hr fr-mt-3w">
 
-      <div class="fr-h5">Hypothèses de couverture</div>
+      <div class="fr-h5">Hypothèses de couverture et autres mouvements</div>
       <div class="fr-h6 fr-mb-1w">Mobilisation de la mise en réserve</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-6 fr-col-lg-6">
@@ -148,6 +134,20 @@
           <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.mobilisation_surgel_cp) %> €</div>
         </div>
       </div>
+
+      <% if @programme.dotation == "HT2 et T2" %>
+        <div class="fr-h6 fr-mb-1w">Fongibilité asymétrique</div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">HCAS</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_ae) %> €</div>
+          </div>
+          <div class="fr-col-6 fr-col-lg-6">
+            <div class="fr-label">CAS</div>
+            <div class="fr-text--bold fr-my-3v"><%= format_number(gestion_schema_rprog.fongibilite_cp) %> €</div>
+          </div>
+        </div>
+      <% end %>
 
       <div class="fr-h6 fr-mb-1w">Fongibilité HCAS/CAS</div>
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">

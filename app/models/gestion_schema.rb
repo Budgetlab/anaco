@@ -76,5 +76,6 @@ class GestionSchema < ApplicationRecord
   def set_fongibilite
     self.fongibilite_cp = self.fongibilite_ae if self.profil == 'HT2'
     self.fongibilite_cas = -self.fongibilite_hcas if self.profil == 'T2'
+    self.fongibilite_cas = 0.0 if self.fongibilite_hcas == 0.0
   end
 end
