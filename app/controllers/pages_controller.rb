@@ -28,7 +28,7 @@ class PagesController < ApplicationController
         @missions = []
         @ministeres = []
       else
-        @programmes = Programme.where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
+        @programmes = Programme.where(statut: 'Actif').where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
         @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")
         @ministeres = Ministere.where('nom ILIKE ?', "%#{params[:query]}%")
         @bops = Bop.where('code ILIKE ?', "%#{params[:query]}%")

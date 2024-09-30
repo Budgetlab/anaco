@@ -23,7 +23,7 @@ class Programme < ApplicationRecord
       deconcentre = row_data['BOP'] == 'oui'
       if Programme.exists?(numero: row_data['Numero'].to_i)
         programme = Programme.where(numero: row_data['Numero'].to_i).first
-        programme.update(nom: row_data['Nom'], user_id: user.id, mission_id: mission.id, deconcentre: deconcentre, ministere_id: ministere.id, dotation: row_data['Dotation'])
+        programme.update(nom: row_data['Nom'], user_id: user.id, mission_id: mission.id, deconcentre: deconcentre, ministere_id: ministere.id, dotation: row_data['Dotation'], statut: row_data['Statut'])
       else
         programme = Programme.new
         programme.user_id = user.id
@@ -33,10 +33,10 @@ class Programme < ApplicationRecord
         programme.ministere_id = ministere.id
         programme.deconcentre = deconcentre
         programme.dotation = row_data['Dotation']
+        programme.statut = row_data['Statut']
         programme.save
       end
     end
-    Programme.find_by(numero: 382).update(statut: 'Inactif')
   end
 
   def last_schema

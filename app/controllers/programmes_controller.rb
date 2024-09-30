@@ -12,7 +12,7 @@ class ProgrammesController < ApplicationController
 
   # Page liste des crédits non repartis par programme
   def index
-    @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.all
+    @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.where(statut: 'Actif')
     @programmes = @programmes.order(numero: :asc)
     @q = @programmes.ransack(params[:q])
     @programmes = @q.result.includes(:schemas)
@@ -24,12 +24,7 @@ class ProgrammesController < ApplicationController
   end
 
   # Page pour importer le fichier des programmes
-  def new
-    # mettre à jour les BOP
-    AdminUser.first_or_create!(email: 'admin@anaco.com', password: 'Admin*anaco', password_confirmation: 'Admin*anaco')
-    @bops = Bop.where(dotation: 'complete')
-    @bops.update(dotation: 'HT2 et T2')
-  end
+  def new; end
 
   def import
     Programme.import(params[:file])
