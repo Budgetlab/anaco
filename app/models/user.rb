@@ -27,7 +27,8 @@ class User < ApplicationRecord
       end
 
       User.where('nom = ?', row_data['nom'].to_s).first_or_create do |user|
-        user.email = "user#{idx.to_s}@finances.gouv.fr"
+        id = User.last.id + 1
+        user.email = "user#{id.to_s}@finances.gouv.fr"
         user.statut = row_data['statut'].to_s
         user.nom = row_data['nom'].to_s
         user.password = row_data['Mot de passe'].to_s
