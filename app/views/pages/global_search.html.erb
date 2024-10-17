@@ -3,36 +3,36 @@
     (<%= @programmes.count + @ministeres.count + @missions.count + @bops.count %>)
   </div>
 
-  <% if @statut_user != 'CBR' %>
-    <div class="fr-my-2w">
-      <div class="fr-text--bold">Programmes (<%= @programmes.count %>)</div>
-      <div class="fr-my-1w">
-        <% @programmes.each do |programme| %>
-          <li class="fr-my-2v"><%= link_to programme_path(programme) do %><%= programme.numero %>
-              - <%= programme.nom %>
-            <% end %></li>
-        <% end %>
-      </div>
+
+  <div class="fr-my-2w">
+    <div class="fr-text--bold">Programmes (<%= @programmes.count %>)</div>
+    <div class="fr-my-1w">
+      <% @programmes.each do |programme| %>
+        <li class="fr-my-2v"><%= link_to programme_path(programme) do %><%= programme.numero %>
+            - <%= programme.nom %>
+          <% end %></li>
+      <% end %>
     </div>
-    <div class="fr-my-2w">
-      <div class="fr-text--bold">Ministères (<%= @ministeres.count %>)</div>
-      <div class="fr-my-1w">
-        <% @ministeres.each do |ministere| %>
-          <li class="fr-my-2v"><%= link_to ministere_path(ministere) do %><%= ministere.nom %>
-            <% end %></li>
-        <% end %>
-      </div>
+  </div>
+  <div class="fr-my-2w">
+    <div class="fr-text--bold">Ministères (<%= @ministeres.count %>)</div>
+    <div class="fr-my-1w">
+      <% @ministeres.each do |ministere| %>
+        <li class="fr-my-2v"><%= link_to ministere_path(ministere) do %><%= ministere.nom %>
+          <% end %></li>
+      <% end %>
     </div>
-    <div class="fr-my-2w">
-      <div class="fr-text--bold">Missions (<%= @missions.count %>)</div>
-      <div class="fr-my-1w">
-        <% @missions.each do |mission| %>
-          <li class="fr-my-2v"><%= link_to mission_path(mission) do %><%= mission.nom %>
-            <% end %></li>
-        <% end %>
-      </div>
+  </div>
+  <div class="fr-my-2w">
+    <div class="fr-text--bold">Missions (<%= @missions.count %>)</div>
+    <div class="fr-my-1w">
+      <% @missions.each do |mission| %>
+        <li class="fr-my-2v"><%= link_to mission_path(mission) do %><%= mission.nom %>
+          <% end %></li>
+      <% end %>
     </div>
-  <% end %>
+  </div>
+
   <div class="fr-my-2w">
     <div class="fr-text--bold">BOP (<%= @bops.count %>)</div>
     <div class="fr-my-1w">

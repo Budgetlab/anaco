@@ -1,5 +1,6 @@
 class SchemasController < ApplicationController
-  before_action :authenticate_dcb_or_admin!, except: [:pdf_vision]
+  before_action :authenticate_user!
+  before_action :authenticate_dcb_or_admin!, except: [:pdf_vision, :show]
   before_action :set_schema, only: [:destroy, :show, :confirm_delete, :pdf_vision]
   before_action :set_programme, only: [:create]
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]

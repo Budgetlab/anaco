@@ -1,6 +1,5 @@
 class MissionsController < ApplicationController
   before_action :authenticate_user!
-  before_action :redirect_if_cbr, only: %i[index show]
   def index
     @missions = Mission.all.order(nom: :asc)
   end

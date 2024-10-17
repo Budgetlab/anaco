@@ -24,9 +24,9 @@ class PagesController < ApplicationController
     if params[:query].present?
       if @statut_user == 'CBR'
         @bops = current_user.bops.where('code ILIKE ?', "%#{params[:query]}%")
-        @programmes = []
-        @missions = []
-        @ministeres = []
+        @programmes = Programme.where(statut: 'Actif').where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
+        @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")
+        @ministeres = Ministere.where('nom ILIKE ?', "%#{params[:query]}%")
       else
         @programmes = Programme.where(statut: 'Actif').where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
         @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")

@@ -4,7 +4,6 @@
 class ProgrammesController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:new, :import]
-  before_action :redirect_if_cbr, only: [:index]
   require 'axlsx'
   include ApplicationHelper
   include AvisHelper
@@ -12,7 +11,7 @@ class ProgrammesController < ApplicationController
 
   # Page liste des crédits non repartis par programme
   def index
-    @programmes = current_user.statut == 'CBR' ? current_user.programmes_access : Programme.where(statut: 'Actif')
+    @programmes = Programme.where(statut: 'Actif')
     @programmes = @programmes.order(numero: :asc)
     @q = @programmes.ransack(params[:q])
     @programmes = @q.result.includes(:schemas)

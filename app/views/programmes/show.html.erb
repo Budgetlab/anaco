@@ -3,16 +3,13 @@
 <main>
   <div class="fr-container">
     <h1 class="fr-mt-6w fr-mb-2w">Programme n°<%= @programme.numero %> <br> <%= @programme.nom %></h1>
-    <% if current_user.statut == "CBR" %>
-      <p class="fr-mb-1v">Mission : <%= @programme.mission.nom %></p>
-      <p class="fr-mb-1w">Ministère : <%= @programme.ministere.nom %></p>
-    <% else %>
-      <p class="fr-mb-1v">Mission : <%= link_to mission_path(@programme.mission) do %><%= @programme.mission.nom %>
-        <% end %></p>
-      <p class="fr-mb-1w">Ministère
-        : <%= link_to ministere_path(@programme.ministere) do %><%= @programme.ministere.nom %>
-        <% end %> </p>
-    <% end %>
+
+    <p class="fr-mb-1v">Mission : <%= link_to mission_path(@programme.mission) do %><%= @programme.mission.nom %>
+      <% end %></p>
+    <p class="fr-mb-1w">Ministère
+      : <%= link_to ministere_path(@programme.ministere) do %><%= @programme.ministere.nom %>
+      <% end %> </p>
+
     <div class="fr-mb-1w">
       <p class="fr-badge fr-badge--sm fr-badge--purple-glycine"><%= @programme.user.nom %></p>
       <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Doté en <%= @programme.dotation %></p>
@@ -58,13 +55,13 @@
                     </div>
                   </li>
                 <% end %>
-                <% if current_user.statut != "CBR" %>
-                  <li class="fr-sidemenu__item">
-                    <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
-                      Schémas de fin de gestion
-                    <% end %>
-                  </li>
-                <% end %>
+
+                <li class="fr-sidemenu__item">
+                  <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
+                    Schémas de fin de gestion
+                  <% end %>
+                </li>
+
               </ul>
             </div>
           </div>

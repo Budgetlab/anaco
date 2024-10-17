@@ -30,7 +30,7 @@
             <div class="fr-header__tools-links ">
               <ul class="fr-btns-group">
                 <li>
-                  <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete , class: "fr-btn fr-fi-logout-box-r-line" %>
+                  <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete, class: "fr-btn fr-fi-logout-box-r-line" %>
                 </li>
               </ul>
             </div>
@@ -117,7 +117,8 @@
                     </li>
                     <% if current_user.statut == "admin" %>
                       <li>
-                        <%= active_link_to suivi_remplissage_schemas_path, class: "fr-nav__link", target: "_self" do %>Suivi du remplissage
+                        <%= active_link_to suivi_remplissage_schemas_path, class: "fr-nav__link", target: "_self" do %>
+                          Suivi du remplissage
                         <% end %>
                       </li>
                     <% end %>
@@ -130,13 +131,11 @@
               <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) || current_page?(bops_path) || current_page?(faq_path) ? 'aria-current="true"' : '' %>>Informations</button>
               <div class="fr-collapse fr-menu" id="menu-liste">
                 <ul class="fr-menu__list">
-                  <% if current_user.statut != 'CBR' %>
-                    <li>
-                      <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do %>Liste des
-                        programmes
-                      <% end %>
-                    </li>
-                  <% end %>
+                  <li>
+                    <%= active_link_to programmes_path, class: "fr-nav__link", target: "_self" do %>Liste des
+                      programmes
+                    <% end %>
+                  </li>
                   <li>
                     <%= active_link_to bops_path, class: "fr-nav__link", target: "_self" do %>Liste des BOP
                     <% end %>
