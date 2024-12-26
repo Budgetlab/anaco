@@ -1,25 +1,30 @@
-<% content_for :title do %>Informations du BOP n°<%= @bop.code%> | ANACO <% end %>
+<% content_for :title do %>Informations du BOP n°<%= @bop.code %> | ANACO
+<% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
     <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
-      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir le fil d’Ariane</button>
+      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir
+        le fil d’Ariane
+      </button>
       <div class="fr-collapse" id="breadcrumb-1">
         <ol class="fr-breadcrumb__list">
           <li>
-            <%= link_to root_path, class:"fr-breadcrumb__link" do %> Accueil <%end %>
+            <%= link_to root_path, class: "fr-breadcrumb__link" do %> Accueil
+            <% end %>
           </li>
           <li>
-            <%= link_to bops_path, class:"fr-breadcrumb__link" do %> Liste des BOP<%end %>
+            <%= link_to bops_path, class: "fr-breadcrumb__link" do %> Liste des BOP
+            <% end %>
           </li>
           <li>
-            <a class="fr-breadcrumb__link" aria-current="page">BOP n°<%= @bop.code%></a>
+            <a class="fr-breadcrumb__link" aria-current="page">BOP n°<%= @bop.code %></a>
           </li>
         </ol>
       </div>
     </nav>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mb-3w">BOP n°<%= @bop.code%></h1>
+        <h1 class="fr-mb-3w">BOP n°<%= @bop.code %></h1>
       </div>
     </div>
 
@@ -29,16 +34,22 @@
           <div class="fr-card__start">
             <ul class="fr-badges-group">
               <li>
-                <p class="fr-tag"> Ministere <%= @bop.ministere%></p>
+                <p class="fr-tag"> Ministere <%= @bop.ministere %></p>
               </li>
             </ul>
-            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom%></p>
+            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom %></p>
           </div>
-          <h3 class="fr-card__title">BOP n°<%= @bop.code%></h3>
+          <h3 class="fr-card__title">BOP n°<%= @bop.code %></h3>
           <div class="fr-card__desc">
-            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.numero_programme%> - <%= @bop.nom_programme%><% end %></p>
-            <p>Contrôleur : <%= @bop.user.nom%></p>
-            <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><% if @bop.dotation == "aucune" %>BOP inactif<%elsif @bop.dotation.nil? || @bop.dotation.blank? %>Dotation non renseignée<%else %>BOP doté en <%= @bop.dotation %><%end %></p>
+            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.numero_programme %>
+                - <%= @bop.nom_programme %>
+              <% end %></p>
+            <p>Contrôleur : <%= @bop.user.nom %></p>
+            <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
+              <% if @bop.dotation == "aucune" %>BOP inactif
+              <% elsif @bop.dotation.nil? || @bop.dotation.blank? %>Dotation non renseignée
+              <% else %>BOP doté en <%= @bop.dotation %>
+              <% end %></p>
             </div>
           </div>
         </div>
@@ -46,37 +57,35 @@
     </div>
 
 
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-6w">
-        <div class="fr-col-12 fr-col-lg-12">
-          <h2 class="fr-mb-3w">Historique des avis</h2>
-          <div class="fr-tabs">
-            <ul class="fr-tabs__list" role="tablist" aria-label="Avis du bop par année">
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-6w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h2 class="fr-mb-3w">Historique des avis</h2>
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Avis du bop par année">
+            <% (Date.today.year).downto(2023).to_a.each do |annee| %>
               <li role="presentation">
-                <button id="tabpanel-2024" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-2024-panel">2024</button>
+                <button id="tabpanel-<%= annee %>" class="fr-tabs__tab" tabindex="<%= annee == Date.today.year ? '0' : '-1' %>" role="tab" aria-selected="<%= annee == Date.today.year ? 'true' : 'false' %>" aria-controls="tabpanel-<%= annee %>-panel"><%= annee %></button>
               </li>
-              <li role="presentation">
-                <button id="tabpanel-2023" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-2023-panel">2023</button>
-              </li>
-            </ul>
-            <div id="tabpanel-2024-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-2024" tabindex="0">
-              <%= render partial: "bops/bop_table_avis", locals: {annee: 2024} %>
+            <% end %>
+          </ul>
+          <% (Date.today.year).downto(2023).to_a.each do |annee| %>
+            <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == Date.today.year ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
+              <%= render partial: "bops/bop_table_avis", locals: { annee: annee } %>
             </div>
-            <div id="tabpanel-2023-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-2023" tabindex="0">
-              <%= render partial: "bops/bop_table_avis", locals: {annee: 2023} %>
-            </div>
-          </div>
+          <% end %>
         </div>
       </div>
-      <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
-        <div id="debut">
-          <%= render partial: 'avis/dialog_debut',locals: {avis: nil} %>
-        </div>
-      </dialog>
-      <dialog id="modal-modifiable" class="fr-modal" role="dialog" aria-labelledby="modal-modifiable-title">
-        <div id="modal_brouillon">
-          <%= render partial: "avis/dialog_modifiable", locals: {avis: nil} %>
-        </div>
-      </dialog>
+    </div>
+    <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
+      <div id="debut">
+        <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
+      </div>
+    </dialog>
+    <dialog id="modal-modifiable" class="fr-modal" role="dialog" aria-labelledby="modal-modifiable-title">
+      <div id="modal_brouillon">
+        <%= render partial: "avis/dialog_modifiable", locals: { avis: nil } %>
+      </div>
+    </dialog>
 
   </div>
 </main>

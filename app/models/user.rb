@@ -8,7 +8,6 @@ class User < ApplicationRecord
   has_many :consulted_bops, class_name: 'Bop', foreign_key: 'dcb_id'
   has_many :avis
   has_many :programmes
-  has_many :credits
   has_many :gestion_schemas
   has_many :schemas
 

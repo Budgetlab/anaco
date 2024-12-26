@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_11_065126) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_26_092833) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -109,25 +109,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_11_065126) do
     t.index ["dcb_id"], name: "index_bops_on_dcb_id"
     t.index ["programme_id"], name: "index_bops_on_programme_id"
     t.index ["user_id"], name: "index_bops_on_user_id"
-  end
-
-  create_table "credits", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "programme_id", null: false
-    t.string "phase"
-    t.integer "annee"
-    t.string "etat"
-    t.string "statut"
-    t.string "commentaire"
-    t.boolean "is_crg1"
-    t.date "date_document"
-    t.float "ae_i"
-    t.float "cp_i"
-    t.float "t2_i"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["programme_id"], name: "index_credits_on_programme_id"
-    t.index ["user_id"], name: "index_credits_on_user_id"
   end
 
   create_table "gestion_schemas", force: :cascade do |t|
@@ -245,8 +226,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_11_065126) do
   add_foreign_key "bops", "programmes"
   add_foreign_key "bops", "users"
   add_foreign_key "bops", "users", column: "dcb_id"
-  add_foreign_key "credits", "programmes"
-  add_foreign_key "credits", "users"
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"

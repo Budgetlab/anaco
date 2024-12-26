@@ -11,7 +11,7 @@
           <div class="fr-card__body">
             <div class="fr-card__content">
               <h3 class="fr-card__title">Il vous
-                reste <%= pluralize(@programmes.count - current_user.programmes_with_schemas(2024), 'proposition', plural: 'propositions') %>
+                reste <%= pluralize(@programmes.count - current_user.programmes_with_schemas(Date.today.year), 'proposition', plural: 'propositions') %>
                 de contribution au schéma fin de gestion <%= Date.today.year %> à rédiger</h3>
               <div class="fr-card__desc">
                 <% @programmes&.each do |programme| %>

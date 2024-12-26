@@ -2,7 +2,7 @@
   <div class="fr-h2">Nous sommes en phase de <%= @phase %> <%= @annee %></div>
   <div class="fr-mb-2w">
     <ul class="fr-tags-group">
-      <% (2023..2024).to_a.each do |annee| %>
+      <% (2023..Date.today.year).to_a.each do |annee| %>
         <li>
           <%= link_to avis_programme_path(@programme, date: annee), data: { turbo_frame: :show }, class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
             <%= annee %>

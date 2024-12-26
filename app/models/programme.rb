@@ -2,7 +2,6 @@ class Programme < ApplicationRecord
   belongs_to :user
   belongs_to :mission
   belongs_to :ministere
-  has_many :credits, dependent: :destroy
   has_many :bops
   has_many :avis, through: :bops
   has_many :gestion_schemas, dependent: :destroy

@@ -121,6 +121,7 @@
           </div>
           <div class="fr-col-12 fr-col-lg-8">
 
+            <% if @avis_execution %>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
                   <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-execution" data-action="click->form#save"><p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel exécution <%= @annee_a_afficher - 1 %></p> Écart début de gestion/exécution</button>
@@ -129,7 +130,7 @@
                   <%= render partial: "avis/rappel_ecart", locals: {avis: @avis_execution} %>
                 </div>
               </section>
-
+            <% end %>
 
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">

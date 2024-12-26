@@ -36,7 +36,7 @@ class Avi < ApplicationRecord
         avis.cp_i = avis_debut_n1&.cp_i || 0
         avis.t2_i = avis_debut_n1&.t2_i || 0
         avis.etpt_i = avis_debut_n1&.etpt_i || 0
-        avis.date_envoi = Date.new(2024, 1, 1)
+        avis.date_envoi = Date.new(2025, 1, 1)
       end
       avis.save
     end
