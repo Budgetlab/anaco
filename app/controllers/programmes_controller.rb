@@ -34,7 +34,8 @@ class ProgrammesController < ApplicationController
 
   def show_last_schema
     @programme = Programme.find(params[:id])
-    @schema = @programme.last_schema_valid
+    @annee_a_afficher = annee_a_afficher
+    @schema = @programme.last_schema_valid(@annee_a_afficher)
     return unless @schema
 
     @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')

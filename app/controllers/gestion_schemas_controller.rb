@@ -14,7 +14,7 @@ class GestionSchemasController < ApplicationController
     # si brouillon rediriger vers edit
     redirect_to edit_schema_gestion_schema_path(@schema.gestion_schemas.where(vision: @vision, profil: @profil).first, schema_id: @schema.id) and return if @schema&.gestion_schemas&.where(vision: @vision, profil: @profil)&.first
 
-    previous_schema = @programme.last_schema_valid
+    previous_schema = @programme.last_schema_valid(@annee)
     # si version > 1 récupérer les données des versions précedentes sur le même profil
     if previous_schema
       gestion_schema_previous = previous_schema.gestion_schemas.where(vision: @vision, profil: @profil).first

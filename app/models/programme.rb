@@ -38,12 +38,12 @@ class Programme < ApplicationRecord
     end
   end
 
-  def last_schema
-    self.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first
+  def last_schema(annee)
+    self.schemas&.where(annee: annee)&.order(created_at: :desc)&.first
   end
 
-  def last_schema_valid
-    self.schemas&.where(statut: 'valide')&.order(created_at: :desc)&.first
+  def last_schema_valid(annee)
+    self.schemas&.where(statut: 'valide', annee: annee)&.order(created_at: :desc)&.first
   end
 
   def gestion_schemas_empty?

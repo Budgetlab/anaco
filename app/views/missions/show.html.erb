@@ -3,6 +3,17 @@
 <main>
   <div class="fr-container">
     <h1 class="fr-mt-6w">Mission <%= @mission.nom %></h1>
+    <div class="fr-mb-2w">
+      <ul class="fr-tags-group">
+        <% (2024..Date.today.year).to_a.each do |annee| %>
+          <li>
+            <%= link_to mission_path(@mission, date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
+              <%= annee %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
     <div class="fr-alert fr-alert--warning fr-mb-2w">
       <h3 class="fr-alert__title">La vision mission peut présenter des données incomplètes car il est possible que
         certains programmes ne soient pas renseignés dans ANACO.</h3>
@@ -72,7 +83,7 @@
               </thead>
               <tbody>
               <% @programmes.each do |programme| %>
-                <% schema = programme.last_schema_valid %>
+                <% schema = programme.last_schema_valid(@annee_a_afficher) %>
                 <tr>
                   <th class="fr-cell--fixed" scope="row">P <%= programme.numero %></th>
                   <td class="fr-cell--right"><%= format_number(schema&.gestion_schemas&.rprog_ht2&.first&.solde_total_ae) %></td>
@@ -87,14 +98,14 @@
               <% end %>
               <tr class="fr-table--total">
                 <th class="fr-cell--fixed" scope="row">Total</th>
-                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_ht2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_t2_for_mission) %></td>
-                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_t2_for_mission) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_ht2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_ht2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_ht2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_ht2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_rprog_t2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_rprog_t2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_ae_cbcm_t2_for_mission(@annee_a_afficher)) %></td>
+                <td class="fr-cell--right"><%= format_number(@mission.total_cp_cbcm_t2_for_mission(@annee_a_afficher)) %></td>
               </tr>
               </tbody>
             </table>
@@ -103,11 +114,11 @@
       </div>
     </div>
     <div class="fr-download">
-      <p><%= link_to mission_path(@mission, format: :xlsx), class: "fr-download__link" do %> Télécharger le cumul et le détail des schémas de fin de gestion des programmes
+      <p><%= link_to mission_path(@mission,date: @annee_a_afficher, format: :xlsx), class: "fr-download__link" do %> Télécharger le cumul et le détail des schémas de fin de gestion <%= @annee_a_afficher %> des programmes
           <span class="fr-download__detail">Format .xlsx</span>
         <%end %></p>
     </div>
-    <h2>Détails des schémas de fin de gestion des différents programmes de la mission</h2>
+    <h2>Détails des schémas de fin de gestion <%= @annee_a_afficher %> des programmes de la mission</h2>
     <div class="fr-accordions-group fr-mb-4w">
       <% @programmes.each_with_index do |programme, index| %>
         <section class="fr-accordion">
@@ -115,7 +126,7 @@
             <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%= index %>">Programme <%= programme.numero %></button>
           </h3>
           <div class="fr-collapse" id="accordion-<%= index %>">
-            <%= turbo_frame_tag :show, src: last_schema_programme_path(programme) %>
+            <%= turbo_frame_tag :show, src: last_schema_programme_path(programme, date: @annee_a_afficher) %>
           </div>
         </section>
       <% end %>

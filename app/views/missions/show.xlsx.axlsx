@@ -29,15 +29,15 @@ wb.add_worksheet(name: "Cumul") do |sheet|
 
     length_table = 4
     @programmes.each do |programme|
-        schema = programme.last_schema_valid
+        schema = programme.last_schema_valid(@annee_a_afficher)
         if schema
             length_table += 1
             sheet.add_row [programme.numero, schema&.gestion_schemas&.rprog_ht2&.first&.solde_total_ae, schema&.gestion_schemas&.rprog_ht2&.first&.solde_total_cp, schema&.gestion_schemas&.cbcm_ht2&.first&.solde_total_ae, schema&.gestion_schemas&.cbcm_ht2&.first&.solde_total_cp,
             schema&.gestion_schemas&.rprog_t2&.first&.solde_total_ae, schema&.gestion_schemas&.rprog_t2&.first&.solde_total_cp, schema&.gestion_schemas&.cbcm_t2&.first&.solde_total_ae, schema&.gestion_schemas&.cbcm_t2&.first&.solde_total_cp], style: cell_style
         end
     end
-    sheet.add_row ["Total", @mission.total_ae_rprog_ht2_for_mission, @mission.total_cp_rprog_ht2_for_mission, @mission.total_ae_cbcm_ht2_for_mission, @mission.total_cp_cbcm_ht2_for_mission,
-    @mission.total_ae_rprog_t2_for_mission, @mission.total_cp_rprog_t2_for_mission, @mission.total_ae_cbcm_t2_for_mission, @mission.total_cp_cbcm_t2_for_mission], style: cell_style
+    sheet.add_row ["Total", @mission.total_ae_rprog_ht2_for_mission(@annee_a_afficher), @mission.total_cp_rprog_ht2_for_mission(@annee_a_afficher), @mission.total_ae_cbcm_ht2_for_mission(@annee_a_afficher), @mission.total_cp_cbcm_ht2_for_mission(@annee_a_afficher),
+    @mission.total_ae_rprog_t2_for_mission(@annee_a_afficher), @mission.total_cp_rprog_t2_for_mission(@annee_a_afficher), @mission.total_ae_cbcm_t2_for_mission(@annee_a_afficher), @mission.total_cp_cbcm_t2_for_mission(@annee_a_afficher)], style: cell_style
 
     sheet.add_style ["B4:I#{length_table}"], num_fmt: 1
     sheet.add_style ["A#{length_table}:I#{length_table}"], bg_color: "dae1f2"
@@ -91,8 +91,8 @@ end
     length_table = 3
 
     @programmes&.each do |programme|
-        @vision_rprog_ht2 = programme.last_schema_valid&.gestion_schemas&.find_by(vision: 'RPROG', profil: 'HT2')
-        @vision_cbcm_ht2 = programme.last_schema_valid&.gestion_schemas&.find_by(vision: 'CBCM', profil: 'HT2')
+        @vision_rprog_ht2 = programme.last_schema_valid(@annee_a_afficher)&.gestion_schemas&.find_by(vision: 'RPROG', profil: 'HT2')
+        @vision_cbcm_ht2 = programme.last_schema_valid(@annee_a_afficher)&.gestion_schemas&.find_by(vision: 'CBCM', profil: 'HT2')
 
         if @vision_rprog_ht2
             length_table += 2
@@ -164,8 +164,8 @@ wb.add_worksheet(name: "T2") do |sheet|
     length_table = 3
 
     @programmes&.each do |programme|
-        @vision_rprog_t2 = programme.last_schema_valid&.gestion_schemas&.find_by(vision: 'RPROG', profil: 'T2')
-        @vision_cbcm_t2 = programme.last_schema_valid&.gestion_schemas&.find_by(vision: 'CBCM', profil: 'T2')
+        @vision_rprog_t2 = programme.last_schema_valid(@annee_a_afficher)&.gestion_schemas&.find_by(vision: 'RPROG', profil: 'T2')
+        @vision_cbcm_t2 = programme.last_schema_valid(@annee_a_afficher)&.gestion_schemas&.find_by(vision: 'CBCM', profil: 'T2')
 
         if @vision_rprog_t2
             length_table += 2

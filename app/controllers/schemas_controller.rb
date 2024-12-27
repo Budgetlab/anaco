@@ -29,6 +29,7 @@ class SchemasController < ApplicationController
   # suivi remplissage des schémas par programme pour les DCB
   def schemas_remplissage
     @programmes = current_user.programmes.where(statut: 'Actif').order(numero: :asc)
+    @annee_a_afficher = annee_a_afficher
   end
 
   def show
@@ -93,7 +94,7 @@ class SchemasController < ApplicationController
   end
 
   def retrieve_last_schema_and_redirect_if_incomplete
-    last_schema = @programme.schemas&.where(annee: Date.today.year)&.order(created_at: :desc)&.first
+    last_schema = @programme.last_schema(@annee)
     redirect_to new_schema_gestion_schema_path(@schema) and return if last_schema&.incomplete?
   end
 end
