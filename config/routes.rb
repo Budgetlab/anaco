@@ -10,7 +10,6 @@ Rails.application.routes.draw do
     get 'global_search', to: 'pages#global_search'
     get 'utilisateurs' => 'users#index'
     post 'import_users' => 'users#import'
-    post 'import_nom_users' => 'users#import_nom'
     post '/select_nom' => 'users#select_nom'
 
     get 'suivi_remplissage_schemas', to: 'users#suivi_remplissage_schemas'

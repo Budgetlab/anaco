@@ -19,33 +19,13 @@ class User < ApplicationRecord
       next if idx == 0 # skip header
 
       row_data = Hash[[headers, row].transpose]
-
-      if User.exists?(nom: row_data['nom'].to_s)
-        @user = User.where(nom: row_data['nom'].to_s)
-        @user.update(statut: row_data['statut'].to_s, password: row_data['Mot de passe'].to_s)
-      end
-
-      User.where('nom = ?', row_data['nom'].to_s).first_or_create do |user|
-        id = User.last.id + 1
-        user.email = "user#{id.to_s}@finances.gouv.fr"
-        user.statut = row_data['statut'].to_s
-        user.nom = row_data['nom'].to_s
-        user.password = row_data['Mot de passe'].to_s
-      end
-    end
-  end
-
-  # fonction qui met à jour les noms des utilisateurs
-  def self.import_nom(file)
-    data = Roo::Spreadsheet.open(file.path)
-    headers = data.row(1) # get header row
-    data.each_with_index do |row, idx|
-      next if idx == 0 # skip header
-
-      row_data = Hash[[headers, row].transpose]
-      @user = User.where(nom: row_data['Ancien']).first
-      @user.nom = row_data['Nouveau']
-      @user.save
+      user = User.find_or_initialize_by(nom: row_data['nom'].to_s)
+      user.email = user.email
+      user.statut = row_data['statut'].to_s
+      user.nom = row_data['nom'].to_s
+      user.password = row_data['Mot de passe'].to_s
+      user.save
+      puts "Failed to save user: #{user.errors.full_messages.join(', ')}"
     end
   end
 

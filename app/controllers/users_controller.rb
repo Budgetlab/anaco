@@ -3,12 +3,12 @@
 # Controller Users
 class UsersController < ApplicationController
   protect_from_forgery with: :null_session
-  before_action :authenticate_admin!, only: [:index, :import, :import_nom, :suivi_remplissage_schemas]
+  before_action :authenticate_admin!, only: [:index, :import, :suivi_remplissage_schemas]
   include ApplicationHelper
 
   # Page pour ajouter les utilisateurs
   def index
-    @users = User.all
+    @users = User.all.order(nom: :asc)
   end
 
   # fonction d'import des utilisateurs dans la bdd par un fichier externe
@@ -18,15 +18,6 @@ class UsersController < ApplicationController
       format.turbo_stream { redirect_to utilisateurs_path }
     end
   end
-
-  # fonction qui met à jour les noms des utilisateurs dans la bdd grâce au fichier externe importé
-  def import_nom
-    User.import_nom(params[:file])
-    respond_to do |format|
-      format.turbo_stream { redirect_to utilisateurs_path }
-    end
-  end
-
   # fonction qui renvoie les noms des utilisateurs au moment du choix du profil dans la connexion
   def select_nom
     noms = !params[:statut].nil? ? User.where(statut: params[:statut]).order(nom: :asc).pluck(:nom) : nil

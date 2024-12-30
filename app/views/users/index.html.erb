@@ -16,20 +16,6 @@
 			 <% end %>
     </div>
 
-			<h2>Modifier les noms des utilisateurs</h2>
-			<div>
-				<%= form_tag import_nom_users_path, multipart: true do %>
-					<div class="fr-upload-group">
-						<label class="fr-label" for="file-upload2">Ajouter le fichier
-							<span class="fr-hint-text">Formats supportés : xlsx. </span>
-						</label>
-						<%= file_field_tag  :file, accept: '.xlsx', class: "fr-upload", id: "file-upload2" %>
-					</div>
-					<div class="fr-my-4w"><%= submit_tag "Transmettre", class:"fr-btn" %></div>
-
-				<% end %>
-			</div>
-
     <div class="fr-my-4w"><%= @users.count%> utilisateurs : <%= @users.pluck(:nom) %></div>
 </div>
 </div>
