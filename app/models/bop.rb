@@ -11,6 +11,11 @@ class Bop < ApplicationRecord
     data.each_with_index do |row, idx|
       next if idx == 0 # skip header
       row_data = Hash[[headers, row].transpose]
+      #mise à jour des dotations
+      if Bop.find_by(code: row_data['Code'])
+        bop = Bop.find_by(code: row_data['Code'])
+        bop.update!(dotation: row_data['Dotation'], created_at: row_data['Created at'].to_datetime)
+      end
       unless User.where(nom: row_data['Identifiant']).first.nil?
         if Bop.exists?(code: row_data['Code CHORUS du BOP'].to_s)
           @bop = Bop.where(code: row_data['Code CHORUS du BOP'].to_s).first
@@ -29,6 +34,7 @@ class Bop < ApplicationRecord
       end
 
     end
+    Bop.where(dotation: "\n").update_all(dotation: nil)
   end
 
   def self.ransackable_attributes(auth_object = nil)

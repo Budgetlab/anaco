@@ -3,8 +3,50 @@ class Avi < ApplicationRecord
   belongs_to :user
   require 'axlsx'
 
-  # fonction pour importer les avis d'exécution
   def self.import(file)
+    Avi.where.not(phase: 'execution').destroy_all
+    data = Roo::Spreadsheet.open(file.path)
+    headers = data.row(1) # get header row
+    data.each_with_index do |row, idx|
+      next if idx == 0 # skip header
+
+      row_data = Hash[[headers, row].transpose]
+      code_bop = row_data['BOP'].to_s
+      bop = Bop.find_by(code: code_bop)
+      next unless bop
+
+      avis = Avi.new(bop_id: bop.id, user_id: bop.user_id)
+      avis.phase = row_data['Phase']
+      avis.created_at = row_data['Date de saisie'].to_datetime
+      avis.date_reception = row_data['Date reception']&.to_date
+      avis.date_envoi = row_data['Date avis initial']&.to_date
+      avis.is_delai = if row_data['Delai'] == 'oui'
+                        true
+                      elsif row_data['Delai'] == 'non'
+                        false
+                      end
+      avis.is_crg1 = if row_data['CRG1 programmé'] == 'oui'
+                       true
+                     elsif row_data['CRG1 programmé'] == 'non'
+                       false
+                     end
+      avis.ae_i = row_data['AE HT2 alloué']
+      avis.cp_i = row_data['CP HT2 alloué']
+      avis.t2_i = row_data['AE/CP T2 alloué']
+      avis.etpt_i = row_data['ETPT alloué']
+      avis.ae_f = row_data['AE HT2 prev']
+      avis.cp_f = row_data['CP HT2 prev']
+      avis.t2_f = row_data['AE/CP T2 prev']
+      avis.etpt_f = row_data['ETPT prev']
+      avis.commentaire = row_data['commentaire']
+      avis.annee = row_data['Annee'].to_i
+      avis.statut = row_data['Statut/Risque']
+      avis.etat = 'valide'
+      avis.save
+    end
+  end
+  # fonction pour importer les avis d'exécution
+  def self.import_execution(file)
     Avi.where(phase: 'execution').destroy_all
     data = Roo::Spreadsheet.open(file.path)
     headers = data.row(1) # get header row
