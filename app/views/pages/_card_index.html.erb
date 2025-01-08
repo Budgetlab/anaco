@@ -3,7 +3,7 @@
     <div class="fr-card__content">
       <h3 class="fr-card__title">Phase de <%= phase %></h3>
       <% if Date.today < date_ouverture %>
-        <p class="fr-card__desc">Données ouvertes à partir du <%= I18n.localize(date_ouverture,format: "%e %B")%>.</p>
+        <p class="fr-card__desc">Données ouvertes à partir <% if phase == 'début de gestion' %>de la promulgation de la LFI 2025 <% else %>du <%= I18n.localize(date_ouverture,format: "%e %B")%>.<%end %></p>
       <% else %>
         <div class="fr-card__desc">
           <div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
@@ -42,7 +42,7 @@
             <% if Date.today < date_ouverture %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif date_ouverture <= Date.today && Date.today <= date_fermeture%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
           </li>
         </ul>
-        <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(date_ouverture,format: "%e %B")%> au <%= I18n.localize(date_fermeture,format: "%e %B")%></p>
+        <p class="fr-card__detail fr-icon-arrow-right-line"><% if phase == 'début de gestion' %>Dès la promulgation de la LFI 2025<%else %>Du <%= I18n.localize(date_ouverture,format: "%e %B")%> au <%= I18n.localize(date_fermeture,format: "%e %B")%><%end %></p>
       </div>
     </div>
     <% if Date.today >= date_ouverture%>
