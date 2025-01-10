@@ -11,7 +11,7 @@
       <% end %>
     </ul>
   </div>
-  <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
+  <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2, @date_debut) %>
 
   <h3 class="fr-mt-3w" id="chiffres">Données budgétaires <%= @annee_a_afficher %></h3>
   <div class="fr-tabs fr-mb-4w">
@@ -26,14 +26,18 @@
     </ul>
     <% phases.each_with_index do |phase, index| %>
       <div id="tabpanel-<%= index %>-panel" class="fr-tabs__panel <%= index == 0 ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= index %>" tabindex="0">
-        <% avis_ecart = sum_chiffres_avis(@avis, phase)[0..3].zip(sum_chiffres_avis(@avis, phase)[4..7]).map { |u, v| u - v } %>
-        <% avis_ecart_cbr = sum_chiffres_avis(@avis_cbr, phase)[0..3].zip(sum_chiffres_avis(@avis_cbr, phase)[4..7]).map { |u, v| u - v } %>
-        <div class="fr-mt-2w">
-          <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[0..3], titre: 'alloué', class_active: 'fr-card--green' } %>
-        </div>
-        <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
+        <% if phase == 'services votés' %>
+          <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
+        <% else %>
+          <% avis_ecart = sum_chiffres_avis(@avis, phase)[0..3].zip(sum_chiffres_avis(@avis, phase)[4..7]).map { |u, v| u - v } %>
+          <% avis_ecart_cbr = sum_chiffres_avis(@avis_cbr, phase)[0..3].zip(sum_chiffres_avis(@avis_cbr, phase)[4..7]).map { |u, v| u - v } %>
+          <div class="fr-mt-2w">
+            <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[0..3], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[0..3], titre: 'alloué', class_active: 'fr-card--green' } %>
+          </div>
+          <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
 
-        <%= render partial: "avis/synthese_chiffres", locals: { avis: avis_ecart, avis_sd: avis_ecart_cbr, titre: 'Ecart', class_active: 'fr-card--blue' } %>
+          <%= render partial: "avis/synthese_chiffres", locals: { avis: avis_ecart, avis_sd: avis_ecart_cbr, titre: 'Ecart', class_active: 'fr-card--blue' } %>
+        <% end %>
       </div>
     <% end %>
   </div>

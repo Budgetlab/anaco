@@ -24,67 +24,6 @@ class AvisController < ApplicationController
     end
   end
 
-  # fonction qui ouvre l'avis et ses infos
-  def open_modal
-    @avis_default = Avi.find(params[:id])
-    if @avis_default.phase == 'début de gestion'
-      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, annee: @avis_default.annee - 1).first
-    end
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default, avis_execution: avis_execution || nil })
-        ]
-      end
-    end
-  end
-
-  # fonction qui ouvre le modal pour remettre l'avis en brouillon pour la DB
-  def open_modal_brouillon
-    @avis = Avi.find(params[:id])
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('modal_brouillon', partial: 'avis/dialog_modifiable', locals: { avis: @avis })
-        ]
-      end
-    end
-  end
-
-  # fonction qui remet l'avis en brouillon
-  def reset_brouillon
-    @avis = Avi.find(params[:id])
-    @avis&.update(etat: 'Brouillon')
-    if @avis.phase == 'début de gestion'
-      @bop = @avis.bop
-      @avis_execution = @bop.avis.where(phase: 'execution', annee: @avis.annee - 1).first
-      @avis_execution&.update(etat: 'Brouillon')
-    end
-    respond_to do |format|
-      format.turbo_stream { redirect_to bop_path(@avis.bop) }
-    end
-  end
-
-  # Page de consultation des avis pour les DCB
-  def consultation
-    bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
-    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
-    @q = avis_all.ransack(params[:q])
-    @avis_all = @q.result.includes(:bop, :user)
-    @pagy, @avis_page = pagy(@avis_all)
-    respond_to do |format|
-      format.html
-      format.xlsx
-    end
-  end
-
-  # fonction qui met à jour l'état de l'avis comme Lu
-  def update_etat
-    @avis = Avi.find(params[:id])
-    @avis&.update(etat: 'Lu')
-    redirect_to consultation_path, flash: { notice: 'Lu' }
-  end
-
   # Page de création d'un nouvel avis
   def new
     @annee_a_afficher = annee_a_afficher
@@ -136,6 +75,59 @@ class AvisController < ApplicationController
     else
       render :edit
     end
+  end
+  # fonction qui ouvre l'avis et ses infos
+  def open_modal
+    @avis_default = Avi.find(params[:id])
+    if @avis_default.phase == 'début de gestion'
+      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, annee: @avis_default.annee - 1).first
+    end
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default, avis_execution: avis_execution || nil })
+        ]
+      end
+    end
+  end
+
+  # fonction qui ouvre le modal pour remettre l'avis en brouillon pour la DB
+  def open_modal_brouillon
+    @avis = Avi.find(params[:id])
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('modal_brouillon', partial: 'avis/dialog_modifiable', locals: { avis: @avis })
+        ]
+      end
+    end
+  end
+
+  # fonction qui remet l'avis en brouillon
+  def reset_brouillon
+    @avis = Avi.find(params[:id])
+    @avis&.update(etat: 'Brouillon')
+    redirect_to bop_path(@avis.bop)
+  end
+
+  # Page de consultation des avis pour les DCB
+  def consultation
+    bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
+    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
+    @q = avis_all.ransack(params[:q])
+    @avis_all = @q.result.includes(:bop, :user)
+    @pagy, @avis_page = pagy(@avis_all)
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
+
+  # fonction qui met à jour l'état de l'avis comme Lu
+  def update_etat
+    @avis = Avi.find(params[:id])
+    @avis&.update(etat: 'Lu')
+    redirect_to consultation_path, flash: { notice: 'Lu' }
   end
 
   # Page pour importer les avis exécution N-1

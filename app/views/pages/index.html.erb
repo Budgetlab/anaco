@@ -16,9 +16,11 @@
       <div class="fr-container">
         <div class="fr-notice__body">
           <p>
-            <span class="fr-notice__title">Au regard du contexte actuel, les avis de début de gestion ne sont pas ouverts.</span>
+            <span class="fr-notice__title">Au regard du contexte actuel, les avis de début de gestion ne sont pas encore ouverts.</span>
+            <% if current_user.statut != 'admin' %>
             <span class="fr-notice__desc">Vous pouvez cependant remplir un avis sur la prévision de dépenses au titre des services votés en cliquant sur le lien ci-dessous :</span>
             <%= link_to remplissage_avis_path, target:"_self", class:"fr-notice__link" do%>Remplir un avis sur la prévision des dépenses<% end %>
+            <% end %>
           </p>
         </div>
       </div>

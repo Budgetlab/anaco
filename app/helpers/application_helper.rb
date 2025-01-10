@@ -97,13 +97,15 @@ module ApplicationHelper
     # avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
   end
 
-  def display_phases(annee_a_afficher, annee, date_crg1, date_crg2)
+  def display_phases(annee_a_afficher, annee, date_crg1, date_crg2, date_debut)
     if annee_a_afficher < annee || Date.today >= date_crg2
       ['CRG2', 'CRG1', 'début de gestion']
     elsif Date.today >= date_crg1
       ['CRG1', 'début de gestion']
+    elsif Date.today >= date_debut
+      ['début de gestion', 'services votés']
     else
-      ['début de gestion']
+      ['services votés']
     end
   end
 

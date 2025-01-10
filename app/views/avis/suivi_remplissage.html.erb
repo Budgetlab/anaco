@@ -17,7 +17,7 @@
         </ul>
       </div>
 
-      <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2) %>
+      <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2, @date_debut) %>
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
           <% phases.each_with_index do |phase, index| %>
