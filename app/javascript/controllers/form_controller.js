@@ -15,7 +15,7 @@ export default class extends Controller {
         if (document.getElementById("ae_i") != null || document.getElementById('form_schema') != null) {
             this.setNombreInput();
         }
-        if (document.getElementById("ae_f") != null) {
+        if (document.getElementById("ae_i") != null && document.getElementById("ae_f") != null) {
             this.getEcart();
         }
         if (this.soldeAeTargets.length > 0) {

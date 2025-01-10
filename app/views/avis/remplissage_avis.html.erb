@@ -9,7 +9,7 @@
       </h1>
       <div class="fr-mb-2w">
         <ul class="fr-tags-group">
-          <% (Date.today.year-1..Date.today.year).to_a.each do |annee|%>
+          <% (Date.today.year - 1..Date.today.year).to_a.each do |annee| %>
             <li>
               <%= link_to remplissage_avis_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
                 <%= annee %>
@@ -19,7 +19,8 @@
         </ul>
       </div>
 
-      <% if @annee_a_afficher == @annee %><h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
+      <% if @annee_a_afficher == @annee %>
+        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
       <% end %>
 
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -31,7 +32,6 @@
               ici pour y accéder</a></div>
         </div>
       </div>
-
     </div>
   </div>
   <% if current_user.avis_a_remplir(@annee - 1, 'CRG2') > 0 %>
@@ -62,6 +62,16 @@
         <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher, @annee_a_afficher == @annee ? @phase : 'CRG2'), 'avis/note', plural: 'avis/notes') %>
         à rédiger</p>
 
+      <div class="fr-notice fr-notice--info fr-mb-2w">
+        <div class="fr-container">
+          <div class="fr-notice__body">
+            <p>
+              <span class="fr-notice__title">Si vous souhaitez modifier ou consulter un avis validé, cliquez sur le BOP pour y accéder.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
       <% @bops_actifs&.each do |bop| %>
         <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
@@ -74,14 +84,28 @@
             </ul>
           </div>
           <% phases = ["début de gestion", "CRG1", "CRG2"] %>
-          <% avis_bop.each_with_index do |avis, index| %>
-            <div class="<%= index == 0 ? 'fr-col-lg-3' : 'fr-col-lg-2' %> fr-col-4">
+          <div class="fr-col-lg-7 fr-col-12">
+            <% avis_sv = bop.avis.select { |a| a.phase == "services votés" } %>
+            <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
+              <% if avis_sv.last.nil? %>
+                <p class="fr-badge fr-badge--warning fr-badge--no-icon">
+                  <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= @phase %>
+                </p>
+              <% elsif avis_sv.last.etat == "Brouillon" %>
+                <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+              <% else %>
+                <p class="fr-badge fr-badge--info fr-badge--no-icon">
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= @phase %></p>
+              <% end %>
+            <% end %>
+
+            <% avis_bop.each_with_index do |avis, index| %>
               <% if avis.nil? %>
-                <% if index == 0 || @annee_a_afficher < @annee || (index == 1 && Date.today >= @date_crg1 && avis_bop.first&.is_crg1?) || (index == 2 && Date.today >= @date_crg2) %>
+                <% if @annee_a_afficher < @annee || (index == 0 && Date.today >= @date_debut) || (index == 1 && Date.today >= @date_crg1 && avis_bop.first&.is_crg1?) || (index == 2 && Date.today >= @date_crg2) %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                     <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phases[index] %>
                   </p>
-                <% elsif (index == 1 && (avis_bop.first.nil? || avis_bop.first&.is_crg1?)) || index == 2 %>
+                <% elsif (index == 0 && Date.today < @date_debut) || (index == 1 && (avis_bop.first.nil? || avis_bop.first&.is_crg1?)) || index == 2 %>
                   <p class="fr-badge">
                     <span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>
                     <%= phases[index] %>
@@ -93,12 +117,15 @@
                 <p class="fr-badge fr-badge--info fr-badge--no-icon">
                   <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= avis.phase %></p>
               <% end %>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
 
 
           <div class="fr-col-lg-3 fr-col-12">
-            <% if (@annee_a_afficher != @annee || Date.today >= @date_debut) && (avis_bop.first.nil? || avis_bop.first.etat == "Brouillon") %>
+            <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
+              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis
+              <% end %>
+            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_debut) && (avis_bop.first.nil? || avis_bop.first.etat == "Brouillon") %>
               <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis
               <% end %>
             <% elsif (@annee_a_afficher != @annee || Date.today >= @date_crg1) && avis_bop.first.is_crg1? && (avis_bop.second.nil? || avis_bop.second.etat == "Brouillon") %>
@@ -120,14 +147,19 @@
         <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
           <div class="fr-col-lg-2 fr-col-6">
             <ul>
-              <li><%= link_to bop_path(bop) do %>BOP <%= bop.code %>
-                <% end %></li>
+              <li>
+                <%= link_to bop_path(bop) do %>
+                  BOP <%= bop.code %>
+                <% end %>
+              </li>
             </ul>
           </div>
           <% if @annee_a_afficher == @annee %>
-            <div class="fr-col-lg-3 fr-col-6"><%= link_to edit_bop_path(bop), class: "fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>
+            <div class="fr-col-lg-3 fr-col-6">
+              <%= link_to edit_bop_path(bop), class: "fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>
                 Modifier la dotation
-              <% end %></div>
+              <% end %>
+            </div>
           <% end %>
         </div>
       <% end %>

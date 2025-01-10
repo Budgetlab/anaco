@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_26_092833) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_09_085136) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_092833) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.integer "annee"
+    t.integer "duree_prevision", default: 12
     t.index ["bop_id"], name: "index_avis_on_bop_id"
     t.index ["user_id"], name: "index_avis_on_user_id"
   end

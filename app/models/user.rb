@@ -45,8 +45,8 @@ class User < ApplicationRecord
     self.programmes.left_outer_joins(:schemas).where(schemas: { annee: annee, statut: 'valide' }).distinct.count
   end
 
-  def bops_with_avis(annee)
-    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'] }).count
+  def bops_with_avis(annee, phase)
+    self.bops.left_outer_joins(:avis).where(avis: { phase: phase, annee: annee, etat: ['Lu', 'En attente de lecture'] }).count
   end
 
   def bops_with_crg1(annee)
@@ -64,11 +64,11 @@ class User < ApplicationRecord
   def avis_a_remplir(annee, phase)
     case phase
     when 'début de gestion'
-      bops_actifs(annee).count - bops_with_avis(annee)
+      bops_actifs(annee).count - bops_with_avis(annee, phase)
     when 'CRG1'
-      bops_actifs(annee).count + bops_with_crg1(annee) - bops_with_avis(annee)
+      avis_a_remplir(annee, 'début de gestion') + bops_with_crg1(annee) - bops_with_avis(annee, phase)
     when 'CRG2'
-      2 * bops_actifs(annee).count + bops_with_crg1(annee) - bops_with_avis(annee)
+      avis_a_remplir(annee, 'début de gestion') + avis_a_remplir(annee, 'CRG1') + bops_actifs(annee).count - bops_with_avis(annee, phase)
     end
   end
 

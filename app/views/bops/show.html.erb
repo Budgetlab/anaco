@@ -3,8 +3,8 @@
 <main role="main" class="containtAll">
   <div class="fr-container">
     <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
-      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">Voir
-        le fil d’Ariane
+      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
+        Voir le fil d’Ariane
       </button>
       <div class="fr-collapse" id="breadcrumb-1">
         <ol class="fr-breadcrumb__list">
@@ -70,7 +70,66 @@
           </ul>
           <% (Date.today.year).downto(2023).to_a.each do |annee| %>
             <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == Date.today.year ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
-              <%= render partial: "bops/bop_table_avis", locals: { annee: annee } %>
+              <% liste_avis_annee = @bop_avis.order(created_at: :desc).select { |avis| avis.annee == annee } %>
+              <% if liste_avis_annee.empty? %>
+                <p>Aucun avis</p>
+              <% else %>
+                <div class="fr-table--lg fr-table fr-table--no-caption">
+                  <div class="fr-table__wrapper">
+                    <div class="fr-table__container">
+                      <div class="fr-table__content">
+                        <table>
+                          <caption>Historique des avis</caption>
+                          <thead>
+                          <tr>
+                            <th scope="col">Date de saisie</th>
+                            <th scope="col">Phase</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">État</th>
+                            <th scope="col">Action</th>
+
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <% liste_avis_annee.each do |avis| %>
+                            <tr>
+                              <td><%= l(avis.created_at, format: "%e/%m/%y") %></td>
+                              <td><%= avis.phase %> </td>
+                              <td><%= avis.statut %></td>
+                              <td>
+                                <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
+                              </td>
+                              <td>
+                                <% if avis.etat == "Brouillon" && avis.user == current_user %>
+                                  <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn" do %>
+                                    Reprendre
+                                  <% end %>
+                                <% elsif avis.etat != "Brouillon" %>
+                                  <%= link_to open_modal_path(id: avis.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post } do %>
+                                    Consulter
+                                  <% end %>
+
+                                  <% if current_user.statut == "admin" %>
+                                    <%= link_to open_modal_brouillon_path(id: avis.id), class: "fr-btn fr-btn--secondary", "data-fr-opened": false, "aria-controls": "modal-modifiable", data: { "turbo_method": :post } do %>
+                                      Remettre en Brouillon
+                                    <% end %>
+                                  <% elsif current_user == avis.user %>
+                                    <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn fr-btn--secondary" do %>
+                                      Modifier
+                                    <% end %>
+                                  <% end %>
+                                <% end %>
+                              </td>
+
+                            </tr>
+                          <% end %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             </div>
           <% end %>
         </div>
@@ -81,7 +140,7 @@
         <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
       </div>
     </dialog>
-    <dialog id="modal-modifiable" class="fr-modal" role="dialog" aria-labelledby="modal-modifiable-title">
+    <dialog id="modal-modifiable" class="fr-modal" aria-labelledby="modal-modifiable-title">
       <div id="modal_brouillon">
         <%= render partial: "avis/dialog_modifiable", locals: { avis: nil } %>
       </div>

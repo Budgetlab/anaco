@@ -12,6 +12,18 @@
       </div>
     </div>
 
+    <div class="fr-notice fr-notice--warning fr-mb-4w">
+      <div class="fr-container">
+        <div class="fr-notice__body">
+          <p>
+            <span class="fr-notice__title">Au regard du contexte actuel, les avis de début de gestion ne sont pas ouverts.</span>
+            <span class="fr-notice__desc">Vous pouvez cependant remplir un avis sur la prévision de dépenses au titre des services votés en cliquant sur le lien ci-dessous :</span>
+            <%= link_to remplissage_avis_path, target:"_self", class:"fr-notice__link" do%>Remplir un avis sur la prévision des dépenses<% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
       <div class="fr-col-12 fr-col-lg-12">
         <% label = "Rechercher un programme, un ministère, une mission, un BOP" %>

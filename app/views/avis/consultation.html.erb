@@ -30,7 +30,7 @@
       <%= search_form_for @q, url: consultation_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-4">
-            <%= render_tag_group 'Phase', :phase_in, ["début de gestion", "CRG1", "CRG2"] %>
+            <%= render_tag_group 'Phase', :phase_in, ["services votés","début de gestion", "CRG1", "CRG2"] %>
           </div>
           <div class="fr-col-4">
             <%= render_tag_group 'Année', :annee_in, (2023..Date.today.year).to_a.map(&:to_s) %>

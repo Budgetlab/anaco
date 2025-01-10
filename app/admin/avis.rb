@@ -5,7 +5,7 @@ ActiveAdmin.register Avi do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  permit_params :phase, :date_reception, :date_envoi, :is_delai, :is_crg1, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :statut, :etat, :commentaire, :bop_id, :user_id, :annee
+  permit_params :phase, :date_reception, :date_envoi, :is_delai, :is_crg1, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :statut, :etat, :commentaire, :bop_id, :user_id, :annee, :duree_prevision
   #
   # or
   #

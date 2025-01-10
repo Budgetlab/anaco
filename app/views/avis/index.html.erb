@@ -28,7 +28,7 @@
           <%= search_form_for @q, url: historique_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-4">
-                <%= render_tag_group 'Phase', :phase_in, ["début de gestion", "CRG1", "CRG2"] %>
+                <%= render_tag_group 'Phase', :phase_in, ["services votés","début de gestion", "CRG1", "CRG2"] %>
               </div>
               <div class="fr-col-4">
                 <%= render_tag_group 'Année', :annee_in, (2023..Date.today.year).to_a.map(&:to_s) %>
@@ -112,7 +112,8 @@
 
                       <td>
                         <% if avis.etat == "Brouillon" %>
-                          <% if current_user.statut != "admin" %><%= link_to new_bop_avi_path(bop_id: avis.bop_id, date: @annee_a_afficher), data: { turbo_frame: '_top'}, class: "fr-btn fr-btn--sm" do %>
+                          <% if current_user.statut != "admin" %>
+                            <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), data: { turbo_frame: '_top'}, class: "fr-btn fr-btn--sm" do %>
                               Reprendre
                             <% end %>
                           <% end %>

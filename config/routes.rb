@@ -15,7 +15,7 @@ Rails.application.routes.draw do
     get 'suivi_remplissage_schemas', to: 'users#suivi_remplissage_schemas'
 
     resources :bops do
-      resources :avis, only: [:new]
+      resources :avis, only: [:new, :create, :edit, :update]
     end
     post 'import_bops' => 'bops#import'
     post 'filter_bop', to: 'bops#filter_bop'
@@ -44,7 +44,6 @@ Rails.application.routes.draw do
 
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'
-    resources :avis, only: [:create, :update, :destroy]
     get 'remplissage_avis' => 'avis#remplissage_avis'
     get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     get 'restitutions' => 'avis#restitutions'
