@@ -117,4 +117,11 @@ module AvisHelper
     end
   end
 
+  # Method to get the number of the avis based on its creation date
+  def numero_avis_services_votes(avis, avis_all)
+    avis_services_votes = avis_all.select { |a| a.phase == 'services votés' && a.annee == avis.annee && a.bop_id == avis.bop_id }
+                                  .sort_by(&:created_at)
+    avis_services_votes.index(avis) + 1
+  end
+
 end

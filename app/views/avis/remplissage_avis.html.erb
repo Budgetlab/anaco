@@ -123,12 +123,17 @@
 
           <div class="fr-col-lg-3 fr-col-12">
             <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
+              <% # Récupère le dernier avis en phase 'services votés' pour l'année à afficher %>
               <% last_avis = bop.avis.where(annee: @annee_a_afficher, phase: 'services votés')&.last %>
+
+              <% # Vérifie si le dernier avis existe et s'il est en état 'Brouillon' %>
               <% if !last_avis.nil? && last_avis.etat == 'Brouillon' %>
+                <% # Si un avis en 'Brouillon' existe, affiche un lien pour reprendre la modification de ce brouillon %>
                 <%= link_to edit_bop_avi_path(bop_id: bop.id, id: last_avis.id), class: "fr-btn" do %>
                   Reprendre le brouillon
                 <% end %>
               <% else  %>
+                <% # Affiche un lien pour créer un nouvel avis si aucun brouillon n'existe %>
                 <% text_button = last_avis.nil? ? 'Rédiger un avis' : 'Créer une nouvelle version' %>
                 <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>
                   <%= text_button %>

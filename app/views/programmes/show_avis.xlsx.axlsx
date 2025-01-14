@@ -17,6 +17,9 @@ sheet_col = Array.new(30, 14)
          is_delai = avis.is_delai == true ? "oui" : "non"
          is_crg1 = avis.is_crg1 == true ? "oui" : "non"
         end
+        if avis.phase == "services votés"
+          is_delai = avis.is_delai == true ? "oui" : "non"
+        end
 
         sheet.add_row [avis.phase, avis.annee, avis.user.nom, avis.bop.numero_programme, avis.bop.code,
         format_date(avis.created_at), avis.statut, format_date(avis.date_reception), format_date(avis.date_envoi), is_delai, is_crg1,

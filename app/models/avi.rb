@@ -90,12 +90,4 @@ class Avi < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     ["bop", "user"]
   end
-
-  # Method to get the number of the avis based on its creation date
-  def numero_avis_services_votes(annee, bop_id)
-    Avi.where(phase: 'services votés', annee: annee, bop_id: bop_id)
-       .order(:created_at)
-       .pluck(:id)
-       .index(self.id) + 1
-  end
 end

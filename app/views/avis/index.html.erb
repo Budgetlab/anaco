@@ -89,7 +89,7 @@
                       <td>
                         <div class="fr-capitalize"><%= avis.phase %></div>
                         <% if avis.phase == 'services votés' %>
-                          n°<%= avis.numero_avis_services_votes(avis.annee, avis.bop_id) %>
+                          n°<%= numero_avis_services_votes(avis, @avis_page) %>
                         <% end %>
                         <%= avis.annee %>
                       </td>
