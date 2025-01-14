@@ -76,21 +76,10 @@ class AvisController < ApplicationController
       render :edit
     end
   end
-  # fonction qui ouvre l'avis et ses infos
-  def open_modal
-    @avis_default = Avi.find(params[:id])
-    if @avis_default.phase == 'début de gestion'
-      avis_execution = Avi.where(phase: 'execution', bop_id: @avis_default.bop_id, annee: @avis_default.annee - 1).first
-    end
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('debut', partial: 'avis/dialog_debut', locals: { avis: @avis_default, avis_execution: avis_execution || nil })
-        ]
-      end
-    end
-  end
 
+  def show
+    @avis = Avi.find(params[:id])
+  end
   # Page de consultation des avis pour les DCB
   def consultation
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)

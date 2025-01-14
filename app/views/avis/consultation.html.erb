@@ -87,9 +87,9 @@
                   <td><%= avis.statut %></td>
                   <td><p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p></td>
                   <td>
-                    <%= link_to open_modal_path(id: avis.id), class: "fr-btn fr-btn--sm", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post } do %>
+                    <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm" data-fr-opened="false" aria-controls="modal-1">
                       Consulter
-                    <% end %>
+                    </a>
                   </td>
                 </tr>
               <% end %>
@@ -116,11 +116,8 @@
     <% end %>
   </div>
 
-
-  <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
-    <div id="debut">
-      <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
-    </div>
+  <dialog id="modal-1" class="fr-modal">
+    <%= turbo_frame_tag :modal, target: "_top" %>
   </dialog>
 
 </div>

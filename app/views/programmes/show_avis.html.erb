@@ -100,9 +100,9 @@
           <ul class="fr-btns-group fr-btns-group--inline">
             <li>
               <% avis_bop_sv.each do |avis| %>
-                <%= link_to open_modal_path(id: avis.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
+                <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
                   Avis <%= avis.phase %> n°<%= numero_avis_services_votes(avis, avis_bop_sv) %>
-                <% end %>
+                </a>
               <% end %>
               <% avis_bop.each_with_index do |avis, index| %>
                 <% if avis.nil? %>
@@ -114,9 +114,10 @@
                     <% end %>
                   <% end %>
                 <% else %>
-                  <%= link_to open_modal_path(id: avis.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post, turbo_frame: "_top" } do %>
+                  <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
                     <%= index == 0 ? 'Avis' : 'Note' %> <%= avis.phase %>
-                  <% end %>
+                  </a>
+
                 <% end %>
               <% end %>
             </li>
@@ -126,10 +127,8 @@
     <% end %>
   </div>
 
-  <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
-    <div id="debut">
-      <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
-    </div>
+  <dialog id="modal-1" class="fr-modal">
+    <%= turbo_frame_tag :modal, target: "_top" %>
   </dialog>
 <% end %>
 

@@ -42,12 +42,12 @@ Rails.application.routes.draw do
     end
     post 'import_programmes' => 'programmes#import'
 
+    resources :avis, only: :show
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'
     get 'remplissage_avis' => 'avis#remplissage_avis'
     get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     get 'restitutions' => 'avis#restitutions'
-    post 'open_modal' => 'avis#open_modal'
     post 'update_etat', to: 'avis#update_etat'
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'

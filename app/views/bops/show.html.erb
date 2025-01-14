@@ -110,9 +110,9 @@
                                     Reprendre
                                   <% end %>
                                 <% elsif avis.etat != "Brouillon" %>
-                                  <%= link_to open_modal_path(id: avis.id), class: "fr-btn", "data-fr-opened": false, "aria-controls": "modal-1", data: { "turbo_method": :post } do %>
+                                  <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
                                     Consulter
-                                  <% end %>
+                                  </a>
 
                                   <% if current_user == avis.user %>
                                     <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn fr-btn--secondary" do %>
@@ -136,10 +136,8 @@
         </div>
       </div>
     </div>
-    <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
-      <div id="debut">
-        <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
-      </div>
+    <dialog id="modal-1" class="fr-modal">
+      <%= turbo_frame_tag :modal, target: "_top" %>
     </dialog>
 
   </div>
