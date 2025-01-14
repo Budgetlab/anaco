@@ -70,7 +70,7 @@
           </ul>
           <% (Date.today.year).downto(2023).to_a.each do |annee| %>
             <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == Date.today.year ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
-              <% liste_avis_annee = @bop_avis.order(created_at: :desc).select { |avis| avis.annee == annee } %>
+              <% liste_avis_annee = @bop_avis.order(updated_at: :desc).select { |avis| avis.annee == annee } %>
               <% if liste_avis_annee.empty? %>
                 <p>Aucun avis</p>
               <% else %>
@@ -93,8 +93,13 @@
                           <tbody>
                           <% liste_avis_annee.each do |avis| %>
                             <tr>
-                              <td><%= l(avis.created_at, format: "%e/%m/%y") %></td>
-                              <td><%= avis.phase %> </td>
+                              <td><%= l(avis.updated_at, format: "%e/%m/%y") %></td>
+                              <td>
+                                <div class="fr-capitalize"><%= avis.phase %></div>
+                                <% if avis.phase == 'services votés' %>
+                                  n°<%= avis.numero_avis_services_votes(avis.annee, avis.bop_id) %>
+                                <% end %>
+                              </td>
                               <td><%= avis.statut %></td>
                               <td>
                                 <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
@@ -109,11 +114,7 @@
                                     Consulter
                                   <% end %>
 
-                                  <% if current_user.statut == "admin" %>
-                                    <%= link_to open_modal_brouillon_path(id: avis.id), class: "fr-btn fr-btn--secondary", "data-fr-opened": false, "aria-controls": "modal-modifiable", data: { "turbo_method": :post } do %>
-                                      Remettre en Brouillon
-                                    <% end %>
-                                  <% elsif current_user == avis.user %>
+                                  <% if current_user == avis.user %>
                                     <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn fr-btn--secondary" do %>
                                       Modifier
                                     <% end %>
@@ -138,11 +139,6 @@
     <dialog id="modal-1" class="fr-modal" aria-labelledby="modal-1-title">
       <div id="debut">
         <%= render partial: 'avis/dialog_debut', locals: { avis: nil } %>
-      </div>
-    </dialog>
-    <dialog id="modal-modifiable" class="fr-modal" aria-labelledby="modal-modifiable-title">
-      <div id="modal_brouillon">
-        <%= render partial: "avis/dialog_modifiable", locals: { avis: nil } %>
       </div>
     </dialog>
 

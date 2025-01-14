@@ -48,8 +48,6 @@ Rails.application.routes.draw do
     get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     get 'restitutions' => 'avis#restitutions'
     post 'open_modal' => 'avis#open_modal'
-    post 'open_modal_brouillon' => 'avis#open_modal_brouillon'
-    post 'reset_brouillon', to: 'avis#reset_brouillon'
     post 'update_etat', to: 'avis#update_etat'
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'

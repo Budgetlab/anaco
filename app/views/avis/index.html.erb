@@ -28,7 +28,7 @@
           <%= search_form_for @q, url: historique_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-4">
-                <%= render_tag_group 'Phase', :phase_in, ["services votés","début de gestion", "CRG1", "CRG2"] %>
+                <%= render_tag_group 'Phase', :phase_in, ["services votés", "début de gestion", "CRG1", "CRG2"] %>
               </div>
               <div class="fr-col-4">
                 <%= render_tag_group 'Année', :annee_in, (2023..Date.today.year).to_a.map(&:to_s) %>
@@ -42,7 +42,7 @@
                 <%= render_select_group("Statut/Risque", :statut_in, ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs"]) %>
               </div>
               <div class="fr-col-4">
-                <%= render_select_group("Programme", :bop_programme_numero_in, Programme.all.order(numero: :asc).map {|p| p.numero}) %>
+                <%= render_select_group("Programme", :bop_programme_numero_in, Programme.all.order(numero: :asc).map { |p| p.numero }) %>
               </div>
               <div class="fr-col-4">
                 <label class="fr-label fr-text--bold">BOP</label>
@@ -64,15 +64,15 @@
                       <th scope="col">CBR/DCB</th>
                     <% end %>
                     <th scope="col">
-                      <% sort_created_date = "" %>
-                      <% if params[:q] && params[:q][:s] == "created_at desc" %>
-                        <% sort_created_date = "asc" %>
-                      <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
-                        <% sort_created_date = "desc" %>
+                      <% sort_updated_date = "" %>
+                      <% if params[:q] && params[:q][:s] == "updated_at desc" %>
+                        <% sort_updated_date = "asc" %>
+                      <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
+                        <% sort_updated_date = "desc" %>
                       <% end %>
                       <div class="fr-cell--sort">
                         <span class="fr-cell__title">Date de saisie</span>
-                        <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
+                        <%= sort_link(@q, :updated_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_updated_date }) %>
                       </div>
                     </th>
                     <th scope="col">BOP</th>
@@ -81,18 +81,15 @@
                     <th scope="col">État</th>
                     <th scope="col">Action</th>
                   </tr>
-
                   </thead>
-
 
                   <tbody>
                   <% @avis_page&.each do |avis| %>
                     <tr>
                       <td>
-                        <% if avis.phase == "début de gestion" %>
-                          <%= avis.phase.capitalize %>
-                        <% else %>
-                          <%= avis.phase %>
+                        <div class="fr-capitalize"><%= avis.phase %></div>
+                        <% if avis.phase == 'services votés' %>
+                          n°<%= avis.numero_avis_services_votes(avis.annee, avis.bop_id) %>
                         <% end %>
                         <%= avis.annee %>
                       </td>
@@ -100,7 +97,7 @@
                       <% if current_user.statut == "admin" %>
                         <td><%= avis.user.nom %> </td>
                       <% end %>
-                      <td><%= l(avis.created_at, format: "%e/%m/%y") %> </td>
+                      <td><%= l(avis.updated_at, format: "%e/%m/%y") %> </td>
                       <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
                         <% end %></td>
                       <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
@@ -113,7 +110,7 @@
                       <td>
                         <% if avis.etat == "Brouillon" %>
                           <% if current_user.statut != "admin" %>
-                            <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), data: { turbo_frame: '_top'}, class: "fr-btn fr-btn--sm" do %>
+                            <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), data: { turbo_frame: '_top' }, class: "fr-btn fr-btn--sm" do %>
                               Reprendre
                             <% end %>
                           <% end %>

@@ -123,7 +123,16 @@
 
           <div class="fr-col-lg-3 fr-col-12">
             <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
-              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis
+              <% last_avis = bop.avis.where(annee: @annee_a_afficher, phase: 'services votés')&.last %>
+              <% if !last_avis.nil? && last_avis.etat == 'Brouillon' %>
+                <%= link_to edit_bop_avi_path(bop_id: bop.id, id: last_avis.id), class: "fr-btn" do %>
+                  Reprendre le brouillon
+                <% end %>
+              <% else  %>
+                <% text_button = last_avis.nil? ? 'Rédiger un avis' : 'Créer une nouvelle version' %>
+                <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>
+                  <%= text_button %>
+                <% end %>
               <% end %>
             <% elsif (@annee_a_afficher != @annee || Date.today >= @date_debut) && (avis_bop.first.nil? || avis_bop.first.etat == "Brouillon") %>
               <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis

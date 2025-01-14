@@ -14,7 +14,7 @@ class AvisController < ApplicationController
   # Page historique des avis
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where.not(phase: 'execution').order(created_at: :desc)
+    avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
     @pagy, @avis_page = pagy(@avis_all)
@@ -89,25 +89,6 @@ class AvisController < ApplicationController
         ]
       end
     end
-  end
-
-  # fonction qui ouvre le modal pour remettre l'avis en brouillon pour la DB
-  def open_modal_brouillon
-    @avis = Avi.find(params[:id])
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('modal_brouillon', partial: 'avis/dialog_modifiable', locals: { avis: @avis })
-        ]
-      end
-    end
-  end
-
-  # fonction qui remet l'avis en brouillon
-  def reset_brouillon
-    @avis = Avi.find(params[:id])
-    @avis&.update(etat: 'Brouillon')
-    redirect_to bop_path(@avis.bop)
   end
 
   # Page de consultation des avis pour les DCB
