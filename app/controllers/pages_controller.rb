@@ -14,7 +14,7 @@ class PagesController < ApplicationController
     @avis_total = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee).count
     @avis_remplis = @statut_user == 'admin' ? avis_annee_remplis(@annee) : current_user.avis_remplis_annee(@annee)
     # graphes
-    @avis_repartition = avis_repartition(@avis_remplis, @avis_total)
+    @avis_repartition = avis_repartition(@avis_remplis, @avis_total, 'début de gestion')
     @notes_crg1 = @date_crg1 <= Date.today ? notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1') : []
     @notes_crg2 = @date_crg2 <= Date.today ? notes_repartition(@avis_remplis, @avis_total, 'CRG2') : []
   end

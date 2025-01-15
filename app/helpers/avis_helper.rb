@@ -33,20 +33,22 @@ module AvisHelper
   end
 
   # fonction pour afficher la répartition des statuts pour les avis début de gestion de l'année sélectionnée
-  def avis_repartition(avis, avis_total)
-    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == 'début de gestion' }
-    avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == 'début de gestion' }
-    avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == 'début de gestion' }
+  def avis_repartition(avis, avis_total, phase)
+    avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
+    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == phase }
+    avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == phase }
+    avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == phase }
     avis_vide = avis_total - avis_favorables - avis_reserves - avis_defavorables
     [avis_favorables, avis_reserves, avis_defavorables, avis_vide]
   end
 
   # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
-  def avis_date_repartition(avis, avis_total, annee)
-    avis_date_1 = avis.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) && a.phase == 'début de gestion' }
-    avis_date_2 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == 'début de gestion' }
-    avis_date_3 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == 'début de gestion' }
-    avis_date_4 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) && a.phase == 'début de gestion' }
+  def avis_date_repartition(avis, avis_total, annee, phase)
+    avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
+    avis_date_1 = avis.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) && a.phase == phase }
+    avis_date_2 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == phase }
+    avis_date_3 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == phase }
+    avis_date_4 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) && a.phase == phase }
     avis_vide = avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4
     [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_vide]
   end

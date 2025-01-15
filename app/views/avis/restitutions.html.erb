@@ -19,8 +19,8 @@
         </div>
       </div>
     </div>
-
-    <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total) %>" data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>" data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>">
+  <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
+    <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, phase_avis) %>" data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, phase_avis) %>" data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>">
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-4">
           <div data-highcharts-target="canvasAvisDate"></div>

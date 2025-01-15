@@ -52,7 +52,8 @@
 
   <div class="fr-h2" id="restitutions">Restitutions</div>
   <% bops_actifs_count = bops_actifs(@bops, @annee_a_afficher).count %>
-  <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count) %>" data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>" data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>">
+  <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
+  <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count, phase_avis) %>" data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, phase_avis) %>" data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div data-highcharts-target="canvasAvisDate"></div>
