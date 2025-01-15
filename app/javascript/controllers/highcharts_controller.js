@@ -15,8 +15,10 @@ export default class extends Controller {
   ];
   }
   connect() {
-    this.syntheseAvis();
-    this.showViz();
+      if (this.hasCanvasAvisTarget) {
+          this.syntheseAvis();
+      }
+      this.showViz();
   }
 
     showViz(){

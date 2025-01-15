@@ -14,7 +14,7 @@ class AvisController < ApplicationController
   # Page historique des avis
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
+    avis_all = scope.where.not(phase: 'execution').order(created_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
     @pagy, @avis_page = pagy(@avis_all)

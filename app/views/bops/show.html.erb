@@ -70,7 +70,7 @@
           </ul>
           <% (Date.today.year).downto(2023).to_a.each do |annee| %>
             <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == Date.today.year ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
-              <% liste_avis_annee = @bop_avis.order(updated_at: :desc).select { |avis| avis.annee == annee } %>
+              <% liste_avis_annee = @bop_avis.order(created_at: :desc).select { |avis| avis.annee == annee } %>
               <% if liste_avis_annee.empty? %>
                 <p>Aucun avis</p>
               <% else %>
@@ -82,7 +82,7 @@
                           <caption>Historique des avis</caption>
                           <thead>
                           <tr>
-                            <th scope="col">Date de saisie</th>
+                            <th scope="col">Date de création</th>
                             <th scope="col">Phase</th>
                             <th scope="col">Statut</th>
                             <th scope="col">État</th>
@@ -93,7 +93,7 @@
                           <tbody>
                           <% liste_avis_annee.each do |avis| %>
                             <tr>
-                              <td><%= l(avis.updated_at, format: "%e/%m/%y") %></td>
+                              <td><%= l(avis.created_at, format: "%e/%m/%y") %></td>
                               <td>
                                 <div class="fr-capitalize"><%= avis.phase %></div>
                                 <% if avis.phase == 'services votés' %>

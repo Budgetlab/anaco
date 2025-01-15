@@ -8,7 +8,7 @@ cell_style = wb.styles.add_style(
                 )
 sheet_col = Array.new(30, 14)
  wb.add_worksheet(name: "Historique") do |sheet|
-    sheet.add_row %W{ Phase Annee Controleur Programme BOP Date\ de\ saisie Statut/Risque Date\ reception Date\ avis\ initial Delai CRG1\ programmé AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}, style: header_style, height: 50
+    sheet.add_row %W{ Phase Annee Controleur Programme BOP Date\ de\ création Statut/Risque Date\ reception Date\ avis\ initial Delai CRG1\ programmé Temporalité AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}, style: header_style, height: 50
     sheet.auto_filter = "A1:T1"
     @avis_all&.where.not(etat: "Brouillon")&.each do |avis|
         is_delai = ""
@@ -23,7 +23,7 @@ sheet_col = Array.new(30, 14)
 
         sheet.add_row [avis.phase, avis.annee, avis.user.nom, avis.bop.numero_programme, avis.bop.code,
         format_date(avis.created_at), avis.statut, format_date(avis.date_reception), format_date(avis.date_envoi), is_delai, is_crg1,
-        avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire
+        "#{avis.duree_prevision} mois",avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire
         ], style: cell_style
         sheet.column_widths(*sheet_col)
     end

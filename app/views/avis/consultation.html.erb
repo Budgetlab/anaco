@@ -52,15 +52,15 @@
                 <th scope="col">Phase</th>
                 <th scope="col">CBR</th>
                 <th scope="col">
-                  <% sort_updated_date = "" %>
-                  <% if params[:q] && params[:q][:s] == "updated_at desc" %>
-                    <% sort_updated_date = "asc" %>
-                  <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
-                    <% sort_updated_date = "desc" %>
+                  <% sort_created_date = "" %>
+                  <% if params[:q] && params[:q][:s] == "created_at desc" %>
+                    <% sort_created_date = "asc" %>
+                  <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
+                    <% sort_created_date = "desc" %>
                   <% end %>
                   <div class="fr-cell--sort">
-                    <span class="fr-cell__title">Date de saisie</span>
-                    <%= sort_link(@q, :updated_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_updated_date }) %>
+                    <span class="fr-cell__title">Date de création</span>
+                    <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_created_date }) %>
                   </div>
                 </th>
                 <th scope="col">BOP</th>
@@ -80,7 +80,7 @@
                     <% end %>
                     <%= avis.annee %></td>
                   <td><%= avis.user.nom %></td>
-                  <td><%= l(avis.updated_at, format: "%e/%m/%y") %> </td>
+                  <td><%= l(avis.created_at, format: "%e/%m/%y") %> </td>
                   <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
                     <% end %></td>
                   <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
