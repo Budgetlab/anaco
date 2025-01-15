@@ -27,6 +27,14 @@
     <% phases.each_with_index do |phase, index| %>
       <div id="tabpanel-<%= index %>-panel" class="fr-tabs__panel <%= index == 0 ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= index %>" tabindex="0">
         <% if phase == 'services votés' %>
+          <% durees = @avis.map(&:duree_prevision).uniq %>
+          <% if durees.size == 1 %>
+            <div class="fr-mb-2w">Temporalité des prévisions : <%= durees.first %> mois</div>
+          <% elsif durees.size > 1 %>
+            <div class="fr-alert fr-alert--warning fr-mb-2w">
+              <p>Les temporalités de prévisions de dépenses renseignées ne sont pas les mêmes d’un BOP à l’autre.</p>
+            </div>
+          <% end %>
           <%= render partial: "avis/synthese_chiffres", locals: { avis: sum_chiffres_avis(@avis, phase)[4..7], avis_sd: sum_chiffres_avis(@avis_cbr, phase)[4..7], titre: 'prév.', class_active: 'fr-card--orange' } %>
         <% else %>
           <% avis_ecart = sum_chiffres_avis(@avis, phase)[0..3].zip(sum_chiffres_avis(@avis, phase)[4..7]).map { |u, v| u - v } %>
@@ -95,7 +103,8 @@
           </button>
         </h3>
         <div class="fr-collapse" id="accordion-<%= bop.id %>">
-          <div class="fr-mb-2w"><%= link_to bop_path(bop) do %> BOP <%= bop.code %> : <%= bop.user.nom %><% end %></div>
+          <div class="fr-mb-2w"><%= link_to bop_path(bop) do %> BOP <%= bop.code %> : <%= bop.user.nom %>
+            <% end %></div>
           <p class="fr-tag fr-mb-2w fr-hidden"><%= bop.user.nom %></p>
           <ul class="fr-btns-group fr-btns-group--inline">
             <li>
