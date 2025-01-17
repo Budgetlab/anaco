@@ -10,41 +10,12 @@
               </button>
             </div>
             <div class="fr-modal__content">
-              <% if @avis.phase == "services votés" %>
-                <h1 class="fr-modal__title">
-                  <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                  Avis <%= @avis.phase %> n°<%= @avis.numero_avis_services_votes %> du BOP n°<%= @avis.bop.code %>
-                </h1>
-                <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
-                  <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut %></span>
-                </p>
-                <p class="fr-my-1w">
-                  <span class="fr-text--bold">Date de réception du BOP initial :</span> <%= l(@avis.date_reception, format: "%e/%m/%y") %>
-                </p>
-                <p class="fr-my-1w">
-                  <span class="fr-text--bold">Date de l’avis au BOP initial :</span> <%= l(@avis.date_envoi, format: "%e/%m/%y") %>
-                </p>
-                <p class="fr-my-1w"><span class="fr-text--bold">Avis donné après suspension du délai :</span>
-                  <%= @avis.is_delai == true ? 'Oui' : 'Non' %>
-                </p>
-                <p class="fr-my-1w">
-                  <span class="fr-text--bold">Développement synthétique sur l'avis :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank ' }) %>
-                </p>
-                <p class="fr-text--lg fr-text--bold fr-mb-3w">Services votés <%= @avis.annee %></p>
-                <p class="fr-my-1w">
-                  <span class="fr-text--bold">Temporalité :</span> <%= @avis.duree_prevision %> mois
-                </p>
-                <p class="fr-my-1w">
-                  <span class="fr-text--bold">Prévision des dépenses (€)</span>
-                </p>
-                <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: 'prév.', class_active: 'fr-card--orange' } %>
-              <% else %>
-                <h1 class="fr-modal__title">
-                  <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                  <%= @avis.phase == "début de gestion" ? 'Avis' : 'Note' %> <%= @avis.phase %> du BOP
-                  n°<%= @avis.bop.code %>
-                </h1>
-                <% if @avis.phase == "début de gestion" %>
+              <div id="containPDF">
+                <% if @avis.phase == "services votés" %>
+                  <h1 class="fr-modal__title">
+                    <span class="fr-icon-arrow-right-line fr-icon--lg no-print" aria-hidden="true"></span>
+                    Avis <%= @avis.phase %> n°<%= @avis.numero_avis_services_votes %> du BOP n°<%= @avis.bop.code %>
+                  </h1>
                   <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
                     <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut %></span>
                   </p>
@@ -57,39 +28,78 @@
                   <p class="fr-my-1w"><span class="fr-text--bold">Avis donné après suspension du délai :</span>
                     <%= @avis.is_delai == true ? 'Oui' : 'Non' %>
                   </p>
-                  <p class="fr-my-1w"><span class="fr-text--bold">CRG1 programmé :</span>
-                    <%= @avis.is_crg1 == true ? 'Oui' : 'Non' %>
+                  <p class="fr-my-1w">
+                    <span class="fr-text--bold">Développement synthétique sur l'avis :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank' }) %>
+                  </p>
+                  <p class="fr-text--lg fr-text--bold fr-mb-3w">Services votés <%= @avis.annee %></p>
+                  <p class="fr-my-1w">
+                    <span class="fr-text--bold">Temporalité :</span> <%= @avis.duree_prevision %> mois
                   </p>
                   <p class="fr-my-1w">
-                    <span class="fr-text--bold">Développement synthétique sur l'avis :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank ' }) %>
+                    <span class="fr-text--bold">Prévision des dépenses (€)</span>
                   </p>
-                  <p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= @avis.annee %></p>
+                  <div class="fr-mb-2w">
+                    <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: 'prév.', class_active: 'fr-card--orange' } %>
+                  </div>
                 <% else %>
-                  <p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire :
-                    <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut %></span>
-                  </p>
-                  <p class="fr-my-1w">
-                    <span class="fr-text--bold">Observations :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank' }) %>
-                  </p>
-                  <p class="fr-my-1w">
-                    <span class="fr-text--bold">Date de la note d’analyse du <%= @avis.phase %>:</span>
-                    <%= l(@avis.date_envoi, format: "%e/%m/%y") %></p>
-                <% end %>
+                  <h1 class="fr-modal__title">
+                    <span class="fr-icon-arrow-right-line fr-icon--lg no-print" aria-hidden="true"></span>
+                    <%= @avis.phase == "début de gestion" ? 'Avis' : 'Note' %> <%= @avis.phase %> du BOP
+                    n°<%= @avis.bop.code %>
+                  </h1>
+                  <% if @avis.phase == "début de gestion" %>
+                    <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
+                      <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut %></span>
+                    </p>
+                    <p class="fr-my-1w">
+                      <span class="fr-text--bold">Date de réception du BOP initial :</span> <%= l(@avis.date_reception, format: "%e/%m/%y") %>
+                    </p>
+                    <p class="fr-my-1w">
+                      <span class="fr-text--bold">Date de l’avis au BOP initial :</span> <%= l(@avis.date_envoi, format: "%e/%m/%y") %>
+                    </p>
+                    <p class="fr-my-1w"><span class="fr-text--bold">Avis donné après suspension du délai :</span>
+                      <%= @avis.is_delai == true ? 'Oui' : 'Non' %>
+                    </p>
+                    <p class="fr-my-1w"><span class="fr-text--bold">CRG1 programmé :</span>
+                      <%= @avis.is_crg1 == true ? 'Oui' : 'Non' %>
+                    </p>
+                    <p class="fr-my-1w">
+                      <span class="fr-text--bold">Développement synthétique sur l'avis :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank' }) %>
+                    </p>
+                    <p class="fr-text--lg fr-text--bold fr-mb-3w">Début de gestion <%= @avis.annee %></p>
+                  <% else %>
+                    <p class="fr-text--lg fr-text--bold fr-mb-3w">Risque d’insoutenabilité budgétaire :
+                      <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut %></span>
+                    </p>
+                    <p class="fr-my-1w">
+                      <span class="fr-text--bold">Observations :</span> <%= auto_link(simple_format(@avis.commentaire), :html => { :target => '_blank' }) %>
+                    </p>
+                    <p class="fr-my-1w">
+                      <span class="fr-text--bold">Date de la note d’analyse du <%= @avis.phase %>:</span>
+                      <%= l(@avis.date_envoi, format: "%e/%m/%y") %></p>
+                  <% end %>
 
-                <div class="fr-mt-2w">
-                  <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_i, @avis.cp_i, @avis.t2_i, @avis.etpt_i], titre: 'alloué', class_active: 'fr-card--green' } %>
-                </div>
-                <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: 'prév.', class_active: 'fr-card--orange' } %>
-                <div class="fr-mb-2w">
-                  <%= render partial: "avis/rappel_ecart", locals: { avis: @avis } %>
-                </div>
-              <% end %>
+                  <div class="fr-mt-2w">
+                    <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_i, @avis.cp_i, @avis.t2_i, @avis.etpt_i], titre: 'alloué', class_active: 'fr-card--green' } %>
+                  </div>
+                  <%= render partial: "avis/rappel_chiffres", locals: { avis: [@avis.ae_f, @avis.cp_f, @avis.t2_f, @avis.etpt_f], titre: 'prév.', class_active: 'fr-card--orange' } %>
+                  <div class="fr-mb-2w">
+                    <%= render partial: "avis/rappel_ecart", locals: { avis: @avis } %>
+                  </div>
+                <% end %>
+              </div>
 
               <% if @avis.user != current_user && current_user.statut == "DCB" && @avis.etat == "En attente de lecture" %>
-                <%= link_to update_etat_path(id: @avis.id), data: { "turbo_method": :post }, class: "fr-btn fr-btn--secondary", aria: { controls: "modal-1" } do %>
+                <%= link_to update_etat_path(id: @avis.id), data: { "turbo_method": :post }, class: "fr-btn fr-btn--secondary fr-mb-2w", aria: { controls: "modal-1" } do %>
                   Afficher comme Lu et fermer
                 <% end %>
               <% end %>
+
+              <div data-controller="pdf-export">
+                <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line" data-action="pdf-export#export" data-pdf-export-target="button">
+                  Exporter l'avis au format PDF
+                </button>
+              </div>
             </div>
           </div>
         </div>

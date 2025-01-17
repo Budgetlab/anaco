@@ -301,3 +301,9 @@ a.fr-tag[aria-pressed=true]::after{
 .shadow {
   filter: drop-shadow(var(--lifted-shadow)) !important;
 }
+.hide-icons {
+  background-image: none !important;
+}
+.hide-icons::after {
+  display: none !important;
+}

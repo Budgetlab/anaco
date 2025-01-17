@@ -16,3 +16,16 @@ pin "accessibility", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/acces
 pin "data", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/export-data.js"
 pin "nodata", to: "https://ga.jspm.io/npm:highcharts@11.4.1/modules/no-data-to-display.js"
 pin "@stimulus-components/rails-nested-form", to: "@stimulus-components--rails-nested-form.js" # @5.0.0
+pin "jspdf" # @2.5.2
+pin "@babel/runtime/helpers/asyncToGenerator", to: "@babel--runtime--helpers--asyncToGenerator.js" # @7.26.0
+pin "@babel/runtime/helpers/defineProperty", to: "@babel--runtime--helpers--defineProperty.js" # @7.26.0
+pin "@babel/runtime/helpers/typeof", to: "@babel--runtime--helpers--typeof.js" # @7.26.0
+pin "canvg" # @4.0.2
+pin "html2canvas", to: "https://ga.jspm.io/npm:html2canvas@1.4.1/dist/html2canvas.js"
+pin "fflate" # @0.8.2
+pin "performance-now" # @2.1.0
+pin "process" # @2.1.0
+pin "raf" # @3.4.1
+pin "rgbcolor" # @1.0.1
+pin "stackblur-canvas" # @2.7.0
+pin "svg-pathdata" # @6.0.3
