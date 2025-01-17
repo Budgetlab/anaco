@@ -101,7 +101,7 @@
 
             <% avis_bop.each_with_index do |avis, index| %>
               <% if avis.nil? %>
-                <% if @annee_a_afficher < @annee || (index == 0 && Date.today >= @date_debut) || (index == 1 && Date.today >= @date_crg1 && avis_bop.first&.is_crg1?) || (index == 2 && Date.today >= @date_crg2) %>
+                <% if  (index == 0 && (Date.today >= @date_debut || @annee_a_afficher < @annee)) || (index == 1 && (Date.today >= @date_crg1 || @annee_a_afficher < @annee) && avis_bop.first&.is_crg1?) || (index == 2 && (Date.today >= @date_crg2 || @annee_a_afficher < @annee)) %>
                   <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                     <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phases[index] %>
                   </p>
