@@ -57,7 +57,7 @@
                 <% end %>
 
                 <li class="fr-sidemenu__item">
-                  <%= link_to last_schema_programme_path(@programme), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
+                  <%= link_to last_schema_programme_path(@programme, annuel: true), data: { turbo_frame: :show, action: 'click->toggle#updateAriaCurrent', 'toggle-target': 'nav' }, class: "fr-sidemenu__btn", aria: { current: @programme.bops.empty? } do %>
                     Schémas de fin de gestion
                   <% end %>
                 </li>
@@ -69,7 +69,7 @@
       </div>
 
       <div class="fr-col-12 fr-col-lg-9">
-        <%= turbo_frame_tag :show, target: "_top", src: @programme.bops.empty? ? last_schema_programme_path(@programme) : avis_programme_path(@programme) %>
+        <%= turbo_frame_tag :show, target: "_top", src: @programme.bops.empty? ? last_schema_programme_path(@programme, annuel: true) : avis_programme_path(@programme) %>
       </div>
     </div>
   </div>

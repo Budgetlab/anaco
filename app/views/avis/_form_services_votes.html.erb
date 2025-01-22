@@ -11,11 +11,7 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
-          <label for="date_reception" class="fr-label">Date de réception BOP initial*
-            <a class="fr-link" aria-describedby="datebop" id="link-datebop" href="#" data-controller="filter" data-action="filter#Dropdown">
-              <span class="fr-icon-question-line fr-icon--sm" aria-hidden="true"></span>
-            </a>
-            <span class="fr-tooltip fr-placement" id="datebop" role="tooltip" aria-hidden="true">La date de réception du BOP initial à indiquer est celle correspondant à l'envoi par le RBOP de sa programmation. Le délai nécessaire pour compléter éventuellement le dossier ou tenir une réunion relève du délai de suspension.</span>
+          <label for="date_reception" class="fr-label">Date de réception de la prévision des dépenses*
             <span class="fr-hint-text">Indiquer ici la date de réception des documents finalisés</span>
           </label>
           <%= f.text_field :date_reception, class: "fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr", flatpickr_default_date: format_date(@avis.date_reception) }, value: format_date(@avis.date_reception), id: "date_reception", placeholder: "- sélectionner -" %>

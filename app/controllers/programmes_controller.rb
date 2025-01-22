@@ -36,6 +36,7 @@ class ProgrammesController < ApplicationController
     @programme = Programme.find(params[:id])
     @annee_a_afficher = annee_a_afficher
     @schema = @programme.last_schema_valid(@annee_a_afficher)
+    @annuel = true if params[:annuel] == 'true'
     return unless @schema
 
     @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
