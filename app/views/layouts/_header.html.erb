@@ -87,6 +87,9 @@
                       <% end %>
                     </li>
                   <% end %>
+                  <% if current_user.statut != "admin" %>
+                    <%= active_link_to restitutions_perimetre_path, class: "fr-nav__link", target: "_self" do %>Restitutions périmètre<% end %>
+                  <% end %>
                   <li>
                     <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Restitutions
                       nationales

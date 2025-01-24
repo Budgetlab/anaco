@@ -1,16 +1,16 @@
-<% content_for :title do %>Restitutions | ANACO
+<% content_for :title do %>Restitutions périmètre | ANACO
 <% end %>
 <main>
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-my-6w">Restitutions nationales sur tous les programmes déconcentrés [<%= @programmes.count %>]</h1>
+        <h1 class="fr-my-6w">Restitutions sur mon périmètre de contrôle [<%= @avis_total %> BOP]</h1>
 
         <div class="fr-mb-2w">
           <ul class="fr-tags-group">
             <% (2023..Date.today.year).to_a.each do |annee| %>
               <li>
-                <%= link_to restitutions_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
+                <%= link_to restitutions_perimetre_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
                   <%= annee %>
                 <% end %>
               </li>
@@ -19,7 +19,7 @@
         </div>
       </div>
     </div>
-  <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
+
     <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"
          data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
          data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>"
@@ -47,12 +47,9 @@
     </div>
 
 
-    <% if current_user.statut == "CBR" %>
-      <h2 class="fr-mt-6w fr-mb-2w">Mes programmes [<%= @liste_programmes.length %>/<%= @programmes.length %>]</h2>
-    <% else %>
-      <h2 class="fr-mt-6w fr-mb-2w">Les programmes [<%= @programmes.length %>]</h2>
 
-    <% end %>
+    <h2 class="fr-mt-6w fr-mb-2w">Liste des programmes associés à mes BOP [<%= @liste_programmes.length %>]</h2>
+
 
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <% @liste_programmes.each do |programme| %>

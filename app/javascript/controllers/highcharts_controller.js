@@ -70,7 +70,7 @@ export default class extends Controller {
           }),
           
           title: {
-              text: 'Répartition des avis',
+              text: 'Répartition des avis en début de gestion',
              
               style: {
                 fontSize: '13px',
@@ -320,7 +320,7 @@ export default class extends Controller {
             }),
 
             title: {
-                text: 'Répartition des notes',
+                text: 'Répartition des notes CRG1',
 
                 style: {
                     fontSize: '13px',
@@ -404,7 +404,7 @@ export default class extends Controller {
             }),
 
             title: {
-                text: 'Répartition des notes',
+                text: 'Répartition des notes CRG2',
 
                 style: {
                     fontSize: '13px',

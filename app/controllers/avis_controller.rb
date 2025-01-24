@@ -132,6 +132,13 @@ class AvisController < ApplicationController
     @liste_programmes = current_user.statut == 'CBR' ? current_user.programmes_access : @programmes
   end
 
+  def restitutions_perimetre
+    @annee_a_afficher = annee_a_afficher
+    @avis_total = current_user.bops_actifs(@annee_a_afficher).count
+    @avis_remplis = current_user.avis_remplis_annee(@annee_a_afficher)
+    @liste_programmes = current_user.programmes_access
+  end
+
   private
 
   def avi_params

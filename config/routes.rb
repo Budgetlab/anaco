@@ -48,6 +48,7 @@ Rails.application.routes.draw do
     get 'remplissage_avis' => 'avis#remplissage_avis'
     get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     get 'restitutions' => 'avis#restitutions'
+    get 'restitutions_perimetre' => 'avis#restitutions_perimetre'
     post 'update_etat', to: 'avis#update_etat'
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'
