@@ -129,7 +129,6 @@ class AvisController < ApplicationController
     @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
     @avis_remplis = avis_annee_remplis(@annee_a_afficher)
     @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
-    @liste_programmes = current_user.statut == 'CBR' ? current_user.programmes_access : @programmes
   end
 
   def restitutions_perimetre

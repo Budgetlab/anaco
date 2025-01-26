@@ -6,7 +6,7 @@
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="fr-my-6w">Restitutions sur mon périmètre de contrôle [<%= @avis_total %> BOP]</h1>
 
-        <div class="fr-mb-2w">
+        <div class="fr-mb-2w title-btn">
           <ul class="fr-tags-group">
             <% (2023..Date.today.year).to_a.each do |annee| %>
               <li>
@@ -16,41 +16,48 @@
               </li>
             <% end %>
           </ul>
+          <div data-controller="pdf-export">
+            <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
+                    data-action="pdf-export#export" data-pdf-export-target="button"
+                    data-pdf-export-title="Restitutions_<%= @annee_a_afficher %>.pdf">
+              Exporter au format PDF
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div id="containPDF">
+      <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
+      <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"
+           data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
+           data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>"
+           data-highcharts-notes1="<%= notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1') %>"
+           data-highcharts-notes2="<%= notes_repartition(@avis_remplis, @avis_total, 'CRG2') %>">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasAvisDate"></div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasAvis"></div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasNotesBar"></div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasNotes1"></div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasNotes2"></div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"
-         data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
-         data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>"
-         data-highcharts-notes1="<%= notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1')  %>"
-         data-highcharts-notes2="<%= notes_repartition(@avis_remplis, @avis_total, 'CRG2') %>">
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-12 fr-col-lg-4">
-          <div data-highcharts-target="canvasAvisDate"></div>
-        </div>
-        <div class="fr-col-12 fr-col-lg-4">
-          <div data-highcharts-target="canvasAvis"></div>
-        </div>
-        <div class="fr-col-12 fr-col-lg-4">
-          <div data-highcharts-target="canvasNotesBar"></div>
-        </div>
-      </div>
-      <div class="fr-grid-row fr-grid-row--gutters">
-        <div class="fr-col-12 fr-col-lg-4">
-          <div data-highcharts-target="canvasNotes1"></div>
-        </div>
-        <div class="fr-col-12 fr-col-lg-4">
-          <div data-highcharts-target="canvasNotes2"></div>
-        </div>
-      </div>
-    </div>
-
-
-
+  </div>
+  <div class="fr-container">
     <h2 class="fr-mt-6w fr-mb-2w">Liste des programmes associés à mes BOP [<%= @liste_programmes.length %>]</h2>
-
-
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <% @liste_programmes.each do |programme| %>
         <div class="fr-col-12 fr-col-lg-3">

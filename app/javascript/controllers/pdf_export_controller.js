@@ -40,7 +40,7 @@ export default class extends Controller {
         this.buttonTarget.disabled = disable;
         this.buttonTarget.textContent = disable
             ? "Génération du PDF en cours (cela peut prendre quelques secondes)..."
-            : "Exporter le contenu au format PDF";
+            : "Exporter au format PDF";
     }
 
     // Méthode privée pour afficher ou cacher les éléments
@@ -56,6 +56,7 @@ export default class extends Controller {
         this._showIconsOnLinks()
     }
     generatePDF(canvas) {
+        const title = this.buttonTarget.dataset.pdfExportTitle || 'Export.pdf'
         const imgData = canvas.toDataURL('image/png');
         // Crée un nouveau document PDF au format A4 en mode portrait ('p')
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -75,7 +76,7 @@ export default class extends Controller {
                 position -= pageHeight;
             }
         }
-        pdf.save('avis.pdf');
+        pdf.save(title);
     }
 
     _convertMasksToCanvas() {
