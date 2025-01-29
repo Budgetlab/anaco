@@ -70,7 +70,7 @@ export default class extends Controller {
           }),
           
           title: {
-              text: 'Répartition des avis en début de gestion',
+              text: 'Répartition des avis DPG/DPU',
              
               style: {
                 fontSize: '13px',
