@@ -16,7 +16,7 @@ export default class extends Controller {
   }
   connect() {
       if (this.hasCanvasAvisTarget) {
-          this.syntheseAvis();
+          this.syntheseChart('avis')
       }
       this.showViz();
   }
@@ -27,10 +27,10 @@ export default class extends Controller {
       const avisdate = JSON.parse(this.data.get("avisdate"));
       const notesbar = JSON.parse(this.data.get("notesbar"));
       if (notes1 != null && notes1.length > 0) {
-        this.syntheseNote1();
+          this.syntheseChart('notes1')
       }
       if (notes2 != null && notes2.length > 0) {
-          this.syntheseNote2();
+          this.syntheseChart('notes2')
       }
       if (avisdate != null && avisdate.length > 0){
           this.syntheseAvisDate();
@@ -38,89 +38,6 @@ export default class extends Controller {
       if (notesbar != null && notesbar.length > 0){
           this.syntheseNotesBar();
       }
-  }
-    syntheseAvis(){
-    const data = JSON.parse(this.data.get("avis"));
-    const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-action-high-red-marianne-active)","var(--background-disabled-grey)"]
-    const options = {
-          chart: {
-                height:'100%',
-                style:{
-                    fontFamily: "Marianne",
-                },
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false,
-                type: 'pie',  
-                                  
-          },
-          exporting:{enabled: false},
-          colors: Highcharts.map(colors, function (color) {
-              return {
-                  radialGradient: {
-                      cx: 0.5,
-                      cy: 0.3,
-                      r: 0.7
-                  },
-                  stops: [
-                      [0, color],
-                      [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
-                  ]
-              };
-          }),
-          
-          title: {
-              text: 'Répartition des avis DPG/DPU',
-             
-              style: {
-                fontSize: '13px',
-                fontWeight: "900",
-                color: 'var(--text-title-grey)',
-                },
-          },
-        legend:{
-            itemStyle: {
-                color: 'var(--text-title-grey)',
-            },
-        },
-          tooltip: {
-              borderColor: 'transparent',
-              borderRadius: 16,
-              backgroundColor: "rgba(245, 245, 245, 1)",
-              formatter: function () {
-                return '<b>' + this.point.name +': </b>' + this.point.y + ' (' + Math.round(this.percentage*10)/10 + '% )'
-              }
-              //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          accessibility: {
-              point: {
-                  valueSuffix: '%'
-              }
-          },
-          plotOptions: {
-              pie: {
-                  size: '100%',
-                  innerSize: '80%',
-                  allowPointSelect: true,
-                  cursor: 'pointer',
-                  dataLabels: {
-                      enabled: false
-                  },
-                  showInLegend: true,
-              }
-          },
-          series: [{
-              name: 'Catégorie',
-              data: [
-                  { name: 'Avis favorables', y: data[0] },
-                  { name: 'Avis favorables avec réserves', y: data[1] },
-                  { name: 'Avis défavorables', y: data[2] },
-                  { name: 'Avis non renseignés', y: data[3] }
-              ]
-          }]
-    }
-    this.chart = Highcharts.chart(this.canvasAvisTarget, options);
-    this.chart.reflow();
   }
 
     syntheseAvisDate(){
@@ -288,47 +205,89 @@ export default class extends Controller {
         this.chart = Highcharts.chart(this.canvasNotesBarTarget, options);
         this.chart.reflow();
     }
-    syntheseNote1(){
-        const data = JSON.parse(this.data.get("notes1"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-action-high-red-marianne-active)","var(--background-disabled-grey)"]
+
+    syntheseChart(type) {
+        const chartConfig = {
+            'avis': {
+                dataKey: 'avis',
+                title: 'Répartition des avis DPG/DPU',
+                target: 'canvasAvisTarget',
+                labels: [
+                    'Avis favorables',
+                    'Avis favorables avec réserves',
+                    'Avis défavorables',
+                    'Avis non renseignés'
+                ]
+            },
+            'notes1': {
+                dataKey: 'notes1',
+                title: 'Répartition des notes CRG1',
+                target: 'canvasNotes1Target',
+                labels: [
+                    'Aucun risque',
+                    'Risques éventuels ou modérés',
+                    'Risques certains ou significatifs',
+                    'Notes non renseignées'
+                ]
+            },
+            'notes2': {
+                dataKey: 'notes2',
+                title: 'Répartition des notes CRG2',
+                target: 'canvasNotes2Target',
+                labels: [
+                    'Aucun risque',
+                    'Risques modérés',
+                    'Risques significatifs',
+                    'Notes non renseignées'
+                ]
+            }
+        };
+
+        const config = chartConfig[type];
+        if (!config) return;
+
+        const data = JSON.parse(this.data.get(config.dataKey));
+        const colors = [
+            "var(--background-action-low-green-bourgeon)",
+            "var(--artwork-minor-blue-france)",
+            "var(--background-action-high-red-marianne-active)",
+            "var(--background-disabled-grey)"
+        ];
 
         const options = {
             chart: {
-                height:'100%',
-                style:{
+                height: '100%',
+                style: {
                     fontFamily: "Marianne",
                 },
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
                 plotShadow: false,
                 type: 'pie',
-
             },
-            exporting:{enabled: false},
-            colors: Highcharts.map(colors, function (color) {
-                return {
-                    radialGradient: {
-                        cx: 0.5,
-                        cy: 0.3,
-                        r: 0.7
-                    },
-                    stops: [
-                        [0, color],
-                        [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
-                    ]
-                };
-            }),
-
+            exporting: {
+                enabled: false
+            },
+            colors: Highcharts.map(colors, color => ({
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.color(color).brighten(-0.3).get('rgb')]
+                ]
+            })),
             title: {
-                text: 'Répartition des notes CRG1',
-
+                text: config.title,
                 style: {
                     fontSize: '13px',
                     fontWeight: "900",
                     color: 'var(--text-title-grey)',
                 },
             },
-            legend:{
+            legend: {
                 itemStyle: {
                     color: 'var(--text-title-grey)',
                 },
@@ -337,10 +296,10 @@ export default class extends Controller {
                 borderColor: 'transparent',
                 borderRadius: 16,
                 backgroundColor: "rgba(245, 245, 245, 1)",
-                formatter: function () {
-                    return '<b>' + this.point.name +': </b>' + this.point.y + ' (' + Math.round(this.percentage*10)/10 + '% )'
+                formatter: function() {
+                    return '<b>' + this.point.name + ': </b>' + this.point.y +
+                        ' (' + Math.round(this.percentage * 10) / 10 + '% )';
                 }
-                //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
             accessibility: {
                 point: {
@@ -361,99 +320,14 @@ export default class extends Controller {
             },
             series: [{
                 name: 'Catégorie',
-                data: [
-                    { name: 'Aucun risque', y: data[0] },
-                    { name: 'Risques éventuels ou modérés', y: data[1] },
-                    { name: 'Risques certains ou significatifs', y: data[2] },
-                    { name: 'Notes non renseignées', y: data[3] }
-                ]
+                data: data.map((value, index) => ({
+                    name: config.labels[index],
+                    y: value
+                }))
             }]
-        }
-        this.chart = Highcharts.chart(this.canvasNotes1Target, options);
-        this.chart.reflow();
-    }
+        };
 
-    syntheseNote2(){
-        const data = JSON.parse(this.data.get("notes2"));
-        const colors = ["var(--background-action-low-green-bourgeon)","var(--artwork-minor-blue-france)", "var(--background-action-high-red-marianne-active)","var(--background-disabled-grey)"]
-        const options = {
-            chart: {
-                height:'100%',
-                style:{
-                    fontFamily: "Marianne",
-                },
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false,
-                type: 'pie',
-
-            },
-            exporting:{enabled: false},
-            colors: Highcharts.map(colors, function (color) {
-                return {
-                    radialGradient: {
-                        cx: 0.5,
-                        cy: 0.3,
-                        r: 0.7
-                    },
-                    stops: [
-                        [0, color],
-                        [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
-                    ]
-                };
-            }),
-
-            title: {
-                text: 'Répartition des notes CRG2',
-
-                style: {
-                    fontSize: '13px',
-                    fontWeight: "900",
-                    color: 'var(--text-title-grey)',
-                },
-            },
-            legend:{
-                itemStyle: {
-                    color: 'var(--text-title-grey)',
-                },
-            },
-            tooltip: {
-                borderColor: 'transparent',
-                borderRadius: 16,
-                backgroundColor: "rgba(245, 245, 245, 1)",
-                formatter: function () {
-                    return '<b>' + this.point.name +': </b>' + this.point.y + ' (' + Math.round(this.percentage*10)/10 + '% )'
-                }
-                //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
-            },
-            plotOptions: {
-                pie: {
-                    size: '100%',
-                    innerSize: '80%',
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: false
-                    },
-                    showInLegend: true,
-                }
-            },
-            series: [{
-                name: 'Catégorie',
-                data: [
-                    { name: 'Aucun risque', y: data[0] },
-                    { name: 'Risques modérés', y: data[1] },
-                    { name: 'Risques significatifs', y: data[2] },
-                    { name: 'Notes non renseignées', y: data[3] }
-                ]
-            }]
-        }
-        this.chart = Highcharts.chart(this.canvasNotes2Target, options);
+        this.chart = Highcharts.chart(this[config.target], options);
         this.chart.reflow();
     }
 
