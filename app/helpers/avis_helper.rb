@@ -79,11 +79,11 @@ module AvisHelper
   end
 
   def avis_remplis_phase(avis, phase)
-    avis.select { |a| a.phase == phase && a.statut != 'Brouillon' }.count
+    avis.select { |a| a.phase == phase && a.etat != 'Brouillon' }.count
   end
 
   def avis_brouillon_phase(avis, phase)
-    avis.select { |a| a.phase == phase && a.statut == 'Brouillon' }.count
+    avis.select { |a| a.phase == phase && a.etat == 'Brouillon' }.count
   end
 
   def avis_a_remplir(avis, phase, annee)
