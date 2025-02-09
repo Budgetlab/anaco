@@ -11,7 +11,7 @@ class ProgrammesController < ApplicationController
 
   # Page liste des crédits non repartis par programme
   def index
-    @programmes = Programme.where(statut: 'Actif')
+    @programmes = Programme.accessible
     @programmes = @programmes.order(numero: :asc)
     @q = @programmes.ransack(params[:q])
     @programmes = @q.result.includes(:schemas)

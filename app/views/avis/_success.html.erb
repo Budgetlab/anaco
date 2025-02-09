@@ -12,6 +12,16 @@
 				<h3 class="fr-alert__title">L'avis a bien été marqué comme Lu.</h3>
 				<button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer le message</button>
 			</div>
+		<% elsif msg == "Lus" %>
+			<div class="fr-alert fr-alert--success fr-mb-2w">
+				<h3 class="fr-alert__title">Les avis ont bien été marqués comme Lu.</h3>
+				<button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer le message</button>
+			</div>
+		<% elsif msg == "Modification" %>
+			<div class="fr-alert fr-alert--success fr-mb-2w">
+				<h3 class="fr-alert__title">L'avis a bien été modifié.</h3>
+				<button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer le message</button>
+			</div>
 		<% elsif msg[0..3] == "Avis"%>
 			<div class="fr-alert fr-alert--success fr-mb-2w">
 				<h3 class="fr-alert__title"> <%= msg %></h3>

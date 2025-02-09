@@ -68,7 +68,13 @@ class AvisController < ApplicationController
 
   def update
     @avis = Avi.find(params[:id])
-    if @avis.update(avi_params)
+    etat = @avis.etat
+    if ['Lu', 'En attente de lecture'].include?(etat) # avis modifié
+      @avis.update(avi_params)
+      @avis.etat = etat
+      @avis.save
+      redirect_to bop_path(@avis.bop), notice: 'Modification'
+    elsif @avis.update(avi_params)
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
       @avis.update(etat: 'Lu') if dcb_is_updating?
       redirect_to historique_path, notice: @message
@@ -80,6 +86,7 @@ class AvisController < ApplicationController
   def show
     @avis = Avi.find(params[:id])
   end
+
   # Page de consultation des avis pour les DCB
   def consultation
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
@@ -95,9 +102,17 @@ class AvisController < ApplicationController
 
   # fonction qui met à jour l'état de l'avis comme Lu
   def update_etat
-    @avis = Avi.find(params[:id])
-    @avis&.update(etat: 'Lu')
-    redirect_to consultation_path, flash: { notice: 'Lu' }
+    if params[:id]
+      @avis = Avi.find(params[:id])
+      @avis&.update(etat: 'Lu')
+      notice = 'Lu'
+    else # update all
+      bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
+      avis = Avi.where(bop_id: bops_consultation.pluck(:id)).where(etat: 'En attente de lecture')
+      avis.update_all(etat: 'Lu')
+      notice = 'Lus'
+    end
+    redirect_to consultation_path, flash: { notice: notice }
   end
 
   # Page pour importer les avis exécution N-1
@@ -153,7 +168,7 @@ class AvisController < ApplicationController
     @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
-    @avis_sv = avis_annee_courante.select { |a| a.phase == 'services votés' && a.etat == 'Brouillon'}[0]
+    @avis_sv = avis_annee_courante.select { |a| a.phase == 'services votés' && a.etat == 'Brouillon' }[0]
     avis_annee_precedente = @bop.avis.where(annee: annee - 1)
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
@@ -171,7 +186,8 @@ class AvisController < ApplicationController
       'début de gestion'
     elsif (@avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')) || (annee == @annee && Date.today < @date_crg2) # avis début de gestion rempli et phase de CRG1
       'CRG1'
-    else # avis début de gestion rempli et phase de CRG2 sauf si CRG1 présent et non rempli
+    else
+      # avis début de gestion rempli et phase de CRG2 sauf si CRG1 présent et non rempli
       'CRG2'
     end
   end

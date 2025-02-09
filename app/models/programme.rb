@@ -7,6 +7,9 @@ class Programme < ApplicationRecord
   has_many :gestion_schemas, dependent: :destroy
   has_many :schemas, dependent: :destroy
 
+  scope :active, -> { where(statut: 'Actif') }
+  scope :accessible, -> { where(statut: 'Actif').or(where(statut: 'Inactif')) }
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     headers = data.row(1) # get header row
@@ -21,7 +24,7 @@ class Programme < ApplicationRecord
       user = User.find_by(nom: row_data['User'])
       deconcentre = row_data['BOP'] == 'oui'
       if Programme.exists?(numero: row_data['Numero'].to_i)
-        programme = Programme.where(numero: row_data['Numero'].to_i).first
+        programme = Programme.find_by(numero: row_data['Numero'].to_i)
         programme.update(nom: row_data['Nom'], user_id: user.id, mission_id: mission.id, deconcentre: deconcentre, ministere_id: ministere.id, dotation: row_data['Dotation'], statut: row_data['Statut'])
       else
         programme = Programme.new

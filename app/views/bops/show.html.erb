@@ -60,6 +60,7 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-6w">
       <div class="fr-col-12 fr-col-lg-12">
         <h2 class="fr-mb-3w">Historique des avis</h2>
+        <%= render 'avis/success' %>
         <div class="fr-tabs">
           <ul class="fr-tabs__list" role="tablist" aria-label="Avis du bop par année">
             <% (Date.today.year).downto(2023).to_a.each do |annee| %>

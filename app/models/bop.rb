@@ -11,25 +11,34 @@ class Bop < ApplicationRecord
     data.each_with_index do |row, idx|
       next if idx == 0 # skip header
       row_data = Hash[[headers, row].transpose]
-      #mise à jour des dotations
-      if Bop.find_by(code: row_data['Code'])
-        bop = Bop.find_by(code: row_data['Code'])
-        bop.update!(dotation: row_data['Dotation'], created_at: row_data['Created at'].to_datetime)
-      end
-      unless User.where(nom: row_data['Identifiant']).first.nil?
+      # mise à jour des dotations
+      #if Bop.find_by(code: row_data['Code'])
+      #  bop = Bop.find_by(code: row_data['Code'])
+      #  bop.update!(dotation: row_data['Dotation'], created_at: row_data['Created at'].to_datetime)
+      #end
+      unless User.where(nom: row_data['Identifiant ANACO Contrôleur BOP']).first.nil?
+        programme = Programme.find_by(numero: row_data['N°Programme'])
         if Bop.exists?(code: row_data['Code CHORUS du BOP'].to_s)
           @bop = Bop.where(code: row_data['Code CHORUS du BOP'].to_s).first
-          @bop.update(user_id: User.where(nom: row_data['Identifiant']).first.id, dcb_id: User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i)
+          @bop.update(user_id: User.where(nom: row_data['Identifiant ANACO Contrôleur BOP']).first.id, dcb_id: User.where(nom: row_data['Identifant DCB Programme ANACO'].to_s).first.id, ministere: row_data['MINISTERE'].to_s, nom_programme: row_data['Libellé programme'].to_s, numero_programme: row_data['N°Programme'].to_i, programme_id: programme.id)
         else
-          bop = Bop.new
-          bop.user_id = User.where(nom: row_data['Identifiant']).first.id
-          bop.dcb_id = User.where(nom: row_data['DCB en consultation sur le programme'].to_s).first.id
-          bop.ministere = row_data['MINISTERE'].to_s
-          bop.nom_programme = row_data['Libellé programme'].to_s
-          bop.numero_programme = row_data['N°Programme'].to_i
-          bop.code = row_data['Code CHORUS du BOP'].to_s
-          bop.created_at = Date.new(Date.today.year, 1, 1)
-          bop.save
+          bop = Bop.new(
+            user_id: User.find_by(nom: row_data['Identifiant ANACO Contrôleur BOP'])&.id,
+            dcb_id: User.find_by(nom: row_data['Identifant DCB Programme ANACO'].to_s)&.id,
+            ministere: row_data['MINISTERE'].to_s,
+            nom_programme: row_data['Libellé programme'].to_s,
+            numero_programme: row_data['N°Programme'].to_i,
+            programme_id: programme.id,
+            code: row_data['Code CHORUS du BOP'].to_s,
+            created_at: Date.current.beginning_of_year.to_datetime
+          )
+
+          # Vérifie que l'objet est valide avant de sauvegarder
+          if bop.save
+            puts "Bop créé avec succès : #{bop.inspect}"
+          else
+            puts "Erreur lors de la création du Bop : #{bop.errors.full_messages.join(', ')}"
+          end
         end
       end
 

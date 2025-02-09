@@ -1,4 +1,5 @@
-<% content_for :title do %>Ajout programmes | Anaco <% end %>
+<% content_for :title do %>Ajout programmes | Anaco
+<% end %>
 <main role="main" class="containtAll">
   <div class="fr-container fr-mt-7w">
     <div class="fr-col-lg-10 fr-col-offset-lg-1">
@@ -9,12 +10,21 @@
             <label class="fr-label" for="file-upload">Ajouter des fichiers
               <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : xlsx. </span>
             </label>
-            <%= file_field_tag  :file, accept: '.xlsx', class: "fr-upload", id: "file-upload" %>
+            <%= file_field_tag :file, accept: '.xlsx', class: "fr-upload", id: "file-upload" %>
           </div>
-          <div class="fr-my-4w"><%= submit_tag "Transmettre", class:"fr-btn" %></div>
+          <div class="fr-my-4w"><%= submit_tag "Transmettre", class: "fr-btn" %></div>
         <% end %>
       </div>
-      <div class="fr-my-4w"><%= Programme.all.count%> programmes</div>
+      <div class="fr-my-4w"><%= Programme.all.count %> programmes</div>
+      <div class="fr-my-2w"><%= Ministere.all.count %> ministères</div>
+
+      <% Ministere.order(nom: :asc).each do |ministere| %>
+        <div><%= ministere.nom %>, #<%= ministere.id %> - <%= ministere.programmes.count %></div>
+      <% end %>
+      <div class="fr-my-2w"><%= Mission.all.count %> missions</div>
+      <% Mission.order(nom: :asc).each do |mission| %>
+        <div><%= mission.nom %>, #<%= mission.id %> - <%= mission.programmes.count %></div>
+      <% end %>
     </div>
   </div>
 </main>

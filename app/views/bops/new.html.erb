@@ -15,7 +15,7 @@
         <% end %>
     </div>
     <div class="fr-my-4w"><%= Bop.all.count%> bops</div>
-      <% User.all.each do |user| %>
+      <% User.all.order(nom: :asc).each do |user| %>
         <div><%= user.nom %> - <%= user.bops.count %></div>
       <%end %>
     </div>
