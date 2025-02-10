@@ -5,7 +5,7 @@ ActiveAdmin.register Programme do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  permit_params :numero, :nom, :user_id, :dotation, :statut, :mission_id, :ministere_id
+  permit_params :numero, :nom, :user_id, :dotation, :statut, :mission_id, :ministere_id, :date_inactivite
   #
   # or
   #

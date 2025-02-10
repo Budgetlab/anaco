@@ -9,6 +9,14 @@ class Programme < ApplicationRecord
 
   scope :active, -> { where(statut: 'Actif') }
   scope :accessible, -> { where(statut: 'Actif').or(where(statut: 'Inactif')) }
+  scope :active_year, lambda { |annee|
+    where(
+      '(statut = ? AND created_at <= ?) OR (statut = ? AND date_inactivite > ?)',
+      'Actif', Date.new(annee, 12, 31),
+      'Inactif', Date.new(annee, 12, 31)
+    )
+  }
+
 
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
@@ -62,7 +70,7 @@ class Programme < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation", "statut", "ministere_id"]
+    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation", "statut", "ministere_id", "date_inactivite"]
   end
 
   def self.ransackable_associations(auth_object = nil)

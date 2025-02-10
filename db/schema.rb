@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_09_085136) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_10_081326) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -178,6 +178,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_09_085136) do
     t.boolean "deconcentre"
     t.string "dotation"
     t.string "statut", default: "Actif"
+    t.date "date_inactivite"
     t.index ["ministere_id"], name: "index_programmes_on_ministere_id"
     t.index ["mission_id"], name: "index_programmes_on_mission_id"
     t.index ["user_id"], name: "index_programmes_on_user_id"

@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     @annee_a_afficher = annee_a_afficher
     users = User.where(statut: 'DCB').includes(:programmes, :schemas).order(nom: :asc)
     @user_data = users.map do |user|
-      total_programmes = user.programmes.where(statut: 'Actif').count
+      total_programmes = user.programmes.active_year(@annee_a_afficher).count
       # ajuster les requêtes schema pour prendre en compte l'année
       schemas_for_year = user.schemas.where(annee: @annee_a_afficher)
       programmes_with_schema = user.programmes_with_schemas(@annee_a_afficher)
