@@ -11,7 +11,7 @@
             Vous avez <%= current_user.avis_a_lire %> avis/notes en attente de lecture
           </div>
           <% if current_user.avis_a_lire > 0 %>
-            <div class="fr-mt-1w"><%= link_to 'Marquer tous les avis comme Lu', update_etat_path, data: { "turbo_method": :post, turbo_confirm: "Êtes-vous sûrs de vouloir marquer tous les avis comme Lu ?" }, class: 'fr-btn' %></div>
+            <div class="fr-mt-1w"><%= link_to 'Marquer tous les avis comme lus', update_etat_path, data: { "turbo_method": :post, turbo_confirm: "Êtes-vous sûrs de vouloir marquer tous les avis comme lus ?" }, class: 'fr-btn' %></div>
           <% end %>
         </div>
       </div>

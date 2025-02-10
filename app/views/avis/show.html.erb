@@ -88,7 +88,7 @@
 
               <% if @avis.user != current_user && current_user.statut == "DCB" && @avis.etat == "En attente de lecture" %>
                 <%= link_to update_etat_path(id: @avis.id), data: { "turbo_method": :post }, class: "fr-btn fr-btn--secondary fr-mb-2w", aria: { controls: "modal-1" } do %>
-                  Afficher comme Lu et fermer
+                  Afficher comme lu et fermer
                 <% end %>
               <% end %>
 
