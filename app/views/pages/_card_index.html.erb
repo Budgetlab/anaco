@@ -42,7 +42,7 @@
             <% if Date.today < date_ouverture %><p class="fr-badge fr-badge--orange-terre-battue">À venir </p><% elsif date_ouverture <= Date.today && Date.today <= date_fermeture%><p class="fr-badge fr-badge--purple-glycine">En cours </p><%else%><p class="fr-badge fr-badge--green-emeraude">Terminée</p><%end%>
           </li>
         </ul>
-        <p class="fr-card__detail fr-icon-arrow-right-line"><% if phase == 'début de gestion' %>Dès la promulgation de la LFI 2025<%else %>Du <%= I18n.localize(date_ouverture,format: "%e %B")%> au <%= I18n.localize(date_fermeture,format: "%e %B")%><%end %></p>
+        <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(date_ouverture,format: "%e %B")%> au <%= I18n.localize(date_fermeture,format: "%e %B")%></p>
       </div>
     </div>
     <% if Date.today >= date_ouverture%>
