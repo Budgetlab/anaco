@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_10_081326) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_19_095742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
+
+  create_table "action_text_rich_texts", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "body"
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string "namespace"
@@ -155,6 +165,40 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_081326) do
     t.index ["user_id"], name: "index_gestion_schemas_on_user_id"
   end
 
+  create_table "ht2_actes", force: :cascade do |t|
+    t.string "type_acte", null: false
+    t.string "etat"
+    t.string "instructeur"
+    t.string "nature"
+    t.float "montant_ae"
+    t.float "montant_global"
+    t.date "date_chorus"
+    t.string "numero_chorus"
+    t.string "beneficiaire"
+    t.string "objet"
+    t.string "ordonnateur"
+    t.text "precisions_acte"
+    t.boolean "pre_instruction"
+    t.string "action"
+    t.string "sous_action"
+    t.string "activite"
+    t.boolean "lien_tf"
+    t.string "numero_tf"
+    t.boolean "disponibilite_credits"
+    t.boolean "imputation_depense"
+    t.boolean "consommation_credits"
+    t.boolean "programmation"
+    t.string "proposition_decision"
+    t.text "commentaire_proposition_decision"
+    t.string "complexite"
+    t.text "observations"
+    t.string "type_observations", default: [], array: true
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_ht2_actes_on_user_id"
+  end
+
   create_table "ministeres", force: :cascade do |t|
     t.string "nom"
     t.datetime "created_at", null: false
@@ -231,6 +275,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_081326) do
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
+  add_foreign_key "ht2_actes", "users"
   add_foreign_key "programmes", "ministeres"
   add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"

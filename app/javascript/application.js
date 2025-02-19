@@ -2,3 +2,5 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 //import "custom/dsfr.module.min"
+import "trix"
+import "@rails/actiontext"

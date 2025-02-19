@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :programmes
   has_many :gestion_schemas
   has_many :schemas
+  has_many :ht2_actes
 
   # fonction d'import des utilisateurs dans la bdd
   def self.import(file)

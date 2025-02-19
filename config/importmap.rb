@@ -29,3 +29,5 @@ pin "raf" # @3.4.1
 pin "rgbcolor" # @1.0.1
 pin "stackblur-canvas" # @2.7.0
 pin "svg-pathdata" # @6.0.3
+pin "trix"
+pin "@rails/actiontext", to: "actiontext.esm.js"

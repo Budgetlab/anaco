@@ -1,0 +1,61 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  type_acte: MyString
+  etat: MyString
+  instructeur: MyString
+  nature: MyString
+  montant_ae: 1.5
+  montant_global: 1.5
+  date_chorus: 2025-02-19
+  numero_chorus: MyString
+  beneficiaire: MyString
+  objet: MyString
+  ordonnateur: MyString
+  precisions_acte: MyText
+  pre_instruction: false
+  action: MyString
+  sous_action: MyString
+  activite: MyString
+  lien_tf: false
+  numero_tf: MyString
+  disponibilite_credits: false
+  imputation_depense: false
+  consommation_credits: false
+  programmation: false
+  proposition_decision: MyString
+  commentaire_proposition_decision: MyText
+  complexite: MyString
+  observations: MyText
+  type_observations: MyString
+  user: one
+
+two:
+  type_acte: MyString
+  etat: MyString
+  instructeur: MyString
+  nature: MyString
+  montant_ae: 1.5
+  montant_global: 1.5
+  date_chorus: 2025-02-19
+  numero_chorus: MyString
+  beneficiaire: MyString
+  objet: MyString
+  ordonnateur: MyString
+  precisions_acte: MyText
+  pre_instruction: false
+  action: MyString
+  sous_action: MyString
+  activite: MyString
+  lien_tf: false
+  numero_tf: MyString
+  disponibilite_credits: false
+  imputation_depense: false
+  consommation_credits: false
+  programmation: false
+  proposition_decision: MyString
+  commentaire_proposition_decision: MyText
+  complexite: MyString
+  observations: MyText
+  type_observations: MyString
+  user: two

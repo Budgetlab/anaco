@@ -53,6 +53,8 @@ Rails.application.routes.draw do
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'
 
+    resources :ht2_actes
+
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'
     get '/accessibilite', to: 'pages#accessibilite'
