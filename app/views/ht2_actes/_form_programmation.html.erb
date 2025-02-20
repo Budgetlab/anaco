@@ -1,4 +1,4 @@
-<h2>Contrôle de la disponibilité des crédits</h2>
+<h2>Contrôle de la compatibilité avec la programmation annuelle et pluriannuelle</h2>
 <%= form_with(model: @acte) do |f| %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
@@ -17,20 +17,20 @@
         </legend>
         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
           <div class="fr-radio-group">
-            <%= f.radio_button :disponibilite_credits, true, id: "radio-delai1", checked: @acte.disponibilite_credits.nil? || @acte.disponibilite_credits == true %>
+            <%= f.radio_button :programmation, true, id: "radio-delai1", checked: @acte.programmation.nil? || @acte.programmation == true %>
             <label class="fr-label" for="radio-delai1">Oui</label>
           </div>
         </div>
         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
           <div class="fr-radio-group">
-            <%= f.radio_button :disponibilite_credits, false, checked: @acte.disponibilite_credits == false, id: "radio-delai" %>
+            <%= f.radio_button :programmation, false, checked: @acte.programmation == false, id: "radio-delai" %>
             <label class="fr-label" for="radio-delai">Non</label>
           </div>
         </div>
       </fieldset>
       <div class="fr-input-group">
-        <label for="commentaire_disponibilite_credits" class="fr-label">Observations et pièce justificative</label>
-        <%= f.rich_text_area :commentaire_disponibilite_credits %>
+        <label for="commentaire_programmation" class="fr-label">Observations et pièce justificative</label>
+        <%= f.rich_text_area :commentaire_programmation %>
       </div>
     </div>
   </div>

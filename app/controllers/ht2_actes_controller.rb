@@ -19,6 +19,7 @@ class Ht2ActesController < ApplicationController
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
     @liste_natures = ["Nature 1", "nature 2"]
+    @liste_decisions = ["Favorable", "Favorable avec observations"]
   end
 
   def update
@@ -39,7 +40,7 @@ class Ht2ActesController < ApplicationController
                                      :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
-                                     :user_id,:commentaire_disponibilite_credits, :commentaire_imputation_depense,
+                                     :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
                                      :commentaire_consommation_credits, :commentaire_programmation, type_observations: [] )
   end
 end

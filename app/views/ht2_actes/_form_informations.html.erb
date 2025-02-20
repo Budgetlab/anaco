@@ -1,3 +1,5 @@
+<h2>Informations sur l'acte</h2>
+<div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <%= form_with(model: @acte) do |f| %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
@@ -36,8 +38,8 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="beneficiare" class="fr-label">Bénéficaire</label>
-        <%= f.text_field :beneficiare,value: @acte.beneficiaire, id: "beneficiare", class: "fr-input" %>
+        <label for="beneficiaire" class="fr-label">Bénéficaire</label>
+        <%= f.text_field :beneficiaire,value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
