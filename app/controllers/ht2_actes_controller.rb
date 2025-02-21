@@ -32,6 +32,10 @@ class Ht2ActesController < ApplicationController
     end
   end
 
+  def show
+    @acte = Ht2Acte.find(params[:id])
+  end
+
   private
 
   def ht2_acte_params

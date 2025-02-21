@@ -1,0 +1,15 @@
+<% content_for :title do %>Consultation de l'acte HT2 | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2</h1>
+
+        <div>
+          <%= @acte.commentaire_disponibilite_credits %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
