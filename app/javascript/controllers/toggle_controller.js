@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
     static get targets() {
-        return ['commentaireLong','commentaireCourt', 'nav'];
+        return ['commentaireLong','commentaireCourt', 'nav', 'content', 'button'];
     }
     connect() {
     }
@@ -52,5 +52,13 @@ export default class extends Controller {
         this.navTargets.forEach(nav => {
             nav.setAttribute("aria-current", nav === currentTarget ? true : false);
         });
+    }
+
+    toggleContent(event) {
+        event.preventDefault();
+        this.contentTarget.classList.toggle("fr-hidden")
+        this.buttonTarget.textContent = this.contentTarget.classList.contains("fr-hidden")
+            ? "Renseigner plus d'informations"
+            : "Afficher moins"
     }
 }

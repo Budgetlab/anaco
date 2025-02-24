@@ -1,5 +1,6 @@
 <h2>Contrôle de l’imputation de la dépense</h2>
 <%= form_with(model: @acte) do |f| %>
+  <%= hidden_field_tag :etape, 4 %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <div class="fr-notice fr-notice--info fr-mb-2w">

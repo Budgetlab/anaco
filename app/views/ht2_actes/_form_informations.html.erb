@@ -1,6 +1,7 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <%= form_with(model: @acte) do |f| %>
+  <%= hidden_field_tag :etape, 2 %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
@@ -11,13 +12,13 @@
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-select-group">
         <label for="nature" class="fr-label">Nature/type de l'acte*</label>
-        <%= f.select :nature, options_for_select([["- sélectionner -", ""]] + @liste_natures.map { |nature| [nature, nature] }),{ selected: @acte.nature }, {id:"nature",class:"fr-select"}%>
+        <%= f.select :nature, options_for_select([["- sélectionner -", ""]] + @liste_natures.map { |nature| [nature, nature] }), { selected: @acte.nature }, { id: "nature", class: "fr-select" } %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="montant_ae" class="fr-label">Montant estimatif global (AE)*</label>
-        <%= f.number_field :montant_ae,value: @acte.montant_ae, id: "montant_ae", class: "fr-input" %>
+        <%= f.number_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input" %>
       </div>
     </div>
   </div>
@@ -31,7 +32,7 @@
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="numero_chorus" class="fr-label">Numéro acte Chorus</label>
-        <%= f.text_field :numero_chorus,value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input" %>
+        <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input" %>
       </div>
     </div>
   </div>
@@ -39,19 +40,71 @@
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="beneficiaire" class="fr-label">Bénéficaire</label>
-        <%= f.text_field :beneficiaire,value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
+        <%= f.text_field :beneficiaire, value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="objet" class="fr-label">Objet</label>
-        <%= f.text_field :objet,value: @acte.objet, id: "objet", class: "fr-input" %>
+        <%= f.text_field :objet, value: @acte.objet, id: "objet", class: "fr-input" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="ordonnateur" class="fr-label">Ordonnateur</label>
-        <%= f.text_field :ordonnateur,value: @acte.ordonnateur, id: "ordonnateur", class: "fr-input" %>
+        <%= f.text_field :ordonnateur, value: @acte.ordonnateur, id: "ordonnateur", class: "fr-input" %>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div class="fr-input-group">
+        <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
+        <%= f.text_area :precisions_acte, class: 'fr-input' %>
+      </div>
+    </div>
+  </div>
+  <div data-controller="toggle">
+    <button class="fr-btn fr-btn--secondary fr-my-3w"
+            data-action="click->toggle#toggleContent"
+            data-toggle-target="button">
+      Renseigner plus d'informations
+    </button>
+    <div class="fr-hidden"
+         data-toggle-target="content">
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="action" class="fr-label">Action</label>
+            <%= f.text_field :action, value: @acte.action, id: "action", class: "fr-input" %>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="sous_action" class="fr-label">Sous-action</label>
+            <%= f.text_field :sous_action, value: @acte.sous_action, id: "sous_action", class: "fr-input" %>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="activite" class="fr-label">Activité</label>
+            <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
+          </div>
+        </div>
+      </div>
+      <div class="fr-grid-row fr-grid-row--gutters  fr-grid-row--middle">
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-checkbox-group">
+            <%= f.check_box :lien_tf, id: "lien_tf" %>
+            <%= f.label :lien_tf, "Acte lié à une TF", class: "fr-label", for: "lien_tf" %>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
+            <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
