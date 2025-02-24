@@ -4,6 +4,10 @@ class Ht2ActesController < ApplicationController
 
   def index
     @actes = current_user.ht2_actes.order(created_at: :desc)
+    @q = @actes.ransack(params[:q])
+    filtered_actes = @q.result(distinct: true)
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pre-instruction'))
+    @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: 'instruction'))
   end
 
   def new
@@ -21,7 +25,7 @@ class Ht2ActesController < ApplicationController
 
   def edit
     @acte = Ht2Acte.find(params[:id])
-    @etape = params[:etape].to_i || 1
+    @etape = params[:etape].present? ? params[:etape].to_i : 1
     @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable"]
   end
 
@@ -29,7 +33,8 @@ class Ht2ActesController < ApplicationController
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
     if @acte.update(ht2_acte_params)
-      redirect_to edit_ht2_acte_path(@acte, etape: @etape)
+      path = @etape == 6 ? ht2_actes_path : edit_ht2_acte_path(@acte, etape: @etape)
+      redirect_to path
     else
       render :edit
     end

@@ -11,15 +11,17 @@ class Ht2Acte < ApplicationRecord
   has_rich_text :commentaire_imputation_depense
   has_rich_text :commentaire_consommation_credits
   has_rich_text :commentaire_programmation
-
+  def self.ransackable_attributes(auth_object = nil)
+    ["action", "activite", "beneficiaire", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "disponibilite_credits", "etat", "id", "imputation_depense", "instructeur", "lien_tf", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id"]
+  end
   private
 
   def set_etat_acte
     if date_chorus.nil? || (numero_chorus.nil? && nature != "Liste d'actes")
-      etat = "En pré-instruction"
+      etat = "pre-instruction"
       pre_instruction = true
     elsif etat.nil?
-      etat = "En instruction"
+      etat = "instruction"
     end
   end
 end

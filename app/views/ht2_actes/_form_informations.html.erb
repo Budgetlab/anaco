@@ -2,6 +2,7 @@
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <%= form_with(model: @acte) do |f| %>
   <%= hidden_field_tag :etape, 2 %>
+  <%= f.hidden_field :type_acte, value: @acte.type_acte %>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
