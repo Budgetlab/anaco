@@ -17,6 +17,7 @@ class Ht2ActesController < ApplicationController
   def create
     @acte = current_user.ht2_actes.new(ht2_acte_params)
     if @acte.save
+      associate_centre_financier(@acte)
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
     else
       render :new
@@ -33,6 +34,7 @@ class Ht2ActesController < ApplicationController
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
     if @acte.update(ht2_acte_params)
+      associate_centre_financier(@acte)
       path = @etape == 6 ? ht2_actes_path : edit_ht2_acte_path(@acte, etape: @etape)
       redirect_to path
     else
@@ -47,7 +49,7 @@ class Ht2ActesController < ApplicationController
   private
 
   def ht2_acte_params
-    params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global,
+    params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
                                      :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
@@ -58,5 +60,20 @@ class Ht2ActesController < ApplicationController
 
   def set_liste_natures
     @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
+  end
+
+  def associate_centre_financier(acte)
+    code = acte.centre_financier_code
+    if code.present?
+      centre = CentreFinancier.find_by(code: code)
+      if centre
+        # Supprimer les associations existantes et ajouter la nouvelle
+        acte.centre_financiers.destroy_all
+        acte.centre_financiers << centre
+      end
+    else
+      # Si pas de code, supprimer toutes les associations
+      acte.centre_financiers.destroy_all
+    end
   end
 end

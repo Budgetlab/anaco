@@ -3,6 +3,7 @@ class Bop < ApplicationRecord
   belongs_to :dcb, class_name: 'User', foreign_key: 'dcb_id'
   has_many :avis, dependent: :destroy
   belongs_to :programme
+  has_many :centre_financiers
 
   def self.import(file)
 

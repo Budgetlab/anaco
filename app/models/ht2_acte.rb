@@ -1,5 +1,6 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
+  has_and_belongs_to_many :centre_financiers
   before_save :set_etat_acte
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|

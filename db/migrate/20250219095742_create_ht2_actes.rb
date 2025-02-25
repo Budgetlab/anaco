@@ -7,6 +7,7 @@ class CreateHt2Actes < ActiveRecord::Migration[7.2]
       t.string :nature
       t.float :montant_ae
       t.float :montant_global
+      t.string :centre_financier_code
       t.date :date_chorus
       t.string :numero_chorus
       t.string :beneficiaire

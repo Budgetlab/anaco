@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_19_095742) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_25_101809) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -122,6 +122,21 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_095742) do
     t.index ["user_id"], name: "index_bops_on_user_id"
   end
 
+  create_table "centre_financiers", force: :cascade do |t|
+    t.bigint "bop_id", null: false
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bop_id"], name: "index_centre_financiers_on_bop_id"
+  end
+
+  create_table "centre_financiers_ht2_actes", id: false, force: :cascade do |t|
+    t.bigint "ht2_acte_id", null: false
+    t.bigint "centre_financier_id", null: false
+    t.index ["centre_financier_id", "ht2_acte_id"], name: "idx_on_centre_financier_id_ht2_acte_id_434d7f4a17"
+    t.index ["ht2_acte_id", "centre_financier_id"], name: "idx_on_ht2_acte_id_centre_financier_id_ab5984b1f7"
+  end
+
   create_table "gestion_schemas", force: :cascade do |t|
     t.bigint "programme_id", null: false
     t.bigint "user_id", null: false
@@ -172,6 +187,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_095742) do
     t.string "nature"
     t.float "montant_ae"
     t.float "montant_global"
+    t.string "centre_financier_code"
     t.date "date_chorus"
     t.string "numero_chorus"
     t.string "beneficiaire"
@@ -272,6 +288,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_095742) do
   add_foreign_key "bops", "programmes"
   add_foreign_key "bops", "users"
   add_foreign_key "bops", "users", column: "dcb_id"
+  add_foreign_key "centre_financiers", "bops"
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
