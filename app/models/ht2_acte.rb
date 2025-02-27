@@ -19,10 +19,8 @@ class Ht2Acte < ApplicationRecord
 
   def set_etat_acte
     if date_chorus.nil? || (numero_chorus.nil? && nature != "Liste d'actes")
-      etat = "pre-instruction"
-      pre_instruction = true
-    elsif etat.nil?
-      etat = "instruction"
+      self.etat = "pre-instruction"
+      self.pre_instruction = true
     end
   end
 end

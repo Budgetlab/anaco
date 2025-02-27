@@ -8,6 +8,7 @@ class Ht2ActesController < ApplicationController
     filtered_actes = @q.result(distinct: true)
     @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pre-instruction'))
     @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: 'instruction'))
+    @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'attente validation'))
   end
 
   def new
@@ -34,9 +35,15 @@ class Ht2ActesController < ApplicationController
   def update
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
+    # Vérifier si le paramètre d'action est envoyé
+    if params[:submit_action] == 'validation'
+      @acte.etat = 'attente validation'
+    else
+      @acte.etat = 'instruction'
+    end
     if @acte.update(ht2_acte_params)
       associate_centre_financier(@acte)
-      path = @etape == 6 ? ht2_actes_path : edit_ht2_acte_path(@acte, etape: @etape)
+      path = @etape == 7 ? ht2_actes_path : edit_ht2_acte_path(@acte, etape: @etape)
       redirect_to path
     else
       render :edit
