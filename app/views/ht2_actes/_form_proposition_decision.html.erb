@@ -11,20 +11,42 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="complexite" class="fr-label">Auto-évaluation de la complexité de l’acte</label>
-        <%= f.select :complexite,[["- sélectionner -",""],['1','1'],['2','2'],['3','3'],['4','4'],['5','5']],{selected: @acte.complexite}, { id:"complexite",class:"fr-select"}%>
+        <%= f.select :complexite, [["- sélectionner -", ""], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']], { selected: @acte.complexite }, { id: "complexite", class: "fr-select" } %>
       </div>
     </div>
   </div>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <div class="fr-input-group">
-        <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de décision de contrôle</label>
+        <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de
+          décision de contrôle</label>
         <%= f.text_area :commentaire_proposition_decision, class: 'fr-input' %>
       </div>
 
       <div class="fr-input-group">
         <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
         <%= f.text_area :observations, class: 'fr-input' %>
+      </div>
+      <div data-controller="multi-select">
+        <div class="fr-select-group">
+          <label for="type_observations" class="fr-label">Type d'observations</label>
+          <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
+                         id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+        </div>
+
+        <!-- Conteneur pour afficher les tags -->
+        <ul id="selected_observations" class="fr-tags-group" data-multi-select-target="container">
+          <% @acte.type_observations&.each do |observation| %>
+            <li data-action="click->multi-select#remove" data-value="<%= observation %>">
+              <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= observation %>">
+                <%= observation %>
+              </button>
+            </li>
+          <% end %>
+        </ul>
+
+        <!-- Champ caché pour stocker les valeurs sélectionnées -->
+        <%= f.hidden_field :type_observations, value: @acte.type_observations&.join(","), id: "hidden_type_observations", data: { multi_select_target: "hidden" } %>
       </div>
     </div>
   </div>

@@ -42,6 +42,7 @@
                     <th scope="col">Nature</th>
                     <th scope="col">Agent</th>
                     <th scope="col">Montant</th>
+                    <th scope="col"></th>
                   </tr>
                   </thead>
                   <tbody>
@@ -53,6 +54,9 @@
                       <td><%= acte.nature %></td>
                       <td><%= acte.instructeur %></td>
                       <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                      <td><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" }  do %>
+                          Actualiser
+                        <% end %></td>
                     </tr>
                   <% end %>
                   </tbody>

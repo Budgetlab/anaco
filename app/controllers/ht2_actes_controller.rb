@@ -28,6 +28,7 @@ class Ht2ActesController < ApplicationController
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].present? ? params[:etape].to_i : 1
     @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable"]
+    @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end
 
   def update
@@ -49,6 +50,8 @@ class Ht2ActesController < ApplicationController
   private
 
   def ht2_acte_params
+    params[:ht2_acte][:type_observations] = params[:ht2_acte][:type_observations]&.split(",") if params[:ht2_acte][:type_observations].is_a?(String)
+
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
                                      :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf,

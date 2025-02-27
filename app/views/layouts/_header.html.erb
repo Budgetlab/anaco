@@ -131,6 +131,18 @@
             <% end %>
 
             <li class="fr-nav__item">
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes</button>
+              <div class="fr-collapse fr-menu" id="menu-actes">
+                <ul class="fr-menu__list">
+                  <li>
+                    <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Actes
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            <li class="fr-nav__item">
               <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) || current_page?(bops_path) || current_page?(faq_path) ? 'aria-current="true"' : '' %>>Informations</button>
               <div class="fr-collapse fr-menu" id="menu-liste">
                 <ul class="fr-menu__list">
