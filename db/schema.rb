@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_25_101809) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_28_142811) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -257,6 +257,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_101809) do
     t.index ["user_id"], name: "index_schemas_on_user_id"
   end
 
+  create_table "suspensions", force: :cascade do |t|
+    t.date "date_suspension"
+    t.string "motif"
+    t.text "observations"
+    t.date "date_reprise"
+    t.bigint "ht2_acte_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ht2_acte_id"], name: "index_suspensions_on_ht2_acte_id"
+  end
+
   create_table "transferts", force: :cascade do |t|
     t.bigint "gestion_schema_id", null: false
     t.string "nature"
@@ -300,6 +311,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_101809) do
   add_foreign_key "programmes", "users"
   add_foreign_key "schemas", "programmes"
   add_foreign_key "schemas", "users"
+  add_foreign_key "suspensions", "ht2_actes"
   add_foreign_key "transferts", "gestion_schemas"
   add_foreign_key "transferts", "programmes"
 end

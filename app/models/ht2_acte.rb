@@ -1,6 +1,8 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
+  has_many :suspensions
+  accepts_nested_attributes_for :suspensions, reject_if: :all_blank, allow_destroy: true
   before_save :set_etat_acte
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|
@@ -21,6 +23,8 @@ class Ht2Acte < ApplicationRecord
     if date_chorus.nil? || (numero_chorus.nil? && nature != "Liste d'actes")
       self.etat = "pre-instruction"
       self.pre_instruction = true
+    elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
+      self.etat = "suspendu"
     end
   end
 end

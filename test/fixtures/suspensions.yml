@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date_suspension: 2025-02-28
+  motif: MyString
+  observations: MyText
+  date_reprise: 2025-02-28
+  ht2_acte: one
+
+two:
+  date_suspension: 2025-02-28
+  motif: MyString
+  observations: MyText
+  date_reprise: 2025-02-28
+  ht2_acte: two
