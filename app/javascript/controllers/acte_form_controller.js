@@ -2,8 +2,28 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitAction"]
+    static targets = ["submitButton", "fieldRequire","submitAction"]
     connect() {
+        if (this.submitButtonTarget.dataset.conditionsMet != undefined){
+            this.checkValidation()
+        } else if (this.hasSubmitActionTarget){
+            this.checkSubmission();
+        }
+    }
+
+    // pour check soumission à la validation
+    checkValidation() {
+        const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
+        const conditionsMet = this.submitButtonTarget.dataset.conditionsMet === "true"
+
+        this.submitButtonTarget.disabled = !(allFieldsFilled && conditionsMet)
+    }
+
+    // pour check validation finale
+    checkSubmission(){
+        console.log("jj")
+        const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
+        this.submitButtonTarget.disabled = !allFieldsFilled
     }
 
     setValidation(event) {

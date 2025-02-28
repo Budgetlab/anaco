@@ -1,5 +1,6 @@
 <h2>Proposition de décision de contrôle</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div data-controller="acte-form">
 <%= form_with(model: @acte) do |f| %>
   <%= hidden_field_tag :etape, 7 %>
 
@@ -7,7 +8,7 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle*</label>
-        <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select" } %>
+        <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
@@ -22,12 +23,12 @@
       <div class="fr-input-group">
         <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de
           décision de contrôle</label>
-        <%= f.text_area :commentaire_proposition_decision, class: 'fr-input' %>
+        <%= f.text_area :commentaire_proposition_decision, class: 'fr-input', rows: 6  %>
       </div>
 
       <div class="fr-input-group">
         <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
-        <%= f.text_area :observations, class: 'fr-input' %>
+        <%= f.text_area :observations, class: 'fr-input', rows: 6 %>
       </div>
       <div data-controller="multi-select">
         <div class="fr-select-group">
@@ -53,15 +54,16 @@
     </div>
   </div>
 
-  <div class="fr-grid-row fr-grid-row--gutters" data-controller="acte-form">
+  <div class="fr-grid-row fr-grid-row--gutters">
     <%= hidden_field_tag :submit_action, "", data: {acte_form_target: "submitAction"} %>
     <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
       <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
         <li>
           <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#keepCurrentState" } %>
         </li>
-        <li><%= f.submit "Enregistrer et soumettre à validation", class: 'fr-btn', data: { action: "click->acte-form#setValidation" }  %></li>
+        <li><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met }  %></li>
       </ul>
     </div>
   </div>
 <% end %>
+</div>

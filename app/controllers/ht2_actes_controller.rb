@@ -29,6 +29,7 @@ class Ht2ActesController < ApplicationController
   def edit
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].present? ? params[:etape].to_i : 1
+    check_acte_conditions
   end
 
   def update
@@ -88,5 +89,9 @@ class Ht2ActesController < ApplicationController
       # Si pas de code, supprimer toutes les associations
       acte.centre_financiers.destroy_all
     end
+  end
+
+  def check_acte_conditions
+    @conditions_met = @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && @acte.disponibilite_credits.present? && @acte.imputation_depense.present? && @acte.consommation_credits.present? && @acte.programmation.present?
   end
 end
