@@ -30,6 +30,8 @@ class CreateHt2Actes < ActiveRecord::Migration[7.2]
       t.text :observations
       t.string :type_observations, array: true, default: []
       t.references :user, null: false, foreign_key: true
+      t.string :valideur
+      t.string :decision_finale
 
       t.timestamps
     end

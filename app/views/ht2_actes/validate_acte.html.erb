@@ -1,0 +1,122 @@
+<%= turbo_frame_tag :acte, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button aria-controls="modal-acte" title="Fermer" type="button" id="button-89" class="fr-btn--close fr-btn">Fermer</button>
+          </div>
+          <div class="fr-modal__content">
+            <h1 id="modal-title" class="fr-modal__title">
+              <span class="fr-icon-arrow-right-line fr-icon--lg no-print" aria-hidden="true"></span> Validation
+              finale <%= @acte.type_acte %> n°<%= @acte.id %>
+            </h1>
+            <div class="fr-h6">Informations sur l'acte</div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>Initales de l'instructeur</div>
+                <div class="fr-text--bold"><%= @acte.instructeur %></div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>Nature de l'acte</div>
+                <div class="fr-text--bold"><%= @acte.nature %></div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>Montant estimatif global (AE)</div>
+                <div class="fr-text--bold"><%= @acte.montant_ae %> €</div>
+              </div>
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>Date de réception sur Chrous</div>
+                <div class="fr-text--bold"><%= l(@acte.created_at, format: "%e/%m/%y") %></div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>N°Acte Chorus</div>
+                <div class="fr-text--bold"><%= @acte.numero_chorus %></div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div>Centre financier</div>
+                <div class="fr-text--bold"><%= @acte.centre_financier_code %></div>
+              </div>
+            </div>
+            <div data-controller="toggle">
+              <button class="fr-btn fr-btn--secondary fr-my-3w"
+                      data-action="click->toggle#toggleContent"
+                      data-toggle-target="button">
+                Afficher plus
+              </button>
+              <div class="fr-hidden" data-toggle-target="content">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div>Action</div>
+                    <div class="fr-text--bold"><%= @acte.action %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-h6 fr-my-3w">Critères</div>
+            <div data-fr-group="true" class="fr-accordions-group">
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité des crédits</button>
+                </h3>
+                <div id="accordion-id-1" class="fr-collapse">
+                  <p><%if @acte.disponibilite_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p><%= @acte.commentaire_disponibilite_credits %></p>
+                </div>
+              </section>
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation de la dépense</button>
+                </h3>
+                <div id="accordion-id-2" class="fr-collapse">
+                  <p><%if @acte.imputation_depense == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p><%= @acte.commentaire_imputation_depense %></p>
+                </div>
+              </section>
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude de l’évaluation de la consommation des crédits</button>
+                </h3>
+                <div id="accordion-id-3" class="fr-collapse">
+                  <p><%if @acte.consommation_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p><%= @acte.commentaire_consommation_credits %></p>
+                </div>
+              </section>
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité avec la programmation annuelle et pluriannuelle</button>
+                </h3>
+                <div id="accordion-id-4" class="fr-collapse">
+                  <p><%if @acte.programmation == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p><%= @acte.commentaire_programmation %></p>
+                </div>
+              </section>
+            </div>
+
+            <div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-6">
+                <div>Proposition de décision de contrôle</div>
+                <div><p class="<%= badge_class_for_decision(@acte.proposition_decision)%>"><%= @acte.proposition_decision %></p></div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div>Auto-évaluation de la complexité de l'acte</div>
+                <div><p class="fr-tag"><%= @acte.complexite %>/5</p></div>
+              </div>
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-12">
+                <div>Commentaire interne sur la proposition de décision de contrôle</div>
+                <div class="fr-text--bold"><%= @acte.commentaire_proposition_decision %></div>
+              </div>
+            </div>
+
+            <%= render 'form_validation' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

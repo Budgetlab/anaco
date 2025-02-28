@@ -1,6 +1,6 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_liste_natures, only: [:new, :edit]
+  before_action :set_variables_form, only: [:new, :edit, :validate_acte]
 
   def index
     @actes = current_user.ht2_actes.order(created_at: :desc)
@@ -9,6 +9,7 @@ class Ht2ActesController < ApplicationController
     @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pre-instruction'))
     @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: 'instruction'))
     @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'attente validation'))
+    @pagy_cloture, @actes_cloture = pagy(filtered_actes&.where(etat: 'cloture'))
   end
 
   def new
@@ -28,22 +29,17 @@ class Ht2ActesController < ApplicationController
   def edit
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].present? ? params[:etape].to_i : 1
-    @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable"]
-    @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end
 
   def update
     @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
-    if params[:submit_action] == 'validation'
-      @acte.etat = 'attente validation'
-    else
-      @acte.etat = 'instruction'
-    end
+    @acte.etat = params[:submit_action] if params[:submit_action].present?
+
     if @acte.update(ht2_acte_params)
       associate_centre_financier(@acte)
-      path = @etape == 7 ? ht2_actes_path : edit_ht2_acte_path(@acte, etape: @etape)
+      path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       redirect_to path
     else
       render :edit
@@ -51,6 +47,10 @@ class Ht2ActesController < ApplicationController
   end
 
   def show
+    @acte = Ht2Acte.find(params[:id])
+  end
+
+  def validate_acte
     @acte = Ht2Acte.find(params[:id])
   end
 
@@ -65,11 +65,14 @@ class Ht2ActesController < ApplicationController
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
-                                     :commentaire_consommation_credits, :commentaire_programmation, type_observations: [] )
+                                     :commentaire_consommation_credits, :commentaire_programmation, :valideur,
+                                     :decision_finale, type_observations: [] )
   end
 
-  def set_liste_natures
+  def set_variables_form
     @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
+    @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable"]
+    @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end
 
   def associate_centre_financier(acte)

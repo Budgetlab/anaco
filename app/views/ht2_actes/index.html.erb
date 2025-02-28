@@ -182,9 +182,79 @@
                         <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
-                        <td><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                        <td>
+                          <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="acte" class="fr-btn fr-btn--secondary fr-btn--sm" data-fr-opened="false" aria-controls="modal-acte">
                             Actualiser
-                          <% end %></td>
+                          </a>
+                        </td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="fr-table__footer">
+              <div class="fr-table__footer--start">
+                <p class="fr-table__detail"><%= pluralize(@actes_validation.length, 'résultat', plural: 'résultats') %></p>
+                <div class="fr-select-group">
+                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                    Nombre de lignes par page
+                  </label>
+                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="fr-table__footer--middle">
+                <%== pagy_nav_custom(@pagy_validation) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <dialog id="modal-acte" class="fr-modal" data-fr-concealing-backdrop="true">
+          <%= turbo_frame_tag :acte, target: "_top" %>
+        </dialog>
+      </div>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h2 class="fr-mt-2w">Actes clôturés [<%= @actes_cloture.length %>]</h2>
+        <% if @actes_cloture.length > 0 %>
+          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table class="fr-cell--multiline">
+                    <caption>Actes clôturés</caption>
+                    <thead>
+                    <tr>
+                      <th scope="col">N°acte</th>
+                      <th scope="col">N°Chorus</th>
+                      <th scope="col">Date création</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Nature</th>
+                      <th scope="col">Agent</th>
+                      <th scope="col">Montant</th>
+                      <th scope="col">Date limite de réponse</th>
+                      <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% @actes_cloture.each do |acte| %>
+                      <tr>
+                        <td>#<%= acte.id %></td>
+                        <td><%= acte.numero_chorus %></td>
+                        <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p></td>
+                        <td><%= acte.nature %></td>
+                        <td><%= acte.instructeur %></td>
+                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                        <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
+                        <td>
+                          <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                          Consulter
+                          <% end %>
+                        </td>
                       </tr>
                     <% end %>
                     </tbody>

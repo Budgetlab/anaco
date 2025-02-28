@@ -210,6 +210,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_101809) do
     t.text "observations"
     t.string "type_observations", default: [], array: true
     t.bigint "user_id", null: false
+    t.string "valideur"
+    t.string "decision_finale"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_ht2_actes_on_user_id"

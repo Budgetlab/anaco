@@ -7,11 +7,17 @@ export default class extends Controller {
     }
 
     setValidation(event) {
-        this.submitActionTarget.value = "validation"
+        this.submitActionTarget.value = "attente validation"
     }
 
     keepCurrentState(event) {
-        console.log("keep")
-        this.submitActionTarget.value = "keep"
+        this.submitActionTarget.value = "instruction"
+    }
+    setInstruction(event) {
+        this.submitActionTarget.value = "instruction"
+    }
+
+    confirmValidation(event){
+        this.submitActionTarget.value = "cloture"
     }
 }
