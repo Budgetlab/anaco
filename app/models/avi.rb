@@ -3,6 +3,8 @@ class Avi < ApplicationRecord
   belongs_to :user
   require 'axlsx'
 
+  before_save :set_etat_avis
+
   def self.import(file)
     Avi.where.not(phase: 'execution').destroy_all
     data = Roo::Spreadsheet.open(file.path)
@@ -97,5 +99,19 @@ class Avi < ApplicationRecord
        .order(:created_at)
        .pluck(:id)
        .index(self.id) + 1
+  end
+
+  private
+
+  def set_etat_avis
+    if phase == 'début de gestion'
+      if date_reception.nil? || date_envoi.nil? || statut.nil?
+        self.etat = 'Brouillon'
+      end
+    elsif phase == 'CRG1' || phase == 'CRG2'
+      if date_envoi.nil? || statut.nil?
+        self.etat = 'Brouillon'
+      end
+    end
   end
 end
