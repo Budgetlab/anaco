@@ -17,6 +17,13 @@ class Ht2Acte < ApplicationRecord
   def self.ransackable_attributes(auth_object = nil)
     ["action", "activite", "beneficiaire", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "disponibilite_credits", "etat", "id", "imputation_depense", "instructeur", "lien_tf", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id"]
   end
+
+  def last_date_suspension
+    # Trie les suspensions par date de création (descendant) et prend la première
+    last_suspension = suspensions.order(created_at: :desc).first
+    # Retourne la date de suspension si une suspension existe, sinon nil
+    last_suspension&.date_suspension
+  end
   private
 
   def set_etat_acte

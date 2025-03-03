@@ -166,7 +166,7 @@
                       <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
                       <th scope="col">Montant</th>
-                      <th scope="col">Date limite de réponse</th>
+                      <th scope="col">Date de suspension</th>
                       <th scope="col"></th>
                     </tr>
                     </thead>
@@ -180,7 +180,7 @@
                         <td><%= acte.nature %></td>
                         <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
+                        <td><%= l(acte.last_date_suspension, format: "%e/%m/%y") %></td>
                         <td><%= link_to edit_ht2_acte_path(acte, etape: 6), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                             Actualiser
                           <% end %></td>
@@ -230,6 +230,7 @@
                       <th scope="col">Agent</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date limite de réponse</th>
+                      <th scope="col">Proposition de décision</th>
                       <th scope="col"></th>
                     </tr>
                     </thead>
@@ -244,6 +245,7 @@
                         <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
+                        <td><p class="<%= badge_class_for_decision(acte.proposition_decision)%>"><%= acte.proposition_decision %></p></td>
                         <td>
                           <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="acte" class="fr-btn fr-btn--secondary fr-btn--sm" data-fr-opened="false" aria-controls="modal-acte">
                             Actualiser
@@ -298,6 +300,7 @@
                       <th scope="col">Agent</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date limite de réponse</th>
+                      <th scope="col">Décision finale</th>
                       <th scope="col"></th>
                     </tr>
                     </thead>
@@ -312,6 +315,7 @@
                         <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
+                        <td><p class="<%= badge_class_for_decision(acte.decision_finale)%>"><%= acte.decision_finale %></p></td>
                         <td>
                           <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                           Consulter
