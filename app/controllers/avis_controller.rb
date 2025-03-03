@@ -71,8 +71,7 @@ class AvisController < ApplicationController
     etat = @avis.etat
     if ['Lu', 'En attente de lecture'].include?(etat) # avis modifié
       @avis.update(avi_params)
-      @avis.etat = etat
-      @avis.save
+      @avis.update(etat: etat) if @avis.etat != "Brouillon"
       redirect_to bop_path(@avis.bop), notice: 'Modification'
     elsif @avis.update(avi_params)
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
