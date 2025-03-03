@@ -24,6 +24,11 @@ class Ht2Acte < ApplicationRecord
     # Retourne la date de suspension si une suspension existe, sinon nil
     last_suspension&.date_suspension
   end
+
+  def date_limite
+    date_chorus + 15.days
+  end
+
   private
 
   def set_etat_acte
