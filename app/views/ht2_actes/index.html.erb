@@ -55,11 +55,11 @@
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td>
-                          <div class="title-btn">
+                          <div class="fr-align-center">
                             <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
                             <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line fr-ml-1v' do %>
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
                               Supprimer
                             <% end %>
                           </div>
@@ -121,13 +121,13 @@
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
+                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite)%>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
                         <td>
-                          <div class="title-btn">
+                          <div class="fr-align-center">
                             <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
                             <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line fr-ml-1v' do %>
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
                             Supprimer
                             <% end %>
                           </div>
@@ -250,7 +250,7 @@
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
+                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite)%>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                         </td>
@@ -306,7 +306,6 @@
                       <th scope="col">Agent</th>
                       <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
-                      <th scope="col">Date limite de réponse</th>
                       <th scope="col">Décision finale</th>
                       <th scope="col"></th>
                     </tr>
@@ -320,14 +319,17 @@
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p>
                         </td>
                         <td>
+                          <div class="fr-align-center">
                           <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                             Consulter
                           <% end %>
+                          <a aria-describedby="tooltip-11" id="link-154" href="#" class="fr-btn fr-btn--sm fr-icon-file-add-line">Dupliquer</a>
+                          <span class="fr-tooltip fr-placement" id="tooltip-11" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
+                          </div>
                         </td>
                       </tr>
                     <% end %>

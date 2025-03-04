@@ -50,6 +50,8 @@ class Ht2ActesController < ApplicationController
 
   def show
     @acte = Ht2Acte.find(params[:id])
+    @actes_groupe = @acte.tous_actes_meme_chorus
+    @acte_courant = @acte
   end
 
   def destroy
@@ -79,7 +81,7 @@ class Ht2ActesController < ApplicationController
 
   def set_variables_form
     @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
-    @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable"]
+    @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end

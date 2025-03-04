@@ -11,4 +11,17 @@ module Ht2ActesHelper
       'fr-badge'
     end
   end
+
+  def flag_date(date_limite)
+    return '' unless date_limite # Protection contre les valeurs nil
+
+    case
+    when date_limite > Date.today + 10.days
+      'cgreen'
+    when date_limite > Date.today + 5.days
+      'cwarning'
+    else
+      'crouge'
+    end
+  end
 end

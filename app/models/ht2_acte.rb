@@ -41,6 +41,12 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
+  def tous_actes_meme_chorus
+    return [self] if numero_chorus.blank?
+    Ht2Acte.where(numero_chorus: numero_chorus)
+           .order(created_at: :asc)
+  end
+
   private
 
   def set_etat_acte

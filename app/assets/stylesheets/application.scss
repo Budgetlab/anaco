@@ -263,7 +263,12 @@ h1, h2{
   justify-content: space-between;
   align-items: center;
 }
-
+.fr-align-center {
+  display: flex;
+  justify-content: center; /* Centrer les éléments horizontalement */
+  align-items: center;
+  gap: 0.5rem; /* Ajouter un espacement entre les boutons */
+}
 .fr-capitalize::first-letter{
   text-transform: uppercase;
 }

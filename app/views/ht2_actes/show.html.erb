@@ -4,10 +4,23 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2</h1>
+        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2 n°<%= @acte.numero_chorus %></h1>
 
-        <div>
-          <%= @acte.commentaire_disponibilite_credits %>
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">
+            <% @actes_groupe.each_with_index do |acte, index| %>
+              <li role="presentation">
+                <button type="button" id="tabpanel-<%= acte.id %>" class="fr-tabs__tab" tabindex="<%= acte == @acte_courant ? 0 : -1 %>" role="tab" aria-selected="<%= acte == @acte_courant ? 'true' : 'false' %>" aria-controls="tabpanel-<%= acte.id %>-panel">
+                  Saisine <%= index +1 %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+          <% @actes_groupe.each do |acte| %>
+            <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
+              Créé le <%= l(acte.created_at, format: "%e/%m/%y")%>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
