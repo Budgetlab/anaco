@@ -25,8 +25,20 @@ class Ht2Acte < ApplicationRecord
     last_suspension&.date_suspension
   end
 
+  def last_suspension
+    last_suspension = suspensions.order(created_at: :desc).first
+  end
+
   def date_limite
-    date_chorus + 15.days
+    if suspensions.exists?
+      if type == 'avis'
+        date_chorus + 15.days + last_suspension&.date_reprise - last_date_suspension
+      elsif type == 'visa'
+        last_date_suspension + 15.days
+      end
+    else
+      date_chorus + 15.days
+    end
   end
 
   private

@@ -3,7 +3,7 @@ module Ht2ActesHelper
     case decision
     when 'Favorable'
       'fr-badge fr-badge--success fr-badge--no-icon'
-    when 'Favorable avec observation'
+    when 'Favorable avec observations'
       'fr-badge fr-badge--green-menthe'
     when 'Défavorable'
       'fr-badge fr-badge--error fr-badge--no-icon'

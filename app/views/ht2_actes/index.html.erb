@@ -40,8 +40,8 @@
                     <tr class="fr-cell--multiline">
                       <th scope="col">N°acte</th>
                       <th scope="col">Date création</th>
-                      <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
+                      <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col"></th>
                     </tr>
@@ -49,14 +49,21 @@
                     <tbody>
                     <% @actes_pre_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> #<%= acte.id %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                            Actualiser
-                          <% end %></td>
+                        <td>
+                          <div class="title-btn">
+                            <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                              Actualiser
+                            <% end %>
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line fr-ml-1v' do %>
+                              Supprimer
+                            <% end %>
+                          </div>
+                        </td>
                       </tr>
                     <% end %>
                     </tbody>
@@ -98,8 +105,8 @@
                       <th scope="col">N°acte</th>
                       <th scope="col">N°Chorus</th>
                       <th scope="col">Date création</th>
-                      <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
+                      <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date limite de réponse</th>
                       <th scope="col"></th>
@@ -108,11 +115,11 @@
                     <tbody>
                     <% @actes_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> #<%= acte.id %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
                         <td>
@@ -120,7 +127,9 @@
                             <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
                             <% end %>
-                            <button class="fr-btn fr-btn--sm fr-icon-delete-bin-line"></button>
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line fr-ml-1v' do %>
+                            Supprimer
+                            <% end %>
                           </div>
                         </td>
                       </tr>
@@ -163,8 +172,8 @@
                       <th scope="col">N°acte</th>
                       <th scope="col">N°Chorus</th>
                       <th scope="col">Date création</th>
-                      <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
+                      <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date de suspension</th>
                       <th scope="col"></th>
@@ -173,11 +182,11 @@
                     <tbody>
                     <% @actes_suspendu.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> #<%= acte.id %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.last_date_suspension, format: "%e/%m/%y") %></td>
                         <td><%= link_to edit_ht2_acte_path(acte, etape: 6), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
@@ -224,8 +233,8 @@
                       <th scope="col">N°acte</th>
                       <th scope="col">N°Chorus</th>
                       <th scope="col">Date création</th>
-                      <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
+                      <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date limite de réponse</th>
                       <th scope="col">Proposition de décision</th>
@@ -235,14 +244,14 @@
                     <tbody>
                     <% @actes_validation.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> #<%= acte.id %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= acte.instructeur %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
-                        <td>
+                        <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                         </td>
                         <td>
@@ -287,15 +296,15 @@
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
                 <div class="fr-table__content">
-                  <table class="fr-cell--multiline">
+                  <table>
                     <caption>Actes clôturés</caption>
                     <thead>
-                    <tr>
+                    <tr class="fr-cell--multiline">
                       <th scope="col">N°acte</th>
                       <th scope="col">N°Chorus</th>
                       <th scope="col">Date création</th>
-                      <th scope="col">Nature</th>
                       <th scope="col">Agent</th>
+                      <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">Date limite de réponse</th>
                       <th scope="col">Décision finale</th>
@@ -305,14 +314,14 @@
                     <tbody>
                     <% @actes_cloture.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> #<%= acte.id %></td>
+                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
-                        <td><%= acte.nature %></td>
-                        <td><%= acte.instructeur %></td>
+                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                        <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
-                        <td>
+                        <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p>
                         </td>
                         <td>

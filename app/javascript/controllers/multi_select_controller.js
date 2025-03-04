@@ -22,7 +22,7 @@ export default class extends Controller {
         //tag.dataset.value = selectedValue
         //tag.setAttribute("data-action", "click->multi-select#remove")
         button.setAttribute("aria-label", `Retirer ${selectedValue}`)
-        button.innerHTML = `${selectedValue} <span aria-hidden="true">&times;</span>`
+        button.innerHTML = `${selectedValue}`
 
         li.appendChild(button)
         this.containerTarget.appendChild(li)

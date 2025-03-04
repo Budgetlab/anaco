@@ -52,6 +52,12 @@ class Ht2ActesController < ApplicationController
     @acte = Ht2Acte.find(params[:id])
   end
 
+  def destroy
+    @acte = Ht2Acte.find(params[:id])
+    @acte.destroy
+    redirect_to ht2_actes_path
+  end
+
   def validate_acte
     @acte = Ht2Acte.find(params[:id])
   end
