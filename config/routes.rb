@@ -55,6 +55,8 @@ Rails.application.routes.draw do
 
     resources :ht2_actes
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
+    resources :centre_financiers
+    post 'import_cf', to: 'centre_financiers#import'
 
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'

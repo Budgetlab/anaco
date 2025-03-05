@@ -1,5 +1,6 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div class="cwarning fr-mb-2w">Si la date de réception Chorus n’est pas renseignée, l’acte sera considéré comme faisant l’objet d’une pré-instruction.</div>
 <div data-controller="acte-form">
 <%= form_with(model: @acte) do |f| %>
   <%= hidden_field_tag :etape, 2 %>
@@ -27,7 +28,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-select-group">
-        <label for="date_chorus" class="fr-label">Date de réception sur Chorus</label>
+        <label for="date_chorus" class="fr-label">Date de réception sur Chorus <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus" } %></label>
         <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -" %>
       </div>
     </div>

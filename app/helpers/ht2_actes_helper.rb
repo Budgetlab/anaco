@@ -12,6 +12,19 @@ module Ht2ActesHelper
     end
   end
 
+  def badge_class_for_type(type_acte)
+    case type_acte
+    when 'avis'
+      'fr-badge fr-badge--green-archipel'
+    when 'visa'
+      'fr-badge fr-badge--beige-gris-galet'
+    when 'TF'
+      'fr-badge fr-badge--pink-tuile'
+    else
+      'fr-badge'
+    end
+  end
+
   def flag_date(date_limite)
     return '' unless date_limite # Protection contre les valeurs nil
 

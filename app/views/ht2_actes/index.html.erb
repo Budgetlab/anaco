@@ -49,7 +49,7 @@
                     <tbody>
                     <% @actes_pre_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -115,7 +115,7 @@
                     <tbody>
                     <% @actes_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -182,7 +182,7 @@
                     <tbody>
                     <% @actes_suspendu.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -244,7 +244,7 @@
                     <tbody>
                     <% @actes_validation.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -313,7 +313,7 @@
                     <tbody>
                     <% @actes_cloture.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge fr-badge--blue-cumulus"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>

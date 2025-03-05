@@ -123,7 +123,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_28_142811) do
   end
 
   create_table "centre_financiers", force: :cascade do |t|
-    t.bigint "bop_id", null: false
+    t.bigint "bop_id"
     t.string "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
