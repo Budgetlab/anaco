@@ -6,7 +6,7 @@ export default class extends Controller {
     connect() {
         if (this.submitButtonTarget.dataset.conditionsMet != undefined){
             this.checkValidation()
-        } else if (this.hasSubmitActionTarget){
+        } else if (this.hasSubmitButtonTarget){
             this.checkSubmission();
         }
     }
@@ -21,7 +21,6 @@ export default class extends Controller {
 
     // pour check validation finale
     checkSubmission(){
-        console.log("jj")
         const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
         this.submitButtonTarget.disabled = !allFieldsFilled
     }

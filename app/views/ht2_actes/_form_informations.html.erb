@@ -1,5 +1,6 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div data-controller="acte-form">
 <%= form_with(model: @acte) do |f| %>
   <%= hidden_field_tag :etape, 2 %>
   <%= f.hidden_field :type_acte, value: @acte.type_acte %>
@@ -7,19 +8,19 @@
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="instructeur" class="fr-label">Initiales de l'instructeur*</label>
-        <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input" %>
+        <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission"} %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-select-group">
         <label for="nature" class="fr-label">Nature/type de l'acte*</label>
-        <%= f.select :nature, options_for_select([["- sélectionner -", ""]] + @liste_natures.map { |nature| [nature, nature] }, @acte.nature), { }, { id: "nature", class: "fr-select" } %>
+        <%= f.select :nature, options_for_select([["- sélectionner -", ""]] + @liste_natures.map { |nature| [nature, nature] }, @acte.nature), { }, { id: "nature", class: "fr-select", data: { acte_form_target: 'fieldRequire', action: "change->acte-form#checkSubmission"} } %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
         <label for="montant_ae" class="fr-label">Montant estimatif global (AE)*</label>
-        <%= f.number_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input" %>
+        <%= f.number_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission"} %>
       </div>
     </div>
   </div>
@@ -120,8 +121,9 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
       <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-        <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn' %></li>
+        <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn', disabled: true, data: { acte_form_target: 'submitButton'} %></li>
       </ul>
     </div>
   </div>
 <% end %>
+</div>

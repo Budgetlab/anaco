@@ -4,7 +4,7 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2 n°<%= @acte.numero_chorus %></h1>
+        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2 <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %><% else %>n°<%= acte.id %><% end %></h1>
 
         <div class="fr-tabs">
           <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">
@@ -18,7 +18,7 @@
           </ul>
           <% @actes_groupe.each do |acte| %>
             <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
-              Créé le <%= l(acte.created_at, format: "%e/%m/%y")%>
+              <%= render 'ht2_acte_details', acte: acte %>
             </div>
           <% end %>
         </div>

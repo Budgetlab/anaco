@@ -1,6 +1,11 @@
 module ApplicationHelper
   include Pagy::Frontend
 
+  # Pour formater une valeur simple
+  def format_value(value, default = "Non renseigné")
+    value.presence || default
+  end
+
   def format_number(nombre)
     case nombre
     when nil, ''
@@ -9,7 +14,11 @@ module ApplicationHelper
       number_with_delimiter('%.12g' % ('%.1f' % nombre), locale: :fr)
     end
   end
+  def format_date_text(date, format = "%e/%m/%y", default = "Non renseigné")
+    date.present? ? l(date, format: format) : default
+  end
 
+  # pour formulaire
   def format_date(date)
     unless date.nil?
       date = date.strftime('%d/%m/%Y')
