@@ -5,8 +5,27 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w title-btn">
         Actes HT2
-        <%= link_to new_ht2_acte_path(type_acte: 'avis'), class: 'fr-btn' do %>Ajouter un avis
-        <% end %>
+        <nav role="navigation" class="fr-translate fr-nav" id="translate-id">
+          <div class="fr-nav__item">
+            <button aria-controls="menu-add-acte" aria-expanded="false" type='button' id='button-add' class="fr-btn fr-icon-add-line fr-btn--icon-left">Nouvel
+              acte
+            </button>
+            <div class="fr-collapse fr-menu" id="menu-add-acte">
+              <ul class="fr-menu__list">
+                <li>
+                  <%= link_to new_ht2_acte_path(type_acte: 'avis'), class: 'fr-nav__link' do %>
+                    Nouvel avis
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to new_ht2_acte_path(type_acte: 'visa'), class: 'fr-nav__link' do %>
+                    Nouveau visa
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
       </h1>
     </div>
   </div>
@@ -49,7 +68,8 @@
                     <tbody>
                     <% @actes_pre_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.id %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -59,7 +79,7 @@
                             <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
                             <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
                               Supprimer
                             <% end %>
                           </div>
@@ -115,20 +135,23 @@
                     <tbody>
                     <% @actes_instruction.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite)%>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
+                        <td>
+                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                        </td>
                         <td>
                           <div class="fr-align-center">
                             <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
                             <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?'}, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
-                            Supprimer
+                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
+                              Supprimer
                             <% end %>
                           </div>
                         </td>
@@ -182,7 +205,8 @@
                     <tbody>
                     <% @actes_suspendu.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -244,13 +268,16 @@
                     <tbody>
                     <% @actes_validation.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite)%>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %></td>
+                        <td>
+                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                        </td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                         </td>
@@ -313,7 +340,8 @@
                     <tbody>
                     <% @actes_cloture.each do |acte| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p> n°<%= acte.id %></td>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.id %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -324,11 +352,11 @@
                         </td>
                         <td>
                           <div class="fr-align-center">
-                          <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                            Consulter
-                          <% end %>
-                          <a aria-describedby="tooltip-11" id="link-154" href="#" class="fr-btn fr-btn--sm fr-icon-file-add-line">Dupliquer</a>
-                          <span class="fr-tooltip fr-placement" id="tooltip-11" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
+                            <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                              Consulter
+                            <% end %>
+                            <a aria-describedby="tooltip-11" id="link-154" href="#" class="fr-btn fr-btn--sm fr-icon-file-add-line">Dupliquer</a>
+                            <span class="fr-tooltip fr-placement" id="tooltip-11" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
                           </div>
                         </td>
                       </tr>

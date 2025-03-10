@@ -55,6 +55,8 @@ class Ht2Acte < ApplicationRecord
       self.pre_instruction = true
     elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
       self.etat = "suspendu"
+    elsif self.etat.nil?
+      self.etat = "instruction"
     end
   end
 end

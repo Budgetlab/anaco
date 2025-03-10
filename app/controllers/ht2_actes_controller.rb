@@ -1,5 +1,6 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
   before_action :set_variables_form, only: [:new, :edit, :validate_acte]
 
   def index
@@ -28,13 +29,11 @@ class Ht2ActesController < ApplicationController
   end
 
   def edit
-    @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].present? ? params[:etape].to_i : 1
     check_acte_conditions
   end
 
   def update
-    @acte = Ht2Acte.find(params[:id])
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
     @acte.etat = params[:submit_action] if params[:submit_action].present?
@@ -49,20 +48,16 @@ class Ht2ActesController < ApplicationController
   end
 
   def show
-    @acte = Ht2Acte.find(params[:id])
     @actes_groupe = @acte.tous_actes_meme_chorus
     @acte_courant = @acte
   end
 
   def destroy
-    @acte = Ht2Acte.find(params[:id])
-    @acte.destroy
+    @acte&.destroy
     redirect_to ht2_actes_path
   end
 
-  def validate_acte
-    @acte = Ht2Acte.find(params[:id])
-  end
+  def validate_acte; end
 
   private
 
@@ -76,12 +71,21 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
                                      :commentaire_consommation_credits, :commentaire_programmation, :valideur,
-                                     :decision_finale, type_observations: [], suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise] )
+                                     :decision_finale, type_observations: [], suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise])
+  end
+
+  def set_acte_ht2
+    @acte = Ht2Acte.find(params[:id])
   end
 
   def set_variables_form
-    @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
-    @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
+      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
+      @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
+      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant","Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
+      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    end
     @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end
