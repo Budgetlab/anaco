@@ -7,6 +7,8 @@ module Ht2ActesHelper
       'fr-badge fr-badge--green-menthe'
     when 'Défavorable'
       'fr-badge fr-badge--error fr-badge--no-icon'
+    when 'Saisine a posteriori'
+      'fr-badge fr-badge--beige-gris-galet'
     else
       'fr-badge'
     end
@@ -19,6 +21,19 @@ module Ht2ActesHelper
     when 'visa'
       'fr-badge fr-badge--beige-gris-galet'
     when 'TF'
+      'fr-badge fr-badge--pink-tuile'
+    else
+      'fr-badge'
+    end
+  end
+
+  def badge_class_for_etat(etat)
+    case etat
+    when 'pré-instruction', "en cours d'instruction"
+      'fr-badge fr-badge--green-archipel'
+    when 'suspendu'
+      'fr-badge fr-badge--error fr-badge--no-icon'
+    when 'en attente de validation'
       'fr-badge fr-badge--pink-tuile'
     else
       'fr-badge'

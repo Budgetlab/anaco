@@ -26,15 +26,26 @@ class Ht2Acte < ApplicationRecord
   end
 
   def last_suspension
-    last_suspension = suspensions.order(created_at: :desc).first
+    suspensions.order(created_at: :desc).first
   end
 
   def date_limite
     if suspensions.exists?
-      if type == 'avis'
-        date_chorus + 15.days + last_suspension&.date_reprise - last_date_suspension
-      elsif type == 'visa'
-        last_date_suspension + 15.days
+      total_suspension_days = suspensions.sum do |suspension|
+        if suspension.date_reprise.present?
+          (suspension.date_reprise - suspension.date_suspension).to_i
+        else
+          0
+        end
+      end
+      if type_acte == 'avis'
+        date_chorus + 15.days + total_suspension_days
+      elsif type_acte == 'visa'
+        if last_suspension&.date_reprise.present?
+          last_suspension.date_reprise + 15.days
+        else
+          date_chorus + 15.days
+        end
       end
     else
       date_chorus + 15.days
@@ -50,13 +61,13 @@ class Ht2Acte < ApplicationRecord
   private
 
   def set_etat_acte
-    if date_chorus.nil? || (numero_chorus.nil? && nature != "Liste d'actes")
-      self.etat = "pre-instruction"
+    if !date_chorus.present? || (!numero_chorus.present? && nature != "Liste d'actes")
+      self.etat = "pré-instruction"
       self.pre_instruction = true
     elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
       self.etat = "suspendu"
-    elsif self.etat.nil?
-      self.etat = "instruction"
+    elsif !etat.present?
+      self.etat = "en cours d'instruction"
     end
   end
 end

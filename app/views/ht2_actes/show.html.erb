@@ -4,7 +4,16 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-4w"><%= @acte.type_acte %> HT2 <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %><% else %>n°<%= acte.id %><% end %></h1>
+        <h1 class="fr-mt-4w title-btn">
+          <span class="fr-capitalize"><%= @acte.type_acte %> HT2
+          <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+          <% else %>n°<%= acte.id %>
+          <% end %>
+          </span>
+          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn' do %>
+            Nouvelle saisine
+          <% end %>
+        </h1>
 
         <div class="fr-tabs">
           <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">

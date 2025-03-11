@@ -4,13 +4,13 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="date_suspension" class="fr-label">Date <%= type_suspension %>*</label>
-        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr"}, id: "date_suspension", placeholder: "- sélectionner -" %>
+        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr"}, value: format_date(f.object.date_suspension), id: "date_suspension", placeholder: "- sélectionner -" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="motif" class="fr-label">Motif <%= type_suspension %>*</label>
-        <%= f.select :motif, options_for_select([["- sélectionner -", ""]] + @liste_motifs_suspension.map { |decision| [decision, decision] }), {}, { id: "motif", class: "fr-select" } %>
+        <%= f.select :motif, options_for_select([["- sélectionner -", ""]] + @liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {}, { id: "motif", class: "fr-select" } %>
       </div>
     </div>
   </div>
@@ -26,7 +26,7 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="date_reprise" class="fr-label">Date de reprise</label>
-        <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr"}, id: "date_reprise", placeholder: "- sélectionner -" %>
+        <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr"}, value: format_date(f.object.date_reprise), id: "date_reprise", placeholder: "- sélectionner -" %>
       </div>
     </div>
   </div>

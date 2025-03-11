@@ -26,17 +26,17 @@ export default class extends Controller {
     }
 
     setValidation(event) {
-        this.submitActionTarget.value = "attente validation"
+        this.submitActionTarget.value = "en attente de validation"
     }
 
     keepCurrentState(event) {
-        this.submitActionTarget.value = "instruction"
+        this.submitActionTarget.value = "en cours d'instruction"
     }
     setInstruction(event) {
-        this.submitActionTarget.value = "instruction"
+        this.submitActionTarget.value = "en cours d'instruction"
     }
 
     confirmValidation(event){
-        this.submitActionTarget.value = "cloture"
+        this.submitActionTarget.value = "clôturé"
     }
 }

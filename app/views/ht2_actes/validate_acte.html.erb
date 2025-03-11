@@ -132,6 +132,32 @@
             </div>
 
             <div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
+            <% if @acte.suspensions.count > 0 %>
+              <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+              <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+                <div class="fr-text--bold fr-capitalize fr-mb-1w"><%= type_suspension %> n°<%= index + 1 %></div>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div>Date <%= type_suspension %></div>
+                    <div class="fr-text--bold"><%= format_date_text(suspension.date_suspension) %></div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div>Motif <%= type_suspension %></div>
+                    <div class="fr-text--bold"><%= suspension.motif %></div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div>Date de reprise</div>
+                    <div class="fr-text--bold"><%= format_date_text(suspension.date_reprise) %></div>
+                  </div>
+                </div>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-12">
+                    <div>Observations</div>
+                    <div class="fr-text--bold"><%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></div>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-col-lg-6">
                 <div>Proposition de décision de contrôle</div>

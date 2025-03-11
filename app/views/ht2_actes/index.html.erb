@@ -182,7 +182,7 @@
     </div>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes suspendus [<%= @actes_suspendu.length %>]</h2>
+        <h2 class="fr-mt-2w">Actes suspendus/interrompus [<%= @actes_suspendu.length %>]</h2>
         <% if @actes_suspendu.length > 0 %>
           <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
             <div class="fr-table__wrapper">
@@ -355,7 +355,7 @@
                             <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Consulter
                             <% end %>
-                            <a aria-describedby="tooltip-11" id="link-154" href="#" class="fr-btn fr-btn--sm fr-icon-file-add-line">Dupliquer</a>
+                            <%= link_to new_ht2_acte_path(id: acte.id), aria: {describedby:"tooltip-11"}, id:"link-154", class:"fr-btn fr-btn--sm fr-icon-file-add-line", data: { turbo_frame: "_top" } do%>Dupliquer<%end %>
                             <span class="fr-tooltip fr-placement" id="tooltip-11" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
                           </div>
                         </td>

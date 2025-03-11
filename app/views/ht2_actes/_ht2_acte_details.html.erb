@@ -1,166 +1,239 @@
-<div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.id %>, créé le <%= l(acte.created_at, format: "%e/%m/%y")%></div>
-<div class="fr-h6">Informations sur l'acte</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Initales de l'instructeur</div>
-    <div class="fr-text--bold"><%= format_value(acte.instructeur) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Nature de l'acte</div>
-    <div class="fr-text--bold"><%= format_value(acte.nature)%></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Montant estimatif global (AE)</div>
-    <div class="fr-text--bold"><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></div>
-  </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Date de réception sur Chrous</div>
-    <div class="fr-text--bold"><%= format_date_text(acte.created_at) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>N°Acte Chorus</div>
-    <div class="fr-text--bold"><%= format_value(acte.numero_chorus) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Centre financier</div>
-    <div class="fr-text--bold"><%= format_value(acte.centre_financier_code) %></div>
-  </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Bénéficiaire</div>
-    <div class="fr-text--bold"><%= format_value(acte.beneficiaire) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Objet</div>
-    <div class="fr-text--bold"><%= format_value(acte.objet) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Ordonnateur</div>
-    <div class="fr-text--bold"><%= format_value(acte.ordonnateur) %></div>
-  </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-12">
-    <div>Précisions sur l'acte</div>
-    <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.precisions_acte)), :html => { :target => '_blank' }) %></div>
-  </div>
-</div>
-<div data-controller="toggle">
-  <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
-          data-action="click->toggle#toggleContent"
-          data-toggle-target="button">
-    Afficher plus
-  </button>
-  <div class="fr-hidden" data-toggle-target="content">
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-4">
-        <div>Action</div>
-        <div class="fr-text--bold"><%= format_value(acte.action) %></div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <div>Sous-action</div>
-        <div class="fr-text--bold"><%= format_value(acte.sous_action) %></div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <div>Activité</div>
-        <div class="fr-text--bold"><%= format_value(acte.activite) %></div>
-      </div>
+<div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.id %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %></div>
+
+<% if acte.etat != "clôturé" %>
+  <p class="<%= badge_class_for_etat(acte.etat) %>">
+    <%= acte.etat %>
+  </p>
+<% else %>
+
+  <div class="fr-h6">Informations sur l'acte</div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Initales de l'instructeur</div>
+      <div class="fr-text--bold"><%= format_value(acte.instructeur) %></div>
     </div>
-    <% if acte.lien_tf == true %>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Nature de l'acte</div>
+      <div class="fr-text--bold"><%= format_value(acte.nature) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Montant estimatif global (AE)</div>
+      <div class="fr-text--bold"><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Date de réception sur Chrous</div>
+      <div class="fr-text--bold"><%= format_date_text(acte.created_at) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>N°Acte Chorus</div>
+      <div class="fr-text--bold"><%= format_value(acte.numero_chorus) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Centre financier</div>
+      <div class="fr-text--bold"><%= format_value(acte.centre_financier_code) %></div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Bénéficiaire</div>
+      <div class="fr-text--bold"><%= format_value(acte.beneficiaire) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Objet</div>
+      <div class="fr-text--bold"><%= format_value(acte.objet) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Ordonnateur</div>
+      <div class="fr-text--bold"><%= format_value(acte.ordonnateur) %></div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Précisions sur l'acte</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.precisions_acte)), :html => { :target => '_blank' }) %></div>
+    </div>
+  </div>
+  <div data-controller="toggle">
+    <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+            data-action="click->toggle#toggleContent"
+            data-toggle-target="button">
+      Afficher plus
+    </button>
+    <div class="fr-hidden" data-toggle-target="content">
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-4">
-          <div>Numéro Chorus de la TF associée</div>
-          <div class="fr-text--bold"><%= format_value(acte.numero_tf) %></div>
+          <div>Action</div>
+          <div class="fr-text--bold"><%= format_value(acte.action) %></div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div>Sous-action</div>
+          <div class="fr-text--bold"><%= format_value(acte.sous_action) %></div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div>Activité</div>
+          <div class="fr-text--bold"><%= format_value(acte.activite) %></div>
         </div>
       </div>
-    <% end %>
-  </div>
-</div>
-<div class="fr-h6 fr-my-3w">Critères</div>
-<div data-fr-group="true" class="fr-accordions-group">
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité des crédits <%if acte.disponibilite_credits == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
-    </h3>
-    <div id="accordion-id-1" class="fr-collapse">
-      <p>Critère respecté : <%if acte.disponibilite_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
-      <p><%= format_value(acte.commentaire_disponibilite_credits) %></p>
-    </div>
-  </section>
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation de la dépense <%if acte.imputation_depense == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
-    </h3>
-    <div id="accordion-id-2" class="fr-collapse">
-      <p>Critère respecté : <%if acte.imputation_depense == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
-      <p><%= format_value(acte.commentaire_imputation_depense) %></p>
-    </div>
-  </section>
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude de l’évaluation de la consommation des crédits <%if acte.consommation_credits == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
-    </h3>
-    <div id="accordion-id-3" class="fr-collapse">
-      <p>Critère respecté : <%if acte.consommation_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
-      <p><%= format_value(acte.commentaire_consommation_credits) %></p>
-    </div>
-  </section>
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité avec la programmation annuelle et pluriannuelle <%if acte.programmation == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
-    </h3>
-    <div id="accordion-id-4" class="fr-collapse">
-      <p>Critère respecté : <%if acte.programmation == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
-      <p><%= format_value(acte.commentaire_programmation) %></p>
-    </div>
-  </section>
-</div>
-
-<div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-6">
-    <div>Proposition de décision de contrôle</div>
-    <div><p class="<%= badge_class_for_decision(acte.proposition_decision)%>"><%= acte.proposition_decision %></p></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-6">
-    <div>Auto-évaluation de la complexité de l'acte</div>
-    <div><p class="fr-tag"><%= acte.complexite %>/5</p></div>
-  </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-12">
-    <div>Commentaire interne sur la proposition de décision de contrôle</div>
-    <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
-  </div>
-</div>
-
-<div class="fr-h6 fr-my-3w">Validation finale</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Initales du valideur</div>
-    <div class="fr-text--bold"><%= format_value(acte.valideur) %></div>
-  </div>
-  <div class="fr-col-12 fr-col-lg-4">
-    <div>Décision finale</div>
-    <div><p class="<%= badge_class_for_decision(acte.proposition_decision)%>"><%= acte.decision_finale %></p></div>
-  </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-12">
-    <div>Propositions d’observations à l’ordonnateur</div>
-    <div>
-      <% acte.type_observations&.each do |observation| %>
-        <p class="fr-tag"><%= observation %></p>
+      <% if acte.lien_tf == true %>
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div>Numéro Chorus de la TF associée</div>
+            <div class="fr-text--bold"><%= format_value(acte.numero_tf) %></div>
+          </div>
+        </div>
       <% end %>
     </div>
   </div>
-</div>
-<div class="fr-grid-row fr-grid-row--gutters">
-  <div class="fr-col-12 fr-col-lg-12">
-    <div>Observation finale</div>
-    <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.observations)), :html => { :target => '_blank' }) %></div>
+  <div class="fr-h6 fr-my-3w">Critères</div>
+  <div data-fr-group="true" class="fr-accordions-group">
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité
+          des crédits
+          <% if acte.disponibilite_credits == true %>
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+          <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+          <% end %></button>
+      </h3>
+      <div id="accordion-id-1" class="fr-collapse">
+        <p>Critère respecté :
+          <% if acte.disponibilite_credits == true %>Oui
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+          <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+          <% end %></p>
+        <p><%= format_value(acte.commentaire_disponibilite_credits) %></p>
+      </div>
+    </section>
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation
+          de
+          la dépense
+          <% if acte.imputation_depense == true %>
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+          <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+          <% end %></button>
+      </h3>
+      <div id="accordion-id-2" class="fr-collapse">
+        <p>Critère respecté :
+          <% if acte.imputation_depense == true %>Oui
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+          <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+          <% end %></p>
+        <p><%= format_value(acte.commentaire_imputation_depense) %></p>
+      </div>
+    </section>
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude
+          de
+          l’évaluation de la consommation des crédits
+          <% if acte.consommation_credits == true %>
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+          <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+          <% end %></button>
+      </h3>
+      <div id="accordion-id-3" class="fr-collapse">
+        <p>Critère respecté :
+          <% if acte.consommation_credits == true %>Oui
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+          <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+          <% end %></p>
+        <p><%= format_value(acte.commentaire_consommation_credits) %></p>
+      </div>
+    </section>
+    <section class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité
+          avec la programmation annuelle et pluriannuelle
+          <% if acte.programmation == true %>
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+          <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+          <% end %></button>
+      </h3>
+      <div id="accordion-id-4" class="fr-collapse">
+        <p>Critère respecté :
+          <% if acte.programmation == true %>Oui
+            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+          <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+          <% end %></p>
+        <p><%= format_value(acte.commentaire_programmation) %></p>
+      </div>
+    </section>
   </div>
-</div>
+
+  <div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
+  <% if acte.suspensions.count > 0 %>
+    <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+    <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+      <div class="fr-text--bold fr-capitalize"><%= type_suspension %> n°<%= index + 1 %></div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-4">
+          <div>Date <%= type_suspension %></div>
+          <div class="fr-text--bold"><%= format_date_text(suspension.date_suspension) %></div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div>Motif <%= type_suspension %></div>
+          <div class="fr-text--bold"><%= suspension.motif %></div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div>Date de reprise</div>
+          <div class="fr-text--bold"><%= format_date_text(suspension.date_reprise) %></div>
+        </div>
+      </div>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-12">
+          <div>Observations</div>
+          <div class="fr-text--bold"><%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-6">
+      <div>Proposition de décision de contrôle</div>
+      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-6">
+      <div>Auto-évaluation de la complexité de l'acte</div>
+      <div><p class="fr-tag"><%= acte.complexite %>/5</p></div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Commentaire interne sur la proposition de décision de contrôle</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
+    </div>
+  </div>
+
+  <div class="fr-h6 fr-my-3w">Validation finale</div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Initales du valideur</div>
+      <div class="fr-text--bold"><%= format_value(acte.valideur) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div>Décision finale</div>
+      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.decision_finale %></p></div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Propositions d’observations à l’ordonnateur</div>
+      <div>
+        <% acte.type_observations&.each do |observation| %>
+          <p class="fr-tag"><%= observation %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Observation finale</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.observations)), :html => { :target => '_blank' }) %></div>
+    </div>
+  </div>
+<% end %>

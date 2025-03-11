@@ -1,25 +1,40 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
-  before_action :set_variables_form, only: [:new, :edit, :validate_acte]
+  before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
     @actes = current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pre-instruction'))
-    @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: 'instruction'))
-    @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'attente validation'))
-    @pagy_cloture, @actes_cloture = pagy(filtered_actes&.where(etat: 'cloture'))
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pré-instruction'))
+    @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: "en cours d'instruction"))
+    @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'en attente de validation'))
+    @pagy_cloture, @actes_cloture = pagy(filtered_actes&.where(etat: 'clôturé'))
     @pagy_suspendu, @actes_suspendu = pagy(filtered_actes&.where(etat: 'suspendu'))
   end
 
   def new
-    @acte = current_user.ht2_actes.new(type_acte: params[:type_acte])
+    if params[:type_acte].present?
+      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte])
+    elsif params[:id].present? || params[:parent_id].present?
+      id = params[:id] || params[:parent_id]
+      acte_parent = Ht2Acte.find(id)
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at'))
+    else
+      @acte = current_user.ht2_actes.new(type_acte: 'avis')
+    end
+    set_variables_form
   end
 
   def create
-    @acte = current_user.ht2_actes.new(ht2_acte_params)
+    if params[:parent_id].present?
+      acte_parent = Ht2Acte.find(params[:parent_id])
+      @acte = acte_parent.dup
+      @acte.attributes = ht2_acte_params
+    else
+      @acte = current_user.ht2_actes.new(ht2_acte_params)
+    end
     if @acte.save
       associate_centre_financier(@acte)
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
@@ -83,7 +98,7 @@ class Ht2ActesController < ApplicationController
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
       @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant","Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
+      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     end
     @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
