@@ -14,8 +14,27 @@ class Ht2Acte < ApplicationRecord
   has_rich_text :commentaire_imputation_depense
   has_rich_text :commentaire_consommation_credits
   has_rich_text :commentaire_programmation
+
+  def duplicate_with_rich_text
+    # Dupliquer l'acte de base
+    new_acte = self.dup
+
+    # Dupliquer les champs rich_text
+    %w[commentaire_disponibilite_credits commentaire_imputation_depense commentaire_consommation_credits commentaire_programmation].each do |rich_text_field|
+      rich_text = self.send("rich_text_#{rich_text_field}")
+      if rich_text.present?
+        new_acte.send("#{rich_text_field}=", rich_text.body.to_s)
+      end
+    end
+
+    return new_acte
+  end
+
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "disponibilite_credits", "etat", "id", "imputation_depense", "instructeur", "lien_tf", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "lien_tf", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+  end
+  def self.ransackable_associations(auth_object = nil)
+    ["centre_financiers", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
   end
 
   def last_date_suspension
@@ -62,11 +81,11 @@ class Ht2Acte < ApplicationRecord
 
   def set_etat_acte
     if !date_chorus.present? || (!numero_chorus.present? && nature != "Liste d'actes")
-      self.etat = "pré-instruction"
+      self.etat = "en pré-instruction"
       self.pre_instruction = true
     elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
       self.etat = "suspendu"
-    elsif !etat.present?
+    elsif !etat.present? || (etat != 'clôturé' && etat != 'en attente validation')
       self.etat = "en cours d'instruction"
     end
   end

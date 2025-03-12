@@ -7,7 +7,7 @@ class Ht2ActesController < ApplicationController
     @actes = current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'pré-instruction'))
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'en pré-instruction'))
     @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: "en cours d'instruction"))
     @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'en attente de validation'))
     @pagy_cloture, @actes_cloture = pagy(filtered_actes&.where(etat: 'clôturé'))
@@ -30,7 +30,7 @@ class Ht2ActesController < ApplicationController
   def create
     if params[:parent_id].present?
       acte_parent = Ht2Acte.find(params[:parent_id])
-      @acte = acte_parent.dup
+      @acte = acte_parent.duplicate_with_rich_text
       @acte.attributes = ht2_acte_params
     else
       @acte = current_user.ht2_actes.new(ht2_acte_params)
@@ -121,6 +121,6 @@ class Ht2ActesController < ApplicationController
   end
 
   def check_acte_conditions
-    @conditions_met = @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && @acte.disponibilite_credits.present? && @acte.imputation_depense.present? && @acte.consommation_credits.present? && @acte.programmation.present?
+    @conditions_met = @acte.etat == "en cours d'instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && @acte.disponibilite_credits.present? && @acte.imputation_depense.present? && @acte.consommation_credits.present? && @acte.programmation.present?
   end
 end

@@ -1,6 +1,13 @@
 class CentreFinancier < ApplicationRecord
   has_and_belongs_to_many :ht2_actes
 
+  def self.ransackable_associations(auth_object = nil)
+    ["ht2_actes"]
+  end
+  def self.ransackable_attributes(auth_object = nil)
+    ["bop_id", "code", "created_at", "id", "id_value", "updated_at"]
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     headers = data.row(1) # get header row

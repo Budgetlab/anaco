@@ -31,7 +31,7 @@
       </fieldset>
       <div class="fr-input-group">
         <label for="commentaire_programmation" class="fr-label">Observations et pièce justificative</label>
-        <%= f.rich_text_area :commentaire_programmation, class: 'trix-content-form' %>
+        <%= f.rich_text_area :commentaire_programmation,direct_upload: true , class: 'trix-content-form' %>
       </div>
     </div>
   </div>
