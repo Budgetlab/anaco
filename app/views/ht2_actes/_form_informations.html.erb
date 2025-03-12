@@ -4,7 +4,7 @@
   l’objet d’une pré-instruction.
 </div>
 <div data-controller="acte-form">
-  <%= form_with(model: @acte) do |f| %>
+  <%= form_with(model: @acte, data: {'acte-form-target': "form" }) do |f| %>
     <% if params[:parent_id].present? %>
       <%= hidden_field_tag :parent_id, params[:parent_id] %>
     <% end %>
@@ -35,14 +35,14 @@
             <% if @acte.type_acte == 'avis' %>Montant estimatif global (AE)*
             <% else %>Montant engagé*
             <% end %></label>
-          <%= f.number_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission" } %>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission input->acte-form#changeNumber", acte_form_number_field: true  } %>
         </div>
       </div>
       <% if @acte.type_acte == 'visa' %>
         <div class="fr-col-12 fr-col-lg-4">
           <div class="fr-input-group">
             <label for="montant_global" class="fr-label">Montant global de l'acte</label>
-            <%= f.number_field :montant_global, value: @acte.montant_global, id: "montant_ae", class: "fr-input" %>
+            <%= f.number_field :montant_global, value: @acte.montant_global, id: "montant_ae", class: "fr-input", data: {acte_form_number_field: true } %>
           </div>
         </div>
       <% end %>
@@ -136,7 +136,7 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-          <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn', disabled: true, data: { acte_form_target: 'submitButton' } %></li>
+          <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn', disabled: true, data: { acte_form_target: 'submitButton', action: "click->acte-form#changeTextToFloat"  } %></li>
         </ul>
       </div>
     </div>
