@@ -121,6 +121,6 @@ class Ht2ActesController < ApplicationController
   end
 
   def check_acte_conditions
-    @conditions_met = @acte.etat == "en cours d'instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && @acte.disponibilite_credits.present? && @acte.imputation_depense.present? && @acte.consommation_credits.present? && @acte.programmation.present?
+    @conditions_met = @acte.etat != "en pré-instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && @acte.disponibilite_credits.present? && @acte.imputation_depense.present? && @acte.consommation_credits.present? && @acte.programmation.present?
   end
 end

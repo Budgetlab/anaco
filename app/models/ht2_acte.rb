@@ -85,7 +85,7 @@ class Ht2Acte < ApplicationRecord
       self.pre_instruction = true
     elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
       self.etat = "suspendu"
-    elsif !etat.present? || (etat != 'clôturé' && etat != 'en attente validation')
+    elsif !etat.present? || etat == "en pré-instruction"
       self.etat = "en cours d'instruction"
     end
   end
