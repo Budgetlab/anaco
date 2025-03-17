@@ -22,10 +22,14 @@ class Ht2ActesController < ApplicationController
   def new
     if params[:type_acte].present?
       @acte = current_user.ht2_actes.new(type_acte: params[:type_acte])
-    elsif params[:id].present? || params[:parent_id].present?
-      id = params[:id] || params[:parent_id]
+    elsif params[:id].present?
+      id = params[:id]
       acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at'))
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus'))
+    elsif params[:parent_id].present?
+      id = params[:parent_id]
+      acte_parent = Ht2Acte.find(id)
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus'))
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis')
     end
