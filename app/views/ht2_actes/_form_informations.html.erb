@@ -42,7 +42,7 @@
         <div class="fr-col-12 fr-col-lg-4">
           <div class="fr-input-group">
             <label for="montant_global" class="fr-label">Montant global de l'acte</label>
-            <%= f.number_field :montant_global, value: @acte.montant_global, id: "montant_ae", class: "fr-input", data: {acte_form_number_field: true } %>
+            <%= f.text_field :montant_global, value: @acte.montant_global, id: "montant_ae", class: "fr-input", data: {action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
           </div>
         </div>
       <% end %>
