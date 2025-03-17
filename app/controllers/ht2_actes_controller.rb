@@ -28,8 +28,9 @@ class Ht2ActesController < ApplicationController
       @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat'))
     elsif params[:parent_id].present?
       id = params[:parent_id]
-      acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat'))
+      @acte_parent = Ht2Acte.find(id)
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat'))
+      @saisine = true
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis')
     end
@@ -37,13 +38,13 @@ class Ht2ActesController < ApplicationController
   end
 
   def create
-    if params[:parent_id].present?
-      acte_parent = Ht2Acte.find(params[:parent_id])
-      @acte = acte_parent.duplicate_with_rich_text
-      @acte.attributes = ht2_acte_params
-    else
+    #if params[:parent_id].present?
+    #  acte_parent = Ht2Acte.find(params[:parent_id])
+    #  @acte = acte_parent.duplicate_with_rich_text
+    #  @acte.attributes = ht2_acte_params
+    #else
       @acte = current_user.ht2_actes.new(ht2_acte_params)
-    end
+    #end
     if @acte.save
       associate_centre_financier(@acte)
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
@@ -72,7 +73,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def show
-    @actes_groupe = @acte.tous_actes_meme_chorus
+    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.order(created_at: :asc) : [@acte]
     @acte_courant = @acte
   end
 

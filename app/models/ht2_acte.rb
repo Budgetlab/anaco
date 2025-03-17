@@ -73,7 +73,17 @@ class Ht2Acte < ApplicationRecord
 
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
-    Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id).order(created_at: :asc)
+    Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
+  end
+
+  def dernier_acte_cloture_chorus
+    # Récupère le dernier acte clôturé
+    tous_actes_meme_chorus.where(etat: 'clôturé').order(created_at: :desc).first
+  end
+
+  def numero_saisine
+    actes = tous_actes_meme_chorus.sort_by(&:id) # Tri par ID (ordre croissant)
+    actes.index(self)&.+(1) # Ajoute 1 à l'index pour obtenir le numéro de saisine
   end
 
   # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur

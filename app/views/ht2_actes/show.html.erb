@@ -27,12 +27,14 @@
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">
           <span class="fr-capitalize"><%= @acte.type_acte %> HT2
-          <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
-          <% else %>n°<%= @acte.numero_utilisateur %>
-          <% end %>
+            <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+            <% else %>n°<%= @acte.numero_utilisateur %>
+            <% end %>
           </span>
-          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn' do %>
-            Nouvelle saisine
+          <% if @acte.numero_chorus.present? %>
+            <%= link_to new_ht2_acte_path(parent_id: @acte.dernier_acte_cloture_chorus), class: 'fr-btn' do %>
+              Nouvelle saisine
+            <% end %>
           <% end %>
         </h1>
 
