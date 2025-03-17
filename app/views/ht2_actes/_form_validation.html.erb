@@ -14,7 +14,7 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="decision_finale" class="fr-label">Décision finale de contrôle*</label>
-        <%= f.select :decision_finale, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale), {}, { id: "decision_finale", class: "fr-select", data: { acte_form_target: 'fieldRequire', action: "change->acte-form#checkSubmission"} } %>
+        <%= f.select :decision_finale, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale.presence || @acte.proposition_decision), {}, { id: "decision_finale", class: "fr-select", data: { acte_form_target: 'fieldRequire', action: "change->acte-form#checkSubmission"} } %>
       </div>
     </div>
   </div>

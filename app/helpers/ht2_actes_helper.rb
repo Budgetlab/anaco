@@ -1,9 +1,9 @@
 module Ht2ActesHelper
   def badge_class_for_decision(decision)
     case decision
-    when 'Favorable'
+    when 'Favorable', 'Visa accordé'
       'fr-badge fr-badge--success fr-badge--no-icon'
-    when 'Favorable avec observations'
+    when 'Favorable avec observations', 'Visa accordé avec observations'
       'fr-badge fr-badge--green-menthe'
     when 'Défavorable'
       'fr-badge fr-badge--error fr-badge--no-icon'

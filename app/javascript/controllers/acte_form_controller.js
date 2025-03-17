@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message"]
 
     connect() {
         if (this.submitButtonTarget.dataset.conditionsMet != undefined) {
@@ -113,5 +113,12 @@ export default class extends Controller {
             }
         }
 
+    }
+
+    toggleMessage() {
+        const radioNon = document.getElementById('radio-false')
+        if (radioNon && this.hasMessageTarget) {
+            this.messageTarget.style.display = radioNon.checked ? '' : 'none'
+        }
     }
 }

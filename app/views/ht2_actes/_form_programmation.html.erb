@@ -1,4 +1,5 @@
 <h2>Contrôle de la compatibilité avec la programmation annuelle et pluriannuelle</h2>
+<div data-controller="acte-form">
 <%= form_with(model: @acte) do |f| %>
   <%= hidden_field_tag :etape, 6 %>
   <div class="fr-grid-row fr-grid-row--gutters">
@@ -18,17 +19,20 @@
         </legend>
         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
           <div class="fr-radio-group">
-            <%= f.radio_button :programmation, true, id: "radio-delai1", checked: @acte.programmation.nil? || @acte.programmation == true %>
-            <label class="fr-label" for="radio-delai1">Oui</label>
+            <%= f.radio_button :programmation, true, id: "radio-true", checked: @acte.programmation.nil? || @acte.programmation == true, data: { action: "change->acte-form#toggleMessage" }  %>
+            <label class="fr-label" for="radio-true">Oui</label>
           </div>
         </div>
         <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
           <div class="fr-radio-group">
-            <%= f.radio_button :programmation, false, checked: @acte.programmation == false, id: "radio-delai" %>
-            <label class="fr-label" for="radio-delai">Non</label>
+            <%= f.radio_button :programmation, false, checked: @acte.programmation == false, id: "radio-false", data: { action: "change->acte-form#toggleMessage" }  %>
+            <label class="fr-label" for="radio-false">Non</label>
           </div>
         </div>
       </fieldset>
+      <div class="fr-alert fr-alert--info fr-mb-3w" style="<%= @acte.disponibilite_credits == false ? '' : 'display: none;' %>" data-acte-form-target="message">
+        <p>L'ajout d'une suspension est possible à l'étape 6.</p>
+      </div>
       <div class="fr-input-group">
         <label for="commentaire_programmation" class="fr-label">Observations et pièce justificative</label>
         <%= f.rich_text_area :commentaire_programmation,direct_upload: true , class: 'trix-content-form' %>
@@ -43,3 +47,4 @@
     </div>
   </div>
 <% end %>
+</div>
