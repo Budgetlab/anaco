@@ -1,7 +1,7 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
-<div class="cwarning fr-mb-2w">Si les informations Chorus ne sont pas renseignées, l’acte sera considéré comme faisant
-  l’objet d’une pré-instruction.
+<div class="fr-alert fr-alert--warning fr-mb-2w">
+  <p>Si les informations Chorus ne sont pas renseignées, l’acte sera considéré comme faisant l’objet d’une pré-instruction.</p>
 </div>
 <div data-controller="acte-form">
   <%= form_with(model: @acte, data: {'acte-form-target': "form" }) do |f| %>

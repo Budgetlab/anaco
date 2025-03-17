@@ -2,12 +2,33 @@
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
+    <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
+        Voir le fil d’Ariane
+      </button>
+      <div class="fr-collapse" id="breadcrumb-1">
+        <ol class="fr-breadcrumb__list">
+          <li>
+            <%= link_to root_path, class: "fr-breadcrumb__link" do %> Accueil
+            <% end %>
+          </li>
+          <li>
+            <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Actes HT2
+            <% end %>
+          </li>
+          <li>
+            <a class="fr-breadcrumb__link" aria-current="page">Consultation <%= @acte.type_acte %> HT2</a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-4w title-btn">
+        <h1 class="title-btn">
           <span class="fr-capitalize"><%= @acte.type_acte %> HT2
           <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
-          <% else %>n°<%= acte.id %>
+          <% else %>n°<%= @acte.numero_utilisateur %>
           <% end %>
           </span>
           <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn' do %>

@@ -73,8 +73,7 @@ class Ht2Acte < ApplicationRecord
 
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
-    Ht2Acte.where(numero_chorus: numero_chorus)
-           .order(created_at: :asc)
+    Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id).order(created_at: :asc)
   end
 
   # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur
