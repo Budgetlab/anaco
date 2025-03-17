@@ -77,6 +77,15 @@ class Ht2Acte < ApplicationRecord
            .order(created_at: :asc)
   end
 
+  # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur
+  def numero_utilisateur
+    # Récupère tous les actes de l'utilisateur triés par ID
+    actes_utilisateur = user.ht2_actes.order(:id)
+
+    # Trouve l'index de l'acte actuel et ajoute 1 pour avoir un numéro commençant par 1
+    actes_utilisateur.index(self) + 1
+  end
+
   private
 
   def set_etat_acte

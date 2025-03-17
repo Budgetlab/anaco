@@ -69,7 +69,7 @@
                     <% @actes_pre_instruction.each do |acte| %>
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.id %></td>
+                          n°<%= acte.numero_utilisateur %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -136,7 +136,7 @@
                     <% @actes_instruction.each do |acte| %>
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.id %></td>
+                          n°<%= acte.numero_utilisateur %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -206,7 +206,7 @@
                     <% @actes_suspendu.each do |acte| %>
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.id %></td>
+                          n°<%= acte.numero_utilisateur %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -269,7 +269,7 @@
                     <% @actes_validation.each do |acte| %>
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.id %></td>
+                          n°<%= acte.numero_utilisateur %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -341,7 +341,7 @@
                     <% @actes_cloture.each do |acte| %>
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.id %></td>
+                          n°<%= acte.numero_utilisateur %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                         <td><p class="fr-tag"><%= acte.instructeur %></p></td>
@@ -368,7 +368,7 @@
             </div>
             <div class="fr-table__footer">
               <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_validation.length, 'résultat', plural: 'résultats') %></p>
+                <p class="fr-table__detail"><%= pluralize(@actes_cloture.length, 'résultat', plural: 'résultats') %></p>
                 <div class="fr-select-group">
                   <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                     Nombre de lignes par page
@@ -377,7 +377,7 @@
                 </div>
               </div>
               <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_validation) %>
+                <%== pagy_nav_custom(@pagy_cloture) %>
               </div>
             </div>
           </div>

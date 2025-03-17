@@ -1,4 +1,4 @@
-<div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.id %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %></div>
+<div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.numero_utilisateur %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %></div>
 
 <% if acte.etat != "clôturé" %>
   <p class="<%= badge_class_for_etat(acte.etat) %>">
