@@ -7,11 +7,16 @@ class Ht2ActesController < ApplicationController
     @actes = current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(filtered_actes&.where(etat: 'en pré-instruction'))
-    @pagy_instruction, @actes_instruction = pagy(filtered_actes&.where(etat: "en cours d'instruction"))
-    @pagy_validation, @actes_validation = pagy(filtered_actes&.where(etat: 'en attente de validation'))
-    @pagy_cloture, @actes_cloture = pagy(filtered_actes&.where(etat: 'clôturé'))
-    @pagy_suspendu, @actes_suspendu = pagy(filtered_actes&.where(etat: 'suspendu'))
+    @actes_pre_instruction_all = filtered_actes&.where(etat: 'en pré-instruction')
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
+    @actes_instruction_all = filtered_actes&.where(etat: "en cours d'instruction")
+    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
+    @actes_validation_all = filtered_actes&.where(etat: 'en attente de validation')
+    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
+    @actes_cloture_all = filtered_actes&.where(etat: 'clôturé')
+    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
+    @actes_suspendu_all = filtered_actes&.where(etat: 'suspendu')
+    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
   end
 
   def new
