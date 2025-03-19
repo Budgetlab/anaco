@@ -38,13 +38,13 @@ class Ht2ActesController < ApplicationController
   end
 
   def create
-    #if params[:parent_id].present?
+    # if params[:parent_id].present?
     #  acte_parent = Ht2Acte.find(params[:parent_id])
     #  @acte = acte_parent.duplicate_with_rich_text
     #  @acte.attributes = ht2_acte_params
-    #else
-      @acte = current_user.ht2_actes.new(ht2_acte_params)
-    #end
+    # else
+    @acte = current_user.ht2_actes.new(ht2_acte_params)
+    # end
     if @acte.save
       associate_centre_financier(@acte)
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
@@ -84,6 +84,19 @@ class Ht2ActesController < ApplicationController
 
   def validate_acte; end
 
+  def check_chorus_number
+    numero_chorus = params[:numero_chorus]
+    acte_id = params[:acte_id]
+    if numero_chorus.present?
+      actes_meme_chorus = current_user.ht2_actes.where(numero_chorus: numero_chorus)
+      actes_meme_chorus = actes_meme_chorus.where.not(id: acte_id) if acte_id.present?
+      actes_meme_chorus_count = actes_meme_chorus.count
+    else
+      actes_meme_chorus_count = 0
+    end
+    render json: { exists: actes_meme_chorus_count.positive? }
+  end
+
   private
 
   def ht2_acte_params
@@ -109,7 +122,7 @@ class Ht2ActesController < ApplicationController
       @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
-      @liste_decisions = ["Visa accordé", "Visa accordé avec observations"," Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", " Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     end
     @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]

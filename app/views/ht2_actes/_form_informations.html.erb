@@ -3,7 +3,7 @@
 <div class="fr-alert fr-alert--warning fr-mb-2w">
   <p>Si les informations Chorus ne sont pas renseignées, l’acte sera considéré comme faisant l’objet d’une pré-instruction.</p>
 </div>
-<div data-controller="acte-form">
+<div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>">
   <%= form_with(model: @acte, data: {'acte-form-target': "form" }) do |f| %>
     <% if params[:parent_id].present? %>
       <%= hidden_field_tag :parent_id, params[:parent_id] %>
@@ -56,7 +56,8 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
           <label for="numero_chorus" class="fr-label">Numéro acte Chorus</label>
-          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input" %>
+          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: {action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id} %>
+          <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte avec ce numéro Chorus existe déjà</p>
         </div>
       </div>
 

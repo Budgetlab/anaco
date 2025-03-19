@@ -5,7 +5,7 @@ export default class extends Controller {
     static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message"]
 
     connect() {
-        if (this.submitButtonTarget.dataset.conditionsMet != undefined) {
+        if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
             this.checkValidation()
         } else if (this.hasSubmitButtonTarget) {
             this.checkSubmission();
@@ -18,7 +18,7 @@ export default class extends Controller {
     checkValidation() {
         const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
         const conditionsMet = this.submitButtonTarget.dataset.conditionsMet === "true"
-
+        console.log(this.fieldRequireTargets)
         this.submitButtonTarget.disabled = !(allFieldsFilled && conditionsMet)
     }
 
@@ -120,5 +120,26 @@ export default class extends Controller {
         if (radioNon && this.hasMessageTarget) {
             this.messageTarget.style.display = radioNon.checked ? '' : 'none'
         }
+    }
+
+    checkChorusNumberExistence(event){
+        const numero = event.target.value;
+        const acteId = event.target.dataset.acteId || ""
+        console.log(acteId)
+        const message = document.getElementById('message-chorus-number-existence')
+        const url = this.data.get("checkchorusurl")
+
+        fetch(`${url}?acte_id=${acteId}&numero_chorus=${numero}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    message.classList.remove('fr-hidden')
+                } else {
+                    message.classList.add('fr-hidden')
+                }
+            })
+            .catch(error => {
+                console.error("Erreur lors de la vérification:", error)
+            })
     }
 }

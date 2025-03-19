@@ -11,9 +11,24 @@ class Ht2Acte < ApplicationRecord
       format: :jpg
     }
   end
-  has_rich_text :commentaire_imputation_depense
-  has_rich_text :commentaire_consommation_credits
-  has_rich_text :commentaire_programmation
+  has_rich_text :commentaire_imputation_depense do |attachable|
+    attachable.image_processing_options = {
+      resize_to_limit: [nil, 400],
+      format: :jpg
+    }
+  end
+  has_rich_text :commentaire_consommation_credits do |attachable|
+    attachable.image_processing_options = {
+      resize_to_limit: [nil, 400],
+      format: :jpg
+    }
+  end
+  has_rich_text :commentaire_programmation do |attachable|
+    attachable.image_processing_options = {
+      resize_to_limit: [nil, 400],
+      format: :jpg
+    }
+  end
 
   def duplicate_with_rich_text
     # Dupliquer l'acte de base

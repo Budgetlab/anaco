@@ -33,8 +33,10 @@
       <div class="fr-alert fr-alert--info fr-mb-3w" style="<%= @acte.consommation_credits == false ? '' : 'display: none;' %>" data-acte-form-target="message">
         <p>L'ajout d'une suspension est possible à l'étape 6.</p>
       </div>
-      <div class="fr-input-group">
-        <label for="commentaire_consommation_credits" class="fr-label">Observations et pièce justificative</label>
+      <div class="fr-input-group" data-controller="trix">
+        <label for="commentaire_consommation_credits" class="fr-label">Observations et pièce justificative
+          <span class="fr-hint-text">Pour les pièces justificatives, seules les images sont autorisées.</span>
+        </label>
         <%= f.rich_text_area :commentaire_consommation_credits,direct_upload: true , class: 'trix-content-form' %>
       </div>
     </div>

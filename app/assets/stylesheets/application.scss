@@ -5,6 +5,7 @@ html{
 .fr-text-lg{
   font-size:1.125rem;
 }
+
 h1, h2{
   position:relative;
 }
@@ -183,6 +184,9 @@ h1, h2{
 }
 .fr-input-group .fr-message--info{
   font-size: 1rem !important;
+}
+.fr-input-group .fr-text--small{
+  font-size: 0.75rem !important;
 }
 .filter-table-list{
   background-color: var(--background-overlap-grey);
