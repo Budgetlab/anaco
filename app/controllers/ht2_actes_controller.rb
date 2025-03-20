@@ -100,6 +100,11 @@ class Ht2ActesController < ApplicationController
 
   def synthese
     @ht2_actes = current_user.ht2_actes
+    @ht2_avis_decisions = @ht2_actes.where(type_acte: 'avis', etat: 'clôturé').group(:decision_finale).count
+    @ht2_visa_decisions = @ht2_actes.where(type_acte: 'visa', etat: 'clôturé').group(:decision_finale).count
+    @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes.where(etat: ['clôturé','en attente de validation']))
+    @actes_par_instructeur = @ht2_actes.group(:instructeur).count
+    @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
   end
 
   private
@@ -150,5 +155,63 @@ class Ht2ActesController < ApplicationController
 
   def check_acte_conditions
     @conditions_met = @acte.etat != "en pré-instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+  end
+
+  def calculate_suspensions_stats(actes)
+    # Récupérer les statistiques des suspensions par type d'acte
+    stats = []
+
+    # Pour chaque type d'acte (visa et avis)
+    ['avis', 'visa'].each do |type_acte|
+      # Trouver tous les actes de ce type
+      actes = actes.where(type_acte: type_acte)
+
+      # Obtenir toutes les suspensions liées à ces actes
+      suspensions_ids = Suspension.where(ht2_acte_id: actes.pluck(:id)).pluck(:id)
+
+      # Compter les occurrences de chaque motif
+      motifs_count = Suspension.where(id: suspensions_ids).group(:motif).count
+
+      # Formater les données pour le frontend
+      motifs_data = motifs_count.map do |motif, count|
+        { motif: motif, count: count }
+      end
+
+      # Ajouter les statistiques pour ce type d'acte
+      stats << {
+        type_acte: type_acte,
+        total_suspensions: suspensions_ids.size,
+        motifs: motifs_data
+      }
+    end
+
+    stats
+  end
+
+  def calculate_actes_par_mois(actes)
+    # Obtenir l'année en cours
+    current_year = Date.today.year
+
+    # Préparer un tableau pour chaque mois de l'année
+    mois = (1..12).map do |month|
+      debut_mois = Date.new(current_year, month, 1)
+      fin_mois = Date.new(current_year, month, -1) # Dernier jour du mois
+
+      # Compter les actes créés ce mois
+      actes_crees = actes.where('date_chorus >= ? AND date_chorus <= ?', debut_mois, fin_mois).count
+
+      # Compter les actes clôturés ce mois
+      actes_clotures = actes.where('date_cloture >= ? AND date_cloture <= ?', debut_mois, fin_mois)
+                            .where(etat: 'clôturé')
+                            .count
+
+      {
+        mois: I18n.l(debut_mois, format: '%B'), # Nom du mois en français
+        actes_crees: actes_crees,
+        actes_clotures: actes_clotures
+      }
+    end
+
+    mois
   end
 end

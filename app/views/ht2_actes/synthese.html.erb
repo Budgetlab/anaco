@@ -1,55 +1,113 @@
-<% content_for :title do %>Tableau de bord actes HT2 | ANACO
+<% content_for :title do %>Tableau de bord | ANACO
 <% end %>
 <main role="main" class="containtAll">
-  <div class="fr-container">
+  <div class="fr-container" data-controller="highcharts">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-6w fr-mb-2w ">Tableau de bord Actes HT2</h1>
+        <h1 class="fr-mt-6w fr-mb-2w ">Tableau de bord</h1>
       </div>
     </div>
 
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-2">
-        <div class="fr-text--center">
-          <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en pré-instruction", "en cours d'instruction"]).count %> </p>
-              <p class="fr-text--lg fr-mb-0 text_center">Actes en cours de traitement</p>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en attende de validation", "en cours d'instruction"]).count %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes en cours de traitement</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes clôturés</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="fr-text--center">
-          <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["suspendu"]).count %> </p>
-              <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_long_delay %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes dont le délai > 15J</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.delai_moyen_traitement %>
+                    jours</p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-2">
-        <div class="fr-text--center">
-          <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
-              <p class="fr-text--lg fr-mb-0 text_center">Actes clôturés</p>
-            </div>
-          </div>
-        </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasActeAvis" data-acte-avis="<%= @ht2_avis_decisions.to_json %>"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasActeVisa" data-acte-visa="<%= @ht2_visa_decisions.to_json %>"></div>
+      </div>
+    </div>
 
-        <div class="fr-text--center">
-          <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-            <div class="fr-cart__body">
-              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"> jours</p>
-              <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center">
+              <%= image_tag "artwork/pictograms/system/technical-error.svg", class: "fr-responsive-img image-icone", alt: "" %>
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %>
+                    jours</p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de suspension</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasActeSuspension" data-acte-suspensions="<%= @ht2_suspensions_motif.to_json %>"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasActeInstructeur" data-acte-instructeur="<%= @actes_par_instructeur.to_json %>"></div>
+      </div>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div data-highcharts-target="canvasActesMensuel" data-actes-mensuel="<%= @actes_par_mois.to_json %>"></div>
       </div>
     </div>
   </div>
