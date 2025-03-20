@@ -56,6 +56,7 @@ Rails.application.routes.draw do
     resources :ht2_actes
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
+    get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     resources :centre_financiers
     post 'import_cf', to: 'centre_financiers#import'
 

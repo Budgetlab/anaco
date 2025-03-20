@@ -1,0 +1,56 @@
+<% content_for :title do %>Tableau de bord actes HT2 | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mt-6w fr-mb-2w ">Tableau de bord Actes HT2</h1>
+      </div>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-2">
+        <div class="fr-text--center">
+          <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en pré-instruction", "en cours d'instruction"]).count %> </p>
+              <p class="fr-text--lg fr-mb-0 text_center">Actes en cours de traitement</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="fr-text--center">
+          <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["suspendu"]).count %> </p>
+              <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-2">
+        <div class="fr-text--center">
+          <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
+              <p class="fr-text--lg fr-mb-0 text_center">Actes clôturés</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="fr-text--center">
+          <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"> jours</p>
+              <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

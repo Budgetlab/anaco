@@ -88,7 +88,9 @@
                     </li>
                   <% end %>
                   <% if current_user.statut != "admin" %>
-                    <%= active_link_to restitutions_perimetre_path, class: "fr-nav__link", target: "_self" do %>Restitutions périmètre<% end %>
+                    <%= active_link_to restitutions_perimetre_path, class: "fr-nav__link", target: "_self" do %>
+                      Restitutions périmètre
+                    <% end %>
                   <% end %>
                   <li>
                     <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Restitutions
@@ -131,11 +133,17 @@
             <% end %>
 
             <li class="fr-nav__item">
-              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes</button>
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) || current_page?(synthese_ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes</button>
               <div class="fr-collapse fr-menu" id="menu-actes">
                 <ul class="fr-menu__list">
+                  <% if current_user.statut != "admin" %>
+                    <li>
+                      <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Actes HT2
+                      <% end %>
+                    </li>
+                  <% end %>
                   <li>
-                    <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Actes HT2
+                    <%= active_link_to synthese_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Tableau de bord
                     <% end %>
                   </li>
                 </ul>

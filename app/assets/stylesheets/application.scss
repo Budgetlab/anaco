@@ -318,3 +318,9 @@ a.fr-tag[aria-pressed=true]::after{
 .hide-icons::after {
   display: none !important;
 }
+
+.image-icone{
+  max-height: 80px;
+  margin: 0 auto;
+  display: block;
+}

@@ -65,6 +65,7 @@ class Ht2ActesController < ApplicationController
 
     if @acte.update(ht2_acte_params)
       associate_centre_financier(@acte)
+      @acte.update(date_cloture: Date.today) if @etape == 8
       path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       redirect_to path
     else
@@ -97,6 +98,10 @@ class Ht2ActesController < ApplicationController
     render json: { exists: actes_meme_chorus_count.positive? }
   end
 
+  def synthese
+    @ht2_actes = current_user.ht2_actes
+  end
+
   private
 
   def ht2_acte_params
@@ -108,7 +113,7 @@ class Ht2ActesController < ApplicationController
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
-                                     :commentaire_consommation_credits, :commentaire_programmation, :valideur,
+                                     :commentaire_consommation_credits, :commentaire_programmation, :valideur, :date_cloture,
                                      :decision_finale, type_observations: [], suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise])
   end
 

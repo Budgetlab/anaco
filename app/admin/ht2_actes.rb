@@ -5,7 +5,7 @@ ActiveAdmin.register Ht2Acte do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  permit_params :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code, :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte, :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf, :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation, :proposition_decision, :commentaire_proposition_decision, :complexite, :observations, :type_observations, :user_id, :valideur, :decision_finale
+  permit_params :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code, :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte, :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf, :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation, :proposition_decision, :commentaire_proposition_decision, :complexite, :observations, :type_observations, :user_id, :valideur, :decision_finale, :date_cloture
   #
   # or
   #
