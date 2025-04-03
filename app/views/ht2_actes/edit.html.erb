@@ -41,7 +41,7 @@
             <div class="fr-collapse" id="sidemenu-collapse-94">
 
               <ul class="fr-sidemenu__list">
-                <p class="<%= badge_class_for_etat(@acte.etat) %> fr-badge--sm">Acte <%= @acte.etat %></p>
+                <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm">Acte <%= @acte.etat %></p>
                 <li class="fr-sidemenu__item">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 1), 'aria-current': @etape == 1, class: "fr-sidemenu__link" do %>
                     Étape 1 : Informations sur l'acte

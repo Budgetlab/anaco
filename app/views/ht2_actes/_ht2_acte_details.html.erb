@@ -2,7 +2,7 @@
   le <%= l(acte.created_at, format: "%e/%m/%y") %>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %> </div>
 
 <% if acte.etat != "clôturé" %>
-  <p class="<%= badge_class_for_etat(acte.etat) %>">
+  <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
     <%= acte.etat %>
   </p>
 <% else %>

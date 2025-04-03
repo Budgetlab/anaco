@@ -76,15 +76,126 @@
       </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: avis_delai(@avis_remplis), valeur3: avis_crg1(@avis_remplis), nom_graphe: "canvasAvis" } %>
+      <% if @phase == 'début de gestion' %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <%= render partial: "pages/card_index", locals: { phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: avis_delai(@avis_remplis), valeur3: avis_crg1(@avis_remplis), nom_graphe: "canvasAvis" } %>
+        </div>
+      <% elsif @phase == 'CRG1' %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <%= render partial: "pages/card_index", locals: { phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: avis_crg1(@avis_remplis), avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2], nom_graphe: "canvasNotes1" } %>
+        </div>
+      <% elsif @phase == 'CRG2' %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <%= render partial: "pages/card_index", locals: { phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12, 31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2], nom_graphe: "canvasNotes2" } %>
+        </div>
+      <% end %>
+
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-card fr-card--shadow">
+          <div class="fr-card__body">
+            <div class="fr-card__content">
+              <h3 class="fr-card__title">Instruction des actes</h3>
+              <div class="fr-card__desc">
+                <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">HT2</p>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">X </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance prochaine</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/digital/search.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en attente de validation"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en attente de validation</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/system/technical-error.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en cours d'instruction"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours d'instruction</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes <br> clôturés</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.delai_moyen_traitement %>
+                            jours</p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <%= link_to ht2_actes_path do %>
+                              Consulter/ajouter
+                              <% if current_user.statut == "admin" %>les
+                              <% else %>mes
+                              <% end %> actes
+                            <% end %>
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <%= link_to synthese_ht2_actes_path do %>
+                              Accéder au tableau de bord
+                            <% end %>
+                          </h3>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: avis_crg1(@avis_remplis), avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2], nom_graphe: "canvasNotes1" } %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12, 31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2], nom_graphe: "canvasNotes2" } %>
-      </div>
+
     </div>
   </div>
 
