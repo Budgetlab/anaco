@@ -78,7 +78,7 @@ class Ht2Acte < ApplicationRecord
       end
       if type_acte == 'avis'
         date_chorus + 15.days + total_suspension_days
-      elsif type_acte == 'visa'
+      elsif type_acte == 'visa' || type_acte == 'TF'
         if last_suspension&.date_reprise.present?
           last_suspension.date_reprise + 15.days
         else
@@ -176,7 +176,7 @@ class Ht2Acte < ApplicationRecord
 
       # Délai total moins durée des suspensions
       [delai_total - duree_suspensions, 0].max
-    elsif type_acte == 'visa'
+    elsif type_acte == 'visa' || type_acte == 'TF'
       # Pour les visas, prendre le délai entre la dernière reprise et la clôture
       derniere_suspension = suspensions.order(date_reprise: :desc).first
 

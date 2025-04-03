@@ -136,6 +136,9 @@ class Ht2ActesController < ApplicationController
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", " Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
+      @liste_natures = ["Affectation initiale","Affectation complémentaire","Retrait"]
+      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", " Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     end
     @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
@@ -165,7 +168,7 @@ class Ht2ActesController < ApplicationController
     stats = []
 
     # Pour chaque type d'acte (visa et avis)
-    ['avis', 'visa'].each do |type_acte|
+    ['avis', 'visa', 'TF'].each do |type_acte|
       # Trouver tous les actes de ce type
       actes = actes.where(type_acte: type_acte)
 
