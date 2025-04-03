@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_19_153306) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_03_094011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -137,6 +137,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_19_153306) do
     t.index ["ht2_acte_id", "centre_financier_id"], name: "idx_on_ht2_acte_id_centre_financier_id_ab5984b1f7"
   end
 
+  create_table "echeanciers", force: :cascade do |t|
+    t.bigint "ht2_acte_id", null: false
+    t.integer "annee"
+    t.float "montant_ae"
+    t.float "montant_cp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ht2_acte_id"], name: "index_echeanciers_on_ht2_acte_id"
+  end
+
   create_table "gestion_schemas", force: :cascade do |t|
     t.bigint "programme_id", null: false
     t.bigint "user_id", null: false
@@ -198,7 +208,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_19_153306) do
     t.string "action"
     t.string "sous_action"
     t.string "activite"
-    t.boolean "lien_tf"
     t.string "numero_tf"
     t.boolean "disponibilite_credits"
     t.boolean "imputation_depense"
@@ -228,6 +237,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_19_153306) do
     t.string "nom"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "poste_lignes", force: :cascade do |t|
+    t.bigint "ht2_acte_id", null: false
+    t.string "centre_financier_code"
+    t.float "montant"
+    t.string "domaine_fonctionnel"
+    t.string "fonds"
+    t.string "compte_budgetaire"
+    t.string "code_activite"
+    t.string "axe_ministeriel"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ht2_acte_id"], name: "index_poste_lignes_on_ht2_acte_id"
   end
 
   create_table "programmes", force: :cascade do |t|
@@ -303,10 +326,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_19_153306) do
   add_foreign_key "bops", "users"
   add_foreign_key "bops", "users", column: "dcb_id"
   add_foreign_key "centre_financiers", "bops"
+  add_foreign_key "echeanciers", "ht2_actes"
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
   add_foreign_key "ht2_actes", "users"
+  add_foreign_key "poste_lignes", "ht2_actes"
   add_foreign_key "programmes", "ministeres"
   add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"

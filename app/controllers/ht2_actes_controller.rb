@@ -114,12 +114,15 @@ class Ht2ActesController < ApplicationController
 
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
-                                     :pre_instruction, :action, :sous_action, :activite, :lien_tf, :numero_tf,
+                                     :pre_instruction, :action, :sous_action, :activite, :numero_tf,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
                                      :commentaire_consommation_credits, :commentaire_programmation, :valideur, :date_cloture,
-                                     :decision_finale, type_observations: [], suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise])
+                                     :decision_finale, type_observations: [],
+                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
+                                     echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
+                                     poste_lignes_attributes: [:id, :_destroy, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
   end
 
   def set_acte_ht2

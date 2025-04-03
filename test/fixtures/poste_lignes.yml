@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ht2_acte: one
+  montant: 1.5
+  domaine_fonctionnel: MyString
+  fonds: MyString
+  compte_budgetaire: MyString
+  code_activite: MyString
+  axe_ministeriel: MyString
+
+two:
+  ht2_acte: two
+  montant: 1.5
+  domaine_fonctionnel: MyString
+  fonds: MyString
+  compte_budgetaire: MyString
+  code_activite: MyString
+  axe_ministeriel: MyString

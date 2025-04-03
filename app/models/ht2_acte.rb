@@ -1,8 +1,12 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
-  has_many :suspensions
+  has_many :suspensions, dependent: :destroy
+  has_many :echeanciers, dependent: :destroy
+  has_many :poste_lignes, dependent: :destroy
+  accepts_nested_attributes_for :poste_lignes, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank?}, allow_destroy: true
   before_save :set_etat_acte
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|
@@ -46,10 +50,10 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "lien_tf", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financiers", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
+    ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
   end
 
   def last_date_suspension

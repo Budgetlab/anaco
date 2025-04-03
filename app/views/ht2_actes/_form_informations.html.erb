@@ -4,7 +4,7 @@
   <p>Si les informations Chorus ne sont pas renseignées, l’acte sera considéré comme faisant l’objet d’une pré-instruction.</p>
 </div>
 <div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>">
-  <%= form_with(model: @acte, data: {'acte-form-target': "form" }) do |f| %>
+  <%= form_with(model: @acte, data: {'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper' }) do |f| %>
     <% if params[:parent_id].present? %>
       <%= hidden_field_tag :parent_id, params[:parent_id] %>
     <% end %>
@@ -96,8 +96,7 @@
               data-toggle-text-hide="Afficher moins">
         Renseigner plus d'informations
       </button>
-      <div class="fr-hidden"
-           data-toggle-target="content">
+      <div class="fr-hidden" data-toggle-target="content">
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
@@ -118,13 +117,7 @@
             </div>
           </div>
         </div>
-        <div class="fr-grid-row fr-grid-row--gutters  fr-grid-row--middle">
-          <div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-checkbox-group">
-              <%= f.check_box :lien_tf, id: "lien_tf" %>
-              <%= f.label :lien_tf, "Acte lié à une TF", class: "fr-label", for: "lien_tf" %>
-            </div>
-          </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
               <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
@@ -132,6 +125,39 @@
             </div>
           </div>
         </div>
+
+        <template data-nested-form2-target="template">
+          <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
+            <%= render "form_poste_ligne", f: poste_ligne_fields %>
+          <% end %>
+        </template>
+
+        <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
+          <%= render "form_poste_ligne", f: poste_ligne_fields %>
+        <% end %>
+
+        <!-- Inserted elements will be injected before that target. -->
+        <div data-nested-form2-target="target"></div>
+        <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+          Ajouter une ligne de poste
+        </button>
+
+        <div class="fr-h6 fr-my-2w">Échéancier</div>
+
+        <template data-nested-form-target="template">
+          <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+            <%= render "form_echeancier", f: echeancier_fields%>
+          <% end %>
+        </template>
+
+        <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+          <%= render "form_echeancier", f: echeancier_fields %>
+        <% end %>
+
+        <!-- Inserted elements will be injected before that target. -->
+        <div data-nested-form-target="target"></div>
+        <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+          Ajouter une année</button>
       </div>
     </div>
     <div class="fr-grid-row fr-grid-row--gutters">
