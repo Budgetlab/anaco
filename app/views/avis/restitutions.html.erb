@@ -5,7 +5,7 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="fr-my-6w">
-          Restitutions nationales [<%= @avis_total %> BOP]
+          Restitutions nationales
         </h1>
 
         <div class="fr-mb-2w title-btn">
@@ -38,16 +38,42 @@
            data-highcharts-notes2="<%= notes_repartition(@avis_remplis, @avis_total, 'CRG2') %>">
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvisDate"></div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-text--center">
+                  <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %> </p>
+                      <p class="fr-text--lg fr-mb-0 text_center">BOP Actifs</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-text--center">
+                  <%= image_tag "artwork/pictograms/digital/calendar.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %> </p>
+                      <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvis"></div>
+            <div data-highcharts-target="canvasAvisDate"></div>
           </div>
           <div class="fr-col-12 fr-col-lg-4">
             <div data-highcharts-target="canvasNotesBar"></div>
           </div>
         </div>
         <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div data-highcharts-target="canvasAvis"></div>
+          </div>
           <div class="fr-col-12 fr-col-lg-4">
             <div data-highcharts-target="canvasNotes1"></div>
           </div>

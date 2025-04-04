@@ -61,20 +61,6 @@
       </div>
     </div>
 
-
-    <% if @statut_user == "DCB" %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-        <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/system/notification.svg", alt: "" %></div>
-        <div class="fr-col-lg-11 fr-col-10">
-          <div class="fr-text--lg fr-mt-1w">Vous avez <%= current_user.avis_a_lire %> avis/notes en attente de
-            lecture<br>
-            <%= link_to consultation_path, class: "fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
-              Consulter les avis transmis par les CBR
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <% if @phase == 'début de gestion' %>
         <div class="fr-col-12 fr-col-lg-6">
@@ -103,7 +89,7 @@
                       <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">X </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.echeance_courte %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance prochaine</p>
                         </div>
                       </div>
@@ -165,10 +151,7 @@
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
                             <%= link_to ht2_actes_path do %>
-                              Consulter/ajouter
-                              <% if current_user.statut == "admin" %>les
-                              <% else %>mes
-                              <% end %> actes
+                              Consulter<% if current_user.statut == "admin" %>les<% else %>/ajouter mes<% end %> actes
                             <% end %>
                           </h3>
                         </div>
@@ -186,7 +169,6 @@
                           </h3>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </div>

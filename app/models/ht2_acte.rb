@@ -90,6 +90,16 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
+
+  def self.echeance_courte
+    actes = where(etat: ["en cours d'instruction",'en attente de validation'])
+    # Filtrer les actes dont la date limite est dans les 3 prochains jours
+    actes.select do |acte|
+      date_limite = acte.date_limite
+      date_limite.present? && date_limite >= Date.today && date_limite <= Date.today + 3.days
+    end.count
+  end
+
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
     Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
@@ -152,6 +162,7 @@ class Ht2Acte < ApplicationRecord
     # Retourner la moyenne arrondie à l'entier le plus proche
     count_suspensions > 0 ? (somme_durees.to_f / count_suspensions).round : 0
   end
+
 
   # Calcule le délai de traitement pour un acte spécifique
   def delai_traitement

@@ -22,7 +22,7 @@ class PagesController < ApplicationController
       @notes_crg2 = notes_repartition(@avis_remplis, @avis_total, 'CRG2')
     end
 
-    @ht2_actes = current_user.ht2_actes
+    @ht2_actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
   end
 
   def global_search
