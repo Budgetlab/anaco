@@ -13,7 +13,7 @@ more(Highcharts)
 
 export default class extends Controller {
   static get targets() {
-  return ['canvasAvis','canvasNotes1','canvasNotes2','canvasAvisDate','canvasNotesBar','canvasActeAvis', 'canvasActeVisa', 'canvasActeSuspension', 'canvasActeInstructeur', 'canvasActesMensuel'
+  return ['canvasAvis','canvasNotes1','canvasNotes2','canvasAvisDate','canvasNotesBar','canvasActeAvis', 'canvasActeVisa','canvasActeTF', 'canvasActeSuspension', 'canvasActeInstructeur', 'canvasActesMensuel'
   ];
   }
   connect() {
@@ -27,6 +27,9 @@ export default class extends Controller {
       }
       if (this.hasCanvasActeVisaTarget){
           this.syntheseChart('actesVisa')
+      }
+      if (this.hasCanvasActeTFTarget){
+          this.syntheseChart('actesTF')
       }
       if (this.hasCanvasActeSuspensionTarget){
           const colors = ["var(--background-disabled-grey)","var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
@@ -308,6 +311,18 @@ export default class extends Controller {
                     'Saisine a posteriori',
                     'Retour sans décision (sans suite)'
                 ]
+            },
+            'actesTF': {
+                dataKey: 'actesTF',
+                title: 'TF HT2 clôturés',
+                target: 'canvasActeTFTarget',
+                labels: [
+                    'Visa accordé',
+                    'Visa accordé avec observations',
+                    'Refus de visa',
+                    'Saisine a posteriori',
+                    'Retour sans décision (sans suite)'
+                ]
             }
         };
 
@@ -418,6 +433,17 @@ export default class extends Controller {
             'actesVisa': {
                 dataKey: 'actesVisa',
                 data: this.canvasActeVisaTarget.dataset.acteVisa,
+                labels: [
+                    'Visa accordé',
+                    'Visa accordé avec observations',
+                    'Refus de visa',
+                    'Saisine a posteriori',
+                    'Retour sans décision (sans suite)'
+                ]
+            },
+            'actesTF': {
+                dataKey: 'actesTF',
+                data: this.canvasActeTFTarget.dataset.acteTf,
                 labels: [
                     'Visa accordé',
                     'Visa accordé avec observations',
@@ -580,7 +606,7 @@ export default class extends Controller {
             plotOptions: {
                 packedbubble: {
                     minSize: '30%',
-                    maxSize: '120%',
+                    maxSize: '100%',
                     zMin: 0,
                     layoutAlgorithm: {
                         gravitationalConstant: 0.02,

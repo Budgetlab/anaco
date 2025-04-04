@@ -98,16 +98,20 @@
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
-        <div data-highcharts-target="canvasActeSuspension" data-acte-suspensions="<%= @ht2_suspensions_motif.to_json %>"></div>
+        <div data-highcharts-target="canvasActeTF" data-acte-tf="<%= @ht2_tf_decisions.to_json %>"></div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
-        <div data-highcharts-target="canvasActeInstructeur" data-acte-instructeur="<%= @actes_par_instructeur.to_json %>"></div>
+        <div data-highcharts-target="canvasActeSuspension" data-acte-suspensions="<%= @ht2_suspensions_motif.to_json %>"></div>
       </div>
+
     </div>
 
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
+      <div class="fr-col-12 fr-col-lg-8">
         <div data-highcharts-target="canvasActesMensuel" data-actes-mensuel="<%= @actes_par_mois.to_json %>"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div data-highcharts-target="canvasActeInstructeur" data-acte-instructeur="<%= @actes_par_instructeur.to_json %>"></div>
       </div>
     </div>
   </div>
