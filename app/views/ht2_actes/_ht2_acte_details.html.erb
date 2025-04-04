@@ -117,13 +117,13 @@
     </div>
   </div>
   <div data-controller="toggle">
-    <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+    <button class="fr-link fr-icon-add-line fr-link--icon-left"
             data-action="click->toggle#toggleContent"
             data-toggle-target="button">
       Afficher plus
     </button>
     <div class="fr-hidden" data-toggle-target="content">
-      <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
         <div class="fr-col-12 fr-col-lg-4">
           <div>Action</div>
           <div class="fr-text--bold"><%= format_value(acte.action) %></div>
@@ -138,13 +138,45 @@
         </div>
       </div>
       <% if acte.numero_tf.present? %>
-        <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
           <div class="fr-col-12 fr-col-lg-4">
             <div>Numéro Chorus de la TF associée</div>
             <div class="fr-text--bold"><%= format_value(acte.numero_tf) %></div>
           </div>
         </div>
       <% end %>
+
+      <div class="fr-table fr-table--no-caption">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption> Informations complémentaires</caption>
+                <thead>
+                <tr>
+                  <th> Action</th>
+                  <th> Sous-action</th>
+                  <th> Activité</th>
+                  <% if acte.numero_tf.present? %>
+                    <th> Numéro Chorus de la TF associée</th>
+                  <% end %>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td> <%= format_value(acte.action) %> </td>
+                  <td> <%= format_value(acte.sous_action) %></td>
+                  <td> <%= format_value(acte.activite) %> </td>
+                  <% if acte.numero_tf.present? %>
+                    <td> <%= format_value(acte.numero_tf) %> </td>
+                  <% end %>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <% if acte.poste_lignes.present? %>
         <div class="fr-h6 fr-my-3w">Lignes de poste</div>
@@ -329,7 +361,7 @@
     </div>
     <div class="fr-col-12 fr-col-lg-6">
       <div>Auto-évaluation de la complexité de l'acte</div>
-      <div><p class="fr-tag"><%= acte.complexite %>/5</p></div>
+      <div class="fr-text--bold"><% if acte.complexite.present? %><p class="fr-tag"><%= acte.complexite %>/5</p><% else %>Non renseigné<%end %></div>
     </div>
   </div>
 
