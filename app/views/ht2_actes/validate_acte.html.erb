@@ -23,9 +23,9 @@
                         <th>Instructeur</th>
                         <th>Nature de l'acte</th>
                         <th>Montant estimatif global (AE)</th>
+                        <th>N°Chorus</th>
                         <th>Date réception Chorus</th>
-                        <th>N°Acte Chorus</th>
-                        <th>Centre financier</th>
+                        <th>Date limite de réponse</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -33,9 +33,9 @@
                         <td> <%= @acte.instructeur %> </td>
                         <td> <%= @acte.nature %></td>
                         <td> <%= number_to_currency(@acte.montant_ae, unit: "€", format: "%n %u") %> </td>
-                        <td> <%= format_date_text(@acte.date_chorus)  %></td>
                         <td> <%= format_value(@acte.numero_chorus) %></td>
-                        <td> <%= format_value(@acte.centre_financier_code) %></td>
+                        <td> <%= format_date_text(@acte.date_chorus)  %></td>
+                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(@acte.date_limite) %>' aria-hidden='true'></span> <%= format_date_text(@acte.date_limite)  %></td>
                       </tr>
                       </tbody>
                     </table>
@@ -52,6 +52,7 @@
                       <caption> Informations</caption>
                       <thead>
                       <tr class="fr-cell--multiline">
+                        <th>Centre financier</th>
                         <th>Bénéficiaire</th>
                         <th>Objet</th>
                         <th>Ordonnateur</th>
@@ -59,6 +60,7 @@
                       </thead>
                       <tbody>
                       <tr class="fr-cell--multiline">
+                        <td> <%= format_value(@acte.centre_financier_code) %></td>
                         <td> <%= format_value(@acte.beneficiaire) %></td>
                         <td> <%= format_value(@acte.objet) %></td>
                         <td> <%= format_value(@acte.ordonnateur) %></td>
@@ -119,7 +121,7 @@
               </div>
             </div>
             <div data-controller="toggle">
-              <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+              <button class="fr-link fr-icon-add-line fr-link--icon-left"
                       data-action="click->toggle#toggleContent"
                       data-toggle-target="button">
                 Afficher plus

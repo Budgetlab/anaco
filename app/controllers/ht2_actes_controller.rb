@@ -17,6 +17,11 @@ class Ht2ActesController < ApplicationController
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
     @actes_suspendu_all = filtered_actes&.where(etat: 'suspendu')
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
+
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
   end
 
   def new
@@ -67,7 +72,8 @@ class Ht2ActesController < ApplicationController
       associate_centre_financier(@acte)
       @acte.update(date_cloture: Date.today) if @etape == 8
       path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
-      redirect_to path
+      @message = "Acte #{@acte.etat} enregistré avec succès."
+      redirect_to path, notice: @message
     else
       render :edit
     end

@@ -1,0 +1,271 @@
+wb = xlsx_package.workbook
+
+# Styles communs
+header_style = wb.styles.add_style(
+  bg_color: "dae1f2",
+  fg_color: "161616",
+  b: true,
+  alignment: { horizontal: :center },
+  border: { style: :thin, color: "000000" },
+  font_name: 'Calibri',
+)
+
+date_style = wb.styles.add_style(
+  format_code: "dd/mm/yyyy",
+  border: { style: :thin, color: "000000" },
+  fg_color: "161616",
+  font_name: 'Calibri',
+)
+
+number_style = wb.styles.add_style(
+  format_code: "#,##0.00 €",
+  border: { style: :thin, color: "000000" },
+  fg_color: "161616",
+  font_name: 'Calibri',
+)
+
+cell_style = wb.styles.add_style(
+  border: { style: :thin, color: "000000" },
+  fg_color: "161616",
+  font_name: 'Calibri',
+)
+
+# Filtre les actes par type
+actes_visa = @actes.select { |acte| acte.type_acte == 'visa' }
+actes_avis = @actes.select { |acte| acte.type_acte == 'avis' }
+actes_tf = @actes.select { |acte| acte.type_acte == 'TF' }
+
+# Onglet 1 : Visas
+wb.add_worksheet(name: "Visas") do |sheet|
+  # En-têtes pour les visas
+  headers = [
+    'Type Acte',
+    'Numéro Acte',
+    'Etat',
+    'Instructeur',
+    'Date création',
+    'Nature',
+    'Montant engagé',
+    'Montant global', # Colonne supplémentaire pour les visas
+    'Centre financier',
+    'Numéro Chorus',
+    'Date réception Chorus',
+    'Date limite de réponse',
+    'Bénéficiaire',
+    'Objet',
+    'Ordonnateur',
+    'Disponibilité crédits',
+    'Imputation dépense',
+    'Consommation crédits',
+    'Programmation',
+    'Proposition décision de contrôle',
+    'Complexité',
+    'Valideur final',
+    'Décision finale',
+    'Date clôture',
+    'Délai de traitement'
+  ]
+
+  sheet.add_row headers, style: header_style
+
+  # Données pour les visas
+  actes_visa.each do |acte|
+    row_data = [
+      acte.type_acte,
+      acte.numero_utilisateur,
+      acte.etat,
+      acte.instructeur,
+      acte.created_at,
+      acte.nature,
+      acte.montant_ae,
+      acte.montant_global, # Ajout du montant global pour les visas
+      acte.centre_financier_code,
+      acte.numero_chorus,
+      acte.date_chorus,
+      acte.date_limite,
+      acte.beneficiaire,
+      acte.objet,
+      acte.ordonnateur,
+      acte.disponibilite_credits ? "Oui" : "Non",
+      acte.imputation_depense ? "Oui" : "Non",
+      acte.consommation_credits ? "Oui" : "Non",
+      acte.programmation ? "Oui" : "Non",
+      acte.proposition_decision,
+      acte.complexite,
+      acte.valideur,
+      acte.decision_finale,
+      acte.date_cloture,
+      acte.delai_traitement
+
+    ]
+
+    # Styles spécifiques pour certaines colonnes
+    styles = Array.new(headers.count, cell_style)
+    styles[4] = date_style  # Date création
+    styles[6] = number_style  # Montant AE
+    styles[7] = number_style  # Montant global
+    styles[10] = date_style  # Date réception Chorus
+    styles[11] = date_style  # Date limite
+    styles[23] = date_style
+
+    sheet.add_row row_data, style: styles
+  end
+
+  # Définir une largeur fixe de 15 pour toutes les colonnes
+  column_widths = Array.new(headers.count, 15)
+  sheet.column_widths *column_widths
+
+  sheet.auto_filter = "A1:X1"
+end
+
+# Onglet 2 : Avis
+wb.add_worksheet(name: "Avis") do |sheet|
+  # En-têtes standard
+  headers = [
+    'Type Acte',
+    'Numéro Acte',
+    'Etat',
+    'Instructeur',
+    'Date création',
+    'Nature',
+    'Montant',
+    'Centre financier',
+    'Numéro Chorus',
+    'Date réception Chorus',
+    'Date limite de réponse',
+    'Bénéficiaire',
+    'Objet',
+    'Ordonnateur',
+    'Disponibilité crédits',
+    'Imputation dépense',
+    'Consommation crédits',
+    'Programmation',
+    'Proposition décision de contrôle',
+    'Complexité',
+    'Valideur final',
+    'Décision finale',
+    'Date clôture',
+    'Délai de traitement'
+  ]
+
+  sheet.add_row headers, style: header_style
+
+  # Données
+  actes_avis.each do |acte|
+    row_data = [
+      acte.type_acte,
+      acte.numero_utilisateur,
+      acte.etat,
+      acte.instructeur,
+      acte.created_at,
+      acte.nature,
+      acte.montant_ae,
+      acte.centre_financier_code,
+      acte.numero_chorus,
+      acte.date_chorus,
+      acte.date_limite,
+      acte.beneficiaire,
+      acte.objet,
+      acte.ordonnateur,
+      acte.disponibilite_credits ? "Oui" : "Non",
+      acte.imputation_depense ? "Oui" : "Non",
+      acte.consommation_credits ? "Oui" : "Non",
+      acte.programmation ? "Oui" : "Non",
+      acte.proposition_decision,
+      acte.complexite,
+     acte.valideur,
+     acte.decision_finale,
+     acte.date_cloture,
+     acte.delai_traitement
+    ]
+
+    styles = Array.new(headers.count, cell_style)
+    styles[4] = date_style
+    styles[6] = number_style
+    styles[9] = date_style
+    styles[10] = date_style
+    styles[22] = date_style
+
+    sheet.add_row row_data, style: styles
+  end
+
+  # Définir une largeur fixe de 15 pour toutes les colonnes
+    column_widths = Array.new(headers.count, 15)
+    sheet.column_widths *column_widths
+    sheet.auto_filter = "A1:W1"
+end
+
+# Onglet 3 : TF
+wb.add_worksheet(name: "TF") do |sheet|
+  # En-têtes standard
+  headers = [
+    'Type Acte',
+    'Numéro Acte',
+    'Etat',
+    'Instructeur',
+    'Date création',
+    "Type d'affectation",
+    'Montant global affecté',
+    'Centre financier',
+    'Numéro Chorus',
+    'Date réception Chorus',
+    'Date limite de réponse',
+    "Opération d'investissement",
+    'Ordonnateur',
+    'Disponibilité crédits',
+    'Imputation dépense',
+    'Consommation crédits',
+    'Programmation',
+    'Proposition décision de contrôle',
+    'Complexité',
+    'Valideur final',
+    'Décision finale',
+    'Date clôture',
+    'Délai de traitement'
+  ]
+
+  sheet.add_row headers, style: header_style
+
+  # Données
+  actes_tf.each do |acte|
+    row_data = [
+      acte.type_acte,
+      acte.numero_utilisateur,
+      acte.etat,
+      acte.instructeur,
+      acte.created_at,
+      acte.nature,
+      acte.montant_ae,
+      acte.centre_financier_code,
+      acte.numero_chorus,
+      acte.date_chorus,
+      acte.date_limite,
+      acte.objet,
+      acte.ordonnateur,
+      acte.disponibilite_credits ? "Oui" : "Non",
+      acte.imputation_depense ? "Oui" : "Non",
+      acte.consommation_credits ? "Oui" : "Non",
+      acte.programmation ? "Oui" : "Non",
+      acte.proposition_decision,
+      acte.complexite,
+      acte.valideur,
+      acte.decision_finale,
+      acte.date_cloture,
+      acte.delai_traitement
+    ]
+
+    styles = Array.new(headers.count, cell_style)
+    styles[4] = date_style
+    styles[6] = number_style
+    styles[9] = date_style
+    styles[10] = date_style
+    styles[22] = date_style
+
+    sheet.add_row row_data, style: styles
+  end
+
+  # Définir une largeur fixe de 15 pour toutes les colonnes
+    column_widths = Array.new(headers.count, 15)
+    sheet.column_widths *column_widths
+    sheet.auto_filter = "A1:V1"
+end

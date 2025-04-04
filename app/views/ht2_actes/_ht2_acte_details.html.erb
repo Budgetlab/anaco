@@ -8,7 +8,67 @@
 <% else %>
 
   <div class="fr-h6">Informations sur l'acte</div>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption> Informations</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Instructeur</th>
+              <th>Nature de l'acte</th>
+              <th>Montant estimatif global (AE)</th>
+              <th>N°Chorus</th>
+              <th>Date réception Chorus</th>
+              <th>Date limite de réponse</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td> <%= acte.instructeur %> </td>
+              <td> <%= acte.nature %></td>
+              <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
+              <td> <%= format_value(acte.numero_chorus) %></td>
+              <td> <%= format_date_text(acte.date_chorus)  %></td>
+              <td> <%= format_date_text(acte.date_limite)  %></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption> Informations</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Centre financier</th>
+              <th>Bénéficiaire</th>
+              <th>Objet</th>
+              <th>Ordonnateur</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td> <%= format_value(acte.centre_financier_code) %></td>
+              <td> <%= format_value(acte.beneficiaire) %></td>
+              <td> <%= format_value(acte.objet) %></td>
+              <td> <%= format_value(acte.ordonnateur) %></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
     <div class="fr-col-12 fr-col-lg-4">
       <div>Initales de l'instructeur</div>
       <div class="fr-text--bold"><%= format_value(acte.instructeur) %></div>
@@ -22,7 +82,7 @@
       <div class="fr-text--bold"><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></div>
     </div>
   </div>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
     <div class="fr-col-12 fr-col-lg-4">
       <div>Date de réception sur Chorus</div>
       <div class="fr-text--bold"><%= format_date_text(acte.date_chorus) %></div>
@@ -36,7 +96,7 @@
       <div class="fr-text--bold"><%= format_value(acte.centre_financier_code) %></div>
     </div>
   </div>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
     <div class="fr-col-12 fr-col-lg-4">
       <div>Bénéficiaire</div>
       <div class="fr-text--bold"><%= format_value(acte.beneficiaire) %></div>
@@ -50,7 +110,7 @@
       <div class="fr-text--bold"><%= format_value(acte.ordonnateur) %></div>
     </div>
   </div>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
     <div class="fr-col-12 fr-col-lg-12">
       <div>Précisions sur l'acte</div>
       <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.precisions_acte)), :html => { :target => '_blank' }) %></div>

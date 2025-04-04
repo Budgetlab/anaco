@@ -1,0 +1,10 @@
+<% if flash.any? %>
+  <% flash.each do |type, msg| %>
+    <div class="fr-alert fr-alert--success fr-mt-2w">
+      <h3 class="fr-alert__title">
+        <%= msg %>
+      </h3>
+      <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer le message</button>
+    </div>
+  <% end %>
+<% end %>

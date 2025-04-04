@@ -35,20 +35,28 @@
     </div>
   </div>
 
-  <div class="fr-grid-row fr-grid-row--gutters">
-    <div class="fr-col-12" data-controller="request">
-      <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
-        <div class="fr-search-bar" role="search">
-          <label class="fr-label" for="search-input"> Rechercher </label>
-          <%= f.search_field :numero_chorus_cont,
-                             placeholder: "Rechercher un acte par numéro Chorus",
-                             class: "fr-input",
-                             id: "search-input", oninput: 'this.form.requestSubmit()' %>
-          <button class="fr-btn" title="Rechercher">Rechercher</button>
-        </div>
-      <% end %>
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+    <div class="fr-col-12 title-btn">
+      <div class="flex-grow fr-mr-2w" data-controller="request">
+        <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+          <div class="fr-search-bar" role="search">
+            <label class="fr-label" for="search-input"> Rechercher </label>
+            <%= f.search_field :numero_chorus_cont,
+                               placeholder: "Rechercher un acte par numéro Chorus",
+                               class: "fr-input",
+                               id: "search-input", oninput: 'this.form.requestSubmit()' %>
+            <button class="fr-btn" title="Rechercher">Rechercher</button>
+          </div>
+        <% end %>
+      </div>
+      <div>
+        <button class="fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary"><%= link_to ht2_actes_path(format: :xlsx) do %>
+            Télécharger les actes
+          <% end %></button>
+      </div>
     </div>
   </div>
+  <%= render 'ht2_actes/flash_message' %>
   <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
@@ -362,7 +370,9 @@
                             <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Consulter
                             <% end %>
-                            <%= link_to new_ht2_acte_path(id: acte.id), aria: {describedby:"tooltip-11"}, id:"link-154", class:"fr-btn fr-btn--sm fr-icon-file-add-line", data: { turbo_frame: "_top" } do%>Dupliquer<%end %>
+                            <%= link_to new_ht2_acte_path(id: acte.id), aria: { describedby: "tooltip-11" }, id: "link-154", class: "fr-btn fr-btn--sm fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
+                              Dupliquer
+                            <% end %>
                             <span class="fr-tooltip fr-placement" id="tooltip-11" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
                           </div>
                         </td>

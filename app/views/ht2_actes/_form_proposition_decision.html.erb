@@ -47,7 +47,7 @@
         </div>
         <div data-controller="multi-select">
           <div class="fr-select-group">
-            <label for="type_observations" class="fr-label">Type d'observations</label>
+            <label for="type_observations" class="fr-label">Type d'observations <span class="fr-hint-text">Plusieurs choix possibles</span></label>
             <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
                            id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
           </div>

@@ -85,7 +85,7 @@ class Ht2Acte < ApplicationRecord
           date_chorus + 15.days
         end
       end
-    else
+    elsif date_chorus.present?
       date_chorus + 15.days
     end
   end
