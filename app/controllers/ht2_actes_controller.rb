@@ -4,7 +4,7 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
-    @actes = current_user.ht2_actes.order(created_at: :desc)
+    @actes = current_user.statut == 'admin' ? Ht2Acte.order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
     @actes_pre_instruction_all = filtered_actes&.where(etat: 'en pré-instruction')
@@ -105,7 +105,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def synthese
-    @ht2_actes = current_user.ht2_actes
+    @ht2_actes = current_user.statut == 'admin' ? Ht2Acte : current_user.ht2_actes
     @ht2_avis_decisions = @ht2_actes.where(type_acte: 'avis', etat: 'clôturé').group(:decision_finale).count
     @ht2_visa_decisions = @ht2_actes.where(type_acte: 'visa', etat: 'clôturé').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes.where(type_acte: 'TF', etat: 'clôturé').group(:decision_finale).count
