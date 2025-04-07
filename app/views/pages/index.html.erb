@@ -94,7 +94,7 @@
                       </div>
                     </div>
                     <div class="fr-text--center">
-                      <%= image_tag "artwork/pictograms/digital/search.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
                           <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en attente de validation"]).count %> </p>
@@ -114,11 +114,20 @@
                   </div>
                   <div class="fr-col-12 fr-col-lg-6">
                     <div class="fr-text--center">
-                      <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes <br> clôturés</p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_current_with_long_delay %></p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours dont le délai > 15 jours</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/digital/search.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en pré-instruction"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en <br>pré-instruction</p>
                         </div>
                       </div>
                     </div>
@@ -126,21 +135,12 @@
                       <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %> </p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["suspendu"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus à date</p>
                         </div>
                       </div>
                     </div>
-                    <div class="fr-text--center">
-                      <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-                        <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.delai_moyen_traitement %>
-                            jours</p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
                 <div class="fr-grid-row fr-grid-row--gutters">

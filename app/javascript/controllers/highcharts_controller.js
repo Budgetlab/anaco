@@ -33,7 +33,7 @@ export default class extends Controller {
       }
       if (this.hasCanvasActeSuspensionTarget){
           const colors = ["var(--background-disabled-grey)","var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
-          const title = 'Typologie des actes suspendus/interrompus'
+          const title = 'Typologie des suspensions/interruptions'
           const target = this.canvasActeSuspensionTarget;
           // Récupérer et parser les données JSON
           const suspensionsData = JSON.parse(this.canvasActeSuspensionTarget.dataset.acteSuspensions);

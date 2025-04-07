@@ -126,9 +126,7 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode de classe pour retrouver tous les actes ayant au moins une suspension
   def self.with_suspensions
-    joins(:suspensions)
-      .where(etat: ['clôturé', 'en attente de validation'])
-      .distinct
+    joins(:suspensions).distinct
   end
 
   # Méthode pour compter le nombre d'actes ayant au moins une suspension
@@ -139,7 +137,7 @@ class Ht2Acte < ApplicationRecord
   # Méthode pour calculer la durée moyenne des suspensions pour les actes clôturés
   def self.duree_moyenne_suspensions
     # Récupérer tous les actes clôturés
-    actes_clotures = where(etat: ['clôturé','en attente de validation'])
+    actes_clotures = where(etat: 'clôturé')
 
     # Récupérer toutes les suspensions associées à ces actes
     suspensions_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:id)
@@ -202,13 +200,18 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
-  # Méthode pour compter les actes clôturés avec délai > 15 jours
-  def self.count_with_long_delay(seuil = 15)
-    # Récupérer tous les actes clôturés ayant les dates nécessaires
-    actes_clotures = where(etat: 'clôturé')
+  # Méthode pour compter les actes en cours avec délai > 15 jours
+  def self.count_current_with_long_delay(seuil = 15)
+    # Récupérer tous les actes en cours ayant les dates nécessaires
+    actes = where(etat: ["en cours d'instruction", 'en attente de validation'])
 
     # Compter les actes dont le délai de traitement dépasse le seuil
-    actes_clotures.count { |acte| acte.delai_traitement > seuil }
+    actes.count { |acte| acte.delai_traitement > seuil }
+  end
+
+  # Méthode pour compter les actes clôturés avec délai > 15 jours
+  def self.count_with_long_delay(seuil = 15)
+    count { |acte| acte.delai_traitement > seuil }
   end
 
   # Calcule le délai moyen de traitement des actes clôturés

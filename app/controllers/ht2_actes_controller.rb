@@ -107,11 +107,12 @@ class Ht2ActesController < ApplicationController
 
   def synthese
     @ht2_actes = current_user.statut == 'admin' ? Ht2Acte : current_user.ht2_actes
-    @ht2_avis_decisions = @ht2_actes.where(type_acte: 'avis', etat: 'clôturé').group(:decision_finale).count
-    @ht2_visa_decisions = @ht2_actes.where(type_acte: 'visa', etat: 'clôturé').group(:decision_finale).count
-    @ht2_tf_decisions = @ht2_actes.where(type_acte: 'TF', etat: 'clôturé').group(:decision_finale).count
-    @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes.where(etat: ['clôturé','en attente de validation']))
-    @actes_par_instructeur = @ht2_actes.group(:instructeur).count
+    @ht2_actes_clotures = @ht2_actes.where(etat: 'clôturé')
+    @ht2_avis_decisions = @ht2_actes_clotures.where(type_acte: 'avis').group(:decision_finale).count
+    @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
+    @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
+    @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
+    @actes_par_instructeur = @ht2_actes_clotures.group(:instructeur).count
     @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
   end
 

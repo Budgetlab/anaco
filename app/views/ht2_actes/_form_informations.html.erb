@@ -109,72 +109,93 @@
         Renseigner plus d'informations
       </button>
       <div class="fr-hidden" data-toggle-target="content">
-        <% if @acte.type_acte != 'TF' %>
-          <div class="fr-grid-row fr-grid-row--gutters">
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-input-group">
-                <label for="action" class="fr-label">Action</label>
-                <%= f.text_field :action, value: @acte.action, id: "action", class: "fr-input" %>
-              </div>
-            </div>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-input-group">
-                <label for="sous_action" class="fr-label">Sous-action</label>
-                <%= f.text_field :sous_action, value: @acte.sous_action, id: "sous_action", class: "fr-input" %>
-              </div>
-            </div>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-input-group">
-                <label for="activite" class="fr-label">Activité</label>
-                <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
-              </div>
+
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="action" class="fr-label">Action</label>
+              <%= f.text_field :action, value: @acte.action, id: "action", class: "fr-input" %>
             </div>
           </div>
-          <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-input-group">
-                <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
-                <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
-              </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="sous_action" class="fr-label">Sous-action</label>
+              <%= f.text_field :sous_action, value: @acte.sous_action, id: "sous_action", class: "fr-input" %>
             </div>
           </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="activite" class="fr-label">Activité</label>
+              <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
+            </div>
+          </div>
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
+              <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
+            </div>
+          </div>
+        </div>
 
-          <template data-nested-form2-target="template">
-            <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
-              <%= render "form_poste_ligne", f: poste_ligne_fields %>
-            <% end %>
-          </template>
-
-          <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
+        <template data-nested-form2-target="template">
+          <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
             <%= render "form_poste_ligne", f: poste_ligne_fields %>
-          <% end %>
-
-          <!-- Inserted elements will be injected before that target. -->
-          <div data-nested-form2-target="target"></div>
-          <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
-            Ajouter une ligne de poste
-          </button>
-        <% end %>
-
-        <div class="fr-h6 fr-my-2w">Échéancier</div>
-
-        <template data-nested-form-target="template">
-          <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
-            <%= render "form_echeancier", f: echeancier_fields %>
           <% end %>
         </template>
 
-        <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
-          <%= render "form_echeancier", f: echeancier_fields %>
+        <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
+          <%= render "form_poste_ligne", f: poste_ligne_fields %>
         <% end %>
 
         <!-- Inserted elements will be injected before that target. -->
-        <div data-nested-form-target="target"></div>
-        <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
-          Ajouter une année
+        <div data-nested-form2-target="target"></div>
+        <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+          Ajouter une ligne de poste
         </button>
+
+        <% if @acte.type_acte != 'TF' %>
+          <div class="fr-h6 fr-my-2w">Échéancier</div>
+
+          <template data-nested-form-target="template">
+            <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+              <%= render "form_echeancier", f: echeancier_fields %>
+            <% end %>
+          </template>
+
+          <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+            <%= render "form_echeancier", f: echeancier_fields %>
+          <% end %>
+
+          <!-- Inserted elements will be injected before that target. -->
+          <div data-nested-form-target="target"></div>
+          <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+            Ajouter une année
+          </button>
+        <% end %>
       </div>
     </div>
+
+    <% if @acte.type_acte == 'TF' %>
+      <div class="fr-h6 fr-my-2w">Échéancier</div>
+
+      <template data-nested-form-target="template">
+        <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+          <%= render "form_echeancier", f: echeancier_fields %>
+        <% end %>
+      </template>
+
+      <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+        <%= render "form_echeancier", f: echeancier_fields %>
+      <% end %>
+
+      <!-- Inserted elements will be injected before that target. -->
+      <div data-nested-form-target="target"></div>
+      <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+        Ajouter une année
+      </button>
+    <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">

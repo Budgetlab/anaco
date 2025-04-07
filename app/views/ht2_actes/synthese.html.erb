@@ -16,7 +16,7 @@
               <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en attende de validation", "en cours d'instruction"]).count %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where.not(etat: ["clôturé"]).count %> </p>
                   <p class="fr-text--lg fr-mb-0 text_center">Actes en cours de traitement</p>
                 </div>
               </div>
@@ -27,7 +27,7 @@
               <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["clôturé"]).count %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.count %> </p>
                   <p class="fr-text--lg fr-mb-0 text_center">Actes <br>clôturés</p>
                 </div>
               </div>
@@ -40,8 +40,8 @@
               <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_long_delay %> </p>
-                  <p class="fr-text--lg fr-mb-0 text_center">Actes dont le délai > 15J</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.count_with_long_delay %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes clôturés avec délai > 15J</p>
                 </div>
               </div>
             </div>
@@ -51,7 +51,7 @@
               <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.delai_moyen_traitement %>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.delai_moyen_traitement %>
                     jours</p>
                   <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
                 </div>
@@ -77,8 +77,8 @@
               <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %> </p>
-                  <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.count_with_suspensions %> </p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Actes clôturés avec suspension / interruption</p>
                 </div>
               </div>
             </div>
@@ -88,9 +88,9 @@
               <%= image_tag "artwork/pictograms/system/technical-error.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_with_suspensions %>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.duree_moyenne_suspensions %>
                     jours</p>
-                  <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de suspension</p>
+                  <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de suspension / interruption</p>
                 </div>
               </div>
             </div>
