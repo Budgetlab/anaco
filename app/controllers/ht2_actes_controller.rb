@@ -4,7 +4,8 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
-    @actes = current_user.statut == 'admin' ? Ht2Acte.order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
+    @statut_user = current_user.statut
+    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
     @actes_pre_instruction_all = filtered_actes&.where(etat: 'en pré-instruction')

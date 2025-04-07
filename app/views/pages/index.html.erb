@@ -8,7 +8,6 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom %></h1>
-        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
       </div>
     </div>
 
@@ -90,7 +89,7 @@
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
                           <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.echeance_courte %> </p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance prochaine</p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance < 5 jours</p>
                         </div>
                       </div>
                     </div>
@@ -151,7 +150,7 @@
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
                             <%= link_to ht2_actes_path do %>
-                              Consulter<% if current_user.statut == "admin" %>les<% else %>/ajouter mes<% end %> actes
+                              Consulter<% if current_user.statut == "admin" %> les<% else %>/ajouter mes<% end %> actes
                             <% end %>
                           </h3>
                         </div>

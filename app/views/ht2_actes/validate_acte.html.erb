@@ -72,48 +72,6 @@
               </div>
             </div>
 
-            <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Initales de l'instructeur</div>
-                <div class="fr-text--bold"><%= @acte.instructeur %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Nature de l'acte</div>
-                <div class="fr-text--bold"><%= @acte.nature %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Montant estimatif global (AE)</div>
-                <div class="fr-text--bold"><%= number_to_currency(@acte.montant_ae, unit: "€", format: "%n %u") %></div>
-              </div>
-            </div>
-            <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Date de réception sur Chorus</div>
-                <div class="fr-text--bold"><%= format_date_text(@acte.date_chorus) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>N°Acte Chorus</div>
-                <div class="fr-text--bold"><%= format_value(@acte.numero_chorus) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Centre financier</div>
-                <div class="fr-text--bold"><%= format_value(@acte.centre_financier_code) %></div>
-              </div>
-            </div>
-            <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Bénéficiaire</div>
-                <div class="fr-text--bold"><%= format_value(@acte.beneficiaire) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Objet</div>
-                <div class="fr-text--bold"><%= format_value(@acte.objet) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Ordonnateur</div>
-                <div class="fr-text--bold"><%= format_value(@acte.ordonnateur) %></div>
-              </div>
-            </div>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-col-lg-12">
                 <div>Précisions sur l'acte</div>
@@ -290,33 +248,43 @@
               </section>
             </div>
 
-            <div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
             <% if @acte.suspensions.count > 0 %>
               <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-              <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-                <div class="fr-text--bold fr-capitalize fr-mb-1w"><%= type_suspension %> n°<%= index + 1 %></div>
-                <div class="fr-grid-row fr-grid-row--gutters">
-                  <div class="fr-col-12 fr-col-lg-4">
-                    <div>Date <%= type_suspension %></div>
-                    <div class="fr-text--bold"><%= format_date_text(suspension.date_suspension) %></div>
-                  </div>
-                  <div class="fr-col-12 fr-col-lg-4">
-                    <div>Motif <%= type_suspension %></div>
-                    <div class="fr-text--bold"><%= suspension.motif %></div>
-                  </div>
-                  <div class="fr-col-12 fr-col-lg-4">
-                    <div>Date de reprise</div>
-                    <div class="fr-text--bold"><%= format_date_text(suspension.date_reprise) %></div>
+              <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
+              <div class="fr-table fr-table--no-caption">
+                <div class="fr-table__wrapper">
+                  <div class="fr-table__container">
+                    <div class="fr-table__content">
+                      <table>
+                        <caption> Suspensions/Interruptions</caption>
+                        <thead>
+                        <tr>
+                          <th class="fr-capitalize"> <%= type_suspension %> </th>
+                          <th> Date <%= type_suspension %></th>
+                          <th> Date de reprise</th>
+                          <th> Motif</th>
+                          <th> Observations</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+                          <tr>
+                            <td> n°<%= index + 1 %></td>
+                            <td> <%= format_date_text(suspension.date_suspension) %> </td>
+                            <td> <%= format_date_text(suspension.date_reprise) %></td>
+                            <td> <%= suspension.motif %> </td>
+                            <td> <%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></td>
+                          </tr>
+                        <% end %>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-                <div class="fr-grid-row fr-grid-row--gutters">
-                  <div class="fr-col-12 fr-col-lg-12">
-                    <div>Observations</div>
-                    <div class="fr-text--bold"><%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></div>
-                  </div>
-                </div>
-              <% end %>
+              </div>
             <% end %>
+
+            <div class="fr-h6 fr-my-3w">Proposition décision de contrôle</div>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-col-lg-6">
                 <div>Proposition de décision de contrôle</div>
@@ -324,7 +292,10 @@
               </div>
               <div class="fr-col-12 fr-col-lg-6">
                 <div>Auto-évaluation de la complexité de l'acte</div>
-                <div><p class="fr-tag"><%= @acte.complexite %>/5</p></div>
+                <div class="fr-text--bold">
+                  <% if @acte.complexite.present? %><p class="fr-tag"><%= @acte.complexite %>/5</p>
+                  <% else %>Non renseigné
+                  <% end %></div>
               </div>
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">

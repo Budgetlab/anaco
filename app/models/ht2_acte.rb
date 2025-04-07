@@ -96,7 +96,7 @@ class Ht2Acte < ApplicationRecord
     # Filtrer les actes dont la date limite est dans les 3 prochains jours
     actes.select do |acte|
       date_limite = acte.date_limite
-      date_limite.present? && date_limite >= Date.today && date_limite <= Date.today + 3.days
+      date_limite.present? && date_limite >= Date.today && date_limite <= Date.today + 5.days
     end.count
   end
 

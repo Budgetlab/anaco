@@ -101,6 +101,12 @@ h1, h2{
   --hover: var(--background-contrast-brown-cafe-creme-hover);
   --active: var(--background-contrast-brown-cafe-creme-active);
 }
+
+.fr-card-round--blue{
+  background-color: var(--background-alt-blue-france) !important;
+  padding: 8px 1rem;
+  border-radius: 20px;
+}
 .text_center{
   text-align:center
 }

@@ -31,7 +31,7 @@
             <% else %>n°<%= @acte.numero_utilisateur %>
             <% end %>
           </span>
-          <% if @acte.numero_chorus.present? %>
+          <% if @acte.numero_chorus.present? && ['DCB', 'CBR'].include?(current_user.statut)  %>
             <%= link_to new_ht2_acte_path(parent_id: @acte.dernier_acte_cloture_chorus), class: 'fr-btn' do %>
               Nouvelle saisine
             <% end %>
