@@ -13,7 +13,7 @@ more(Highcharts)
 
 export default class extends Controller {
   static get targets() {
-  return ['canvasAvis','canvasNotes1','canvasNotes2','canvasAvisDate','canvasNotesBar','canvasActeAvis', 'canvasActeVisa','canvasActeTF', 'canvasActeSuspension', 'canvasActeInstructeur', 'canvasActesMensuel'
+  return ['canvasAvis','canvasNotes1','canvasNotes2','canvasAvisDate','canvasNotesBar','canvasActeAvis', 'canvasActeVisa','canvasActeTF', 'canvasActeSuspension', 'canvasActeInstructeur', 'canvasActesMensuel', 'canvasSuspensionsDistribution'
   ];
   }
   connect() {
@@ -39,8 +39,22 @@ export default class extends Controller {
           const suspensionsData = JSON.parse(this.canvasActeSuspensionTarget.dataset.acteSuspensions);
           // Transformer les données en catégories et séries
           const { categories, series } = this.formatSuspensionsData(suspensionsData);
-          this.syntheseCol(colors, title, categories, series, target)
+          const title_x = "Type d'acte"
+          const title_y = "Nombre d'actes"
+          this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
 
+      }
+      if (this.hasCanvasSuspensionsDistributionTarget){
+          const colors = ["var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
+          const title = 'Suivi du nombre de suspensions/interruptions'
+          const target = this.canvasSuspensionsDistributionTarget;
+          // Récupérer et parser les données JSON
+          const suspensionsData = JSON.parse(this.canvasSuspensionsDistributionTarget.dataset.acteSuspdistrib);
+          // Transformer les données en catégories et séries
+          const { categories, series } = this.formatDistributionData(suspensionsData);
+          const title_x = 'Nombre de suspensions/interruptions'
+          const title_y = "Nombre d'actes"
+          this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
       }
       if (this.hasCanvasActeInstructeurTarget){
           const title = "Nombre d'actes traités par instructeur"
@@ -488,7 +502,7 @@ export default class extends Controller {
     }
 
 
-    syntheseCol(colors, title, categories, series, target){
+    syntheseCol(colors, title, categories, series, target, title_x, title_y){
         const options = {
             chart: {
 
@@ -520,11 +534,14 @@ export default class extends Controller {
                         color: 'var(--text-title-grey)',
                     },
                 },
+                title: {
+                    text: title_x,
+                },
             },
             yAxis: {
                 min: 0,
                 title: {
-                    text: '',
+                    text: title_y,
                 },
                 gridLineColor: 'var(--text-inverted-grey)',
             },
@@ -580,6 +597,20 @@ export default class extends Controller {
                 })
             };
         });
+
+        return { categories, series };
+    }
+    formatDistributionData(data) {
+        // Extraire les nombres de suspensions pour les catégories
+        const categories = data.map(item => item.nombre_suspensions.toString());
+
+        // Créer les séries pour le nombre d'actes
+        const series = [
+            {
+                name: 'Nombre d\'actes',
+                data: data.map(item => item.nombre_actes),
+            }
+        ];
 
         return { categories, series };
     }

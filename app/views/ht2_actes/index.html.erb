@@ -43,8 +43,8 @@
         <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
           <div class="fr-search-bar" role="search">
             <label class="fr-label" for="search-input"> Rechercher </label>
-            <%= f.search_field :numero_chorus_cont,
-                               placeholder: "Rechercher un acte par numéro Chorus",
+            <%= f.search_field :numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_cont,
+                               placeholder: "Rechercher un acte par n°Chorus, centre financier, instructeur, valideur",
                                class: "fr-input",
                                id: "search-input", oninput: 'this.form.requestSubmit()' %>
             <button class="fr-btn" title="Rechercher">Rechercher</button>

@@ -114,6 +114,7 @@ class Ht2ActesController < ApplicationController
     @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
     @actes_par_instructeur = @ht2_actes_clotures.group(:instructeur).count
     @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
+    @suspensions_distribution = calculate_suspensions_distribution(@ht2_actes_clotures)
   end
 
   private
@@ -179,10 +180,12 @@ class Ht2ActesController < ApplicationController
     # Pour chaque type d'acte (visa et avis)
     ['avis', 'visa', 'TF'].each do |type_acte|
       # Trouver tous les actes de ce type
-      actes = actes.where(type_acte: type_acte)
+      actes_type = actes.where(type_acte: type_acte)
 
       # Obtenir toutes les suspensions liées à ces actes
-      suspensions_ids = Suspension.where(ht2_acte_id: actes.pluck(:id)).pluck(:id)
+      suspensions_ids = Suspension.where(ht2_acte_id: actes_type.pluck(:id)).pluck(:id)
+
+      puts 'lll'
 
       # Compter les occurrences de chaque motif
       motifs_count = Suspension.where(id: suspensions_ids).group(:motif).count
@@ -228,5 +231,34 @@ class Ht2ActesController < ApplicationController
     end
 
     mois
+  end
+
+  def calculate_suspensions_distribution(actes)
+    # Compter le nombre de suspensions pour chaque acte
+    suspensions_par_acte = actes.map do |acte|
+      acte.suspensions.count
+    end
+
+    # Trouver le nombre maximum de suspensions pour un acte
+    max_suspensions = suspensions_par_acte.max || 0
+
+    # Préparer le hash pour compter les actes par nombre de suspensions
+    distribution = Hash.new(0)
+
+    # Compter les actes pour chaque nombre de suspensions
+    suspensions_par_acte.each do |count|
+      distribution[count] += 1
+    end
+
+    # Transformer en tableau pour tous les nombres de 0 à max_suspensions
+    result = []
+    (0..max_suspensions).each do |i|
+      result << {
+        nombre_suspensions: i,
+        nombre_actes: distribution[i]
+      }
+    end
+
+    result
   end
 end
