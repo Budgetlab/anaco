@@ -1,5 +1,5 @@
 <div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.numero_utilisateur %>, créé
-  le <%= l(acte.created_at, format: "%e/%m/%y") %>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %> </div>
+  le <%= l(acte.created_at, format: "%e/%m/%y") %><% if acte.etat == "clôturé" %>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %><%end %> </div>
 
 <% if acte.etat != "clôturé" %>
   <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
