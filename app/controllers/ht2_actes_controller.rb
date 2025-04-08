@@ -112,7 +112,7 @@ class Ht2ActesController < ApplicationController
     @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
     @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
-    @actes_par_instructeur = @ht2_actes_clotures.group(:instructeur).count
+    # @actes_par_instructeur = @ht2_actes_clotures.group(:instructeur).count
     @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
     @suspensions_distribution = calculate_suspensions_distribution(@ht2_actes_clotures)
   end
