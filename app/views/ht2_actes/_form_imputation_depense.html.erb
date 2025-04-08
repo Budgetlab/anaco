@@ -8,7 +8,25 @@
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">Informations</span>
+              <span class="fr-notice__title"></span>
+              <span class="fr-notice__desc">
+                <% if @acte.type_acte == 'TF' %>
+                  Le contrôle de l’imputation de la tranche fonctionnelle nécessite notamment un examen des points suivants :<br><br>
+• vérification du choix du centre financier : UO pour les affectations et retraits d’affectation de l’année courante ; BOP pour la restitution des AE issues de retraits d’affectation des années antérieures.<br>
+• à titre exceptionnel, les retraits d’affectation d’AE d’années antérieures peuvent être recyclées sur autorisation expresse du contrôleur budgétaire : lorsque le retrait a été effectué en vue de corriger une erreur d’imputation budgétaire lors de l’affectation ;<br><br>
+Référence documentaire : Guide pratique du budgétaire dans chorus
+                <% else  %>
+                Le contrôle de l’imputation de la dépense nécessite notamment un examen des points suivants :<br><br>
+• vérification du respect du principe de spécialité du programme. Les éléments présentés dans le projet annuel de performance doivent permettre d’apprécier ce principe;<br>
+• vérification du choix du centre financier (BOP/UO);<br>
+• vérification de la bonne application des nomenclatures d’imputation, notamment la nomenclature par activité, action, sous-action (la charte de gestion du programme peut donner des indications), titre, catégorie le groupe marchandise, le compte PCE;<br>
+• vérification du code fonds en cas de dépenses sur crédits issus de fonds de concours;<br>
+• vérification de l’imputation sur le bon axe ministériel;<br>
+• vérification de la concordance avec les éléments des pièces justificatives transmises par l’ordonnateur;<br><br>
+Des échanges avec le comptable peuvent être utiles s’agissant du contrôle des imputations comptables.<br>
+                  Référence documentaire: RRCBE
+                <% end %>
+              </span>
             </p>
           </div>
         </div>
