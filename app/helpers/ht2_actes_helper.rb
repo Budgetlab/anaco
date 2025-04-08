@@ -5,7 +5,7 @@ module Ht2ActesHelper
       'fr-badge fr-badge--success fr-badge--no-icon'
     when 'Favorable avec observations', 'Visa accordé avec observations'
       'fr-badge fr-badge--green-menthe'
-    when 'Défavorable'
+    when 'Défavorable', 'Refus de visa'
       'fr-badge fr-badge--error fr-badge--no-icon'
     when 'Saisine a posteriori'
       'fr-badge fr-badge--beige-gris-galet'

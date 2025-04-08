@@ -2,19 +2,19 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="annee" class="fr-label">Année*</label>
-        <%= f.number_field :annee, class: "fr-input", min: 2000, max: 2100, step: 1, placeholder: "YYYY", required: true  %>
+        <label for="annee" class="fr-label">Année</label>
+        <%= f.number_field :annee, class: "fr-input", min: 2000, max: 2100, step: 1, placeholder: "AAAA", required: true  %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="echeancier_ae" class="fr-label">Montant en AE*</label>
+        <label for="echeancier_ae" class="fr-label">Montant en AE</label>
         <%= f.text_field :montant_ae, id: "echeancier_ae", class: "fr-input", required: true , data: {action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="echeancier_cp" class="fr-label">Montant en CP*</label>
+        <label for="echeancier_cp" class="fr-label">Montant en CP</label>
         <%= f.text_field :montant_cp, id: "echeancier_cp", class: "fr-input", required: true , data: {action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
       </div>
     </div>
