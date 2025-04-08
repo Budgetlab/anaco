@@ -205,8 +205,11 @@ class Ht2Acte < ApplicationRecord
     # Récupérer tous les actes en cours ayant les dates nécessaires
     actes = where(etat: ["en cours d'instruction", 'en attente de validation'])
 
-    # Compter les actes dont le délai de traitement dépasse le seuil
-    actes.count { |acte| acte.delai_traitement > seuil }
+    # Compter les actes dont le délai de traitement dépasse le seuil (dépasse date limite)
+    actes.select do |acte|
+      date_limite = acte.date_limite
+      date_limite.present? && date_limite < Date.today
+    end.count
   end
 
   # Méthode pour compter les actes clôturés avec délai > 15 jours
