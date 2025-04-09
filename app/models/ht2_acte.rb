@@ -9,6 +9,7 @@ class Ht2Acte < ApplicationRecord
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank?}, allow_destroy: true
   before_save :set_etat_acte
   before_save :calculate_date_limite
+  before_create :set_numero_utilisateur
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|
     attachable.image_processing_options = {
@@ -56,7 +57,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur","objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
@@ -76,7 +77,7 @@ class Ht2Acte < ApplicationRecord
     self.date_limite = calculate_date_limite_value
   end
   def calculate_date_limite_value
-    if suspensions.exists?
+    if suspensions.exists? && date_chorus.present?
       total_suspension_days = suspensions.sum do |suspension|
         if suspension.date_reprise.present?
           (suspension.date_reprise - suspension.date_suspension).to_i
@@ -98,7 +99,7 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
-
+  # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
     where(etat: ["en cours d'instruction", 'en attente de validation'])
       .where.not(date_limite: nil)
@@ -107,7 +108,7 @@ class Ht2Acte < ApplicationRecord
       .count
   end
 
-  # Méthode pour compter les actes en cours avec date limite dépassée
+  # Méthode pour compter les actes en cours hors délai
   def self.count_current_with_long_delay
     where(etat: ["en cours d'instruction", 'en attente de validation'])
       .where.not(date_limite: nil)
@@ -115,6 +116,7 @@ class Ht2Acte < ApplicationRecord
       .count
   end
 
+  # Methode pour regrouper tous les actes avec le même numéro chorus
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
     Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
@@ -134,7 +136,6 @@ class Ht2Acte < ApplicationRecord
   def numero_utilisateur
     # Récupère tous les actes de l'utilisateur triés par ID
     actes_utilisateur = user.ht2_actes.order(:id)
-
     # Trouve l'index de l'acte actuel et ajoute 1 pour avoir un numéro commençant par 1
     actes_utilisateur.index(self) + 1
   end
@@ -175,7 +176,6 @@ class Ht2Acte < ApplicationRecord
     # Retourner la moyenne arrondie à l'entier le plus proche
     count_suspensions > 0 ? (somme_durees.to_f / count_suspensions).round : 0
   end
-
 
   # Calcule le délai de traitement pour un acte spécifique
   def delai_traitement
@@ -247,5 +247,13 @@ class Ht2Acte < ApplicationRecord
     elsif !etat.present? || etat == "en pré-instruction"
       self.etat = "en cours d'instruction"
     end
+  end
+
+  # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur
+  def set_numero_utilisateur
+    # Trouver le plus grand numéro actuellement utilisé pour cet utilisateur
+    derniere_valeur = user.ht2_actes.maximum(:numero_utilisateur) || 0
+    # Incrémenter pour le nouvel acte
+    self.numero_utilisateur = derniere_valeur + 1
   end
 end

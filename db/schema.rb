@@ -225,7 +225,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_091821) do
     t.datetime "updated_at", null: false
     t.date "date_cloture"
     t.date "date_limite"
+    t.integer "numero_utilisateur"
     t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
+    t.index ["numero_utilisateur"], name: "index_ht2_actes_on_numero_utilisateur"
     t.index ["user_id"], name: "index_ht2_actes_on_user_id"
   end
 

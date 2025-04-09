@@ -4,6 +4,10 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
+    Ht2Acte.all.each do |acte|
+      acte.update(numero_utilisateur: acte.numero_utilisateur)
+    end
+
     @statut_user = current_user.statut
     @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
@@ -134,7 +138,7 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
                                      :commentaire_consommation_credits, :commentaire_programmation, :valideur, :date_cloture,
-                                     :decision_finale, type_observations: [],
+                                     :decision_finale, :numero_utilisateur, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
@@ -148,14 +152,16 @@ class Ht2ActesController < ApplicationController
     if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
       @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+      @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Dotation en fonds propres", "Liste d'actes", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges d'investissement", "Transaction", "Transfert", "Autre"]
+      @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
       @liste_natures = ["Affectation initiale","Affectation complémentaire","Retrait"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+      @liste_types_observations = ["Compatibilité avec la programmation", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     end
-    @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Evaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
   end
 
