@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_03_094011) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_09_091821) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -224,6 +224,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_03_094011) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "date_cloture"
+    t.date "date_limite"
+    t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
     t.index ["user_id"], name: "index_ht2_actes_on_user_id"
   end
 

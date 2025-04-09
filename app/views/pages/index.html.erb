@@ -97,7 +97,7 @@
                       <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en attente de validation"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_en_attente_validation %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes en attente de validation</p>
                         </div>
                       </div>
@@ -106,7 +106,7 @@
                       <%= image_tag "artwork/pictograms/system/technical-error.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en cours d'instruction"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_en_cours %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes en cours d'instruction</p>
                         </div>
                       </div>
@@ -126,7 +126,7 @@
                       <%= image_tag "artwork/pictograms/digital/search.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["en pré-instruction"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_pre_instruction %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes en <br>pré-instruction</p>
                         </div>
                       </div>
@@ -135,7 +135,7 @@
                       <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.where(etat: ["suspendu"]).count %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_suspendu %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus à date</p>
                         </div>
                       </div>
@@ -150,7 +150,7 @@
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
                             <%= link_to ht2_actes_path do %>
-                              Consulter<% if current_user.statut == "admin" %> les<% else %>/ajouter mes<% end %> actes
+                              Consulter<% if @statut_user == "admin" %> les<% else %>/ajouter mes<% end %> actes
                             <% end %>
                           </h3>
                         </div>

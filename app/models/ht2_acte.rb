@@ -4,10 +4,11 @@ class Ht2Acte < ApplicationRecord
   has_many :suspensions, dependent: :destroy
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
-  accepts_nested_attributes_for :poste_lignes, reject_if: :all_blank, allow_destroy: true
-  accepts_nested_attributes_for :suspensions, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank?}, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank?}, allow_destroy: true
   before_save :set_etat_acte
+  before_save :calculate_date_limite
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|
     attachable.image_processing_options = {
@@ -34,6 +35,11 @@ class Ht2Acte < ApplicationRecord
     }
   end
 
+  scope :en_attente_validation, -> { where(etat: ["en attente de validation"]) }
+  scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
+  scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
+  scope :suspendus, -> { where(etat: ["suspendu"]) }
+
   def duplicate_with_rich_text
     # Dupliquer l'acte de base
     new_acte = self.dup
@@ -50,7 +56,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
@@ -66,8 +72,10 @@ class Ht2Acte < ApplicationRecord
   def last_suspension
     suspensions.order(created_at: :desc).first
   end
-
-  def date_limite
+  def calculate_date_limite
+    self.date_limite = calculate_date_limite_value
+  end
+  def calculate_date_limite_value
     if suspensions.exists?
       total_suspension_days = suspensions.sum do |suspension|
         if suspension.date_reprise.present?

@@ -18,11 +18,30 @@ class PagesController < ApplicationController
       @avis_repartition = avis_repartition(@avis_remplis, @avis_total, 'début de gestion')
     elsif @phase == 'CRG1'
       @notes_crg1 = notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1')
-    elsif @phse == 'CRG2'
+    elsif @phase == 'CRG2'
       @notes_crg2 = notes_repartition(@avis_remplis, @avis_total, 'CRG2')
     end
 
+    Ht2Acte.includes(:suspensions).find_each do |acte|
+      # Utiliser la méthode existante pour calculer la date_limite
+      date_limite_value = acte.calculate_date_limite_value
+
+      # Mettre à jour la colonne date_limite_calculee
+      if date_limite_value.present?
+        acte.update_column(:date_limite, date_limite_value)
+      end
+    end
+
+
     @ht2_actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
+    counts = @ht2_actes.group(:etat).count
+    # Optimisation 4: Précalculer les valeurs utilisées plusieurs fois dans la vue
+    @ht2_echeance_courte = @ht2_actes.echeance_courte
+    @ht2_long_delay = @ht2_actes.count_current_with_long_delay
+    @ht2_en_attente_validation = counts["en attente de validation"] || 0
+    @ht2_en_cours = counts["en cours d'instruction"] || 0
+    @ht2_pre_instruction = counts["en pré-instruction"] || 0
+    @ht2_suspendu = counts["suspendu"] || 0
   end
 
   def global_search

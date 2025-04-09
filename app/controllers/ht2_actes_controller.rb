@@ -124,7 +124,7 @@ class Ht2ActesController < ApplicationController
 
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
-                                     :pre_instruction, :action, :sous_action, :activite, :numero_tf,
+                                     :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,

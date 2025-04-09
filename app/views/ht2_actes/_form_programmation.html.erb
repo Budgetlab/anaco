@@ -8,7 +8,16 @@
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">Informations à venir</span>
+              <span class="fr-notice__title"></span>
+              <span class="fr-notice__desc">
+                La programmation est celle présentée par le RPROG ou le RBOP à l’occasion du début de la gestion, le cas échéant actualisée en cours d’année notamment à l’occasion des CRG. Elle porte sur l’année en cours et l’année suivante.<br>
+Elle est en principe effectuée à la maille de l’activité. En cas d’impossibilité de disposer de données suffisamment actualisées à cette maille, il est possible de l’apprécier à une maille un peu plus large (brique par exemple) à la condition que les données présentées restent cohérentes.<br>
+La liste des principaux actes de gestion permet de contrôler la cohérence de leur prise en compte dans la programmation des dépenses.<br>
+Le contrôleur est fondé à solliciter une actualisation de la programmation et de la liste des actes de gestion s’il apparait qu’une demande d’avis ou de visa n’est pas compatible avec la programmation. Le RPROG ou le RBOP doit alors fournir les éléments permettant d’apprécier cette compatibilité (modification de la ressource permettant d’envisager une nouvelle dépense, repriorisation de certaines dépenses, identification d’économies dument documentées, etc.).<br>
+La pluriannualité s’apprécie à travers la communication d’une chronique d’AE et CP cohérente par l’ordonnateur compatible avec les informations fournies en programmation. Le contrôleur est fondé à demander une documentation précise de ces chroniques d’AE et CP. Si un engagement donne lieu à une trajectoire pluriannuelle de décaissements de CP significatifs et peu pilotables dépassant les 2 années prévues en programmation, il est fondé à signaler ce risque de soutenabilité dans ses observations ainsi qu’au BS.<br>
+La période de la fin de gestion est particulièrement sensible dans la mesure où le schéma de fin de gestion n’est pas toujours stabilisé suffisamment tôt pour s’assurer de la soutenabilité de certaines dépenses de fin d’année. De même la publication d’un DA de fin de gestion ou la promulgation d’une LFR ou d’une LFG peuvent s’avérer assez tardives. Le contrôleur doit solliciter toute information lui permettant d’étayer son analyse de la soutenabilité, au besoin à travers d’échanges entre le DCB/CBR, le RPROG/RBOP/RFFIM, le BS.
+
+              </span>
             </p>
           </div>
         </div>
@@ -35,7 +44,7 @@
       </div>
       <div class="fr-input-group" data-controller="trix">
         <label for="commentaire_programmation" class="fr-label">Observations et pièce justificative
-          <span class="fr-hint-text">Pour les pièces justificatives, seules les images sont autorisées.</span>
+          <span class="fr-hint-text">Pour les pièces justificatives, seules les images, captures d'écran sont autorisées.</span>
         </label>
         <%= f.rich_text_area :commentaire_programmation,direct_upload: true , class: 'trix-content-form' %>
       </div>
