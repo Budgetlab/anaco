@@ -100,12 +100,19 @@ class Ht2Acte < ApplicationRecord
 
 
   def self.echeance_courte
-    actes = where(etat: ["en cours d'instruction",'en attente de validation'])
-    # Filtrer les actes dont la date limite est dans les 3 prochains jours
-    actes.select do |acte|
-      date_limite = acte.date_limite
-      date_limite.present? && date_limite >= Date.today && date_limite <= Date.today + 5.days
-    end.count
+    where(etat: ["en cours d'instruction", 'en attente de validation'])
+      .where.not(date_limite: nil)
+      .where("date_limite >= ?", Date.today)
+      .where("date_limite <= ?", Date.today + 5.days)
+      .count
+  end
+
+  # Méthode pour compter les actes en cours avec date limite dépassée
+  def self.count_current_with_long_delay
+    where(etat: ["en cours d'instruction", 'en attente de validation'])
+      .where.not(date_limite: nil)
+      .where("date_limite < ?", Date.today)
+      .count
   end
 
   def tous_actes_meme_chorus
@@ -206,18 +213,6 @@ class Ht2Acte < ApplicationRecord
       # Si type inconnu, retourner le délai total
       delai_total
     end
-  end
-
-  # Méthode pour compter les actes en cours avec délai > 15 jours
-  def self.count_current_with_long_delay(seuil = 15)
-    # Récupérer tous les actes en cours ayant les dates nécessaires
-    actes = where(etat: ["en cours d'instruction", 'en attente de validation'])
-
-    # Compter les actes dont le délai de traitement dépasse le seuil (dépasse date limite)
-    actes.select do |acte|
-      date_limite = acte.date_limite
-      date_limite.present? && date_limite < Date.today
-    end.count
   end
 
   # Méthode pour compter les actes clôturés avec délai > 15 jours

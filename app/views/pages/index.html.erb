@@ -88,7 +88,7 @@
                       <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.echeance_courte %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_echeance_courte %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance < 5 jours</p>
                         </div>
                       </div>
@@ -117,7 +117,7 @@
                       <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes.count_current_with_long_delay %></p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_long_delay %></p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes en cours dont le délai > 15 jours</p>
                         </div>
                       </div>
