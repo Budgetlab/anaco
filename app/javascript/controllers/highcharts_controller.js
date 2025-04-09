@@ -87,16 +87,16 @@ export default class extends Controller {
       const notes2 = JSON.parse(this.data.get("notes2"));
       const avisdate = JSON.parse(this.data.get("avisdate"));
       const notesbar = JSON.parse(this.data.get("notesbar"));
-      if (notes1 != null && notes1.length > 0) {
+      if (notes1 != null && notes1.length > 0 && this.hasCanvasNotes1Target) {
           this.syntheseChart('notes1')
       }
-      if (notes2 != null && notes2.length > 0) {
+      if (notes2 != null && notes2.length > 0 && this.hasCanvasNotes2Target) {
           this.syntheseChart('notes2')
       }
-      if (avisdate != null && avisdate.length > 0){
+      if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget){
           this.syntheseAvisDate();
       }
-      if (notesbar != null && notesbar.length > 0){
+      if (notesbar != null && notesbar.length > 0 && this.hasCanvasNotesBarTarget){
           this.syntheseNotesBar();
       }
   }

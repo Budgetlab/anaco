@@ -106,8 +106,13 @@ class Ht2ActesController < ApplicationController
   end
 
   def synthese
+    # chargement des actes en fonction du profil
     @ht2_actes = current_user.statut == 'admin' ? Ht2Acte : current_user.ht2_actes
+    # Précharger les associations nécessaires
+    @ht2_actes = @ht2_actes.includes(:suspensions)
+    # Réutiliser la même scope pour les actes clôturés
     @ht2_actes_clotures = @ht2_actes.where(etat: 'clôturé')
+    # graphes
     @ht2_avis_decisions = @ht2_actes_clotures.where(type_acte: 'avis').group(:decision_finale).count
     @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
@@ -184,8 +189,6 @@ class Ht2ActesController < ApplicationController
 
       # Obtenir toutes les suspensions liées à ces actes
       suspensions_ids = Suspension.where(ht2_acte_id: actes_type.pluck(:id)).pluck(:id)
-
-      puts 'lll'
 
       # Compter les occurrences de chaque motif
       motifs_count = Suspension.where(id: suspensions_ids).group(:motif).count

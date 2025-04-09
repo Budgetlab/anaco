@@ -1,7 +1,7 @@
 <% content_for :title do %> Accueil | ANACO
 <% end %>
 <main>
-  <% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
+  <% if @statut_user == "CBR" || @statut_user == "DCB" %>
     <%= render 'notice' %>
   <% end %>
   <div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= @avis_repartition %>" data-highcharts-notes1="<%= @notes_crg1 %>" data-highcharts-notes2="<%= @notes_crg2 %>">
@@ -10,24 +10,6 @@
         <h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom %></h1>
       </div>
     </div>
-
-    <% if @phase == 'services votés' %>
-      <div class="fr-notice fr-notice--warning fr-mb-4w">
-        <div class="fr-container">
-          <div class="fr-notice__body">
-            <p>
-              <span class="fr-notice__title">Au regard du contexte actuel, les avis de début de gestion ne sont pas encore ouverts.</span>
-              <% if current_user.statut != 'admin' %>
-                <span class="fr-notice__desc">Vous pouvez cependant remplir un avis sur la prévision de dépenses au titre des services votés en cliquant sur le lien ci-dessous :</span>
-                <%= link_to remplissage_avis_path, target: "_self", class: "fr-notice__link" do %>Remplir un avis sur la
-                  prévision des dépenses
-                <% end %>
-              <% end %>
-            </p>
-          </div>
-        </div>
-      </div>
-    <% end %>
 
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
       <div class="fr-col-12 fr-col-lg-12">
@@ -118,7 +100,7 @@
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
                           <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_long_delay %></p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours dont le délai > 15 jours</p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours <br>hors délai</p>
                         </div>
                       </div>
                     </div>

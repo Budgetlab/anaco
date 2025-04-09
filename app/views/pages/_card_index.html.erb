@@ -6,7 +6,7 @@
         <div>
           <p class="fr-badge fr-badge--purple-glycine fr-mb-1w"><%= phase %></p>
           <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(date_ouverture, format: "%e %B") %>
-            au <%= I18n.localize(date_fermeture, format: "%e %B") %></p>
+            au <%= I18n.localize(date_fermeture, format: "%e %B %Y") %></p>
         </div>
 
         <% if @statut_user == "DCB" %>
