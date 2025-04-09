@@ -4,10 +4,6 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
-    Ht2Acte.all.each do |acte|
-      acte.update(numero_utilisateur: acte.numero_utilisateur)
-    end
-
     @statut_user = current_user.statut
     @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
