@@ -144,44 +144,6 @@ class Ht2Acte < ApplicationRecord
     count_suspensions > 0 ? (somme_durees.to_f / count_suspensions).round : 0
   end
 
-  # Calcule le délai de traitement pour un acte clôturé
-  def delai_traitement
-    # Vérifier que l'acte est clôturé et a les dates nécessaires
-    return 0 unless etat == 'clôturé' && date_chorus.present? && date_cloture.present?
-
-    delai_total = (date_cloture.to_date - date_chorus.to_date).to_i
-
-    # Si pas de suspension, retourne simplement le délai total
-    return delai_total if suspensions.empty?
-
-    # Traitement différent selon le type d'acte
-    if type_acte == 'avis'
-      # Pour les avis, soustraire la durée de chaque suspension
-      duree_suspensions = suspensions.sum do |suspension|
-        if suspension.date_suspension.present? && suspension.date_reprise.present?
-          (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
-        else
-          0
-        end
-      end
-
-      # Délai total moins durée des suspensions
-      [delai_total - duree_suspensions, 0].max
-    elsif type_acte == 'visa' || type_acte == 'TF'
-      # Pour les visas, prendre le délai entre la dernière reprise et la clôture
-      derniere_suspension = suspensions.order(date_reprise: :desc).first
-
-      if derniere_suspension&.date_reprise.present?
-        (date_cloture.to_date - derniere_suspension.date_reprise.to_date).to_i
-      else
-        delai_total
-      end
-    else
-      # Si type inconnu, retourner le délai total
-      delai_total
-    end
-  end
-
   # Méthode pour compter les actes clôturés avec délai > 15 jours
   def self.count_with_long_delay(seuil = 15)
     count { |acte| acte.delai_traitement > seuil }

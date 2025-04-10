@@ -4,9 +4,6 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
-    Ht2Acte.where(etat: 'clôturé').each do |acte|
-      acte.update(delai_traitement: acte.delai_traitement)
-    end
     @statut_user = current_user.statut
     @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
@@ -75,7 +72,7 @@ class Ht2ActesController < ApplicationController
     if @acte.update(ht2_acte_params)
       associate_centre_financier(@acte)
       @acte.update(date_cloture: Date.today) if @etape == 8
-      set_delai_traitement(@ht2_acte) if @acte.etat == 'clôturé'
+      set_delai_traitement(@acte) if @acte.etat == 'clôturé'
       path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       @message = "Acte #{@acte.etat} enregistré avec succès."
       redirect_to path, notice: @message
