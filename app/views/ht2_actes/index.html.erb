@@ -63,8 +63,8 @@
     <% if ['DCB', 'CBR'].include?(@statut_user) %>
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-12">
-          <h2 class="fr-mt-6w">Actes en pré-instruction [<%= @actes_pre_instruction_all.length %>]</h2>
-          <% if @actes_pre_instruction.length > 0 %>
+          <h2 class="fr-mt-6w">Actes en pré-instruction [<%= @actes_pre_instruction_all.count %>]</h2>
+          <% if @actes_pre_instruction.present? %>
             <div class="fr-table--lg fr-table fr-table--no-caption">
               <div class="fr-table__wrapper">
                 <div class="fr-table__container">
@@ -109,7 +109,7 @@
               </div>
               <div class="fr-table__footer">
                 <div class="fr-table__footer--start">
-                  <p class="fr-table__detail"><%= pluralize(@actes_pre_instruction_all.length, 'résultat', plural: 'résultats') %></p>
+                  <p class="fr-table__detail"><%= pluralize(@actes_pre_instruction_all.count, 'résultat', plural: 'résultats') %></p>
                   <div class="fr-select-group">
                     <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                       Nombre de lignes par page
@@ -128,8 +128,8 @@
 
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-12">
-          <h2 class="fr-mt-2w">Actes en cours d'instruction [<%= @actes_instruction_all.length %>]</h2>
-          <% if @actes_instruction.length > 0 %>
+          <h2 class="fr-mt-2w">Actes en cours d'instruction [<%= @actes_instruction_all.count %>]</h2>
+          <% if @actes_instruction.present? %>
             <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
               <div class="fr-table__wrapper">
                 <div class="fr-table__container">
@@ -180,7 +180,7 @@
               </div>
               <div class="fr-table__footer">
                 <div class="fr-table__footer--start">
-                  <p class="fr-table__detail"><%= pluralize(@actes_instruction_all.length, 'résultat', plural: 'résultats') %></p>
+                  <p class="fr-table__detail"><%= pluralize(@actes_instruction_all.count, 'résultat', plural: 'résultats') %></p>
                   <div class="fr-select-group">
                     <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                       Nombre de lignes par page
@@ -198,8 +198,8 @@
       </div>
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-12">
-          <h2 class="fr-mt-2w">Actes suspendus/interrompus [<%= @actes_suspendu_all.length %>]</h2>
-          <% if @actes_suspendu.length > 0 %>
+          <h2 class="fr-mt-2w">Actes suspendus/interrompus [<%= @actes_suspendu_all.count %>]</h2>
+          <% if @actes_suspendu.present? %>
             <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
               <div class="fr-table__wrapper">
                 <div class="fr-table__container">
@@ -241,7 +241,7 @@
               </div>
               <div class="fr-table__footer">
                 <div class="fr-table__footer--start">
-                  <p class="fr-table__detail"><%= pluralize(@actes_suspendu_all.length, 'résultat', plural: 'résultats') %></p>
+                  <p class="fr-table__detail"><%= pluralize(@actes_suspendu_all.count, 'résultat', plural: 'résultats') %></p>
                   <div class="fr-select-group">
                     <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                       Nombre de lignes par page
@@ -260,8 +260,8 @@
 
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-12">
-          <h2 class="fr-mt-2w">Actes en attente de validation [<%= @actes_validation_all.length %>]</h2>
-          <% if @actes_validation.length > 0 %>
+          <h2 class="fr-mt-2w">Actes en attente de validation [<%= @actes_validation_all.count %>]</h2>
+          <% if @actes_validation.present? %>
             <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
               <div class="fr-table__wrapper">
                 <div class="fr-table__container">
@@ -311,7 +311,7 @@
               </div>
               <div class="fr-table__footer">
                 <div class="fr-table__footer--start">
-                  <p class="fr-table__detail"><%= pluralize(@actes_validation_all.length, 'résultat', plural: 'résultats') %></p>
+                  <p class="fr-table__detail"><%= pluralize(@actes_validation_all.count, 'résultat', plural: 'résultats') %></p>
                   <div class="fr-select-group">
                     <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                       Nombre de lignes par page
@@ -334,8 +334,8 @@
 
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes clôturés [<%= @actes_cloture_all.length %>]</h2>
-        <% if @actes_cloture.length > 0 %>
+        <h2 class="fr-mt-2w">Actes clôturés [<%= @actes_cloture_all.count %>]</h2>
+        <% if @actes_cloture.present? %>
           <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
@@ -391,7 +391,7 @@
             </div>
             <div class="fr-table__footer">
               <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_cloture_all.length, 'résultat', plural: 'résultats') %></p>
+                <p class="fr-table__detail"><%= pluralize(@actes_cloture_all.count, 'résultat', plural: 'résultats') %></p>
                 <div class="fr-select-group">
                   <label class="fr-sr-only fr-label" for="table-footer-select-7847">
                     Nombre de lignes par page

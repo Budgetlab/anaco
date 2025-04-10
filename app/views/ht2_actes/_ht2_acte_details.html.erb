@@ -260,7 +260,7 @@
     </section>
   </div>
 
-  <% if acte.suspensions.count > 0 %>
+  <% if acte.suspensions.present? %>
     <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
     <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
     <div class="fr-table fr-table--no-caption">
@@ -285,7 +285,7 @@
                   <td> <%= format_date_text(suspension.date_suspension) %> </td>
                   <td> <%= format_date_text(suspension.date_reprise) %></td>
                   <td> <%= suspension.motif %> </td>
-                  <td> <%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></td>
+                  <td> <%= format_value(suspension.observations) %></td>
                 </tr>
               <% end %>
               </tbody>

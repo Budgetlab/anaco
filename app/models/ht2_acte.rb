@@ -57,7 +57,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur","objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale","delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur","objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
@@ -72,31 +72,6 @@ class Ht2Acte < ApplicationRecord
 
   def last_suspension
     suspensions.order(created_at: :desc).first
-  end
-  def calculate_date_limite
-    self.date_limite = calculate_date_limite_value
-  end
-  def calculate_date_limite_value
-    if suspensions.exists? && date_chorus.present?
-      total_suspension_days = suspensions.sum do |suspension|
-        if suspension.date_reprise.present?
-          (suspension.date_reprise - suspension.date_suspension).to_i
-        else
-          0
-        end
-      end
-      if type_acte == 'avis'
-        date_chorus + 15.days + total_suspension_days
-      elsif type_acte == 'visa' || type_acte == 'TF'
-        if last_suspension&.date_reprise.present?
-          last_suspension.date_reprise + 15.days
-        else
-          date_chorus + 15.days
-        end
-      end
-    elsif date_chorus.present?
-      date_chorus + 15.days
-    end
   end
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
@@ -169,7 +144,7 @@ class Ht2Acte < ApplicationRecord
     count_suspensions > 0 ? (somme_durees.to_f / count_suspensions).round : 0
   end
 
-  # Calcule le délai de traitement pour un acte spécifique
+  # Calcule le délai de traitement pour un acte clôturé
   def delai_traitement
     # Vérifier que l'acte est clôturé et a les dates nécessaires
     return 0 unless etat == 'clôturé' && date_chorus.present? && date_cloture.present?
@@ -247,5 +222,32 @@ class Ht2Acte < ApplicationRecord
     derniere_valeur = user.ht2_actes.maximum(:numero_utilisateur) || 0
     # Incrémenter pour le nouvel acte
     self.numero_utilisateur = derniere_valeur + 1
+  end
+
+  # Methode pour mettre à jour la date limite
+  def calculate_date_limite
+    self.date_limite = calculate_date_limite_value
+  end
+  def calculate_date_limite_value
+    if suspensions.exists? && date_chorus.present?
+      total_suspension_days = suspensions.sum do |suspension|
+        if suspension.date_reprise.present?
+          (suspension.date_reprise - suspension.date_suspension).to_i
+        else
+          0
+        end
+      end
+      if type_acte == 'avis'
+        date_chorus + 15.days + total_suspension_days
+      elsif type_acte == 'visa' || type_acte == 'TF'
+        if last_suspension&.date_reprise.present?
+          last_suspension.date_reprise + 15.days
+        else
+          date_chorus + 15.days
+        end
+      end
+    elsif date_chorus.present?
+      date_chorus + 15.days
+    end
   end
 end

@@ -4,19 +4,22 @@ class Ht2ActesController < ApplicationController
   before_action :set_variables_form, only: [:edit, :validate_acte]
 
   def index
+    Ht2Acte.where(etat: 'clôturé').each do |acte|
+      acte.update(delai_traitement: acte.delai_traitement)
+    end
     @statut_user = current_user.statut
     @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q])
     filtered_actes = @q.result(distinct: true)
-    @actes_pre_instruction_all = filtered_actes&.where(etat: 'en pré-instruction')
+    @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
     @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
-    @actes_instruction_all = filtered_actes&.where(etat: "en cours d'instruction")
+    @actes_instruction_all = filtered_actes.where(etat: "en cours d'instruction")
     @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
-    @actes_validation_all = filtered_actes&.where(etat: 'en attente de validation')
+    @actes_validation_all = filtered_actes.where(etat: 'en attente de validation')
     @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
-    @actes_cloture_all = filtered_actes&.where(etat: 'clôturé')
+    @actes_cloture_all = filtered_actes.where(etat: 'clôturé')
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
-    @actes_suspendu_all = filtered_actes&.where(etat: 'suspendu')
+    @actes_suspendu_all = filtered_actes.where(etat: 'suspendu').includes(:suspensions)
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
 
     respond_to do |format|
@@ -72,6 +75,7 @@ class Ht2ActesController < ApplicationController
     if @acte.update(ht2_acte_params)
       associate_centre_financier(@acte)
       @acte.update(date_cloture: Date.today) if @etape == 8
+      set_delai_traitement(@ht2_acte) if @acte.etat == 'clôturé'
       path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       @message = "Acte #{@acte.etat} enregistré avec succès."
       redirect_to path, notice: @message
@@ -81,7 +85,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def show
-    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.order(created_at: :asc) : [@acte]
+    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(created_at: :asc) : [@acte]
     @acte_courant = @acte
   end
 
@@ -134,7 +138,7 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
                                      :commentaire_consommation_credits, :commentaire_programmation, :valideur, :date_cloture,
-                                     :decision_finale, :numero_utilisateur, type_observations: [],
+                                     :decision_finale, :numero_utilisateur, :delai_traitement, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
@@ -265,5 +269,45 @@ class Ht2ActesController < ApplicationController
     end
 
     result
+  end
+
+  def set_delai_traitement(acte)
+    # S'assurer que les dates nécessaires sont présentes
+    if acte.etat == 'clôturé' && acte.date_chorus.present? && acte.date_cloture.present?
+      # Calculer la durée totale en jours
+      delai_total = (acte.date_cloture.to_date - acte.date_chorus.to_date).to_i
+
+      # Calculer le délai en fonction du type d'acte et des suspensions
+      delai_final = if acte.suspensions.empty?
+                      delai_total
+                    elsif acte.type_acte == 'avis'
+                      # Pour les avis, soustraire la durée de chaque suspension
+                      duree_suspensions = acte.suspensions.sum do |suspension|
+                        if suspension.date_suspension.present? && suspension.date_reprise.present?
+                          (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
+                        else
+                          0
+                        end
+                      end
+
+                      # Délai total moins durée des suspensions
+                      [delai_total - duree_suspensions, 0].max
+                    elsif acte.type_acte == 'visa' || acte.type_acte == 'TF'
+                      # Pour les visas, prendre le délai entre la dernière reprise et la clôture
+                      derniere_suspension = acte.suspensions.order(date_reprise: :desc).first
+
+                      if derniere_suspension&.date_reprise.present?
+                        (acte.date_cloture.to_date - derniere_suspension.date_reprise.to_date).to_i
+                      else
+                        delai_total
+                      end
+                    else
+                      # Si type inconnu, retourner le délai total
+                      delai_total
+                    end
+
+      # Mettre à jour la colonne delai_traitement sans déclencher les callbacks
+      acte.update_column(:delai_traitement, delai_final)
+    end
   end
 end
