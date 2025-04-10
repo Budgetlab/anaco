@@ -46,7 +46,6 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Date création',
     'Nature',
     'Montant engagé',
-    'Montant global', # Colonne supplémentaire pour les visas
     'Centre financier',
     'Numéro Chorus',
     'Date réception Chorus',
@@ -78,7 +77,6 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.created_at,
       acte.nature,
       acte.montant_ae,
-      acte.montant_global, # Ajout du montant global pour les visas
       acte.centre_financier_code,
       acte.numero_chorus,
       acte.date_chorus,
@@ -128,7 +126,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Instructeur',
     'Date création',
     'Nature',
-    'Montant',
+    'Montant estimatif global',
     'Centre financier',
     'Numéro Chorus',
     'Date réception Chorus',
@@ -205,7 +203,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Instructeur',
     'Date création',
     "Type d'affectation",
-    'Montant global affecté',
+    'Montant total affecté',
     'Centre financier',
     'Numéro Chorus',
     'Date réception Chorus',

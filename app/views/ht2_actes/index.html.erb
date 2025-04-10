@@ -213,7 +213,6 @@
                         <th scope="col">Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
-                        <th scope="col">Date réception Chorus</th>
                         <th scope="col">Date de suspension</th>
                         <th scope="col"></th>
                       </tr>
@@ -227,7 +226,6 @@
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
-                          <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
                           <td><%= l(acte.last_date_suspension, format: "%e/%m/%y") %></td>
                           <td><%= link_to edit_ht2_acte_path(acte, etape: 6), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                               Actualiser
@@ -275,7 +273,6 @@
                         <th scope="col">Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
-                        <th scope="col">Date réception Chorus</th>
                         <th scope="col">Date limite de réponse</th>
                         <th scope="col">Proposition de décision</th>
                         <th scope="col"></th>
@@ -290,7 +287,6 @@
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
-                          <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
                           <td>
                             <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
                           </td>
@@ -349,7 +345,6 @@
                       <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">N°Chorus</th>
-                      <th scope="col">Date réception Chorus</th>
                       <th scope="col">Date clôture</th>
                       <th scope="col">Décision finale</th>
                       <th scope="col"></th>
@@ -364,7 +359,6 @@
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
-                        <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
                         <td><%= l(acte.date_cloture, format: "%e/%m/%y") %></td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p>

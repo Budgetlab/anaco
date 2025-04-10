@@ -21,8 +21,15 @@
                       <thead>
                       <tr class="fr-cell--multiline">
                         <th>Instructeur</th>
-                        <th>Nature de l'acte</th>
-                        <th>Montant estimatif global (AE)</th>
+                        <th>
+                          <% if @acte.type_acte == 'TF' %>Type d’affectation
+                          <% else %>Nature de l'acte
+                          <% end %></th>
+                        <th>
+                          <% if @acte.type_acte == 'avis' %>Montant estimatif global (AE)
+                          <% elsif @acte.type_acte == 'visa' %>Montant engagé
+                          <% elsif @acte.type_acte == 'TF' %>Montant total affecté
+                          <% end %></th>
                         <th>N°Chorus</th>
                         <th>Date réception Chorus</th>
                         <th>Date limite de réponse</th>
@@ -34,8 +41,10 @@
                         <td> <%= @acte.nature %></td>
                         <td> <%= number_to_currency(@acte.montant_ae, unit: "€", format: "%n %u") %> </td>
                         <td> <%= format_value(@acte.numero_chorus) %></td>
-                        <td> <%= format_date_text(@acte.date_chorus)  %></td>
-                        <td><span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(@acte.date_limite) %>' aria-hidden='true'></span> <%= format_date_text(@acte.date_limite)  %></td>
+                        <td> <%= format_date_text(@acte.date_chorus) %></td>
+                        <td>
+                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(@acte.date_limite) %>' aria-hidden='true'></span> <%= format_date_text(@acte.date_limite) %>
+                        </td>
                       </tr>
                       </tbody>
                     </table>
@@ -53,15 +62,19 @@
                       <thead>
                       <tr class="fr-cell--multiline">
                         <th>Centre financier</th>
-                        <th>Bénéficiaire</th>
-                        <th>Objet</th>
+                        <% if @acte.type_acte != 'TF' %>
+                          <th>Bénéficiaire</th>
+                        <% end %>
+                        <th><% if @acte.type_acte == 'TF' %>Opération d’investissement<%else %>Objet<%end %></th>
                         <th>Ordonnateur</th>
                       </tr>
                       </thead>
                       <tbody>
                       <tr class="fr-cell--multiline">
                         <td> <%= format_value(@acte.centre_financier_code) %></td>
-                        <td> <%= format_value(@acte.beneficiaire) %></td>
+                        <% if @acte.type_acte != 'TF' %>
+                          <td> <%= format_value(@acte.beneficiaire) %></td>
+                        <% end %>
                         <td> <%= format_value(@acte.objet) %></td>
                         <td> <%= format_value(@acte.ordonnateur) %></td>
                       </tr>
@@ -145,10 +158,10 @@
                       <div class="fr-table__container">
                         <div class="fr-table__content">
                           <table>
-                            <caption> Lignes de poste </caption>
+                            <caption> Lignes de poste</caption>
                             <thead>
                             <tr class="fr-cell--multiline">
-                              <th> Centre financier </th>
+                              <th> Centre financier</th>
                               <th> Montant (€)</th>
                               <th> Domaine fonctionnel</th>
                               <th> Fonds</th>
@@ -183,10 +196,10 @@
                       <div class="fr-table__container">
                         <div class="fr-table__content">
                           <table id="table-echeancier">
-                            <caption> Échéancier </caption>
+                            <caption> Échéancier</caption>
                             <thead>
                             <tr>
-                              <th> Année </th>
+                              <th> Année</th>
                               <th> Montant AE (€)</th>
                               <th> Montant CP (€)</th>
                             </tr>
@@ -212,37 +225,73 @@
             <div data-fr-group="true" class="fr-accordions-group">
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité des crédits <%if @acte.disponibilite_credits == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité
+                    des crédits
+                    <% if @acte.disponibilite_credits == true %>
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                    <% end %></button>
                 </h3>
                 <div id="accordion-id-1" class="fr-collapse">
-                  <p>Critère respecté : <%if @acte.disponibilite_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p>Critère respecté :
+                    <% if @acte.disponibilite_credits == true %>Oui
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+                    <% end %></p>
                   <p><%= @acte.commentaire_disponibilite_credits %></p>
                 </div>
               </section>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation de la dépense <%if @acte.imputation_depense == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation
+                    de la dépense
+                    <% if @acte.imputation_depense == true %>
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                    <% end %></button>
                 </h3>
                 <div id="accordion-id-2" class="fr-collapse">
-                  <p>Critère respecté : <%if @acte.imputation_depense == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p>Critère respecté :
+                    <% if @acte.imputation_depense == true %>Oui
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+                    <% end %></p>
                   <p><%= @acte.commentaire_imputation_depense %></p>
                 </div>
               </section>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude de l’évaluation de la consommation des crédits <%if @acte.consommation_credits == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude
+                    de l’évaluation de la consommation des crédits
+                    <% if @acte.consommation_credits == true %>
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                    <% end %></button>
                 </h3>
                 <div id="accordion-id-3" class="fr-collapse">
-                  <p>Critère respecté : <%if @acte.consommation_credits == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p>Critère respecté :
+                    <% if @acte.consommation_credits == true %>Oui
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+                    <% end %></p>
                   <p><%= @acte.commentaire_consommation_credits %></p>
                 </div>
               </section>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité avec la programmation annuelle et pluriannuelle <%if @acte.programmation == true%><span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span><%else%><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span><%end %></button>
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité
+                    avec la programmation annuelle et pluriannuelle
+                    <% if @acte.programmation == true %>
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                    <% end %></button>
                 </h3>
                 <div id="accordion-id-4" class="fr-collapse">
-                  <p>Critère respecté : <%if @acte.programmation == true%>Oui <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span><%else%>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span><%end %></p>
+                  <p>Critère respecté :
+                    <% if @acte.programmation == true %>Oui
+                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
+                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
+                    <% end %></p>
                   <p><%= @acte.commentaire_programmation %></p>
                 </div>
               </section>
@@ -273,7 +322,7 @@
                             <td> <%= format_date_text(suspension.date_suspension) %> </td>
                             <td> <%= format_date_text(suspension.date_reprise) %></td>
                             <td> <%= suspension.motif %> </td>
-                            <td> <%= auto_link(simple_format(format_value(suspension.observations)), :html => { :target => '_blank' }) %></td>
+                            <td> <%= suspension.observations %></td>
                           </tr>
                         <% end %>
                         </tbody>
@@ -288,7 +337,9 @@
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-col-lg-6">
                 <div>Proposition de décision de contrôle</div>
-                <div><p class="<%= badge_class_for_decision(@acte.proposition_decision)%>"><%= @acte.proposition_decision %></p></div>
+                <div>
+                  <p class="<%= badge_class_for_decision(@acte.proposition_decision) %>"><%= @acte.proposition_decision %></p>
+                </div>
               </div>
               <div class="fr-col-12 fr-col-lg-6">
                 <div>Auto-évaluation de la complexité de l'acte</div>

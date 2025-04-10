@@ -50,8 +50,10 @@ module Ht2ActesHelper
       'cgreen'
     when date_limite > Date.today + 5.days
       'cwarning'
-    else
+    when date_limite >= Date.today
       'crouge'
+    else
+      'cblack'
     end
   end
 end

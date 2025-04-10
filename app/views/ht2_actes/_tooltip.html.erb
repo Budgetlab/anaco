@@ -4,5 +4,9 @@
 <span class="fr-tooltip fr-placement" id="<%= name %>" role="tooltip" aria-hidden="true">
   <% if name == "date_chorus" %>
   Date faisant foi juridiquement pour calculer le délai d’instruction de l’acte.
+  <% elsif name == "avis_montant_ae" %>
+    En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
+  <% elsif name == "tf_montant_ae" %>
+    En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation.
   <% end %>
 </span>
