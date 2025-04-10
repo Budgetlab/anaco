@@ -63,17 +63,6 @@ class Ht2Acte < ApplicationRecord
     ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
   end
 
-  def last_date_suspension
-    # Trie les suspensions par date de création (descendant) et prend la première
-    last_suspension = suspensions.order(created_at: :desc).first
-    # Retourne la date de suspension si une suspension existe, sinon nil
-    last_suspension&.date_suspension
-  end
-
-  def last_suspension
-    suspensions.order(created_at: :desc).first
-  end
-
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
     where(etat: ["en cours d'instruction", 'en attente de validation'])
@@ -107,6 +96,17 @@ class Ht2Acte < ApplicationRecord
     actes.index(self)&.+(1) # Ajoute 1 à l'index pour obtenir le numéro de saisine
   end
 
+  def last_date_suspension
+    # Trie les suspensions par date de création (descendant) et prend la première
+    last_suspension = suspensions.order(created_at: :desc).first
+    # Retourne la date de suspension si une suspension existe, sinon nil
+    last_suspension&.date_suspension
+  end
+
+  def last_suspension
+    suspensions.order(created_at: :desc).first
+  end
+
   # Méthode de classe pour retrouver tous les actes ayant au moins une suspension
   def self.with_suspensions
     joins(:suspensions).distinct
@@ -119,13 +119,10 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour calculer la durée moyenne des suspensions pour les actes clôturés
   def self.duree_moyenne_suspensions
-    # Récupérer tous les actes clôturés
-    actes_clotures = where(etat: 'clôturé')
+    # Récupérer les IDs des suspensions associées à ces actes
+    suspensions_ids = Suspension.where(ht2_acte_id: pluck(:id)).pluck(:id)
 
-    # Récupérer toutes les suspensions associées à ces actes
-    suspensions_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:id)
-
-    # Si aucune suspension valide, retourner 0
+    # Si aucune suspension, retourner 0
     return 0 if suspensions_ids.empty?
 
     # Calculer la somme des durées de suspension
@@ -133,10 +130,13 @@ class Ht2Acte < ApplicationRecord
     count_suspensions = 0
 
     Suspension.where(id: suspensions_ids).each do |suspension|
-      duree = (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
-      if duree > 0
-        somme_durees += duree
-        count_suspensions += 1
+      # Vérifier que les dates sont présentes avant de calculer
+      if suspension.date_reprise.present? && suspension.date_suspension.present?
+        duree = (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
+        if duree > 0
+          somme_durees += duree
+          count_suspensions += 1
+        end
       end
     end
 
@@ -146,23 +146,21 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour compter les actes clôturés avec délai > 15 jours
   def self.count_with_long_delay(seuil = 15)
-    count { |acte| acte.delai_traitement > seuil }
+    count { |acte| acte.delai_traitement.to_i > seuil }
   end
 
   # Calcule le délai moyen de traitement des actes clôturés
   def self.delai_moyen_traitement
-    actes_clotures = where(etat: 'clôturé')
-
-    # Si aucun acte clôturé, retourne 0
-    return 0 if actes_clotures.empty?
+    # Si aucun acte, retourne 0
+    return 0 if count.zero?
 
     # Somme des délais de traitement
-    somme_delais = actes_clotures.sum do |acte|
-      acte.delai_traitement
+    somme_delais = sum do |acte|
+      acte.delai_traitement || 0
     end
 
     # Calcul de la moyenne
-    (somme_delais / actes_clotures.count.to_f).round
+    (somme_delais / count.to_f).round
   end
 
   private

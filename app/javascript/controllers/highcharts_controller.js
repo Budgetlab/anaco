@@ -344,6 +344,18 @@ export default class extends Controller {
         if (!config) return;
 
         const data = JSON.parse(this.data.get(config.dataKey)) || this.prepareOrderedData(type);
+
+        // Calculer le total pour les graphiques qui en ont besoin
+        let totalCount = 0;
+        if (type === 'actesAvis' || type === 'actesVisa' || type === 'actesTF') {
+            totalCount = data.reduce((sum, value) => sum + value, 0);
+        }
+        // Titre avec ou sans total selon le type de graphique
+        let chartTitle = config.title;
+        if (type === 'actesAvis' || type === 'actesVisa' || type === 'actesTF') {
+            chartTitle += ` [${totalCount}]`;
+            console.log(chartTitle)
+        }
         const colors = [
             "var(--background-action-low-green-bourgeon)",
             "var(--artwork-minor-blue-france)",
@@ -378,7 +390,7 @@ export default class extends Controller {
                 ]
             })),
             title: {
-                text: config.title,
+                text: chartTitle,
                 style: {
                     fontSize: '13px',
                     fontWeight: "900",
