@@ -2,7 +2,7 @@
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div class="fr-alert fr-alert--warning fr-mb-2w">
   <p>Si les informations Chorus ne sont pas renseignées, l’acte sera considéré comme faisant l’objet d’une
-    pré-instruction.</p>
+    <u>pré-instruction</u>.</p>
 </div>
 <div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>">
   <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper' }) do |f| %>

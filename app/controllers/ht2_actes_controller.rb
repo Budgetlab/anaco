@@ -6,18 +6,22 @@ class Ht2ActesController < ApplicationController
   def index
     @statut_user = current_user.statut
     @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
-    @q = @actes.ransack(params[:q])
+    @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
+    @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
+    @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
+    @q_cloture = filtered_actes.where(etat: 'clôturé').ransack(params[:q_cloture], search_key: :q_cloture)
+
     @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
-    @actes_instruction_all = filtered_actes.where(etat: "en cours d'instruction")
-    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
-    @actes_validation_all = filtered_actes.where(etat: 'en attente de validation')
-    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
-    @actes_cloture_all = filtered_actes.where(etat: 'clôturé')
-    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
+    @actes_instruction_all = @q_instruction.result(distinct: true)
+    @actes_validation_all = @q_validation.result(distinct: true)
     @actes_suspendu_all = filtered_actes.where(etat: 'suspendu').includes(:suspensions)
+    @actes_cloture_all = @q_cloture.result(distinct: true)
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
+    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
+    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
+    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
 
     respond_to do |format|
       format.html

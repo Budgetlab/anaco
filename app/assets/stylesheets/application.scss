@@ -336,3 +336,12 @@ a.fr-tag[aria-pressed=true]::after{
   margin: 0 auto;
   display: block;
 }
+.fr-nav--dropdown{
+  position: relative;
+  display: inline-block;
+ }
+.fr-menu--dropdown{
+  width: 100% !important;
+  margin: -4px 0 !important;
+  padding: 0 !important;
+}

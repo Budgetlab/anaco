@@ -7,11 +7,11 @@
         Actes HT2
         <% if ['DCB', 'CBR'].include?(@statut_user) %>
           <nav role="navigation" class="fr-translate fr-nav" id="translate-id">
-            <div class="fr-nav__item">
+            <div class="fr-nav__item fr-nav--dropdown">
               <button aria-controls="menu-add-acte" aria-expanded="false" type='button' id='button-add' class="fr-btn fr-icon-add-line fr-btn--icon-left">Nouvel
                 acte
               </button>
-              <div class="fr-collapse fr-menu" id="menu-add-acte">
+              <div class="fr-collapse fr-menu fr-menu--dropdown" id="menu-add-acte">
                 <ul class="fr-menu__list">
                   <li>
                     <%= link_to new_ht2_acte_path(type_acte: 'avis'), class: 'fr-nav__link' do %>
@@ -144,7 +144,18 @@
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
                         <th scope="col">Date réception Chorus</th>
-                        <th scope="col">Date limite de réponse</th>
+                        <th scope="col">
+                          <% sort_date = "" %>
+                          <% if params[:q_instruction] && params[:q_instruction][:s] == "date_limite desc" %>
+                            <% sort_date = "asc" %>
+                          <% elsif params[:q_instruction] && params[:q_instruction][:s] == "date_limite asc" %>
+                            <% sort_date = "desc" %>
+                          <% end %>
+                          <div class="fr-cell--sort">
+                            <span class="fr-cell__title">Date limite de réponse</span>
+                            <%= sort_link(@q_instruction, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                          </div>
+                        </th>
                         <th scope="col"></th>
                       </tr>
                       </thead>
@@ -273,7 +284,18 @@
                         <th scope="col">Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
-                        <th scope="col">Date limite de réponse</th>
+                        <th scope="col">
+                          <% sort_date = "" %>
+                          <% if params[:q_validation] && params[:q_validation][:s] == "date_limite desc" %>
+                            <% sort_date = "asc" %>
+                          <% elsif params[:q_validation] && params[:q_validation][:s] == "date_limite asc" %>
+                            <% sort_date = "desc" %>
+                          <% end %>
+                          <div class="fr-cell--sort">
+                            <span class="fr-cell__title">Date limite de réponse</span>
+                            <%= sort_link(@q_validation, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                          </div>
+                        </th>
                         <th scope="col">Proposition de décision</th>
                         <th scope="col"></th>
                       </tr>
@@ -345,7 +367,18 @@
                       <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">N°Chorus</th>
-                      <th scope="col">Date clôture</th>
+                      <th scope="col">
+                        <% sort_date = "" %>
+                        <% if params[:q_cloture] && params[:q_cloture][:s] == "date_cloture desc" %>
+                          <% sort_date = "asc" %>
+                        <% elsif params[:q_cloture] && params[:q_cloture][:s] == "date_cloture asc" %>
+                          <% sort_date = "desc" %>
+                        <% end %>
+                        <div class="fr-cell--sort">
+                          <span class="fr-cell__title">Date clôture</span>
+                          <%= sort_link(@q_cloture, :date_cloture, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                        </div>
+                      </th>
                       <th scope="col">Décision finale</th>
                       <th scope="col"></th>
                     </tr>

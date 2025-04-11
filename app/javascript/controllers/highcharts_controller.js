@@ -32,7 +32,7 @@ export default class extends Controller {
           this.syntheseChart('actesTF')
       }
       if (this.hasCanvasActeSuspensionTarget){
-          const colors = ["var(--background-disabled-grey)","var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
+          const colors = ["var(--background-disabled-grey)","var(--background-flat-pink-tuile)","var(--artwork-minor-blue-france)","var(--background-alt-pink-macaron-active)", "var(--background-contrast-yellow-moutarde-hover)", "var(--background-action-high-red-marianne-active)", "var(--background-action-high-pink-macaron)", "var(--background-action-high-brown-caramel-active)", "var(--background-action-low-blue-france-hover)", "var(--background-action-low-brown-opera-active)" ];
           const title = 'Typologie des suspensions/interruptions'
           const target = this.canvasActeSuspensionTarget;
           // Récupérer et parser les données JSON
@@ -45,7 +45,7 @@ export default class extends Controller {
 
       }
       if (this.hasCanvasSuspensionsDistributionTarget){
-          const colors = ["var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
+          const colors = ["var(--background-active-red-marianne)","var(--artwork-minor-blue-france)" ];
           const title = 'Suivi du nombre de suspensions/interruptions'
           const target = this.canvasSuspensionsDistributionTarget;
           // Récupérer et parser les données JSON
@@ -358,7 +358,7 @@ export default class extends Controller {
         }
         const colors = [
             "var(--background-action-low-green-bourgeon)",
-            "var(--artwork-minor-blue-france)",
+            "var(--background-alt-green-menthe-active)",
             "var(--background-action-high-red-marianne-active)",
             "var(--background-disabled-grey)",
             "var(--background-action-high-beige-gris-galet)"
@@ -517,7 +517,6 @@ export default class extends Controller {
     syntheseCol(colors, title, categories, series, target, title_x, title_y){
         const options = {
             chart: {
-
                 style:{
                     fontFamily: "Marianne",
                 },
@@ -529,10 +528,8 @@ export default class extends Controller {
             },
             colors: colors,
             exporting:{enabled: false},
-
             title: {
                 text: title,
-
                 style: {
                     fontSize: '13px',
                     fontWeight: "900",
@@ -556,6 +553,9 @@ export default class extends Controller {
                     text: title_y,
                 },
                 gridLineColor: 'var(--text-inverted-grey)',
+                stackLabels: {
+                    enabled: true
+                },
             },
             legend: {
                 reversed: true,
