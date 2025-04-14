@@ -142,6 +142,8 @@ class Ht2ActesController < ApplicationController
 
     if @statut_user == 'admin'
       @stacked_type_acte_data = calculate_repartion(@ht2_actes_clotures)
+    else
+      @repartition_acte = @ht2_actes_clotures.group(:type_acte).count.map{ |type_acte, count| { name: type_acte, y: count } }
     end
   end
 

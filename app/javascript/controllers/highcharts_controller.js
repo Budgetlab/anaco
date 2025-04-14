@@ -14,7 +14,7 @@ more(Highcharts)
 
 export default class extends Controller {
     static get targets() {
-        return ['canvasAvis', 'canvasNotes1', 'canvasNotes2', 'canvasAvisDate', 'canvasNotesBar', 'canvasActeAvis', 'canvasActeVisa', 'canvasActeTF', 'canvasActeSuspension', 'canvasActesProgramme', 'canvasActesMensuel', 'canvasSuspensionsDistribution', 'canvasActesProgrammeSuspension', 'canvasActeRepartition', 'canvasSuspensionMotif'
+        return ['canvasAvis', 'canvasNotes1', 'canvasNotes2', 'canvasAvisDate', 'canvasNotesBar', 'canvasActeAvis', 'canvasActeVisa', 'canvasActeTF', 'canvasActeSuspension', 'canvasActesProgramme', 'canvasActesMensuel', 'canvasSuspensionsDistribution', 'canvasActesProgrammeSuspension', 'canvasActeRepartition', 'canvasSuspensionMotif', 'canvasActeRepartitionPie'
         ];
     }
 
@@ -33,6 +33,7 @@ export default class extends Controller {
         if (this.hasCanvasActeTFTarget) {
             this.syntheseChart('actesTF')
         }
+
         if (this.hasCanvasActeSuspensionTarget) {
             const colors = ["var(--background-disabled-grey)", "var(--background-flat-pink-tuile)", "var(--artwork-minor-blue-france)", "var(--background-alt-pink-macaron-active)", "var(--background-contrast-yellow-moutarde-hover)", "var(--background-action-high-red-marianne-active)", "var(--background-action-high-pink-macaron)", "var(--background-action-high-brown-caramel-active)", "var(--background-action-low-blue-france-hover)", "var(--background-action-low-brown-opera-active)"];
             const title = 'Typologie des suspensions/interruptions'
@@ -143,6 +144,9 @@ export default class extends Controller {
             const target = this.canvasSuspensionMotifTarget;
 
             this.syntheseCol(colors, title, categories, series, target, title_x, title_y);
+        }
+        if (this.hasCanvasActeRepartitionPieTarget) {
+            this.syntheseChart('acteRepartition')
         }
     }
 
@@ -332,6 +336,13 @@ export default class extends Controller {
     }
 
     syntheseChart(type) {
+        let colors = [
+            "var(--background-action-low-green-bourgeon)",
+            "var(--background-alt-green-menthe-active)",
+            "var(--background-action-high-red-marianne-active)",
+            "var(--background-disabled-grey)",
+            "var(--background-action-high-beige-gris-galet)"
+        ];
         const chartConfig = {
             'avis': {
                 dataKey: 'avis',
@@ -401,13 +412,39 @@ export default class extends Controller {
                     'Saisine a posteriori',
                     'Retour sans décision (sans suite)'
                 ]
+            },
+            'acteRepartition': {
+                dataKey: 'acteRepartition',
+                title: 'Répartition des actes clôturés',
+                target: 'canvasActeRepartitionPieTarget',
             }
         };
 
         const config = chartConfig[type];
         if (!config) return;
+        let data = [];
 
-        const data = JSON.parse(this.data.get(config.dataKey)) || this.prepareOrderedData(type);
+        let series = [];
+        if (type == 'acteRepartition'){
+            const target = this.canvasActeRepartitionPieTarget;
+            data = JSON.parse(target.dataset.acteRepartition);
+            series = [{
+                data: data.map((item) => ({
+                    name: item.name,
+                    y: item.y
+                }))
+            }];
+            colors = ["var(--background-flat-green-archipel)", "var(--background-flat-beige-gris-galet)", "var(--background-flat-pink-tuile)"];
+        }else{
+            data = JSON.parse(this.data.get(config.dataKey)) || this.prepareOrderedData(type);
+            series = [{
+                name: 'Catégorie',
+                data: data.map((value, index) => ({
+                    name: config.labels[index],
+                    y: value
+                }))
+            }]
+        }
 
         // Calculer le total pour les graphiques qui en ont besoin
         let totalCount = 0;
@@ -418,15 +455,8 @@ export default class extends Controller {
         let chartTitle = config.title;
         if (type === 'actesAvis' || type === 'actesVisa' || type === 'actesTF') {
             chartTitle += ` [${totalCount}]`;
-            console.log(chartTitle)
         }
-        const colors = [
-            "var(--background-action-low-green-bourgeon)",
-            "var(--background-alt-green-menthe-active)",
-            "var(--background-action-high-red-marianne-active)",
-            "var(--background-disabled-grey)",
-            "var(--background-action-high-beige-gris-galet)"
-        ];
+
 
         const options = {
             chart: {
@@ -492,13 +522,7 @@ export default class extends Controller {
                     showInLegend: true,
                 }
             },
-            series: [{
-                name: 'Catégorie',
-                data: data.map((value, index) => ({
-                    name: config.labels[index],
-                    y: value
-                }))
-            }]
+            series: series
         };
 
         this.chart = Highcharts.chart(this[config.target], options);
