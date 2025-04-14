@@ -107,8 +107,9 @@ class Ht2ActesController < ApplicationController
   end
 
   def synthese
+    @statut_user = current_user.statut
     # chargement des actes en fonction du profil
-    @ht2_actes = current_user.statut == 'admin' ? Ht2Acte : current_user.ht2_actes
+    @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
     # Précharger les associations nécessaires
     @ht2_actes = @ht2_actes.includes(:suspensions)
     # Réutiliser la même scope pour les actes clôturés
@@ -118,9 +119,30 @@ class Ht2ActesController < ApplicationController
     @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
     @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
-    # @actes_par_instructeur = @ht2_actes_clotures.group(:instructeur).count
     @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
     @suspensions_distribution = calculate_suspensions_distribution(@ht2_actes_clotures)
+    @top_suspension_motifs_chart_data = calculate_top_motifs(@ht2_actes_clotures)
+    # Construire la requête agrégée
+    top_programmes = Programme
+                       .select('programmes.id, programmes.numero, COUNT(ht2_actes.id) AS actes_count')
+                       .joins(centre_financiers: :ht2_actes)
+                       .merge(@ht2_actes_clotures)
+                       .group('programmes.id')
+                       .order('actes_count DESC')
+                       .limit(10)
+    @top_programmes_chart_data = top_programmes.map { |p| { name: p.numero, y: p.actes_count.to_i } }
+    top_programmes_suspensions = Programme
+                                   .select('programmes.id, programmes.numero, COUNT(suspensions.id) AS suspensions_count')
+                                   .joins(centre_financiers: { ht2_actes: :suspensions })
+                                   .merge(@ht2_actes_clotures)
+                                   .group('programmes.id')
+                                   .order('suspensions_count DESC')
+                                   .limit(10)
+    @top_programmes_suspensions_chart_data = top_programmes_suspensions.map { |p| { name: p.numero, y: p.suspensions_count.to_i } }
+
+    if @statut_user == 'admin'
+      @stacked_type_acte_data = calculate_repartion(@ht2_actes_clotures)
+    end
   end
 
   private
@@ -155,7 +177,7 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_natures = ["Affectation initiale","Affectation complémentaire","Retrait"]
+      @liste_natures = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
       @liste_types_observations = ["Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     end
@@ -266,6 +288,52 @@ class Ht2ActesController < ApplicationController
     end
 
     result
+  end
+
+  def calculate_repartion(actes)
+    # Tous les ht2_actes visibles
+    all_actes = actes
+    dcb_actes = actes.joins(:user).where(users: { statut: 'DCB' })
+    cbr_actes = actes.joins(:user).where(users: { statut: 'CBR' })
+
+    # Regrouper par type_acte
+    total_counts = all_actes.group(:type_acte).count
+    dcb_counts = dcb_actes.group(:type_acte).count
+    cbr_counts = cbr_actes.group(:type_acte).count
+
+    # Types d'actes possibles (ajustable si dynamique)
+    types_actes = ['TF', 'visa', 'avis']
+
+    # Construire les séries pour Highcharts
+    result = types_actes.map do |type|
+      {
+        name: type,
+        data: [
+          total_counts[type] || 0,
+          dcb_counts[type] || 0,
+          cbr_counts[type] || 0
+        ]
+      }
+    end
+    result
+  end
+
+  def calculate_top_motifs(actes)
+    ht2_acte_ids = actes.pluck(:id)
+
+    top_suspension_motifs = Suspension
+                              .where(ht2_acte_id: ht2_acte_ids)
+                              .group(:motif)
+                              .order(Arel.sql('COUNT(*) DESC'))
+                              .limit(5)
+                              .count
+    top_suspension_motifs_chart_data = top_suspension_motifs.map do |motif, count|
+      {
+        name: motif,
+        y: count
+      }
+    end
+    top_suspension_motifs_chart_data
   end
 
   def set_delai_traitement(acte)

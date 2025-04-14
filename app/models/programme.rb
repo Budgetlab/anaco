@@ -6,6 +6,7 @@ class Programme < ApplicationRecord
   has_many :avis, through: :bops
   has_many :gestion_schemas, dependent: :destroy
   has_many :schemas, dependent: :destroy
+  has_many :centre_financiers
 
   scope :active, -> { where(statut: 'Actif') }
   scope :accessible, -> { where(statut: 'Actif').or(where(statut: 'Inactif')) }
@@ -69,12 +70,11 @@ class Programme < ApplicationRecord
     self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "mission_id", "nom", "numero", "updated_at", "user_id", "deconcentre", "dotation", "statut", "ministere_id", "date_inactivite"]
-  end
-
   def self.ransackable_associations(auth_object = nil)
-    ["credits", "user", "bops", "avis", "schemas", "gestion_schemas", "ministere", "mission"]
+    ["avis", "bops", "centre_financiers", "gestion_schemas", "ministere", "mission", "schemas", "user"]
+  end
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "date_inactivite", "deconcentre", "dotation", "id", "id_value", "ministere_id", "mission_id", "nom", "numero", "statut", "updated_at", "user_id"]
   end
 
   ransacker :nom, type: :string do

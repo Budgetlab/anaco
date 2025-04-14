@@ -1,10 +1,11 @@
-import { Controller } from "@hotwired/stimulus"
+import {Controller} from "@hotwired/stimulus"
 import Highcharts from "highcharts"
 import exporting from "exporting"
 import data from "data"
 import accessibility from "accessibility"
 import nodata from "nodata"
 import more from "highcharts-more"
+
 exporting(Highcharts)
 data(Highcharts)
 accessibility(Highcharts)
@@ -12,102 +13,165 @@ nodata(Highcharts)
 more(Highcharts)
 
 export default class extends Controller {
-  static get targets() {
-  return ['canvasAvis','canvasNotes1','canvasNotes2','canvasAvisDate','canvasNotesBar','canvasActeAvis', 'canvasActeVisa','canvasActeTF', 'canvasActeSuspension', 'canvasActeInstructeur', 'canvasActesMensuel', 'canvasSuspensionsDistribution'
-  ];
-  }
-  connect() {
-      if (this.hasCanvasAvisTarget) {
-          this.syntheseChart('avis')
-      }
-      this.showViz();
+    static get targets() {
+        return ['canvasAvis', 'canvasNotes1', 'canvasNotes2', 'canvasAvisDate', 'canvasNotesBar', 'canvasActeAvis', 'canvasActeVisa', 'canvasActeTF', 'canvasActeSuspension', 'canvasActesProgramme', 'canvasActesMensuel', 'canvasSuspensionsDistribution', 'canvasActesProgrammeSuspension', 'canvasActeRepartition', 'canvasSuspensionMotif'
+        ];
+    }
 
-      if (this.hasCanvasActeAvisTarget){
-          this.syntheseChart('actesAvis')
-      }
-      if (this.hasCanvasActeVisaTarget){
-          this.syntheseChart('actesVisa')
-      }
-      if (this.hasCanvasActeTFTarget){
-          this.syntheseChart('actesTF')
-      }
-      if (this.hasCanvasActeSuspensionTarget){
-          const colors = ["var(--background-disabled-grey)","var(--background-flat-pink-tuile)","var(--artwork-minor-blue-france)","var(--background-alt-pink-macaron-active)", "var(--background-contrast-yellow-moutarde-hover)", "var(--background-action-high-red-marianne-active)", "var(--background-action-high-pink-macaron)", "var(--background-action-high-brown-caramel-active)", "var(--background-action-low-blue-france-hover)", "var(--background-action-low-brown-opera-active)" ];
-          const title = 'Typologie des suspensions/interruptions'
-          const target = this.canvasActeSuspensionTarget;
-          // Récupérer et parser les données JSON
-          const suspensionsData = JSON.parse(this.canvasActeSuspensionTarget.dataset.acteSuspensions);
-          // Transformer les données en catégories et séries
-          const { categories, series } = this.formatSuspensionsData(suspensionsData);
-          const title_x = "Type d'acte"
-          const title_y = "Nombre d'actes"
-          this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
+    connect() {
+        if (this.hasCanvasAvisTarget) {
+            this.syntheseChart('avis')
+        }
+        this.showViz();
 
-      }
-      if (this.hasCanvasSuspensionsDistributionTarget){
-          const colors = ["var(--background-active-red-marianne)","var(--artwork-minor-blue-france)" ];
-          const title = 'Suivi du nombre de suspensions/interruptions'
-          const target = this.canvasSuspensionsDistributionTarget;
-          // Récupérer et parser les données JSON
-          const suspensionsData = JSON.parse(this.canvasSuspensionsDistributionTarget.dataset.acteSuspdistrib);
-          // Transformer les données en catégories et séries
-          const { categories, series } = this.formatDistributionData(suspensionsData);
-          const title_x = 'Nombre de suspensions/interruptions'
-          const title_y = "Nombre d'actes"
-          this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
-      }
-      if (this.hasCanvasActeInstructeurTarget){
-          const title = "Nombre d'actes traités par instructeur"
-          const target = this.canvasActeInstructeurTarget;
-          // Récupérer et parser les données JSON
-          const instructeursData = JSON.parse(this.canvasActeInstructeurTarget.dataset.acteInstructeur);
-          const series  = this.formatDataForPackedBubble(instructeursData)
-          this.syntheseBubble(title, series, target)
-      }
+        if (this.hasCanvasActeAvisTarget) {
+            this.syntheseChart('actesAvis')
+        }
+        if (this.hasCanvasActeVisaTarget) {
+            this.syntheseChart('actesVisa')
+        }
+        if (this.hasCanvasActeTFTarget) {
+            this.syntheseChart('actesTF')
+        }
+        if (this.hasCanvasActeSuspensionTarget) {
+            const colors = ["var(--background-disabled-grey)", "var(--background-flat-pink-tuile)", "var(--artwork-minor-blue-france)", "var(--background-alt-pink-macaron-active)", "var(--background-contrast-yellow-moutarde-hover)", "var(--background-action-high-red-marianne-active)", "var(--background-action-high-pink-macaron)", "var(--background-action-high-brown-caramel-active)", "var(--background-action-low-blue-france-hover)", "var(--background-action-low-brown-opera-active)"];
+            const title = 'Typologie des suspensions/interruptions'
+            const target = this.canvasActeSuspensionTarget;
+            // Récupérer et parser les données JSON
+            const suspensionsData = JSON.parse(this.canvasActeSuspensionTarget.dataset.acteSuspensions);
+            // Transformer les données en catégories et séries
+            const {categories, series} = this.formatSuspensionsData(suspensionsData);
+            const title_x = "Type d'acte"
+            const title_y = "Nombre d'actes"
+            this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
 
-      if (this.hasCanvasActesMensuelTarget) {
-          const title = "Évolution mensuelle des actes"
-          const title_y = 'Nombre d\'actes'
-          const target = this.canvasActesMensuelTarget;
+        }
+        if (this.hasCanvasSuspensionsDistributionTarget) {
+            const colors = ["var(--background-active-red-marianne)", "var(--artwork-minor-blue-france)"];
+            const title = 'Répartition des actes par nombre de suspensions/interruptions'
+            const target = this.canvasSuspensionsDistributionTarget;
+            // Récupérer et parser les données JSON
+            const suspensionsData = JSON.parse(this.canvasSuspensionsDistributionTarget.dataset.acteSuspdistrib);
+            // Transformer les données en catégories et séries
+            const {categories, series} = this.formatDistributionData(suspensionsData);
+            const title_x = 'Nombre de suspensions/interruptions'
+            const title_y = "Nombre d'actes"
+            this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
+        }
 
-          // Récupérer et parser les données JSON
-          const monthlyData = JSON.parse(this.canvasActesMensuelTarget.dataset.actesMensuel);
+        if (this.hasCanvasActesMensuelTarget) {
+            const title = "Évolution mensuelle des actes"
+            const title_y = 'Nombre d\'actes'
+            const target = this.canvasActesMensuelTarget;
 
-          // Transformer les données pour le graphique
-          const { categories, series } = this.formatMonthlyData(monthlyData);
+            // Récupérer et parser les données JSON
+            const monthlyData = JSON.parse(this.canvasActesMensuelTarget.dataset.actesMensuel);
 
-          // Générer le graphique
-          this.syntheseColumn(title,title_y, categories, series, target);
-      }
+            // Transformer les données pour le graphique
+            const {categories, series} = this.formatMonthlyData(monthlyData);
 
-  }
+            // Générer le graphique
+            this.syntheseColumn(title, title_y, categories, series, target);
+        }
 
-    showViz(){
-      const notes1 = JSON.parse(this.data.get("notes1"));
-      const notes2 = JSON.parse(this.data.get("notes2"));
-      const avisdate = JSON.parse(this.data.get("avisdate"));
-      const notesbar = JSON.parse(this.data.get("notesbar"));
-      if (notes1 != null && notes1.length > 0 && this.hasCanvasNotes1Target) {
-          this.syntheseChart('notes1')
-      }
-      if (notes2 != null && notes2.length > 0 && this.hasCanvasNotes2Target) {
-          this.syntheseChart('notes2')
-      }
-      if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget){
-          this.syntheseAvisDate();
-      }
-      if (notesbar != null && notesbar.length > 0 && this.hasCanvasNotesBarTarget){
-          this.syntheseNotesBar();
-      }
-  }
+        if (this.hasCanvasActesProgrammeTarget) {
+            const colors = ["var(--background-action-low-blue-france-hover)",];
+            const title = 'Top 10 des programmes par nombre d’actes'
+            const target = this.canvasActesProgrammeTarget;
+            // Récupérer et parser les données JSON
+            const rawData = JSON.parse(this.canvasActesProgrammeTarget.dataset.actesProgramme);
 
-    syntheseAvisDate(){
+            // Extraire les noms (x-axis) et les valeurs (y-axis)
+            const categories = rawData.map(item => item.name);
+            const data = rawData.map(item => item.y);
+            // Transformer les données en catégories et séries
+            const series = [{
+                name: 'Actes',
+                data: data,
+            }];
+            const title_x = "Numéro du programme"
+            const title_y = "Nombre d'actes"
+            this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
+
+        }
+
+        if (this.hasCanvasActesProgrammeSuspensionTarget) {
+            const colors = ["var(--background-active-red-marianne-active)",];
+            const title = 'Top 10 des programmes par nombre de suspensions/interruptions'
+            const target = this.canvasActesProgrammeSuspensionTarget;
+            // Récupérer et parser les données JSON
+            const rawData = JSON.parse(this.canvasActesProgrammeSuspensionTarget.dataset.actesSuspension);
+
+            // Extraire les noms (x-axis) et les valeurs (y-axis)
+            const categories = rawData.map(item => item.name);
+            const data = rawData.map(item => item.y);
+            // Transformer les données en catégories et séries
+            const series = [{
+                name: 'Suspensions/Interruptions',
+                data: data,
+            }];
+            const title_x = "Numéro du programme"
+            const title_y = "Nombre de suspensions/interruptions"
+            this.syntheseCol(colors, title, categories, series, target, title_x, title_y)
+
+        }
+        if (this.hasCanvasActeRepartitionTarget) {
+            const colors = ["var(--background-flat-green-archipel)", "var(--background-flat-beige-gris-galet)", "var(--background-flat-pink-tuile)"];
+            const title = 'Répartition des actes par type et par profil'
+            const target = this.canvasActeRepartitionTarget;
+            // Récupérer et parser les données JSON
+            const rawData = JSON.parse(this.canvasActeRepartitionTarget.dataset.acteRepartition);
+            const categories = ["Total", "DCB", "CBR"];
+            const title_x = "Profil"
+            const title_y = "Nombre d'actes"
+            this.syntheseCol(colors, title, categories, rawData, target, title_x, title_y)
+        }
+        if (this.hasCanvasSuspensionMotifTarget) {
+            const rawData = JSON.parse(this.canvasSuspensionMotifTarget.dataset.suspensionMotif);
+            const categories = rawData.map(item => item.name);
+            const data = rawData.map(item => item.y);
+
+            const series = [{
+                name: 'Suspensions/Interruptions',
+                data: data
+            }];
+
+            const colors = ["var(--background-action-high-pink-tuile-hover)"];
+            const title = "Top 5 des motifs de suspension/interruption";
+            const title_x = "Motif";
+            const title_y = "Nombre de suspensions";
+            const target = this.canvasSuspensionMotifTarget;
+
+            this.syntheseCol(colors, title, categories, series, target, title_x, title_y);
+        }
+    }
+
+    showViz() {
+        const notes1 = JSON.parse(this.data.get("notes1"));
+        const notes2 = JSON.parse(this.data.get("notes2"));
+        const avisdate = JSON.parse(this.data.get("avisdate"));
+        const notesbar = JSON.parse(this.data.get("notesbar"));
+        if (notes1 != null && notes1.length > 0 && this.hasCanvasNotes1Target) {
+            this.syntheseChart('notes1')
+        }
+        if (notes2 != null && notes2.length > 0 && this.hasCanvasNotes2Target) {
+            this.syntheseChart('notes2')
+        }
+        if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget) {
+            this.syntheseAvisDate();
+        }
+        if (notesbar != null && notesbar.length > 0 && this.hasCanvasNotesBarTarget) {
+            this.syntheseNotesBar();
+        }
+    }
+
+    syntheseAvisDate() {
         const data = JSON.parse(this.data.get("avisdate"));
-        const colors = ["var(--background-contrast-green-menthe)","var(--background-contrast-blue-cumulus-active)","var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)","var(--background-disabled-grey)"]
+        const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-disabled-grey)"]
         const options = {
             chart: {
-                height:'100%',
-                style:{
+                height: '100%',
+                style: {
                     fontFamily: "Marianne",
                 },
                 plotBackgroundColor: null,
@@ -116,7 +180,7 @@ export default class extends Controller {
                 type: 'pie',
 
             },
-            exporting:{enabled: false},
+            exporting: {enabled: false},
             colors: Highcharts.map(colors, function (color) {
                 return {
                     radialGradient: {
@@ -140,7 +204,7 @@ export default class extends Controller {
                     color: 'var(--text-title-grey)',
                 },
             },
-            legend:{
+            legend: {
                 itemStyle: {
                     color: 'var(--text-title-grey)',
                 },
@@ -150,7 +214,7 @@ export default class extends Controller {
                 borderRadius: 16,
                 backgroundColor: "rgba(245, 245, 245, 1)",
                 formatter: function () {
-                    return '<b>' + this.point.name +': </b>' + this.point.y + ' (' + Math.round(this.percentage*10)/10 + '% )'
+                    return '<b>' + this.point.name + ': </b>' + this.point.y + ' (' + Math.round(this.percentage * 10) / 10 + '% )'
                 }
                 //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
@@ -174,11 +238,11 @@ export default class extends Controller {
             series: [{
                 name: 'Catégorie',
                 data: [
-                    { name: 'BOP initiaux reçus avant le 1er mars', y: data[0] },
-                    { name: 'BOP initiaux reçus entre le 1er et le 15 mars', y: data[1] },
-                    { name: 'BOP initiaux reçus entre le 15 et le 31 mars', y: data[2] },
-                    { name: 'BOP initiaux reçus après le 1er avril', y: data[3] },
-                    { name: 'BOP initiaux non reçus', y: data[4] },
+                    {name: 'BOP initiaux reçus avant le 1er mars', y: data[0]},
+                    {name: 'BOP initiaux reçus entre le 1er et le 15 mars', y: data[1]},
+                    {name: 'BOP initiaux reçus entre le 15 et le 31 mars', y: data[2]},
+                    {name: 'BOP initiaux reçus après le 1er avril', y: data[3]},
+                    {name: 'BOP initiaux non reçus', y: data[4]},
                 ]
             }]
         }
@@ -186,13 +250,13 @@ export default class extends Controller {
         this.chart.reflow();
     }
 
-    syntheseNotesBar(){
+    syntheseNotesBar() {
         const data = JSON.parse(this.data.get("notesbar"));
-        const colors = ["var(--background-disabled-grey)","var(--background-action-high-red-marianne-active)","var(--artwork-minor-blue-france)","var(--background-action-low-green-bourgeon)" ];
+        const colors = ["var(--background-disabled-grey)", "var(--background-action-high-red-marianne-active)", "var(--artwork-minor-blue-france)", "var(--background-action-low-green-bourgeon)"];
         const options = {
             chart: {
-                height:'100%',
-                style:{
+                height: '100%',
+                style: {
                     fontFamily: "Marianne",
                 },
                 plotBackgroundColor: null,
@@ -202,7 +266,7 @@ export default class extends Controller {
 
             },
             colors: colors,
-            exporting:{enabled: false},
+            exporting: {enabled: false},
 
             title: {
                 text: 'Statuts des BOP',
@@ -214,7 +278,7 @@ export default class extends Controller {
                 },
             },
             xAxis: {
-                categories: ["Début de gestion",'CRG1', 'CRG2'],
+                categories: ["Début de gestion", 'CRG1', 'CRG2'],
                 labels: {
                     style: {
                         color: 'var(--text-title-grey)',
@@ -239,7 +303,7 @@ export default class extends Controller {
                 borderRadius: 16,
                 backgroundColor: "rgba(245, 245, 245, 1)",
                 formatter: function () {
-                    return '<b>' + this.series.name +': </b>' + this.point.y
+                    return '<b>' + this.series.name + ': </b>' + this.point.y
                 }
                 //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
@@ -252,13 +316,13 @@ export default class extends Controller {
             series: [{
                 name: 'Notes non reçues',
                 data: data[3],
-            },{
+            }, {
                 name: 'BOP avec besoin de financement',
                 data: data[2],
-            },{
+            }, {
                 name: 'BOP avec consommation à la ressource',
                 data: data[1],
-            },{
+            }, {
                 name: 'BOP avec capacité contributive',
                 data: data[0],
             },]
@@ -406,7 +470,7 @@ export default class extends Controller {
                 borderColor: 'transparent',
                 borderRadius: 16,
                 backgroundColor: "rgba(245, 245, 245, 1)",
-                formatter: function() {
+                formatter: function () {
                     return '<b>' + this.point.name + ': </b>' + this.point.y +
                         ' (' + Math.round(this.percentage * 10) / 10 + '% )';
                 }
@@ -514,10 +578,10 @@ export default class extends Controller {
     }
 
 
-    syntheseCol(colors, title, categories, series, target, title_x, title_y){
+    syntheseCol(colors, title, categories, series, target, title_x, title_y) {
         const options = {
             chart: {
-                style:{
+                style: {
                     fontFamily: "Marianne",
                 },
                 plotBackgroundColor: null,
@@ -527,7 +591,7 @@ export default class extends Controller {
 
             },
             colors: colors,
-            exporting:{enabled: false},
+            exporting: {enabled: false},
             title: {
                 text: title,
                 style: {
@@ -568,7 +632,7 @@ export default class extends Controller {
                 borderRadius: 16,
                 backgroundColor: "rgba(245, 245, 245, 1)",
                 formatter: function () {
-                    return '<b>' + this.series.name +': </b>' + this.point.y
+                    return '<b>' + this.series.name + ': </b>' + this.point.y
                 }
                 //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
@@ -610,8 +674,9 @@ export default class extends Controller {
             };
         });
 
-        return { categories, series };
+        return {categories, series};
     }
+
     formatDistributionData(data) {
         // Extraire les nombres de suspensions pour les catégories
         const categories = data.map(item => item.nombre_suspensions.toString());
@@ -624,10 +689,10 @@ export default class extends Controller {
             }
         ];
 
-        return { categories, series };
+        return {categories, series};
     }
 
-    syntheseBubble(title, series, target){
+    syntheseBubble(title, series, target) {
         const options = {
             chart: {
                 type: 'packedbubble',
@@ -636,7 +701,7 @@ export default class extends Controller {
                     fontFamily: "Marianne",
                 },
             },
-            exporting:{enabled: false},
+            exporting: {enabled: false},
             colors: ["var(--artwork-minor-blue-france)"],
             title: {
                 text: title,
@@ -683,22 +748,6 @@ export default class extends Controller {
         this.chart.reflow();
     }
 
-    formatDataForPackedBubble(data) {
-        // Convertir le hash en tableau d'objets
-        const dataArray = Object.entries(data).map(([instructeur, count]) => ({
-            name: instructeur || "Non assigné",
-            value: count
-        })).sort((a, b) => b.value - a.value);
-
-        // Créer la structure series avec les données formatées
-        const series = [{
-            name: "Actes traités",
-            data: dataArray
-        }];
-
-        return series;
-    }
-
     syntheseColumn(title, title_y, categories, series, target) {
         const options = {
             chart: {
@@ -707,8 +756,8 @@ export default class extends Controller {
                     fontFamily: "Marianne",
                 }
             },
-            exporting:{enabled: false},
-            colors: ["var(--border-action-low-green-menthe)","var(--background-action-high-success-hover)"],
+            exporting: {enabled: false},
+            colors: ["var(--border-action-low-green-menthe)", "var(--background-action-high-success-hover)"],
             title: {
                 text: title,
                 style: {
@@ -775,6 +824,6 @@ export default class extends Controller {
             }
         ];
 
-        return { categories, series };
+        return {categories, series};
     }
 }

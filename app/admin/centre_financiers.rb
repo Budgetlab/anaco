@@ -5,7 +5,7 @@ ActiveAdmin.register CentreFinancier do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  permit_params :bop_id, :code
+  permit_params :bop_id, :code, :programme_id
   #
   # or
   #

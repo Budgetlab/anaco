@@ -52,6 +52,6 @@ class Bop < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avis", "user", "programme", "dcb"]
+    ["avis", "centre_financiers", "dcb", "programme", "user"]
   end
 end

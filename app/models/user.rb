@@ -35,7 +35,7 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ['avis', 'bops', 'consulted_bops', 'credits', 'programmes', 'schemas', 'gestion_schemas']
+    ["avis", "bops", "consulted_bops", "gestion_schemas", "ht2_actes", "programmes", "schemas"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

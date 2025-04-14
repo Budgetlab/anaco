@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_10_082429) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_14_084100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -127,7 +127,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_082429) do
     t.string "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "programme_id"
     t.index ["bop_id"], name: "index_centre_financiers_on_bop_id"
+    t.index ["programme_id"], name: "index_centre_financiers_on_programme_id"
   end
 
   create_table "centre_financiers_ht2_actes", id: false, force: :cascade do |t|
@@ -332,6 +334,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_082429) do
   add_foreign_key "bops", "users"
   add_foreign_key "bops", "users", column: "dcb_id"
   add_foreign_key "centre_financiers", "bops"
+  add_foreign_key "centre_financiers", "programmes"
   add_foreign_key "echeanciers", "ht2_actes"
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"

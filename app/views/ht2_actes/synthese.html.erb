@@ -69,7 +69,8 @@
               <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
               <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                 <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.count_with_suspensions %> Actes clôturés </p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.count_with_suspensions %>
+                    Actes clôturés </p>
                   <p class="fr-text--lg fr-mb-0 text_center">avec suspension / interruption</p>
                 </div>
               </div>
@@ -103,24 +104,43 @@
       </div>
     </div>
 
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
+        <div class="fr-col-12 fr-col-lg-6">
+          <% if @statut_user == 'admin' %>
+          <div data-highcharts-target="canvasActeRepartition" data-acte-repartition="<%= @stacked_type_acte_data.to_json %>"></div>
+          <% end %>
+        </div>
+        <div class="fr-col-12 fr-col-lg-6">
+          <div data-highcharts-target="canvasSuspensionsDistribution" data-acte-suspdistrib="<%= @suspensions_distribution.to_json %>"></div>
+
+        </div>
+      </div>
+
+
     <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
       <div class="fr-col-12 fr-col-lg-6">
         <div data-highcharts-target="canvasActeSuspension" data-acte-suspensions="<%= @ht2_suspensions_motif.to_json %>"></div>
       </div>
       <div class="fr-col-12 fr-col-lg-6">
-        <div data-highcharts-target="canvasSuspensionsDistribution" data-acte-suspdistrib="<%= @suspensions_distribution.to_json %>"></div>
+        <div data-highcharts-target="canvasSuspensionMotif" data-suspension-motif="<%= @top_suspension_motifs_chart_data.to_json %>"></div>
       </div>
     </div>
 
 
-
-
-
-  <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
-    <div class="fr-col-12 fr-col-lg-12">
-      <div data-highcharts-target="canvasActesMensuel" data-actes-mensuel="<%= @actes_par_mois.to_json %>"></div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div data-highcharts-target="canvasActesMensuel" data-actes-mensuel="<%= @actes_par_mois.to_json %>"></div>
+      </div>
     </div>
 
-  </div>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div data-highcharts-target="canvasActesProgramme" data-actes-programme="<%= @top_programmes_chart_data.to_json %>"></div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-6">
+        <div data-highcharts-target="canvasActesProgrammeSuspension" data-actes-suspension="<%= @top_programmes_suspensions_chart_data.to_json %>"></div>
+      </div>
+    </div>
   </div>
 </main>
