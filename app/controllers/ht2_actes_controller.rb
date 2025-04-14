@@ -147,6 +147,14 @@ class Ht2ActesController < ApplicationController
     end
   end
 
+  def synthese_utilisateurs
+    @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
+    @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
+
+    @stats_cbr = user_ht2_stats(@users_cbr)
+    @stats_dcb = user_ht2_stats(@users_dcb)
+  end
+
   private
 
   def ht2_acte_params
@@ -375,6 +383,29 @@ class Ht2ActesController < ApplicationController
 
       # Mettre à jour la colonne delai_traitement sans déclencher les callbacks
       acte.update_column(:delai_traitement, delai_final)
+    end
+  end
+
+  def user_ht2_stats(users)
+    users.includes(:ht2_actes).map do |user|
+      ht2_actes = user.ht2_actes
+
+      actes_clotures = ht2_actes.where(etat: 'clôturé')
+      actes_non_clotures = ht2_actes.where.not(etat: 'clôturé')
+
+      actes_avec_suspension_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:ht2_acte_id).uniq
+      actes_avec_suspensions_count = actes_avec_suspension_ids.size
+
+      suspensions_count = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).count
+
+      {
+        user: user,
+        actes_clotures_count: actes_clotures.count,
+        actes_non_clotures_count: actes_non_clotures.count,
+        actes_avec_suspensions_count: actes_avec_suspensions_count,
+        suspensions_count: suspensions_count,
+        delai_moyen: actes_clotures.delai_moyen_traitement,
+      }
     end
   end
 end

@@ -1,0 +1,110 @@
+<% content_for :title do %>Synthese Utilisateurs Actes | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="fr-mt-6w fr-mb-2w ">Synthèse des actes par CBR/DCB</h1>
+
+        <div class="fr-tabs fr-my-2w">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Synthèse des actes par Profil">
+            <li role="presentation">
+              <button type="button" id="storybook-tab-20" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="storybook-tab-20-panel">Synthèse CBR</button>
+            </li>
+            <li role="presentation">
+              <button type="button" id="storybook-tab-21" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-21-panel">Synthèse DCB</button>
+            </li>
+          </ul>
+          <div id="storybook-tab-20-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="storybook-tab-20" tabindex="0">
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Synthèse CBR</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th class="fr-cell--fixed" scope="col">Nom</th>
+                        <th scope="col">Actes clôturés</th>
+                        <th scope="col">Actes en cours de traitement</th>
+                        <th scope="col">Actes avec suspension</th>
+                        <th scope="col">Suspensions totales</th>
+                        <th scope="col">Délai moyen de traitement</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr class="fr-table--total">
+                        <th class="fr-cell--fixed">Total</th>
+                        <td><%= @stats_cbr.sum { |stat| stat[:actes_clotures_count] } %></td>
+                        <td><%= @stats_cbr.sum { |stat| stat[:actes_non_clotures_count] } %></td>
+                        <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
+                        <td><%= @stats_cbr.sum { |stat| stat[:suspensions_count] } %></td>
+                        <td><%= pluralize(@stats_cbr.sum { |stat| stat[:suspensions_count] }, 'jour', plural: 'jours')%> </td>
+                      </tr>
+                      <% @stats_cbr.each do |stat| %>
+                        <tr>
+                          <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
+                          <td><%= stat[:actes_clotures_count] %></td>
+                          <td><%= stat[:actes_non_clotures_count] %></td>
+                          <td><%= stat[:actes_avec_suspensions_count] %></td>
+                          <td><%= stat[:suspensions_count] %></td>
+                          <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div id="storybook-tab-21-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-21" tabindex="0">
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Synthèse DCB</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th class="fr-cell--fixed" scope="col">Nom</th>
+                        <th scope="col">Actes clôturés</th>
+                        <th scope="col">Actes en cours de traitement</th>
+                        <th scope="col">Actes avec suspension</th>
+                        <th scope="col">Suspensions totales</th>
+                        <th scope="col">Délai moyen de traitement</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr class="fr-table--total">
+                        <th class="fr-cell--fixed">Total</th>
+                        <td><%= @stats_dcb.sum { |stat| stat[:actes_clotures_count] } %></td>
+                        <td><%= @stats_dcb.sum { |stat| stat[:actes_non_clotures_count] } %></td>
+                        <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
+                        <td><%= @stats_dcb.sum { |stat| stat[:suspensions_count] } %></td>
+                        <td><%= pluralize(@stats_dcb.sum { |stat| stat[:suspensions_count] }, 'jour', plural: 'jours')%></td>
+                      </tr>
+                      <% @stats_dcb.each do |stat| %>
+                        <tr>
+                          <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
+                          <td><%= stat[:actes_clotures_count] %></td>
+                          <td><%= stat[:actes_non_clotures_count] %></td>
+                          <td><%= stat[:actes_avec_suspensions_count] %></td>
+                          <td><%= stat[:suspensions_count] %></td>
+                          <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%> </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+       </div>
+      </div>
+    </div>
+  </div>
+</main>
