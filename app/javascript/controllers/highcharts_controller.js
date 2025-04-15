@@ -35,7 +35,7 @@ export default class extends Controller {
         }
 
         if (this.hasCanvasActeSuspensionTarget) {
-            const colors = ["var(--background-disabled-grey)", "var(--background-flat-pink-tuile)", "var(--artwork-minor-blue-france)", "var(--background-alt-pink-macaron-active)", "var(--background-contrast-yellow-moutarde-hover)", "var(--background-action-high-red-marianne-active)", "var(--background-action-high-pink-macaron)", "var(--background-action-high-brown-caramel-active)", "var(--background-action-low-blue-france-hover)", "var(--background-action-low-brown-opera-active)"];
+            const colors = ["var(--background-disabled-grey)", "var(--background-contrast-green-emeraude)", "var(--background-action-high-green-bourgeon-active)", "var(--background-contrast-orange-terre-battue)", "var(--background-action-low-blue-france)", "var(--background-contrast-green-bourgeon)", "var(--background-contrast-green-tilleul-verveine)", "var(--background-contrast-purple-glycine)", "var(--background-action-low-green-archipel)", "var(--border-default-beige-gris-galet)"];
             const title = 'Typologie des suspensions/interruptions'
             const target = this.canvasActeSuspensionTarget;
             // Récupérer et parser les données JSON
@@ -48,7 +48,7 @@ export default class extends Controller {
 
         }
         if (this.hasCanvasSuspensionsDistributionTarget) {
-            const colors = ["var(--background-active-red-marianne)", "var(--artwork-minor-blue-france)"];
+            const colors = ["var(--border-default-pink-macaron)"];
             const title = 'Répartition des actes par nombre de suspensions/interruptions'
             const target = this.canvasSuspensionsDistributionTarget;
             // Récupérer et parser les données JSON
@@ -70,13 +70,13 @@ export default class extends Controller {
 
             // Transformer les données pour le graphique
             const {categories, series} = this.formatMonthlyData(monthlyData);
-
+            const colors = ["var(--background-action-low-blue-france)", "var(--border-action-low-yellow-tournesol)"];
             // Générer le graphique
-            this.syntheseColumn(title, title_y, categories, series, target);
+            this.syntheseColumn(title, title_y, categories, series, target, colors);
         }
 
         if (this.hasCanvasActesProgrammeTarget) {
-            const colors = ["var(--background-action-low-blue-france-hover)",];
+            const colors = ["var(--background-flat-blue-france)",];
             const title = 'Top 10 des programmes par nombre d’actes'
             const target = this.canvasActesProgrammeTarget;
             // Récupérer et parser les données JSON
@@ -97,7 +97,7 @@ export default class extends Controller {
         }
 
         if (this.hasCanvasActesProgrammeSuspensionTarget) {
-            const colors = ["var(--background-active-red-marianne-active)",];
+            const colors = ["var(--border-default-blue-france)",];
             const title = 'Top 10 des programmes par nombre de suspensions/interruptions'
             const target = this.canvasActesProgrammeSuspensionTarget;
             // Récupérer et parser les données JSON
@@ -117,7 +117,7 @@ export default class extends Controller {
 
         }
         if (this.hasCanvasActeRepartitionTarget) {
-            const colors = ["var(--background-flat-green-archipel)", "var(--background-flat-beige-gris-galet)", "var(--background-flat-pink-tuile)"];
+            const colors = ["var(--background-contrast-pink-tuile-hover)", "var(--background-alt-beige-gris-galet-hover)","var(--background-contrast-green-archipel)" ];
             const title = 'Répartition des actes par type et par profil'
             const target = this.canvasActeRepartitionTarget;
             // Récupérer et parser les données JSON
@@ -137,7 +137,7 @@ export default class extends Controller {
                 data: data
             }];
 
-            const colors = ["var(--background-action-high-pink-tuile-hover)"];
+            const colors = ["var(--border-default-pink-macaron)"];
             const title = "Top 5 des motifs de suspension/interruption";
             const title_x = "Motif";
             const title_y = "Nombre de suspensions";
@@ -155,7 +155,7 @@ export default class extends Controller {
                     y: item.y
                 }))
             }];
-            const colors = ["var(--background-flat-green-archipel)", "var(--background-flat-beige-gris-galet)", "var(--background-flat-pink-tuile)"];
+            const colors = ["var(--background-contrast-pink-tuile-hover)", "var(--background-alt-beige-gris-galet-hover)","var(--background-contrast-green-archipel)" ];
             const title = 'Répartition des actes clôturés';
             //this.syntheseChart('acteRepartition')
             this.synthesePie(colors, title, series, target);
@@ -356,7 +356,7 @@ export default class extends Controller {
             "var(--background-alt-green-menthe-active)",
             "var(--background-action-high-red-marianne-active)",
             "var(--background-disabled-grey)",
-            "var(--background-action-high-beige-gris-galet)"
+            "var(--border-action-low-beige-gris-galet)"
         ];
         const chartConfig = {
             'avis': {
@@ -787,7 +787,7 @@ export default class extends Controller {
         this.chart.reflow();
     }
 
-    syntheseColumn(title, title_y, categories, series, target) {
+    syntheseColumn(title, title_y, categories, series, target, colors) {
         const options = {
             chart: {
                 type: 'column',
@@ -796,7 +796,7 @@ export default class extends Controller {
                 }
             },
             exporting: {enabled: false},
-            colors: ["var(--border-action-low-green-menthe)", "var(--background-action-high-success-hover)"],
+            colors: colors,
             title: {
                 text: title,
                 style: {
