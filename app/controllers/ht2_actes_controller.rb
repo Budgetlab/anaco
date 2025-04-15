@@ -2,6 +2,7 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
   before_action :set_variables_form, only: [:edit, :validate_acte]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs]
 
   def index
     @statut_user = current_user.statut
@@ -66,7 +67,7 @@ class Ht2ActesController < ApplicationController
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
     @acte.etat = params[:submit_action] if params[:submit_action].present?
-    @acte.date_cloture = Date.today if @etape == 8
+    @acte.date_cloture = Date.today if @etape == 8 && @acte.etat == 'clôturé'
     if @acte.update(ht2_acte_params)
       # Association du centre financier
       associate_centre_financier(@acte)
@@ -119,7 +120,7 @@ class Ht2ActesController < ApplicationController
     @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
     @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
-    @actes_par_mois = calculate_actes_par_mois(@ht2_actes)
+    @actes_par_mois = calculate_actes_par_mois(@ht2_actes, @statut_user == 'admin')
     @suspensions_distribution = calculate_suspensions_distribution(@ht2_actes_clotures)
     @top_suspension_motifs_chart_data = calculate_top_motifs(@ht2_actes_clotures)
     # Construire la requête agrégée
@@ -143,7 +144,7 @@ class Ht2ActesController < ApplicationController
     if @statut_user == 'admin'
       @stacked_type_acte_data = calculate_repartion(@ht2_actes_clotures)
     else
-      @repartition_acte = @ht2_actes_clotures.group(:type_acte).count.map{ |type_acte, count| { name: type_acte, y: count } }
+      @repartition_acte = @ht2_actes_clotures.group(:type_acte).count.map { |type_acte, count| { name: type_acte, y: count } }
     end
   end
 
@@ -244,7 +245,7 @@ class Ht2ActesController < ApplicationController
     stats
   end
 
-  def calculate_actes_par_mois(actes)
+  def calculate_actes_par_mois(actes, admin)
     # Obtenir l'année en cours
     current_year = Date.today.year
 
@@ -252,20 +253,50 @@ class Ht2ActesController < ApplicationController
     mois = (1..12).map do |month|
       debut_mois = Date.new(current_year, month, 1)
       fin_mois = Date.new(current_year, month, -1) # Dernier jour du mois
+      if admin
+        # Initialiser les compteurs par profil
+        created_cbr = actes
+                        .joins(:user)
+                        .where('date_chorus >= ? AND date_chorus <= ?', debut_mois, fin_mois)
+                        .where(users: { statut: 'CBR' }).count
 
-      # Compter les actes créés ce mois
-      actes_crees = actes.where('date_chorus >= ? AND date_chorus <= ?', debut_mois, fin_mois).count
+        created_dcb = actes
+                        .joins(:user)
+                        .where('date_chorus >= ? AND date_chorus <= ?', debut_mois, fin_mois)
+                        .where(users: { statut: 'DCB' }).count
 
-      # Compter les actes clôturés ce mois
-      actes_clotures = actes.where('date_cloture >= ? AND date_cloture <= ?', debut_mois, fin_mois)
-                            .where(etat: 'clôturé')
-                            .count
+        closed_cbr = actes
+                       .joins(:user)
+                       .where('date_cloture >= ? AND date_cloture <= ?', debut_mois, fin_mois)
+                       .where(etat: 'clôturé', users: { statut: 'CBR' }).count
 
-      {
-        mois: I18n.l(debut_mois, format: '%B'), # Nom du mois en français
-        actes_crees: actes_crees,
-        actes_clotures: actes_clotures
-      }
+        closed_dcb = actes
+                       .joins(:user)
+                       .where('date_cloture >= ? AND date_cloture <= ?', debut_mois, fin_mois)
+                       .where(etat: 'clôturé', users: { statut: 'DCB' }).count
+
+        {
+          mois: I18n.l(debut_mois, format: '%B'),
+          created_cbr: created_cbr,
+          created_dcb: created_dcb,
+          closed_cbr: closed_cbr,
+          closed_dcb: closed_dcb
+        }
+      else
+        # Compter les actes créés ce mois
+        actes_crees = actes.where('date_chorus >= ? AND date_chorus <= ?', debut_mois, fin_mois).count
+
+        # Compter les actes clôturés ce mois
+        actes_clotures = actes.where('date_cloture >= ? AND date_cloture <= ?', debut_mois, fin_mois)
+                              .where(etat: 'clôturé')
+                              .count
+
+        {
+          mois: I18n.l(debut_mois, format: '%B'), # Nom du mois en français
+          actes_crees: actes_crees,
+          actes_clotures: actes_clotures
+        }
+      end
     end
 
     mois

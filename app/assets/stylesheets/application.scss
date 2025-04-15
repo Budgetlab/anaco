@@ -345,3 +345,13 @@ a.fr-tag[aria-pressed=true]::after{
   margin: -4px 0 !important;
   padding: 0 !important;
 }
+
+.pie-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.pie-wrapper .fr-pie {
+  max-width: 400px;
+  width: 100%;
+}

@@ -146,7 +146,19 @@ export default class extends Controller {
             this.syntheseCol(colors, title, categories, series, target, title_x, title_y);
         }
         if (this.hasCanvasActeRepartitionPieTarget) {
-            this.syntheseChart('acteRepartition')
+            const target = this.canvasActeRepartitionPieTarget;
+            const data = JSON.parse(target.dataset.acteRepartition);
+            const series = [{
+                name: 'Catégorie',
+                data: data.map((item) => ({
+                    name: item.name,
+                    y: item.y
+                }))
+            }];
+            const colors = ["var(--background-flat-green-archipel)", "var(--background-flat-beige-gris-galet)", "var(--background-flat-pink-tuile)"];
+            const title = 'Répartition des actes clôturés';
+            //this.syntheseChart('acteRepartition')
+            this.synthesePie(colors, title, series, target);
         }
     }
 
@@ -162,16 +174,28 @@ export default class extends Controller {
             this.syntheseChart('notes2')
         }
         if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget) {
-            this.syntheseAvisDate();
+            const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-disabled-grey)"]
+            const title = 'Délais de programmation initiale';
+            const target = this.canvasAvisDateTarget;
+            const data = JSON.parse(this.data.get("avisdate"));
+            const series =    [{
+                name: 'Catégorie',
+                data: [
+                    {name: 'BOP initiaux reçus avant le 1er mars', y: data[0]},
+                    {name: 'BOP initiaux reçus entre le 1er et le 15 mars', y: data[1]},
+                    {name: 'BOP initiaux reçus entre le 15 et le 31 mars', y: data[2]},
+                    {name: 'BOP initiaux reçus après le 1er avril', y: data[3]},
+                    {name: 'BOP initiaux non reçus', y: data[4]},
+                ]
+            }]
+            this.synthesePie(colors, title, series, target);
         }
         if (notesbar != null && notesbar.length > 0 && this.hasCanvasNotesBarTarget) {
             this.syntheseNotesBar();
         }
     }
 
-    syntheseAvisDate() {
-        const data = JSON.parse(this.data.get("avisdate"));
-        const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-disabled-grey)"]
+    synthesePie(colors, title, series, target) {
         const options = {
             chart: {
                 height: '100%',
@@ -200,7 +224,7 @@ export default class extends Controller {
             }),
 
             title: {
-                text: 'Délais de programmation initiale',
+                text: title,
 
                 style: {
                     fontSize: '13px',
@@ -239,18 +263,9 @@ export default class extends Controller {
                     showInLegend: true,
                 }
             },
-            series: [{
-                name: 'Catégorie',
-                data: [
-                    {name: 'BOP initiaux reçus avant le 1er mars', y: data[0]},
-                    {name: 'BOP initiaux reçus entre le 1er et le 15 mars', y: data[1]},
-                    {name: 'BOP initiaux reçus entre le 15 et le 31 mars', y: data[2]},
-                    {name: 'BOP initiaux reçus après le 1er avril', y: data[3]},
-                    {name: 'BOP initiaux non reçus', y: data[4]},
-                ]
-            }]
+            series: series
         }
-        this.chart = Highcharts.chart(this.canvasAvisDateTarget, options);
+        this.chart = Highcharts.chart(target, options);
         this.chart.reflow();
     }
 
@@ -805,6 +820,9 @@ export default class extends Controller {
                     text: title_y,
                 },
                 gridLineColor: 'var(--text-inverted-grey)',
+                stackLabels: {
+                    enabled: true
+                },
             },
             tooltip: {
                 headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
@@ -816,6 +834,7 @@ export default class extends Controller {
             },
             plotOptions: {
                 column: {
+                    stacking: 'normal',
                     pointPadding: 0.2,
                     borderWidth: 0,
                     dataLabels: {
@@ -836,17 +855,46 @@ export default class extends Controller {
         // Extraire les noms des mois pour les catégories
         const categories = data.map(item => item.mois);
 
-        // Créer les séries pour les actes créés et clôturés
-        const series = [
-            {
-                name: 'Actes créés',
-                data: data.map(item => item.actes_crees),
-            },
-            {
-                name: 'Actes clôturés',
-                data: data.map(item => item.actes_clotures),
-            }
-        ];
+        // Détection admin : présence des clés 'created_cbr' et 'closed_dcb'
+        const isAdmin = data[0] && 'created_cbr' in data[0];
+
+        let series;
+
+        if (isAdmin) {
+            series = [
+                {
+                    name: 'Actes créés - CBR',
+                    stack: 'Créés',
+                    data: data.map(item => item.created_cbr),
+                },
+                {
+                    name: 'Actes créés - DCB',
+                    stack: 'Créés',
+                    data: data.map(item => item.created_dcb),
+                },
+                {
+                    name: 'Actes clôturés - CBR',
+                    stack: 'Clôturés',
+                    data: data.map(item => item.closed_cbr),
+                },
+                {
+                    name: 'Actes clôturés - DCB',
+                    stack: 'Clôturés',
+                    data: data.map(item => item.closed_dcb),
+                },
+            ];
+        } else {
+            series = [
+                {
+                    name: 'Actes créés',
+                    data: data.map(item => item.actes_crees),
+                },
+                {
+                    name: 'Actes clôturés',
+                    data: data.map(item => item.actes_clotures),
+                },
+            ];
+        }
 
         return {categories, series};
     }

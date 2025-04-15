@@ -110,12 +110,15 @@
         <% if @statut_user == 'admin' %>
           <div data-highcharts-target="canvasActeRepartition" data-acte-repartition="<%= @stacked_type_acte_data.to_json %>"></div>
         <% else %>
-          <div data-highcharts-target="canvasActeRepartitionPie" data-acte-repartition="<%= @repartition_acte.to_json %>"></div>
+          <div class="pie-wrapper">
+            <div class="fr-pie">
+              <div data-highcharts-target="canvasActeRepartitionPie" data-acte-repartition="<%= @repartition_acte.to_json %>"></div>
+            </div>
+          </div>
         <% end %>
       </div>
       <div class="fr-col-12 fr-col-lg-6">
         <div data-highcharts-target="canvasSuspensionsDistribution" data-acte-suspdistrib="<%= @suspensions_distribution.to_json %>"></div>
-
       </div>
     </div>
 

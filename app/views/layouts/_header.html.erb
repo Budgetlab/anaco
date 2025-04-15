@@ -145,6 +145,13 @@
                       bord
                     <% end %>
                   </li>
+                  <% if current_user.statut == "admin" %>
+                    <li>
+                      <%= active_link_to synthese_users_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>
+                        Suivi du remplissage
+                      <% end %>
+                    </li>
+                  <% end %>
                 </ul>
               </div>
             </li>
