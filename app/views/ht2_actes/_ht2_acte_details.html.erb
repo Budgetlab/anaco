@@ -201,14 +201,14 @@
   <div data-fr-group="true" class="fr-accordions-group">
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
-        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1-<%= acte.id %>">Disponibilité
           des crédits
           <% if acte.disponibilite_credits == true %>
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
           <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
           <% end %></button>
       </h3>
-      <div id="accordion-id-1" class="fr-collapse">
+      <div id="accordion-id-1-<%= acte.id %>" class="fr-collapse">
         <p>Critère respecté :
           <% if acte.disponibilite_credits == true %>Oui
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
@@ -219,7 +219,7 @@
     </section>
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
-        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2-<%= acte.id %>">Imputation
           de
           la dépense
           <% if acte.imputation_depense == true %>
@@ -227,7 +227,7 @@
           <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
           <% end %></button>
       </h3>
-      <div id="accordion-id-2" class="fr-collapse">
+      <div id="accordion-id-2-<%= acte.id %>" class="fr-collapse">
         <p>Critère respecté :
           <% if acte.imputation_depense == true %>Oui
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
@@ -238,7 +238,7 @@
     </section>
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
-        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3-<%= acte.id %>">Exactitude
           de
           l’évaluation de la consommation des crédits
           <% if acte.consommation_credits == true %>
@@ -246,7 +246,7 @@
           <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
           <% end %></button>
       </h3>
-      <div id="accordion-id-3" class="fr-collapse">
+      <div id="accordion-id-3-<%= acte.id %>" class="fr-collapse">
         <p>Critère respecté :
           <% if acte.consommation_credits == true %>Oui
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
@@ -257,14 +257,14 @@
     </section>
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
-        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité
+        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4-<%= acte.id %>">Compatibilité
           avec la programmation annuelle et pluriannuelle
           <% if acte.programmation == true %>
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
           <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
           <% end %></button>
       </h3>
-      <div id="accordion-id-4" class="fr-collapse">
+      <div id="accordion-id-4-<%= acte.id %>" class="fr-collapse">
         <p>Critère respecté :
           <% if acte.programmation == true %>Oui
             <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
