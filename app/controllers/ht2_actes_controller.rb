@@ -6,7 +6,7 @@ class Ht2ActesController < ApplicationController
 
   def index
     @statut_user = current_user.statut
-    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
+    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').includes(:user).order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)

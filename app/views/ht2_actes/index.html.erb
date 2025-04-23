@@ -363,7 +363,11 @@
                     <thead>
                     <tr class="fr-cell--multiline">
                       <th scope="col">N°acte</th>
-                      <th scope="col">Agent valideur</th>
+                      <% if ['DCB', 'CBR'].include?(@statut_user) %>
+                        <th scope="col">Agent valideur</th>
+                      <% else %>
+                        <th scope="col">Contrôleur</th>
+                      <% end %>
                       <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
                       <th scope="col">N°Chorus</th>
@@ -388,7 +392,7 @@
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                           n°<%= acte.numero_utilisateur %></td>
-                        <td><p class="fr-tag"><%= acte.valideur %></p></td>
+                        <td><p class="fr-tag"><% if ['DCB', 'CBR'].include?(@statut_user) %><%= acte.valideur %><% else %><%= acte.user.nom %><% end %></p></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
