@@ -378,3 +378,7 @@ a.fr-tag[aria-pressed=true]::after{
 .autocomplete-item:hover {
   background-color: #f0f0f0;
 }
+
+.flatpickr-calendar {
+  z-index: 99999 !important; /* ou plus, selon le z-index de ton modal */
+}

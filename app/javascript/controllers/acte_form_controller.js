@@ -41,6 +41,9 @@ export default class extends Controller {
     }
 
     confirmValidation(event) {
+        this.submitActionTarget.value = "en attente de validation Chorus"
+    }
+    confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
     }
 

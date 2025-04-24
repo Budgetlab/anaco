@@ -65,7 +65,10 @@
                         <% if @acte.type_acte != 'TF' %>
                           <th>Bénéficiaire</th>
                         <% end %>
-                        <th><% if @acte.type_acte == 'TF' %>Opération d’investissement<%else %>Objet<%end %></th>
+                        <th>
+                          <% if @acte.type_acte == 'TF' %>Opération d’investissement
+                          <% else %>Objet
+                          <% end %></th>
                         <th>Ordonnateur</th>
                       </tr>
                       </thead>
@@ -222,80 +225,64 @@
               </div>
             </div>
             <div class="fr-h6 fr-my-3w">Critères</div>
-            <div data-fr-group="true" class="fr-accordions-group">
-              <section class="fr-accordion">
-                <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-1">Disponibilité
-                    des crédits
-                    <% if @acte.disponibilite_credits == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %></button>
-                </h3>
-                <div id="accordion-id-1" class="fr-collapse">
-                  <p>Critère respecté :
-                    <% if @acte.disponibilite_credits == true %>Oui
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
-                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
-                    <% end %></p>
-                  <p><%= @acte.commentaire_disponibilite_credits %></p>
+            <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table id="table-echeancier">
+                      <caption> Critères</caption>
+                      <thead>
+                      <tr>
+                        <th> Disponibilité des crédits</th>
+                        <th> Imputation de la dépense</th>
+                        <th> Exactitude de l’évaluation de la consommation des crédits</th>
+                        <th> Compatibilité avec la programmation annuelle et pluriannuelle</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+
+                      <tr>
+
+                        <td>
+                          <% if @acte.disponibilite_credits == true %>
+                            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                          <% else %>
+                            <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                          <% end %>
+                        </td>
+
+                        <td>
+                          <% if @acte.imputation_depense == true %>
+                            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                          <% else %>
+                            <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% if @acte.consommation_credits == true %>
+                            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                          <% else %>
+                            <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% if @acte.programmation == true %>
+                            <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                          <% else %>
+                            <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                          <% end %>
+                        </td>
+                      </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </section>
-              <section class="fr-accordion">
-                <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-2">Imputation
-                    de la dépense
-                    <% if @acte.imputation_depense == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %></button>
-                </h3>
-                <div id="accordion-id-2" class="fr-collapse">
-                  <p>Critère respecté :
-                    <% if @acte.imputation_depense == true %>Oui
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
-                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
-                    <% end %></p>
-                  <p><%= @acte.commentaire_imputation_depense %></p>
-                </div>
-              </section>
-              <section class="fr-accordion">
-                <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-3">Exactitude
-                    de l’évaluation de la consommation des crédits
-                    <% if @acte.consommation_credits == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %></button>
-                </h3>
-                <div id="accordion-id-3" class="fr-collapse">
-                  <p>Critère respecté :
-                    <% if @acte.consommation_credits == true %>Oui
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
-                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
-                    <% end %></p>
-                  <p><%= @acte.commentaire_consommation_credits %></p>
-                </div>
-              </section>
-              <section class="fr-accordion">
-                <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-id-4">Compatibilité
-                    avec la programmation annuelle et pluriannuelle
-                    <% if @acte.programmation == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %></button>
-                </h3>
-                <div id="accordion-id-4" class="fr-collapse">
-                  <p>Critère respecté :
-                    <% if @acte.programmation == true %>Oui
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
-                    <% else %>Non <span class="fr-icon-error-fill fr-icon--sm crouge" aria-hidden="true"></span>
-                    <% end %></p>
-                  <p><%= @acte.commentaire_programmation %></p>
-                </div>
-              </section>
+              </div>
             </div>
+            <div class="fr-mt-2w fr-text--bold">Observations</div>
+            <p><%= format_value(@acte.commentaire_disponibilite_credits) %></p>
+
 
             <% if @acte.suspensions.count > 0 %>
               <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
@@ -355,8 +342,38 @@
                 <div class="fr-text--bold"><%= auto_link(simple_format(format_value(@acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
               </div>
             </div>
+            <% if @acte.etat == 'en attente de validation' %>
+              <%= render 'form_validation' %>
+            <% elsif @acte.etat == 'en attente de validation Chorus' %>
+              <div class="fr-h6 fr-my-3w">Validation finale</div>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-lg-6">
+                  <div>Décision finale de contrôle</div>
+                  <div>
+                    <p class="<%= badge_class_for_decision(@acte.decision_finale) %>"><%= @acte.decision_finale %></p>
+                  </div>
+                </div>
+                <div class="fr-col-12 fr-col-lg-6">
+                  <div class="fr-mt-2w">Initales du valideur</div>
+                  <div class="fr-text--bold"><%= format_value(@acte.valideur) %></div>
+                </div>
+              </div>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-lg-12">
+                  <% if @acte.type_observations.present? %>
+                    <div class="fr-mt-2w">Type d'observations</div>
 
-            <%= render 'form_validation' %>
+                    <% @acte.type_observations&.each do |observation| %>
+                      <p class="fr-tag fr-my-1v"><%= observation %></p>
+                    <% end %>
+                  <% end %>
+
+                  <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
+                  <div class="fr-text--bold"><%= auto_link(simple_format(format_value(@acte.observations)), :html => { :target => '_blank' }) %></div>
+                </div>
+              </div>
+              <%= render 'form_cloture' %>
+            <% end %>
           </div>
         </div>
       </div>

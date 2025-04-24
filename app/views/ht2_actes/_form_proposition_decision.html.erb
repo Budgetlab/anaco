@@ -2,7 +2,7 @@
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
-    <%= hidden_field_tag :etape, 7 %>
+    <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
     <template data-nested-form-target="template">
       <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>

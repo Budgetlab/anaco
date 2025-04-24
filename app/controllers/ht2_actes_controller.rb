@@ -6,21 +6,25 @@ class Ht2ActesController < ApplicationController
 
   def index
     @statut_user = current_user.statut
-    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').includes(:user).order(created_at: :desc) : current_user.ht2_actes.order(created_at: :desc)
+    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').includes(:user).order(date_cloture: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
     @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
+    @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation], search_key: :q_validation)
     @q_cloture = filtered_actes.where(etat: 'clôturé').ransack(params[:q_cloture], search_key: :q_cloture)
 
     @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
     @actes_instruction_all = @q_instruction.result(distinct: true)
     @actes_validation_all = @q_validation.result(distinct: true)
+    @actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
     @actes_suspendu_all = filtered_actes.where(etat: 'suspendu').includes(:suspensions)
     @actes_cloture_all = @q_cloture.result(distinct: true)
+
     @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
     @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
     @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
+    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus)
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
 
@@ -67,14 +71,13 @@ class Ht2ActesController < ApplicationController
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
     @acte.etat = params[:submit_action] if params[:submit_action].present?
-    @acte.date_cloture = Date.today if @etape == 8 && @acte.etat == 'clôturé'
     if @acte.update(ht2_acte_params)
       # Association du centre financier
-      associate_centre_financier(@acte)
+      associate_centre_financier(@acte) if @etape == 2
       # Calculer le délai de traitement si l'acte est clôturé
       set_delai_traitement(@acte) if @acte.etat == 'clôturé'
       # Déterminer le chemin de redirection
-      path = @etape <= 6 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
+      path = @etape <= 3 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       @message = "Acte #{@acte.etat} enregistré avec succès."
       redirect_to path, notice: @message
     else
