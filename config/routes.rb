@@ -58,8 +58,9 @@ Rails.application.routes.draw do
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
     get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
-    resources :centre_financiers
+    resources :centre_financiers, only: [:new]
     post 'import_cf', to: 'centre_financiers#import'
+    get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
 
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'

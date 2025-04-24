@@ -887,10 +887,12 @@ export default class extends Controller {
             series = [
                 {
                     name: 'Actes créés',
+                    stack: 'Créés',
                     data: data.map(item => item.actes_crees),
                 },
                 {
                     name: 'Actes clôturés',
+                    stack: 'Clôturés',
                     data: data.map(item => item.actes_clotures),
                 },
             ];

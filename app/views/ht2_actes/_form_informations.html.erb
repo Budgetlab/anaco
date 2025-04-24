@@ -28,19 +28,32 @@
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
-        <div class="fr-input-group">
+        <div class="fr-input-group" data-controller="autocomplete" data-autocomplete-url-value="<%= centre_financiers_autocomplete_path %>">
           <label for="centre_financier_code" class="fr-label">Centre financier
             <% if ['visa', 'TF'].include?(@acte.type_acte) %>*
-            <% end %></label>
-          <%= f.text_field :centre_financier_code, value: @acte.centre_financier_code, id: "centre_financier_code", class: "fr-input", data: ['visa', 'TF'].include?(@acte.type_acte) ? { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission" } : {} %>
+            <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "cf" } %></label>
+          <%= f.text_field :centre_financier_code, value: @acte.centre_financier_code, id: "centre_financier_code", class: "fr-input",
+                           data: {
+                             acte_form_target: ['visa', 'TF'].include?(@acte.type_acte) ? 'fieldRequire' : nil,
+                             action: "input->acte-form#checkSubmission input->autocomplete#search",
+                             autocomplete_target: "input"
+                           } %>
+          <div class="autocomplete-results" data-autocomplete-target="results" hidden>
+            <!-- Les résultats seront insérés ici par JavaScript -->
+          </div>
+          <p class="fr-message fr-message--info fr-text--small" data-autocomplete-target="noResults">
+            Ce centre financier n'est pas enregistré dans notre base
+          </p>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
           <label for="montant_ae" class="fr-label">
-            <% if @acte.type_acte == 'avis' %>Montant estimatif global (AE)* <%= render partial: "ht2_actes/tooltip", locals: { name: "avis_montant_ae" } %>
+            <% if @acte.type_acte == 'avis' %>Montant estimatif global
+              (AE)* <%= render partial: "ht2_actes/tooltip", locals: { name: "avis_montant_ae" } %>
             <% elsif @acte.type_acte == 'visa' %>Montant engagé*
-            <% elsif @acte.type_acte == 'TF' %>Montant total affecté* <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
+            <% elsif @acte.type_acte == 'TF' %>Montant total
+              affecté* <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
             <% end %></label>
           <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission input->acte-form#changeNumber", acte_form_number_field: true } %>
         </div>
@@ -54,7 +67,9 @@
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
-          <label for="numero_chorus" class="fr-label">N° Chorus <% if @acte.type_acte == 'TF' %>de la TF<%end %></label>
+          <label for="numero_chorus" class="fr-label">N° Chorus
+            <% if @acte.type_acte == 'TF' %>de la TF
+            <% end %></label>
           <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id } %>
           <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
             avec ce numéro Chorus existe déjà</p>

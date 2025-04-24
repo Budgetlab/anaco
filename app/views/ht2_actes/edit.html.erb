@@ -55,7 +55,7 @@
                 </li>
                 <li class="fr-sidemenu__item">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 2), 'aria-current': @etape == 2, class: "fr-sidemenu__link" do %>
-                    Étape 2 : Contrôle de la disponibilité des crédits
+                    Étape 2 : Contrôle des critères
                     <% if @acte.disponibilite_credits == false %>
                       <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
                     <% elsif @acte.disponibilite_credits == true %>
@@ -64,7 +64,7 @@
                   <% end %>
                 </li>
 
-                <li class="fr-sidemenu__item">
+                <li class="fr-sidemenu__item fr-hidden">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 3), 'aria-current': @etape == 3, class: "fr-sidemenu__link" do %>
                     Étape 3 : Contrôle de l’imputation de la dépense
                     <% if @acte.imputation_depense == false %>
@@ -74,7 +74,7 @@
                     <% end %>
                   <% end %>
                 </li>
-                <li class="fr-sidemenu__item">
+                <li class="fr-sidemenu__item fr-hidden">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 4), 'aria-current': @etape == 4, class: "fr-sidemenu__link" do %>
                     Étape 4 : Contrôle de l’exactitude de l’évaluation de la
                     consommation des crédits
@@ -85,7 +85,7 @@
                     <% end %>
                   <% end %>
                 </li>
-                <li class="fr-sidemenu__item">
+                <li class="fr-sidemenu__item fr-hidden">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 5), 'aria-current': @etape == 5, class: "fr-sidemenu__link" do %>
                     Étape 5 : Contrôle de la compatibilité avec la programmation
                     annuelle et pluriannuelle
@@ -98,7 +98,7 @@
                 </li>
                 <li class="fr-sidemenu__item">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 6), 'aria-current': @etape == 6, class: "fr-sidemenu__link" do %>
-                    Étape 6 : Proposition de décision de contrôle
+                    Étape 3 : Proposition de décision de contrôle
                     <% if @acte.etat == "suspendu" %>
                       <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
                     <% end %>
@@ -115,7 +115,7 @@
         <% when 1 %>
           <%= render 'form_informations' %>
         <% when 2 %>
-          <%= render 'form_disponibilite_credits' %>
+          <%= render 'form_criteres' %>
         <% when 3 %>
           <%= render 'form_imputation_depense' %>
         <% when 4 %>

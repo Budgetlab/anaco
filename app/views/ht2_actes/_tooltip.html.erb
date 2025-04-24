@@ -8,5 +8,37 @@
     En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
   <% elsif name == "tf_montant_ae" %>
     En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation.
+  <% elsif name == "cf" %>
+    Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001.
+  <% elsif name == "disponibilite_credits" %>
+    Le système d’information Chorus permet d’apprécier en temps réel et de manière automatique la disponibilité des crédits en AE sur le centre financier permettant d’engager la dépense. <br>Le contrôle de la disponibilité des crédits opéré par le contrôleur doit cibler :<br><br>
+• une éventuelle concomitance de demandes d’achat en cours de traitement (non encore comptabilisées dans le SI)  et pouvant conduire à une indisponibilité de crédits;<br>
+• la prise en compte d’éléments de contexte externe concernant l’évolution de la ressource du programme (mouvement en cours ou à venir à l’instar de décret de virement/transfert, annulation, avance, LFR, LFG, perception de FDC, ADP, RDC). A cet égard, une attention particulière doit être portée pendant la période de fin de gestion où le schéma de fin de gestion peut avoir un impact direct sur le niveau de la ressource. Des échanges entre CBR/DCB, avec le RFFIM et le BS peuvent contribuer à apprécier ces éléments de contexte de la manière la plus juste et la plus à jour;<br>
+• le suivi des délégations de crédits fléchées (en particulier en BOP déconcentrés) par rapport aux dépenses à financer;<br>
+• la disponibilité des CP nécessaires au paiement lorsque le SF sera certifié dans l’année.
+  <%elsif name == "imputation_depense" %>
+    Le contrôle de l’imputation de la dépense nécessite notamment un examen des points suivants :<br><br>
+• vérification du respect du principe de spécialité du programme. Les éléments présentés dans le projet annuel de performance doivent permettre d’apprécier ce principe;<br>
+• vérification du choix du centre financier (BOP/UO);<br>
+• vérification de la bonne application des nomenclatures d’imputation, notamment la nomenclature par activité, action, sous-action (la charte de gestion du programme peut donner des indications), titre, catégorie le groupe marchandise, le compte PCE;<br>
+• vérification du code fonds en cas de dépenses sur crédits issus de fonds de concours;<br>
+• vérification de l’imputation sur le bon axe ministériel;<br>
+• vérification de la concordance avec les éléments des pièces justificatives transmises par l’ordonnateur;<br><br>
+Des échanges avec le comptable peuvent être utiles s’agissant du contrôle des imputations comptables.<br>
+                  Référence documentaire: RRCBE
+  <% elsif name == "consommation_credits" %>
+    Le critère de l’évaluation de la consommation des crédits concerne à la fois le montant des AE à engager et le montant des CP qui seront décaissés, en particulier dans l’année. <br>
+                Il faut se référer au RRCBE pour vérifier le respect des règles et la doctrine applicables pour le décompte des AE et des CP.<br><br>
+Les points d’attention suivants peuvent être signalés s’agissant contrôle du montant des AE :<br><br>
+• la concordance entre le montant présenté à la l’engagement ou à l’affectation et la réalité du montant tel qu’il découle de la lecture des pièces transmises (acte d’engagement, convention, arrêté, etc.). Une attention particulière doit être portée à la bonne prise en compte des engagements pluriannuels.<br>
+• pour certains types de dépenses (marché de travaux), bien prendre en compte les montants correspondant à des provisions pour révisions de prix et aléas;<br><br>
+Si le respect de la qualité d’ordonnateur ne fait pas partie des critères du contrôle, le contrôleur peut attirer l’attention du service prescripteur s’il détecte une anomalie.
+  <% elsif name == "programmation" %>
+    La programmation est celle présentée par le RPROG ou le RBOP à l’occasion du début de la gestion, le cas échéant actualisée en cours d’année notamment à l’occasion des CRG. Elle porte sur l’année en cours et l’année suivante.<br>
+Elle est en principe effectuée à la maille de l’activité. En cas d’impossibilité de disposer de données suffisamment actualisées à cette maille, il est possible de l’apprécier à une maille un peu plus large (brique par exemple) à la condition que les données présentées restent cohérentes.<br>
+La liste des principaux actes de gestion permet de contrôler la cohérence de leur prise en compte dans la programmation des dépenses.<br>
+Le contrôleur est fondé à solliciter une actualisation de la programmation et de la liste des actes de gestion s’il apparait qu’une demande d’avis ou de visa n’est pas compatible avec la programmation. Le RPROG ou le RBOP doit alors fournir les éléments permettant d’apprécier cette compatibilité (modification de la ressource permettant d’envisager une nouvelle dépense, repriorisation de certaines dépenses, identification d’économies dument documentées, etc.).<br>
+La pluriannualité s’apprécie à travers la communication d’une chronique d’AE et CP cohérente par l’ordonnateur compatible avec les informations fournies en programmation. Le contrôleur est fondé à demander une documentation précise de ces chroniques d’AE et CP. Si un engagement donne lieu à une trajectoire pluriannuelle de décaissements de CP significatifs et peu pilotables dépassant les 2 années prévues en programmation, il est fondé à signaler ce risque de soutenabilité dans ses observations ainsi qu’au BS.<br>
+La période de la fin de gestion est particulièrement sensible dans la mesure où le schéma de fin de gestion n’est pas toujours stabilisé suffisamment tôt pour s’assurer de la soutenabilité de certaines dépenses de fin d’année. De même la publication d’un DA de fin de gestion ou la promulgation d’une LFR ou d’une LFG peuvent s’avérer assez tardives. Le contrôleur doit solliciter toute information lui permettant d’étayer son analyse de la soutenabilité, au besoin à travers d’échanges entre le DCB/CBR, le RPROG/RBOP/RFFIM, le BS.
   <% end %>
 </span>
