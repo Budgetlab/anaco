@@ -1,6 +1,7 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
+  has_many :programmes, through: :centre_financiers
   has_many :suspensions, dependent: :destroy
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy

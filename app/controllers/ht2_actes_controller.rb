@@ -112,8 +112,23 @@ class Ht2ActesController < ApplicationController
 
   def synthese
     @statut_user = current_user.statut
+    # Récupérer tous les programmes disponibles pour le filtre
+    @programmes = if @statut_user == 'admin'
+                    Programme.all
+                  else
+                    Programme.joins(centre_financiers: { ht2_actes: :user })
+                             .where(ht2_actes: { user_id: current_user.id })
+                             .distinct
+                  end
     # chargement des actes en fonction du profil
     @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
+    # Récupérer le programme sélectionné (s'il y en a un)
+    @selected_programme_id = params[:programme_id].presence
+    # Filtrer par programme si un programme est sélectionné
+    if @selected_programme_id.present?
+      @ht2_actes = @ht2_actes.joins(centre_financiers: :programme)
+                             .where(centre_financiers: { programme_id: @selected_programme_id })
+    end
     # Précharger les associations nécessaires
     @ht2_actes = @ht2_actes.includes(:suspensions)
     # Réutiliser la même scope pour les actes clôturés

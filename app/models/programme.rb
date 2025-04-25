@@ -7,6 +7,7 @@ class Programme < ApplicationRecord
   has_many :gestion_schemas, dependent: :destroy
   has_many :schemas, dependent: :destroy
   has_many :centre_financiers
+  has_many :ht2_actes, through: :centre_financiers
 
   scope :active, -> { where(statut: 'Actif') }
   scope :accessible, -> { where(statut: 'Actif').or(where(statut: 'Inactif')) }

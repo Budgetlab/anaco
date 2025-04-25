@@ -1,5 +1,6 @@
 class CentreFinancier < ApplicationRecord
   has_and_belongs_to_many :ht2_actes
+  belongs_to :programme, optional: true
 
   def self.ransackable_associations(auth_object = nil)
     ["ht2_actes"]
