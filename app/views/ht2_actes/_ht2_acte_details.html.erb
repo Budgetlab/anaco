@@ -19,6 +19,7 @@
             <thead>
             <tr class="fr-cell--multiline">
               <th>Instructeur</th>
+              <th>Valideur</th>
               <th>
                 <% if acte.type_acte == 'TF' %>Type d’affectation
                 <% else %>Nature de l'acte
@@ -36,6 +37,7 @@
             <tbody>
             <tr class="fr-cell--multiline">
               <td> <%= acte.instructeur %> </td>
+              <td> <%= format_value(acte.valideur) %></td>
               <td> <%= acte.nature %></td>
               <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
               <td> <%= format_value(acte.numero_chorus) %></td>
@@ -252,8 +254,8 @@
       </div>
     </div>
   </div>
-  <div class="fr-mt-2w fr-text--bold">Observations</div>
-  <p><%= format_value(acte.commentaire_disponibilite_credits) %></p>
+  <div class="fr-mt-2w">Observations</div>
+  <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
 
 
   <% if acte.suspensions.present? %>
@@ -300,12 +302,6 @@
       <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
       </div>
 
-      <div class="fr-mt-2w">Auto-évaluation de la complexité de l'acte</div>
-      <div class="fr-text--bold">
-        <% if acte.complexite.present? %><p class="fr-tag"><%= acte.complexite %>/5</p>
-        <% else %>Non renseigné
-        <% end %></div>
-
       <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
       <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
     </div>
@@ -315,9 +311,6 @@
 
         <div>Décision finale</div>
         <div><p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p></div>
-
-        <div class="fr-mt-2w">Initales du valideur</div>
-        <div class="fr-text--bold"><%= format_value(acte.valideur) %></div>
 
         <% if acte.type_observations.present? %>
           <div class="fr-mt-2w">Type d'observations</div>

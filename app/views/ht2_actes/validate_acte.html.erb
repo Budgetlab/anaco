@@ -280,8 +280,8 @@
                 </div>
               </div>
             </div>
-            <div class="fr-mt-2w fr-text--bold">Observations</div>
-            <p><%= format_value(@acte.commentaire_disponibilite_credits) %></p>
+            <div class="fr-mt-2w">Observations</div>
+            <div class="fr-text--bold"><%= format_value(@acte.commentaire_disponibilite_credits) %></div>
 
 
             <% if @acte.suspensions.count > 0 %>
@@ -327,13 +327,6 @@
                 <div>
                   <p class="<%= badge_class_for_decision(@acte.proposition_decision) %>"><%= @acte.proposition_decision %></p>
                 </div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-6">
-                <div>Auto-évaluation de la complexité de l'acte</div>
-                <div class="fr-text--bold">
-                  <% if @acte.complexite.present? %><p class="fr-tag"><%= @acte.complexite %>/5</p>
-                  <% else %>Non renseigné
-                  <% end %></div>
               </div>
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">

@@ -4,21 +4,34 @@
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
     <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-    <template data-nested-form-target="template">
-      <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
+    <% if @acte.etat == "en pré-instruction" %>
+      <div class="fr-notice fr-notice--warning fr-mb-2w">
+        <div class="fr-container">
+          <div class="fr-notice__body">
+            <p>
+              <span class="fr-notice__title">L'acte est en pré-instruction. Vous ne pouvez pas soumettre l'acte à validation ni ajouter de suspensions/interruption tant que vous n'avez pas renseignés les informations Chorus à l'étape 1. </span>
+
+            </p>
+            <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <template data-nested-form-target="template">
+        <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
+          <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+        <% end %>
+      </template>
+
+      <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
         <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
       <% end %>
-    </template>
 
-    <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
-      <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+      <!-- Inserted elements will be injected before that target. -->
+      <div data-nested-form-target="target"></div>
+      <button type="button" data-action="nested-form#add" class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left fr-mb-2w">Ajouter
+        une <%= type_suspension %></button>
     <% end %>
-
-    <!-- Inserted elements will be injected before that target. -->
-    <div data-nested-form-target="target"></div>
-    <button type="button" data-action="nested-form#add" class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left fr-mb-2w">Ajouter
-      une <%= type_suspension %></button>
-
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
@@ -26,12 +39,7 @@
           <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
         </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-6">
-        <div class="fr-select-group">
-          <label for="complexite" class="fr-label">Auto-évaluation de la complexité de l’acte</label>
-          <%= f.select :complexite, [["- sélectionner -", ""], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']], { selected: @acte.complexite }, { id: "complexite", class: "fr-select" } %>
-        </div>
-      </div>
+
     </div>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
@@ -47,7 +55,8 @@
         </div>
         <div data-controller="multi-select">
           <div class="fr-select-group">
-            <label for="type_observations" class="fr-label">Type d'observations <span class="fr-hint-text">Plusieurs choix possibles</span></label>
+            <label for="type_observations" class="fr-label">Type d'observations
+              <span class="fr-hint-text">Plusieurs choix possibles</span></label>
             <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
                            id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
           </div>
