@@ -14,7 +14,17 @@ class CentreFinanciersController < ApplicationController
     render json: @centre_financiers.map { |cf| { code: cf.code, id: cf.id } }
   end
 
-  def new; end
+  def new
+    Programme.all.each do |programme|
+      code = "0#{programme.numero}"
+      next if CentreFinancier.exists?(code: code)
+
+      cf = CentreFinancier.new
+      cf.code = code
+      cf.programme_id = programme.id
+      cf.save
+    end
+  end
 
   def import
     CentreFinancier.import(params[:file])

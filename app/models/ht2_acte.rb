@@ -18,24 +18,6 @@ class Ht2Acte < ApplicationRecord
       format: :jpg
     }
   end
-  has_rich_text :commentaire_imputation_depense do |attachable|
-    attachable.image_processing_options = {
-      resize_to_limit: [nil, 400],
-      format: :jpg
-    }
-  end
-  has_rich_text :commentaire_consommation_credits do |attachable|
-    attachable.image_processing_options = {
-      resize_to_limit: [nil, 400],
-      format: :jpg
-    }
-  end
-  has_rich_text :commentaire_programmation do |attachable|
-    attachable.image_processing_options = {
-      resize_to_limit: [nil, 400],
-      format: :jpg
-    }
-  end
 
   scope :en_attente_validation, -> { where(etat: ["en attente de validation"]) }
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
@@ -46,7 +28,7 @@ class Ht2Acte < ApplicationRecord
     ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale","delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur","objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_consommation_credits", "rich_text_commentaire_disponibilite_credits", "rich_text_commentaire_imputation_depense", "rich_text_commentaire_programmation", "suspensions", "user"]
+    ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
@@ -133,6 +115,22 @@ class Ht2Acte < ApplicationRecord
   # Méthode pour compter les actes clôturés avec délai > 15 jours
   def self.count_with_long_delay(seuil = 15)
     count { |acte| acte.delai_traitement.to_i > seuil }
+  end
+
+  def duree_total
+    (date_cloture - date_chorus).to_i
+  end
+
+  def self.duree_total_moyenne
+    # Si aucun acte, retourne 0
+    return 0 if count.zero?
+    # Somme des délais de traitement
+    somme_durees = sum do |acte|
+      acte.duree_total || 0
+    end
+
+    # Calcul de la moyenne
+    (somme_durees / count.to_f).round
   end
 
   # Calcule le délai moyen de traitement des actes clôturés

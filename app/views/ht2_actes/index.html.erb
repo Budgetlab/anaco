@@ -140,10 +140,10 @@
                       <tr class="fr-cell--multiline">
                         <th scope="col">N°acte</th>
                         <th scope="col">Agent</th>
+                        <th scope="col">Centre financier</th>
                         <th scope="col">Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
-                        <th scope="col">Date réception Chorus</th>
                         <th scope="col">
                           <% sort_date = "" %>
                           <% if params[:q_instruction] && params[:q_instruction][:s] == "date_limite desc" %>
@@ -165,10 +165,10 @@
                           <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                             n°<%= acte.numero_utilisateur %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td><%= acte.centre_financier_code %></td>
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
-                          <td><%= l(acte.date_chorus, format: "%e/%m/%y") %></td>
                           <td>
                             <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
                           </td>
@@ -221,6 +221,7 @@
                       <tr class="fr-cell--multiline">
                         <th scope="col">N°acte</th>
                         <th scope="col">Agent</th>
+                        <th scope="col">Centre financier</th>
                         <th scope="col">Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
@@ -234,6 +235,7 @@
                           <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                             n°<%= acte.numero_utilisateur %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td><%= acte.centre_financier_code %></td>
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
@@ -281,7 +283,7 @@
                       <tr class="fr-cell--multiline">
                         <th scope="col">N°acte</th>
                         <th scope="col">Agent</th>
-                        <th scope="col">Nature</th>
+                        <th scope="col">Centre financier - Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
                         <th scope="col">
@@ -306,7 +308,7 @@
                           <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                             n°<%= acte.numero_utilisateur %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                          <td class="fr-cell--multiline"><%= acte.nature %></td>
+                          <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
                           <td>
@@ -360,7 +362,7 @@
                       <tr class="fr-cell--multiline">
                         <th scope="col">N°acte</th>
                         <th scope="col">Agent</th>
-                        <th scope="col">Nature</th>
+                        <th scope="col">Centre Financier - Nature</th>
                         <th scope="col">Montant</th>
                         <th scope="col">N°Chorus</th>
                         <th scope="col">
@@ -385,7 +387,7 @@
                           <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                             n°<%= acte.numero_utilisateur %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                          <td class="fr-cell--multiline"><%= acte.nature %></td>
+                          <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                           <td><%= acte.numero_chorus %></td>
                           <td>
@@ -444,7 +446,7 @@
                     <tr class="fr-cell--multiline">
                       <th scope="col">N°acte</th>
                       <% if ['DCB', 'CBR'].include?(@statut_user) %>
-                        <th scope="col">Agent valideur</th>
+                        <th scope="col">Centre financier</th>
                       <% else %>
                         <th scope="col">Contrôleur</th>
                       <% end %>
@@ -472,7 +474,7 @@
                       <tr>
                         <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                           n°<%= acte.numero_utilisateur %></td>
-                        <td><p class="fr-tag"><% if ['DCB', 'CBR'].include?(@statut_user) %><%= acte.valideur %><% else %><%= acte.user.nom %><% end %></p></td>
+                        <td><% if ['DCB', 'CBR'].include?(@statut_user) %><%= acte.centre_financier_code %><% else %><p class="fr-tag"><%= acte.user.nom %></p><% end %></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
