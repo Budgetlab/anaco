@@ -12,14 +12,14 @@
           </legend>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :disponibilite_credits, true, id: "radio-true", checked: @acte.disponibilite_credits.nil? || @acte.disponibilite_credits == true, data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-true">Oui</label>
+              <%= f.radio_button :disponibilite_credits, true, id: "radio-true-1", checked: @acte.disponibilite_credits.nil? || @acte.disponibilite_credits == true %>
+              <label class="fr-label" for="radio-true-1">Oui</label>
             </div>
           </div>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :disponibilite_credits, false, checked: @acte.disponibilite_credits == false, id: "radio-false", data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-false">Non</label>
+              <%= f.radio_button :disponibilite_credits, false, checked: @acte.disponibilite_credits == false, id: "radio-false-1" %>
+              <label class="fr-label" for="radio-false-1">Non</label>
             </div>
           </div>
         </fieldset>
@@ -35,14 +35,14 @@
           </legend>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :imputation_depense, true, id: "radio-true", checked: @acte.imputation_depense.nil? || @acte.imputation_depense == true, data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-true">Oui</label>
+              <%= f.radio_button :imputation_depense, true, id: "radio-true-2", checked: @acte.imputation_depense.nil? || @acte.imputation_depense == true %>
+              <label class="fr-label" for="radio-true-2">Oui</label>
             </div>
           </div>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :imputation_depense, false, checked: @acte.imputation_depense == false, id: "radio-false", data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-false">Non</label>
+              <%= f.radio_button :imputation_depense, false, checked: @acte.imputation_depense == false, id: "radio-false-2" %>
+              <label class="fr-label" for="radio-false-2">Non</label>
             </div>
           </div>
         </fieldset>
@@ -58,14 +58,14 @@
           </legend>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :consommation_credits, true, id: "radio-true", checked: @acte.consommation_credits.nil? || @acte.consommation_credits == true, data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-true">Oui</label>
+              <%= f.radio_button :consommation_credits, true, id: "radio-true-3", checked: @acte.consommation_credits.nil? || @acte.consommation_credits == true %>
+              <label class="fr-label" for="radio-true-3">Oui</label>
             </div>
           </div>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :consommation_credits, false, checked: @acte.consommation_credits == false, id: "radio-false", data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-false">Non</label>
+              <%= f.radio_button :consommation_credits, false, checked: @acte.consommation_credits == false, id: "radio-false-3" %>
+              <label class="fr-label" for="radio-false-3">Non</label>
             </div>
           </div>
         </fieldset>
@@ -79,14 +79,14 @@
           </legend>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :programmation, true, id: "radio-true", checked: @acte.programmation.nil? || @acte.programmation == true, data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-true">Oui</label>
+              <%= f.radio_button :programmation, true, id: "radio-true-4", checked: @acte.programmation.nil? || @acte.programmation == true%>
+              <label class="fr-label" for="radio-true-4">Oui</label>
             </div>
           </div>
           <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
             <div class="fr-radio-group">
-              <%= f.radio_button :programmation, false, checked: @acte.programmation == false, id: "radio-false", data: { action: "change->acte-form#toggleMessage" } %>
-              <label class="fr-label" for="radio-false">Non</label>
+              <%= f.radio_button :programmation, false, checked: @acte.programmation == false, id: "radio-false-4" %>
+              <label class="fr-label" for="radio-false-4">Non</label>
             </div>
           </div>
         </fieldset>
