@@ -8,7 +8,7 @@
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
           <label for="date_cloture" class="fr-label">Date de validation dans Chorus*</label>
-          <%= f.text_field :date_cloture, class: "fr-select", data: {acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission", controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture)}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <%= f.text_field :date_cloture, class: "fr-select", data: {controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission"}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
         </div>
       </div>
     </div>

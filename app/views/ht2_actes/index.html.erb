@@ -318,9 +318,9 @@
                             <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                           </td>
                           <td>
-                            <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="acte" class="fr-btn fr-btn--secondary fr-btn--sm" data-fr-opened="false" aria-controls="modal-acte">
+                            <%= link_to validate_acte_path(acte), class:"fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
                               Actualiser
-                            </a>
+                            <% end %>
                           </td>
                         </tr>
                       <% end %>
@@ -397,9 +397,9 @@
                             <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                           </td>
                           <td>
-                            <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="acte" class="fr-btn fr-btn--secondary fr-btn--sm" data-fr-opened="false" aria-controls="modal-acte">
+                           <%= link_to validate_acte_path(acte), class:"fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
                               Actualiser
-                            </a>
+                            <% end %>
                           </td>
                         </tr>
                       <% end %>
@@ -426,10 +426,6 @@
           <% end %>
         </div>
       </div>
-
-      <dialog id="modal-acte" class="fr-modal" data-fr-concealing-backdrop="true">
-        <%= turbo_frame_tag :acte, target: "_top" %>
-      </dialog>
     <% end %>
 
     <div class="fr-grid-row fr-grid-row--gutters">
