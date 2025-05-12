@@ -17,23 +17,18 @@ class CentreFinancier < ApplicationRecord
       next if idx == 0 # skip header
 
       row_data = Hash[[headers, row].transpose]
-      next if CentreFinancier.exists?(code: row_data['Code'])
+      cf = CentreFinancier.find_or_initialize_by(code: row_data['Code'])
+      code_bop = row_data['Code'][0..8]
+      code_programme = row_data['Code'][1..3]
 
-      cf = CentreFinancier.new
-      cf.code = row_data['Code']
-
-      bop = Bop.find_by(code: row_data['Code'][0..8])
-      cf.bop_id = bop.id if bop
-      programme = Programme.find_by(numero: row_data['Code'][1..3])
-      cf.programme_id = programme.id if programme
+      cf.bop_id = Bop.where(code: code_bop).pick(:id)
+      cf.programme_id = Programme.where(numero: code_programme).pick(:id)
       cf.save
     end
+    # on ajouter les programme dans la liste des CF
     Programme.all.each do |programme|
       code = "0#{programme.numero}"
-      next if CentreFinancier.exists?(code: code)
-
-      cf = CentreFinancier.new
-      cf.code = code
+      cf = CentreFinancier.find_or_initialize_by(code: code)
       cf.programme_id = programme.id
       cf.save
     end

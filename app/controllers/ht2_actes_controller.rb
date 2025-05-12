@@ -114,11 +114,12 @@ class Ht2ActesController < ApplicationController
     @statut_user = current_user.statut
     # Récupérer tous les programmes disponibles pour le filtre
     @programmes = if @statut_user == 'admin'
-                    Programme.all
+                    Programme.all.order(numero: :asc)
                   else
                     Programme.joins(centre_financiers: { ht2_actes: :user })
                              .where(ht2_actes: { user_id: current_user.id })
                              .distinct
+                             .order(numero: :asc)
                   end
     # chargement des actes en fonction du profil
     @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
