@@ -93,7 +93,6 @@
                       <% if @acte.type_acte == 'TF' %>Opération d’investissement
                       <% else %>Objet
                       <% end %></th>
-                    <th>Ordonnateur</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -103,7 +102,6 @@
                       <td> <%= format_value(@acte.beneficiaire) %></td>
                     <% end %>
                     <td> <%= format_value(@acte.objet) %></td>
-                    <td> <%= format_value(@acte.ordonnateur) %></td>
                   </tr>
                   </tbody>
                 </table>

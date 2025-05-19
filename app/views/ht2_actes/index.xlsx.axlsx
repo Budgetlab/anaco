@@ -52,7 +52,6 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Date limite de réponse',
     'Bénéficiaire',
     'Objet',
-    'Ordonnateur',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -82,7 +81,6 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.date_limite,
       acte.beneficiaire,
       acte.objet,
-      acte.ordonnateur,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -102,7 +100,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
     styles[7] = number_style  # Montant global
     styles[10] = date_style  # Date réception Chorus
     styles[11] = date_style  # Date limite
-    styles[22] = date_style
+    styles[21] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -111,7 +109,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
   column_widths = Array.new(headers.count, 15)
   sheet.column_widths *column_widths
 
-  sheet.auto_filter = "A1:W1"
+  sheet.auto_filter = "A1:V1"
 end
 
 # Onglet 2 : Avis
@@ -131,7 +129,6 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Date limite de réponse',
     'Bénéficiaire',
     'Objet',
-    'Ordonnateur',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -161,7 +158,6 @@ wb.add_worksheet(name: "Avis") do |sheet|
       acte.date_limite,
       acte.beneficiaire,
       acte.objet,
-      acte.ordonnateur,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -178,7 +174,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
     styles[6] = number_style
     styles[9] = date_style
     styles[10] = date_style
-    styles[21] = date_style
+    styles[20] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -205,7 +201,6 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Date réception Chorus',
     'Date limite de réponse',
     "Opération d'investissement",
-    'Ordonnateur',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -234,7 +229,6 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.date_chorus,
       acte.date_limite,
       acte.objet,
-      acte.ordonnateur,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -251,7 +245,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     styles[6] = number_style
     styles[9] = date_style
     styles[10] = date_style
-    styles[21] = date_style
+    styles[20] = date_style
 
     sheet.add_row row_data, style: styles
   end
