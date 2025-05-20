@@ -116,136 +116,112 @@
             <div class="fr-text--bold"><%= auto_link(simple_format(format_value(@acte.precisions_acte)), :html => { :target => '_blank' }) %></div>
           </div>
         </div>
-        <div data-controller="toggle">
-          <button class="fr-link fr-icon-add-line fr-link--icon-left"
-                  data-action="click->toggle#toggleContent"
-                  data-toggle-target="button">
-            Afficher plus
-          </button>
-          <div class="fr-hidden" data-toggle-target="content">
-            <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Action</div>
-                <div class="fr-text--bold"><%= format_value(@acte.action) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Sous-action</div>
-                <div class="fr-text--bold"><%= format_value(@acte.sous_action) %></div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-4">
-                <div>Activité</div>
-                <div class="fr-text--bold"><%= format_value(@acte.activite) %></div>
-              </div>
-            </div>
-            <% if @acte.numero_tf.present? %>
-              <div class="fr-grid-row fr-grid-row--gutters fr-hidden">
-                <div class="fr-col-12 fr-col-lg-4">
-                  <div>Numéro Chorus de la TF associée</div>
-                  <div class="fr-text--bold"><%= format_value(@acte.numero_tf) %></div>
-                </div>
-              </div>
-            <% end %>
-            <div class="fr-table fr-table--no-caption">
-              <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                  <div class="fr-table__content">
-                    <table>
-                      <caption> Informations complémentaires</caption>
-                      <thead>
-                      <tr>
-                        <th> Action</th>
-                        <th> Sous-action</th>
-                        <th> Activité</th>
-                        <% if @acte.numero_tf.present? %>
-                          <th> Numéro Chorus de la TF associée</th>
-                        <% end %>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr>
-                        <td> <%= format_value(@acte.action) %> </td>
-                        <td> <%= format_value(@acte.sous_action) %></td>
-                        <td> <%= format_value(@acte.activite) %> </td>
-                        <% if @acte.numero_tf.present? %>
-                          <td> <%= format_value(@acte.numero_tf) %> </td>
-                        <% end %>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
+
+        <% if @acte.action.present? || @acte.sous_action.present? || @acte.activite.present? %>
+          <div class="fr-table fr-table--no-caption">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption> Informations complémentaires</caption>
+                    <thead>
+                    <tr>
+                      <th> Action</th>
+                      <th> Sous-action</th>
+                      <th> Activité</th>
+                      <% if @acte.numero_tf.present? %>
+                        <th> Numéro Chorus de la TF associée</th>
+                      <% end %>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                      <td> <%= format_value(@acte.action) %> </td>
+                      <td> <%= format_value(@acte.sous_action) %></td>
+                      <td> <%= format_value(@acte.activite) %> </td>
+                      <% if @acte.numero_tf.present? %>
+                        <td> <%= format_value(@acte.numero_tf) %> </td>
+                      <% end %>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-            <% if @acte.poste_lignes.present? %>
-              <div class="fr-h6 fr-my-3w">Lignes de poste</div>
-              <div class="fr-table fr-table--no-caption">
-                <div class="fr-table__wrapper">
-                  <div class="fr-table__container">
-                    <div class="fr-table__content">
-                      <table>
-                        <caption> Lignes de poste</caption>
-                        <thead>
-                        <tr class="fr-cell--multiline">
-                          <th> Centre financier</th>
-                          <th> Montant (€)</th>
-                          <th> Domaine fonctionnel</th>
-                          <th> Fonds</th>
-                          <th> Compte budgétaire</th>
-                          <th> Code activité</th>
-                          <th> Axe ministériel</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <% @acte.poste_lignes.each do |ligne| %>
-                          <tr>
-                            <td> <%= ligne.centre_financier_code %> </td>
-                            <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
-                            <td> <%= ligne.domaine_fonctionnel %> </td>
-                            <td> <%= ligne.fonds %> </td>
-                            <td> <%= ligne.compte_budgetaire %> </td>
-                            <td> <%= ligne.code_activite %> </td>
-                            <td> <%= ligne.axe_ministeriel %> </td>
-                          </tr>
-                        <% end %>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-            <% if @acte.echeanciers.present? %>
-              <div class="fr-h6 fr-my-3w">Échéancier</div>
-              <div class="fr-table fr-table--no-caption fr-table--no-scroll" id="table-echeancier-component">
-                <div class="fr-table__wrapper">
-                  <div class="fr-table__container">
-                    <div class="fr-table__content">
-                      <table id="table-echeancier">
-                        <caption> Échéancier</caption>
-                        <thead>
-                        <tr>
-                          <th> Année</th>
-                          <th> Montant AE (€)</th>
-                          <th> Montant CP (€)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <% @acte.echeanciers.order(annee: :asc).each do |echeancier| %>
-                          <tr>
-                            <td> <%= echeancier.annee %> </td>
-                            <td> <%= number_to_currency(echeancier.montant_ae, unit: "€", format: "%n %u") %></td>
-                            <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
-                          </tr>
-                        <% end %>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% end %>
           </div>
-        </div>
+        <% end %>
+        <% if @acte.poste_lignes.present? %>
+          <div class="fr-h6 fr-my-3w">Lignes de poste</div>
+          <div class="fr-table fr-table--no-caption">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption> Lignes de poste</caption>
+                    <thead>
+                    <tr class="fr-cell--multiline">
+                      <th> Numéro</th>
+                      <th> Centre financier</th>
+                      <th> Montant (€)</th>
+                      <th> Domaine fonctionnel</th>
+                      <th> Fonds</th>
+                      <th> Compte budgétaire</th>
+                      <th> Code activité</th>
+                      <th> Axe ministériel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% @acte.poste_lignes.each do |ligne| %>
+                      <tr>
+                        <td> <%= ligne.numero %></td>
+                        <td> <%= ligne.centre_financier_code %> </td>
+                        <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
+                        <td> <%= ligne.domaine_fonctionnel %> </td>
+                        <td> <%= ligne.fonds %> </td>
+                        <td> <%= ligne.compte_budgetaire %> </td>
+                        <td> <%= ligne.code_activite %> </td>
+                        <td> <%= ligne.axe_ministeriel %> </td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <% if @acte.echeanciers.present? %>
+          <div class="fr-h6 fr-my-3w">Échéancier</div>
+          <div class="fr-table fr-table--no-caption fr-table--no-scroll" id="table-echeancier-component">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table id="table-echeancier">
+                    <caption> Échéancier</caption>
+                    <thead>
+                    <tr>
+                      <th> Année</th>
+                      <th> Montant AE (€)</th>
+                      <th> Montant CP (€)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% @acte.echeanciers.order(annee: :asc).each do |echeancier| %>
+                      <tr>
+                        <td> <%= echeancier.annee %> </td>
+                        <td> <%= number_to_currency(echeancier.montant_ae, unit: "€", format: "%n %u") %></td>
+                        <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+
         <div class="fr-h6 fr-my-3w">Critères</div>
         <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
           <div class="fr-table__wrapper">

@@ -76,8 +76,32 @@ export default class extends Controller {
             return parsedValue;
         }
     }
-
     changeTextToFloat(event) {
+        event.preventDefault();
+        const fields = document.querySelectorAll("[data-acte-form-number-field]");
+        fields.forEach(field => {
+            if (field.value.includes(',')) {
+                const parts = field.value.split(',');
+                const integerPart = parts[0].replace(/\u202F/g, "");
+                const decimalPart = parts[1] || "";
+
+                // Convertir la partie entière en nombre
+                let parsedInteger = parseFloat(integerPart.replace(',', '.'));
+                if (isNaN(parsedInteger)) parsedInteger = 0;
+
+                // Reconstruire la valeur pour la soumission (format avec point décimal)
+                field.value = parsedInteger + "." + decimalPart;
+            } else {
+                const parsedValue = this.numberFormat(field.value);
+                if (!isNaN(parsedValue)) {
+                    field.value = parsedValue;
+                }
+            }
+        });
+        this.formTarget.submit();
+    }
+
+    changeTextToFloat2(event) {
         event.preventDefault();
         const fields = document.querySelectorAll("[data-acte-form-number-field]");
         fields.forEach(field => {
@@ -88,8 +112,64 @@ export default class extends Controller {
         })
         this.formTarget.submit();
     }
-
     changeNumber(event) {
+        const inputElement = event.target;
+        const orginalLength = inputElement.value.length;
+        const end = inputElement.selectionEnd;
+        let element = inputElement.value.replace(/[^0-9,-.]/g, "");
+        element = element.replace(/,,/g, ',');
+        const lastLetter = inputElement.value[inputElement.value.length - 1];
+
+        // Cas particulier pour le signe négatif seul
+        if (inputElement.value.length == 1 && inputElement.value == "-") {
+            inputElement.value = "-";
+            return;
+        }
+
+        // Conservation des zéros après la virgule avec limite à 2 décimales
+        if (element.includes(',')) {
+            const parts = element.split(',');
+            const integerPart = parts[0];
+            let decimalPart = parts[1];
+
+            // Limiter à 2 décimales maximum
+            if (decimalPart.length > 2) {
+                decimalPart = decimalPart.substring(0, 2);
+            }
+
+            // Traiter la partie entière avec le formatage
+            let parsedInteger = this.numberFormat(integerPart);
+            if (isNaN(parsedInteger)) parsedInteger = 0;
+            const formattedInteger = parsedInteger.toLocaleString("fr-FR");
+
+            // Reconstruire la valeur avec la partie décimale préservée et limitée
+            if (lastLetter == "," || lastLetter == ".") {
+                inputElement.value = formattedInteger + ",";
+            } else {
+                inputElement.value = formattedInteger + "," + decimalPart;
+            }
+        } else {
+            // Comportement normal pour les nombres sans décimales
+            const parsedValue = this.numberFormat(element);
+            if (!isNaN(parsedValue)) {
+                const formattedValue = parsedValue.toLocaleString("fr-FR");
+
+                if (lastLetter == "," || lastLetter == ".") {
+                    inputElement.value = formattedValue + ",";
+                } else {
+                    inputElement.value = formattedValue;
+                }
+            } else {
+                inputElement.value = null;
+            }
+        }
+
+        // Repositionner le curseur
+        const lengthDiff = inputElement.value.length - orginalLength;
+        inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
+    }
+
+    changeNumber2(event) {
         const inputElement = event.target;
         const orginalLength = inputElement.value.length
         const end = inputElement.selectionEnd;
