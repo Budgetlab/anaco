@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField"]
 
     connect() {
         if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
@@ -13,7 +13,7 @@ export default class extends Controller {
 
         this.setNombreInput();
 
-        if (this.hasTotalMontantTarget){
+        if (this.hasTotalMontantTarget) {
             this.updateTotal()
         }
     }
@@ -47,6 +47,7 @@ export default class extends Controller {
     confirmValidation(event) {
         this.submitActionTarget.value = "en attente de validation Chorus"
     }
+
     confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
     }
@@ -80,6 +81,7 @@ export default class extends Controller {
             return parsedValue;
         }
     }
+
     changeTextToFloat(event) {
         event.preventDefault();
         const fields = document.querySelectorAll("[data-acte-form-number-field]");
@@ -105,17 +107,6 @@ export default class extends Controller {
         this.formTarget.submit();
     }
 
-    changeTextToFloat2(event) {
-        event.preventDefault();
-        const fields = document.querySelectorAll("[data-acte-form-number-field]");
-        fields.forEach(field => {
-            const parsedValue = this.numberFormat(field.value);
-            if (!isNaN(parsedValue)) {
-                field.value = parsedValue;
-            }
-        })
-        this.formTarget.submit();
-    }
     changeNumber(event) {
         const inputElement = event.target;
         const orginalLength = inputElement.value.length;
@@ -173,35 +164,6 @@ export default class extends Controller {
         inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
     }
 
-    changeNumber2(event) {
-        const inputElement = event.target;
-        const orginalLength = inputElement.value.length
-        const end = inputElement.selectionEnd;
-        let element = inputElement.value.replace(/[^0-9,-.]/g, "");
-        element = element.replace(/,,/g, ',')
-        const lastLetter = inputElement.value[inputElement.value.length - 1];
-        if (inputElement.value.length == 1 && inputElement.value == "-") {
-            inputElement.value = "-";
-        } else {
-            const parsedValue = this.numberFormat(element);
-            if (!isNaN(parsedValue)) {
-                // Formatage du nombre avec séparateur de milliers
-                const formattedValue = parsedValue.toLocaleString("fr-FR");
-                // Mettez à jour la valeur du champ de formulaire avec le format souhaité
-                if (lastLetter == "," || lastLetter == ".") {
-                    inputElement.value = formattedValue + ",";
-                } else {
-                    inputElement.value = formattedValue;
-                }
-                const lengthDiff = inputElement.value.length - orginalLength;
-                inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
-            } else {
-                inputElement.value = null;
-            }
-        }
-
-    }
-
     toggleMessage() {
         const radioNon = document.getElementById('radio-false')
         if (radioNon && this.hasMessageTarget) {
@@ -209,29 +171,34 @@ export default class extends Controller {
         }
     }
 
-    checkChorusNumberExistence(event){
+    checkChorusNumberExistence(event) {
         const numero = event.target.value;
         const acteId = event.target.dataset.acteId || ""
-        console.log(acteId)
         const message = document.getElementById('message-chorus-number-existence')
         const url = this.data.get("checkchorusurl")
-
-        fetch(`${url}?acte_id=${acteId}&numero_chorus=${numero}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    message.classList.remove('fr-hidden')
-                } else {
-                    message.classList.add('fr-hidden')
-                }
-            })
-            .catch(error => {
-                console.error("Erreur lors de la vérification:", error)
-            })
+        const numero_size = numero.length
+        const message_nombre = document.getElementById('message-chorus-number')
+        if (numero_size !== 10) {
+            message.classList.add('fr-hidden')
+            message_nombre.classList.remove('fr-hidden')
+        } else {
+            message_nombre.classList.add('fr-hidden')
+            fetch(`${url}?acte_id=${acteId}&numero_chorus=${numero}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        message.classList.remove('fr-hidden')
+                    } else {
+                        message.classList.add('fr-hidden')
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la vérification:", error)
+                })
+        }
     }
 
     updateTotal() {
-        console.log("update total")
         // Récupérer tous les champs de montant
         const montantFields = document.querySelectorAll('input[id="montant"]')
 
@@ -246,4 +213,22 @@ export default class extends Controller {
         // Afficher le total formaté
         this.totalMontantTarget.textContent = total.toLocaleString('fr-FR')
     }
+
+    calculerEcart() {
+        // Vérifier si on a tous les éléments nécessaires pour calculer l'écart
+        if (!this.hasEcartMontantTarget || !this.hasMontantAeFieldTarget) return
+
+        const montantPrecedent = parseFloat(this.montantAeFieldTarget.dataset.montantPrecedent) || 0
+        const montantActuel = this.numberFormat(this.montantAeFieldTarget.value)
+
+        // Calculer l'écart
+        const ecart = montantActuel - montantPrecedent
+
+        // Formater l'écart avec le signe (+ ou -) et deux décimales
+        const ecartFormate = ecart.toLocaleString('fr-FR')
+
+        // Mise à jour de l'affichage
+        this.ecartMontantTarget.textContent = ecartFormate
+    }
+
 }

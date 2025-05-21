@@ -50,11 +50,14 @@
           <label for="montant_ae" class="fr-label">
             <% if @acte.type_acte == 'avis' %>Montant estimatif global
               (AE)* <%= render partial: "ht2_actes/tooltip", locals: { name: "avis_montant_ae" } %>
-            <% elsif @acte.type_acte == 'visa' %>Montant engagé*
+            <% elsif @acte.type_acte == 'visa' %>Montant total engagé*
             <% elsif @acte.type_acte == 'TF' %>Montant total
               affecté* <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
             <% end %></label>
-          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission input->acte-form#changeNumber", acte_form_number_field: true } %>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire montantAeField', action: "input->acte-form#checkSubmission input->acte-form#changeNumber input->acte-form#calculerEcart", acte_form_number_field: true, montant_precedent: @acte.dernier_acte_cloture_chorus&.montant_ae  } %>
+          <% if @acte.dernier_acte_cloture_chorus.present? %>
+            <p class="fr-message fr-message--info fr-text--small">Variation avec acte précédent : <span data-acte-form-target="ecartMontant">0</span> €</p>
+          <% end %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
@@ -72,6 +75,7 @@
           <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id } %>
           <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
             avec ce numéro Chorus existe déjà</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-number">Le n°Chorus ne comporte pas 10 chiffres.</p>
         </div>
       </div>
       <% if @acte.type_acte != 'TF' %>
@@ -158,7 +162,8 @@
         <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
           <div class="fr-cart__body">
             <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
-            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><span data-acte-form-target="totalMontant">0</span> €</p>
+            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><span data-acte-form-target="totalMontant">0</span>
+              €</p>
           </div>
         </div>
 

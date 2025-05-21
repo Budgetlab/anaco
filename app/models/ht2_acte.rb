@@ -56,6 +56,7 @@ class Ht2Acte < ApplicationRecord
 
   def dernier_acte_cloture_chorus
     # Récupère le dernier acte clôturé
+    return nil if tous_actes_meme_chorus.is_a?(Array)
     tous_actes_meme_chorus.where(etat: 'clôturé').order(created_at: :desc).first
   end
 
