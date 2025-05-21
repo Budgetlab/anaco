@@ -9,6 +9,38 @@
   </p>
 <% else %>
 
+  <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-h6">Proposition décision de contrôle</div>
+
+      <div>Proposition de décision de contrôle</div>
+      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+      </div>
+
+      <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-card-round--blue">
+        <div class="fr-h6">Validation finale</div>
+
+        <div>Décision finale</div>
+        <div><p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p></div>
+
+        <% if acte.type_observations.present? %>
+          <div class="fr-mt-2w">Type d'observations</div>
+
+          <% acte.type_observations&.each do |observation| %>
+            <p class="fr-tag fr-my-1v"><%= observation %></p>
+          <% end %>
+        <% end %>
+
+        <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
+        <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.observations)), :html => { :target => '_blank' }) %></div>
+      </div>
+    </div>
+  </div>
+
   <div class="fr-h6">Informations sur l'acte</div>
   <div class="fr-table fr-table--no-caption">
     <div class="fr-table__wrapper">
@@ -287,36 +319,6 @@
     </div>
   <% end %>
 
-  <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-    <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-h6">Proposition décision de contrôle</div>
 
-      <div>Proposition de décision de contrôle</div>
-      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
-      </div>
-
-      <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
-      <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
-    </div>
-    <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-card-round--blue">
-        <div class="fr-h6">Validation finale</div>
-
-        <div>Décision finale</div>
-        <div><p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p></div>
-
-        <% if acte.type_observations.present? %>
-          <div class="fr-mt-2w">Type d'observations</div>
-
-          <% acte.type_observations&.each do |observation| %>
-            <p class="fr-tag fr-my-1v"><%= observation %></p>
-          <% end %>
-        <% end %>
-
-        <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.observations)), :html => { :target => '_blank' }) %></div>
-      </div>
-    </div>
-  </div>
 
 <% end %>

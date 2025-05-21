@@ -155,8 +155,15 @@
           Ajouter une ligne de poste
         </button>
 
+        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-cart__body">
+            <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
+            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><span data-acte-form-target="totalMontant">0</span> €</p>
+          </div>
+        </div>
+
         <% if @acte.type_acte != 'TF' %>
-          <div class="fr-h6 fr-my-2w">Échéancier</div>
+          <div class="fr-h6 fr-my-2w">Échéancier (facultatif)</div>
 
           <template data-nested-form-target="template">
             <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>

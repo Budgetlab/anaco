@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant"]
 
     connect() {
         if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
@@ -12,6 +12,10 @@ export default class extends Controller {
         }
 
         this.setNombreInput();
+
+        if (this.hasTotalMontantTarget){
+            this.updateTotal()
+        }
     }
 
     // pour check soumission à la validation
@@ -224,5 +228,22 @@ export default class extends Controller {
             .catch(error => {
                 console.error("Erreur lors de la vérification:", error)
             })
+    }
+
+    updateTotal() {
+        console.log("update total")
+        // Récupérer tous les champs de montant
+        const montantFields = document.querySelectorAll('input[id="montant"]')
+
+        // Calculer la somme
+        let total = 0
+        montantFields.forEach(field => {
+            // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
+            const value = parseFloat(field.value.replace(/\s/g, '').replace(',', '.')) || 0
+            total += value
+        })
+
+        // Afficher le total formaté
+        this.totalMontantTarget.textContent = total.toLocaleString('fr-FR')
     }
 }

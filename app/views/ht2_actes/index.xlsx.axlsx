@@ -60,7 +60,9 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Valideur final',
     'Décision finale',
     'Date clôture',
-    'Délai de traitement'
+    'Délai de traitement',
+    'Observations pour ordonnateur',
+    'Commentaire interne',
   ]
 
   sheet.add_row headers, style: header_style
@@ -89,7 +91,9 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.valideur,
       acte.decision_finale,
       acte.date_cloture,
-      acte.etat == 'clôturé' ? acte.delai_traitement : nil
+      acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+      acte.observations,
+      acte.commentaire_proposition_decision
 
     ]
 
@@ -137,7 +141,9 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Valideur final',
     'Décision finale',
     'Date clôture',
-    'Délai de traitement'
+    'Délai de traitement',
+    'Observations pour ordonnateur',
+    'Commentaire interne'
   ]
 
   sheet.add_row headers, style: header_style
@@ -166,7 +172,9 @@ wb.add_worksheet(name: "Avis") do |sheet|
      acte.valideur,
      acte.decision_finale,
      acte.date_cloture,
-     acte.etat == 'clôturé' ? acte.delai_traitement : nil
+     acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+     acte.observations,
+     acte.commentaire_proposition_decision
     ]
 
     styles = Array.new(headers.count, cell_style)
@@ -209,7 +217,9 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Valideur final',
     'Décision finale',
     'Date clôture',
-    'Délai de traitement'
+    'Délai de traitement',
+    'Observations pour ordonnateur',
+    'Commentaire interne'
   ]
 
   sheet.add_row headers, style: header_style
@@ -237,7 +247,9 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.valideur,
       acte.decision_finale,
       acte.date_cloture,
-      acte.etat == 'clôturé' ? acte.delai_traitement : nil
+      acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+      acte.observations,
+      acte.commentaire_proposition_decision
     ]
 
     styles = Array.new(headers.count, cell_style)
