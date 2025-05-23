@@ -9,13 +9,28 @@
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">L'acte est en pré-instruction. Vous ne pouvez pas soumettre l'acte à validation ni ajouter de suspensions/interruptions tant que vous n'avez pas renseigné les informations Chorus à l'étape 1. </span>
+              <span class="fr-notice__title">L'acte est en pré-instruction. Vous pouvez compléter les informations suivantes mais vous ne pouvez pas soumettre cet acte à validation ni ajouter de suspensions/interruptions à ce stade. Pour cela vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>l'étape 1<% end %>.</span>
 
             </p>
-            <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
+            <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
+              le message
+            </button>
           </div>
         </div>
       </div>
+      <% elsif @acte.etat == "en cours d'instruction" && !@acte.date_chorus.present?  %>
+        <div class="fr-notice fr-notice--warning fr-mb-2w">
+          <div class="fr-container">
+            <div class="fr-notice__body">
+              <p>
+                <span class="fr-notice__title">Vous n'avez pas renseigné de date de réception Chorus à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>l'étape 1<% end %>. Vous devrez la compléter avant de pouvoir soumettre l'acte à validation.</span>
+              </p>
+              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
+                le message
+              </button>
+            </div>
+          </div>
+        </div>
     <% else %>
       <template data-nested-form-target="template">
         <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
@@ -83,9 +98,11 @@
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
           <li>
-            <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#keepCurrentState" } %>
+            <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary' %>
           </li>
-          <li><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
+          <% if @acte.etat == "en cours d'instruction" %>
+            <li><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
+          <% end %>
         </ul>
       </div>
     </div>

@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox']
 
     connect() {
         if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
@@ -15,6 +15,9 @@ export default class extends Controller {
 
         if (this.hasTotalMontantTarget) {
             this.updateTotal()
+        }
+        if (this.hasEtatCheckboxTarget) {
+            this.toggleChorusFields()
         }
     }
 
@@ -34,10 +37,6 @@ export default class extends Controller {
 
     setValidation(event) {
         this.submitActionTarget.value = "en attente de validation"
-    }
-
-    keepCurrentState(event) {
-        this.submitActionTarget.value = "en cours d'instruction"
     }
 
     setInstruction(event) {
@@ -229,6 +228,33 @@ export default class extends Controller {
 
         // Mise à jour de l'affichage
         this.ecartMontantTarget.textContent = ecartFormate
+    }
+
+    toggleChorusFields(){
+        const is_checked = this.etatCheckboxTarget.checked
+
+        if (is_checked) {
+            document.querySelectorAll('.chorus_fields').forEach(element => {
+                element.classList.add('fr-hidden');
+            })
+        } else {
+            document.querySelectorAll('.chorus_fields').forEach(element => {
+                element.classList.remove('fr-hidden')
+            })
+        }
+    }
+    togglePreInstruction(event){
+        event.preventDefault();
+        const is_checked = event.target.checked
+        if (is_checked) {
+            document.querySelectorAll('.pre_instruction_fields').forEach(element => {
+                element.classList.add('fr-hidden');
+            })
+        } else {
+            document.querySelectorAll('.pre_instruction_fields').forEach(element => {
+                element.classList.remove('fr-hidden')
+            })
+        }
     }
 
 }

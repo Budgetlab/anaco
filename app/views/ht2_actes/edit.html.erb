@@ -42,13 +42,13 @@
             <div class="fr-collapse" id="sidemenu-collapse-94">
 
               <ul class="fr-sidemenu__list">
-                <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm">Acte <%= @acte.etat %></p>
+                <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm">Acte n°<%= @acte.numero_utilisateur %> <%= @acte.etat %></p>
                 <li class="fr-sidemenu__item">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 1), 'aria-current': @etape == 1, class: "fr-sidemenu__link" do %>
                     Étape 1 : Informations sur l'acte
-                    <% if @acte.etat == "en pré-instruction" %>
+                    <% if !@acte.date_chorus.present? %>
                       <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
-                    <% elsif @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? %>
+                    <% else%>
                       <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
                     <% end %>
                   <% end %>

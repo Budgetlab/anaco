@@ -8,6 +8,8 @@
     Numéro Chorus ou à defaut un numéro de référence.
   <% elsif name == "avis_montant_ae" %>
     En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
+  <% elsif name == "visa_montant_ae" %>
+    Il s’agit du montant total engagé une fois l’acte pris. En cas de première saisine, il s’agit du montant initial engagé. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
   <% elsif name == "tf_montant_ae" %>
     En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation.
   <% elsif name == "cf" %>

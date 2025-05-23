@@ -151,13 +151,15 @@ class Ht2Acte < ApplicationRecord
   private
 
   def set_etat_acte
-    if !date_chorus.present? || (!numero_chorus.present? && nature != "Liste d'actes")
-      self.etat = "en pré-instruction"
-      self.pre_instruction = true
-    elsif self.suspensions.present? && self.suspensions.last.date_reprise.nil?
+    # if !date_chorus.present? || (!numero_chorus.present? && nature != "Liste d'actes")
+      # self.etat = "en pré-instruction"
+      #  self.pre_instruction = true
+    if self.suspensions.present? && self.suspensions.last.date_reprise.nil?
       self.etat = "suspendu"
-    elsif !etat.present? || etat == "en pré-instruction"
+    elsif !etat.present?
       self.etat = "en cours d'instruction"
+    elsif self.etat == "en pré-instruction"
+      self.pre_instruction = true
     end
   end
 

@@ -30,7 +30,7 @@ module Ht2ActesHelper
   def badge_class_for_etat_actes(etat)
     case etat
     when 'en pré-instruction'
-      "fr-badge fr-badge--warning fr-badge--no-icon"
+      "fr-badge fr-badge--new fr-badge--no-icon"
     when "en cours d'instruction"
       'fr-badge fr-badge--green-archipel'
     when 'suspendu'

@@ -70,7 +70,7 @@ class Ht2ActesController < ApplicationController
   def update
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
-    @acte.etat = params[:submit_action] if params[:submit_action].present?
+    @acte.etat = params[:submit_action] if params[:submit_action].present? && !params[:submit_action].blank?
     if @acte.update(ht2_acte_params)
       # Association du centre financier
       associate_centre_financier(@acte) if @etape == 2
