@@ -89,7 +89,7 @@
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
         <div class="fr-select-group">
           <label for="date_chorus" class="fr-label">Date de réception sur
-            Chorus <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus" } %></label>
+            Chorus <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
           <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -" %>
         </div>
       </div>
@@ -97,7 +97,7 @@
         <div class="fr-input-group">
           <label for="numero_chorus" class="fr-label">N° Chorus
             <% if @acte.type_acte == 'TF' %>de la TF
-            <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "numero_chorus" } %></label>
+            <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "numero_chorus_info" } %></label>
           <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id } %>
           <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
             avec ce numéro Chorus existe déjà</p>

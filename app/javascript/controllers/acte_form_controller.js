@@ -205,12 +205,21 @@ export default class extends Controller {
         let total = 0
         montantFields.forEach(field => {
             // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
-            const value = parseFloat(field.value.replace(/\s/g, '').replace(',', '.')) || 0
+            const value = this.numberFormat(field.value) || 0
             total += value
         })
 
         // Afficher le total formaté
         this.totalMontantTarget.textContent = total.toLocaleString('fr-FR')
+    }
+    updateTotalDelete(){
+        // Récupérer la ligne qui va être supprimée
+        const ligneWrapper = event.target.closest('.nested-form-wrapper');
+
+        // Récupérer le champ montant de cette ligne spécifique
+        const montantField = ligneWrapper.querySelector('#montant');
+        montantField.value = null;
+        this.updateTotal()
     }
 
     calculerEcart() {
@@ -237,6 +246,10 @@ export default class extends Controller {
             document.querySelectorAll('.chorus_fields').forEach(element => {
                 element.classList.add('fr-hidden');
             })
+            const numero_chorus = document.getElementById('numero_chorus')
+            numero_chorus.value = null;
+            const date_chorus = document.getElementById('date_chorus')
+            date_chorus.value = null;
         } else {
             document.querySelectorAll('.chorus_fields').forEach(element => {
                 element.classList.remove('fr-hidden')
