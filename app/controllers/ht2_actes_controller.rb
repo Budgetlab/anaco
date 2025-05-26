@@ -230,6 +230,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def check_acte_conditions
+    # acte en cours d'instruction ou suspendu (si renseigne une date de fin)
     @conditions_met = @acte.etat != "en pré-instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
   end
 

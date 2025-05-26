@@ -9,8 +9,9 @@
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">L'acte est en pré-instruction. Vous pouvez compléter les informations suivantes mais vous ne pouvez pas soumettre cet acte à validation ni ajouter de suspensions/interruptions à ce stade. Pour cela vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>l'étape 1<% end %>.</span>
-
+              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez à ce stade compléter et enregistrer les informations suivantes mais vous ne pouvez pas soumettre cet acte à validation ni ajouter de suspensions/interruptions. Pour cela vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
+                  l'étape 1
+                <% end %>.</span>
             </p>
             <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
               le message
@@ -18,19 +19,6 @@
           </div>
         </div>
       </div>
-      <% elsif @acte.etat == "en cours d'instruction" && !@acte.date_chorus.present?  %>
-        <div class="fr-notice fr-notice--warning fr-mb-2w">
-          <div class="fr-container">
-            <div class="fr-notice__body">
-              <p>
-                <span class="fr-notice__title">Vous n'avez pas renseigné de date de réception Chorus à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>l'étape 1<% end %>. Vous devrez la compléter avant de pouvoir soumettre l'acte à validation.</span>
-              </p>
-              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
-                le message
-              </button>
-            </div>
-          </div>
-        </div>
     <% else %>
       <template data-nested-form-target="template">
         <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
@@ -50,7 +38,7 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
-          <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle*</label>
+          <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle<% unless @acte.etat == 'en pré-instruction' %>*<% end %></label>
           <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
         </div>
       </div>
