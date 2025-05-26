@@ -97,8 +97,11 @@
                               <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                                 Actualiser
                               <% end %>
-                              <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
+                              <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression définitive?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
                                 Supprimer
+                              <% end %>
+                              <%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                                Archiver
                               <% end %>
                             </div>
                           </td>

@@ -5,11 +5,11 @@
     <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
     <% if @acte.etat == "en pré-instruction" %>
-      <div class="fr-notice fr-notice--warning fr-mb-2w">
+      <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez à ce stade compléter et enregistrer les informations suivantes mais vous ne pouvez pas soumettre cet acte à validation ni ajouter de suspensions/interruptions. Pour cela vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
+              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez à ce stade compléter et enregistrer les informations suivantes ou clôturer et archiver définitivement l'acte. <br>Pour soumettre cet acte à validation ou ajouter des suspensions/interruptions vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
                   l'étape 1
                 <% end %>.</span>
             </p>
