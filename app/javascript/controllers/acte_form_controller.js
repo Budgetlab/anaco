@@ -39,6 +39,10 @@ export default class extends Controller {
         this.submitActionTarget.value = "en attente de validation"
     }
 
+    setCloturePreInstruction(event){
+        this.submitActionTarget.value = "clôturé après pré-instruction"
+    }
+
     setInstruction(event) {
         this.submitActionTarget.value = "en cours d'instruction"
     }

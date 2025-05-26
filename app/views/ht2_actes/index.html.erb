@@ -518,5 +518,91 @@
         <% end %>
       </div>
     </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h2 class="fr-mt-2w">Actes clôturés après pré-instruction [<%= @actes_cloture_pre_instruction_all.count %>]</h2>
+        <% if @actes_cloture_pre_instruction.present? %>
+          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption>Actes clôturés après pré-instruction</caption>
+                    <thead>
+                    <tr class="fr-cell--multiline">
+                      <th scope="col">N°acte</th>
+                      <% if ['DCB', 'CBR'].include?(@statut_user) %>
+                        <th scope="col">Centre financier</th>
+                      <% else %>
+                        <th scope="col">Contrôleur</th>
+                      <% end %>
+                      <th scope="col">Nature</th>
+                      <th scope="col">Montant</th>
+                      <th scope="col">
+                        <% sort_date = "" %>
+                        <% if params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture desc" %>
+                          <% sort_date = "asc" %>
+                        <% elsif params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture asc" %>
+                          <% sort_date = "desc" %>
+                        <% end %>
+                        <div class="fr-cell--sort">
+                          <span class="fr-cell__title">Date clôture</span>
+                          <%= sort_link(@q_cloture_pre_instruction, :date_cloture, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                        </div>
+                      </th>
+
+                      <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% @actes_cloture_pre_instruction.each_with_index do |acte, index| %>
+                      <tr>
+                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                          n°<%= acte.numero_utilisateur %></td>
+                        <td><% if ['DCB', 'CBR'].include?(@statut_user) %><%= acte.centre_financier_code %><% else %><p class="fr-tag"><%= acte.user.nom %></p><% end %></td>
+                        <td class="fr-cell--multiline"><%= acte.nature %></td>
+                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+
+                        <td><%= l(acte.date_cloture, format: "%e/%m/%y") %></td>
+
+                        <td>
+                          <div class="fr-align-center">
+                            <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                              Consulter
+                            <% end %>
+                            <% if ['DCB', 'CBR'].include?(@statut_user) %>
+                              <%= link_to new_ht2_acte_path(id: acte.id), aria: { describedby: "tooltip-#{index}" }, class: "fr-btn fr-btn--sm fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
+                                Dupliquer
+                              <% end %>
+                              <span class="fr-tooltip fr-placement" id="tooltip-<%= index %>" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
+                            <% end %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="fr-table__footer">
+              <div class="fr-table__footer--start">
+                <p class="fr-table__detail"><%= pluralize(@actes_cloture_all.count, 'résultat', plural: 'résultats') %></p>
+                <div class="fr-select-group">
+                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                    Nombre de lignes par page
+                  </label>
+                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="fr-table__footer--middle">
+                <%== pagy_nav_custom(@pagy_cloture) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
   <% end %>
 </div>

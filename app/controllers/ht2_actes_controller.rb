@@ -13,6 +13,7 @@ class Ht2ActesController < ApplicationController
     @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
     @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation], search_key: :q_validation)
     @q_cloture = filtered_actes.where(etat: 'clôturé').ransack(params[:q_cloture], search_key: :q_cloture)
+    @q_cloture_pre_instruction = filtered_actes.where(etat: 'clôturé après pré-instruction').ransack(params[:q_cloture_pre_instruction], search_key: :q_cloture_pre_instruction)
 
     @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
     @actes_instruction_all = @q_instruction.result(distinct: true)
@@ -20,6 +21,7 @@ class Ht2ActesController < ApplicationController
     @actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
     @actes_suspendu_all = filtered_actes.where(etat: 'suspendu').includes(:suspensions)
     @actes_cloture_all = @q_cloture.result(distinct: true)
+    @actes_cloture_pre_instruction_all = @q_cloture_pre_instruction.result(distinct: true)
 
     @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
     @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
@@ -27,6 +29,7 @@ class Ht2ActesController < ApplicationController
     @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus)
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
+    @pagy_cloture_pre_instruction, @actes_cloture_pre_instruction = pagy(@actes_cloture_pre_instruction_all, page_param: :page_cloture_pre_instruction)
 
     respond_to do |format|
       format.html
@@ -63,7 +66,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def edit
-    @etape = params[:etape].present? ? params[:etape].to_i : 1
+    @etape = params[:etape].present? && [1,2,3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
     check_acte_conditions
   end
 
@@ -76,6 +79,7 @@ class Ht2ActesController < ApplicationController
       associate_centre_financier(@acte) if @etape == 2
       # Calculer le délai de traitement si l'acte est clôturé
       set_delai_traitement(@acte) if @acte.etat == 'clôturé'
+      set_delai_traitement_pre_instruction(@acte) if @acte.etat == 'clôturé après pré-instruction'
       # Déterminer le chemin de redirection
       path = @etape <= 3 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
       @message = "Acte #{@acte.etat} enregistré avec succès."
@@ -433,6 +437,14 @@ class Ht2ActesController < ApplicationController
                     end
 
       # Mettre à jour la colonne delai_traitement sans déclencher les callbacks
+      acte.update_column(:delai_traitement, delai_final)
+    end
+  end
+
+  def set_delai_traitement_pre_instruction(acte)
+    if acte.etat == 'clôturé après pré-instruction'
+      acte.update_column(:date_cloture, Date.today)
+      delai_final = (acte.date_cloture.to_date - acte.created_at.to_date).to_i
       acte.update_column(:delai_traitement, delai_final)
     end
   end

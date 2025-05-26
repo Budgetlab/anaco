@@ -38,7 +38,9 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
-          <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle<% unless @acte.etat == 'en pré-instruction' %>*<% end %></label>
+          <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle
+            <% unless @acte.etat == 'en pré-instruction' %>*
+            <% end %></label>
           <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
         </div>
       </div>
@@ -88,11 +90,43 @@
           <li>
             <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary' %>
           </li>
-          <% if @acte.etat == "en cours d'instruction" %>
+          <% if @acte.etat == "en pré-instruction" %>
+            <li>
+              <button aria-controls="modal-archiver" data-fr-opened="false" type="button" class="fr-btn">Clôturer et
+                archiver
+              </button>
+            </li>
+          <% else %>
             <li><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
           <% end %>
         </ul>
       </div>
     </div>
+
+    <% if @acte.etat == "en pré-instruction" %>
+      <dialog id="modal-archiver" class="fr-modal" aria-labelledby="modal-archiver-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container fr-container--fluid fr-container-md">
+          <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+              <div class="fr-modal__body">
+                <div class="fr-modal__header">
+                  <button aria-controls="modal-archiver" title="Fermer" type="button" id="button-133" class="fr-btn--close fr-btn">Fermer</button>
+                </div>
+                <div class="fr-modal__content">
+                  <h1 id="modal-archiver-title" class="fr-modal__title">
+                    <span class="fr-icon-info-line fr-icon--lg" aria-hidden="true"></span> Clôturer et archiver l'acte
+                  </h1>
+                  <p>Une fois clôturé à ce stade, l’acte est archivé dans la liste des actes clôturés après
+                    pré-instruction. L’acte n’a plus vocation à être repris en instruction.</p>
+                  <div>
+                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#setCloturePreInstruction" } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
+    <% end %>
   <% end %>
 </div>
