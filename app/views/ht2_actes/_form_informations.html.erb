@@ -17,7 +17,7 @@
         </div>
         <% if @acte.etat == 'en pré-instruction' %>
           <p class="fr-badge fr-badge--info fr-my-2w chorus_fields">En décochant cette case, l'acte passe en cours
-            d'instruction.</p>
+            d'instruction.<br> Indiquer a minima la date de réception de l’acte pour poursuivre. </p>
         <% end %>
       </div>
     <% end %>
@@ -89,8 +89,8 @@
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
         <div class="fr-select-group">
           <label for="date_chorus" class="fr-label">Date de réception sur
-            Chorus <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
-          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -" %>
+            Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission" }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -" %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
@@ -133,7 +133,7 @@
           <div class="fr-checkbox-group chorus_fields">
             <%= f.check_box :pre_instruction, id: "pre_instruction_checkbox", data: { action: 'change->acte-form#togglePreInstruction' } %>
             <label class="fr-label" for="pre_instruction_checkbox"> Cet acte a fait l’objet d’une pré-instruction (hors
-              ANACO) </label>
+              ANACO) <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></label>
           </div>
         <% end %>
       </div>

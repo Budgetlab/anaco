@@ -7,13 +7,15 @@
   <% elsif name == 'numero_chorus_info' %>
     Numéro Chorus ou à defaut un numéro de référence.
   <% elsif name == "avis_montant_ae" %>
-    En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
+    En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte. Si le montant est inconnu ou trop incertain, indiquer 0.
   <% elsif name == "visa_montant_ae" %>
-    Il s’agit du montant total engagé une fois l’acte pris. En cas de première saisine, il s’agit du montant initial engagé. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte.
+    Il s’agit du montant total engagé une fois l’acte pris. En cas de première saisine, il s’agit du montant initial engagé. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte. Si le montant est inconnu ou trop incertain, indiquer 0.
   <% elsif name == "tf_montant_ae" %>
-    En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation.
+    En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation. Si le montant est inconnu ou trop incertain, indiquer 0.
   <% elsif name == "cf" %>
-    Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001.
+    Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001. Si plusieurs centres financiers, indiquer le principal.
+  <% elsif name == "pre_instruction_info" %>
+    Cette information est utilisée pour le suivi statistique des actes.
   <% elsif name == "disponibilite_credits" %>
     Le système d’information Chorus permet d’apprécier en temps réel et de manière automatique la disponibilité des crédits en AE sur le centre financier permettant d’engager la dépense. <br>Le contrôle de la disponibilité des crédits opéré par le contrôleur doit cibler :<br><br>
 • une éventuelle concomitance de demandes d’achat en cours de traitement (non encore comptabilisées dans le SI)  et pouvant conduire à une indisponibilité de crédits;<br>
@@ -48,5 +50,9 @@ Elle est en principe effectuée à la maille de l’activité. En cas d’imposs
 La liste des principaux actes de gestion permet de contrôler la cohérence de leur prise en compte dans la programmation des dépenses.<br>
 Le contrôleur est fondé à solliciter une actualisation de la programmation et de la liste des actes de gestion.<br>
 La pluriannualité s’apprécie à travers la communication d’une chronique d’AE et CP cohérente par l’ordonnateur compatible avec les informations fournies en programmation.
+  <% elsif name == "delai_moyen_traitement_info" %>
+    Délai réglementaire de traitement prenant en compte les interruptions et suspensions.
+  <% elsif name == "duree_moyenne_traitement_info" %>
+    Durée globale de traitement de la date initiale à la validation dans Chorus.
   <% end %>
 </span>

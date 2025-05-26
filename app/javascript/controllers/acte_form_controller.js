@@ -241,20 +241,42 @@ export default class extends Controller {
 
     toggleChorusFields(){
         const is_checked = this.etatCheckboxTarget.checked
-
+        const date_chorus = document.getElementById('date_chorus')
         if (is_checked) {
             document.querySelectorAll('.chorus_fields').forEach(element => {
                 element.classList.add('fr-hidden');
             })
             const numero_chorus = document.getElementById('numero_chorus')
             numero_chorus.value = null;
-            const date_chorus = document.getElementById('date_chorus')
             date_chorus.value = null;
+            // Retirer la target fieldRequire du champ date_chorus
+            if (date_chorus.hasAttribute('data-acte-form-target')) {
+                const currentTargets = date_chorus.getAttribute('data-acte-form-target').split(' ');
+                const newTargets = currentTargets.filter(target => target !== 'fieldRequire');
+
+                if (newTargets.length > 0) {
+                    date_chorus.setAttribute('data-acte-form-target', newTargets.join(' '));
+                } else {
+                    date_chorus.removeAttribute('data-acte-form-target');
+                }
+            }
         } else {
             document.querySelectorAll('.chorus_fields').forEach(element => {
                 element.classList.remove('fr-hidden')
             })
+            // Ajouter la target fieldRequire au champ date_chorus
+            if (date_chorus.hasAttribute('data-acte-form-target')) {
+                const currentTargets = date_chorus.getAttribute('data-acte-form-target').split(' ');
+                if (!currentTargets.includes('fieldRequire')) {
+                    currentTargets.push('fieldRequire');
+                    date_chorus.setAttribute('data-acte-form-target', currentTargets.join(' '));
+                }
+            } else {
+                date_chorus.setAttribute('data-acte-form-target', 'fieldRequire');
+            }
         }
+        // Mettre à jour la validation après avoir modifié les targets
+        this.checkSubmission();
     }
     togglePreInstruction(event){
         event.preventDefault();

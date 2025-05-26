@@ -54,7 +54,7 @@
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.delai_moyen_traitement %>
                 jours</p>
-              <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement</p>
+              <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "delai_moyen_traitement_info" } %></p>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
           <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_actes_clotures.duree_total_moyenne %> jours</p>
-              <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de traitement</p>
+              <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "duree_moyenne_traitement_info" } %></p>
             </div>
           </div>
         </div>
