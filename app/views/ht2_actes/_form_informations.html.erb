@@ -12,12 +12,16 @@
         <div class="fr-col-12">
           <div class="fr-checkbox-group">
             <%= f.check_box :etat, { id: "pre_instruction_phase", data: { acte_form_target: 'etatCheckbox', action: 'change->acte-form#toggleChorusFields' } }, "en pré-instruction", "en cours d'instruction" %>
-            <label class="fr-label" for="pre_instruction_phase"> Cet acte est en phase de pré-instruction <% if @acte.etat == 'en pré-instruction' %><span class="fr-hint-text">Décocher cette case si vous souhaitez passer l'acte en cours d'instruction</span><% end %></label>
+            <label class="fr-label" for="pre_instruction_phase"> Cet acte est en phase de pré-instruction
+              <% if @acte.etat == 'en pré-instruction' %>
+                <span class="fr-hint-text">Décocher cette case si vous souhaitez passer l'acte en cours d'instruction</span>
+              <% end %></label>
           </div>
         </div>
         <% if @acte.etat == 'en pré-instruction' %>
           <div class="fr-alert fr-alert--info fr-alert--sm fr-my-2w  chorus_fields">
-          <p >En décochant cette case, l'acte passera en cours d'instruction après validation. Indiquer a minima la date de réception sur Chorus de l’acte pour poursuivre. </p>
+            <p>En décochant cette case, l'acte passera en cours d'instruction après validation. Indiquer a minima la
+              date de réception sur Chorus de l’acte pour poursuivre. </p>
           </div>
         <% end %>
       </div>

@@ -6,7 +6,7 @@ class Ht2ActesController < ApplicationController
 
   def index
     @statut_user = current_user.statut
-    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: 'clôturé').includes(:user).order(date_cloture: :desc) : current_user.ht2_actes.order(created_at: :desc)
+    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: ['clôturé', 'clôturé après pré-instruction']).includes(:user).order(date_cloture: :desc) : current_user.ht2_actes.order(created_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
@@ -38,13 +38,13 @@ class Ht2ActesController < ApplicationController
   end
 
   def new
-    if params[:type_acte].present?
+    if params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
       @acte = current_user.ht2_actes.new(type_acte: params[:type_acte])
-    elsif params[:id].present?
+    elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
       @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat'))
-    elsif params[:parent_id].present?
+    elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
       id = params[:parent_id]
       @acte_parent = Ht2Acte.find(id)
       @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat'))
@@ -66,14 +66,14 @@ class Ht2ActesController < ApplicationController
   end
 
   def edit
-    @etape = params[:etape].present? && [1,2,3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
+    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
     check_acte_conditions
   end
 
   def update
     @etape = params[:etape].to_i || 1
     # Vérifier si le paramètre d'action est envoyé
-    @acte.etat = params[:submit_action] if params[:submit_action].present? && !params[:submit_action].blank?
+    @acte.etat = params[:submit_action] if ["en cours d'instruction","en attente de validation","en attente de validation Chorus","clôturé après pré-instruction","clôturé"].include?(params[:submit_action])
     if @acte.update(ht2_acte_params)
       # Association du centre financier
       associate_centre_financier(@acte) if @etape == 2
@@ -189,12 +189,11 @@ class Ht2ActesController < ApplicationController
                                      :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
-                                     :user_id, :commentaire_disponibilite_credits, :commentaire_imputation_depense,
-                                     :commentaire_consommation_credits, :commentaire_programmation, :valideur, :date_cloture,
+                                     :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture,
                                      :decision_finale, :numero_utilisateur, :delai_traitement, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                     poste_lignes_attributes: [:id, :_destroy,:numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
+                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
   end
 
   def set_acte_ht2
@@ -207,7 +206,7 @@ class Ht2ActesController < ApplicationController
       @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
       @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ["Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Liste d'actes","Marché unique", "Marché à tranches","Marché mixte","MAPA unique", "MAPA à tranches", "MAPA à bons de commande", "MAPA mixte","Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
+      @liste_natures = ["Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Liste d'actes", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA à bons de commande", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
       @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'

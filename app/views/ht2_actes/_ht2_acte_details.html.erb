@@ -1,12 +1,13 @@
-<div class="fr-text--italic fr-mb-1w">Acte n°<%= acte.numero_utilisateur %>, créé
-  le <%= l(acte.created_at, format: "%e/%m/%y") %>
+<div class="fr-text--italic fr-mb-1w">
+  Acte n°<%= acte.numero_utilisateur %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
   <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
-  <% end %> </div>
+  <% end %>
+</div>
+<p class="<%= badge_class_for_etat_actes(acte.etat) %>">
+  <%= acte.etat %>
+</p>
 
-<% if acte.etat != "clôturé" %>
-  <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
-    <%= acte.etat %>
-  </p>
+<% if acte.user == current_user %>
   <% if ["en pré-instruction", "en cours d'instruction"].include?(acte.etat) %>
     <ul class="fr-btns-group fr-btns-group--inline fr-my-2w">
       <li><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
@@ -40,14 +41,16 @@
       <% end %>
     </div>
   <% end %>
-<% else %>
+<% end %>
+
+<% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
 
   <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-h6">Proposition décision de contrôle</div>
 
       <div>Proposition de décision de contrôle</div>
-      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+      <div><p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></p>
       </div>
 
       <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
@@ -58,7 +61,7 @@
         <div class="fr-h6">Validation finale</div>
 
         <div>Décision finale</div>
-        <div><p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p></div>
+        <div><p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></p></div>
 
         <% if acte.type_observations.present? %>
           <div class="fr-mt-2w">Type d'observations</div>
