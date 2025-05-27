@@ -91,7 +91,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.valideur,
       acte.decision_finale,
       acte.date_cloture,
-      acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+      acte.delai_traitement,
       acte.observations,
       acte.commentaire_proposition_decision
 
@@ -172,7 +172,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
      acte.valideur,
      acte.decision_finale,
      acte.date_cloture,
-     acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+     acte.delai_traitement,
      acte.observations,
      acte.commentaire_proposition_decision
     ]
@@ -247,7 +247,7 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.valideur,
       acte.decision_finale,
       acte.date_cloture,
-      acte.etat == 'clôturé' ? acte.delai_traitement : nil,
+      acte.delai_traitement,
       acte.observations,
       acte.commentaire_proposition_decision
     ]
