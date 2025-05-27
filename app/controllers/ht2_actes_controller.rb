@@ -58,7 +58,7 @@ class Ht2ActesController < ApplicationController
   def create
     @acte = current_user.ht2_actes.new(ht2_acte_params)
     if @acte.save
-      associate_centre_financier(@acte)
+      # Association du centre financier dans model after save
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
     else
       render :new
@@ -72,18 +72,16 @@ class Ht2ActesController < ApplicationController
 
   def update
     @etape = params[:etape].to_i || 1
-    # Vérifier si le paramètre d'action est envoyé
-    @acte.etat = params[:submit_action] if ["en cours d'instruction","en attente de validation","en attente de validation Chorus","clôturé après pré-instruction","clôturé"].include?(params[:submit_action])
+    # États valides pour la transition
+    etats_valides = ["en cours d'instruction", 'en attente de validation',
+                     'en attente de validation Chorus', 'clôturé après pré-instruction', 'clôturé']
+    @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
     if @acte.update(ht2_acte_params)
-      # Association du centre financier
-      associate_centre_financier(@acte) if @etape == 2
-      # Calculer le délai de traitement si l'acte est clôturé
-      set_delai_traitement(@acte) if @acte.etat == 'clôturé'
-      set_delai_traitement_pre_instruction(@acte) if @acte.etat == 'clôturé après pré-instruction'
-      # Déterminer le chemin de redirection
+      # Les callbacks du modèle s'occupent automatiquement de :
+      # - Mise à jour du centre financier si nécessaire
+      # - Calcul des délais de traitement
       path = @etape <= 3 ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path
-      @message = "Acte #{@acte.etat} enregistré avec succès."
-      redirect_to path, notice: @message
+      redirect_to path, notice: "Acte #{@acte.etat} enregistré avec succès."
     else
       render :edit
     end
@@ -96,7 +94,7 @@ class Ht2ActesController < ApplicationController
 
   def destroy
     @acte&.destroy
-    redirect_to ht2_actes_path
+    redirect_to ht2_actes_path, notice: "Acte supprimé avec succès."
   end
 
   def validate_acte; end
@@ -182,7 +180,7 @@ class Ht2ActesController < ApplicationController
   private
 
   def ht2_acte_params
-    params[:ht2_acte][:type_observations] = params[:ht2_acte][:type_observations]&.split(",") if params[:ht2_acte][:type_observations].is_a?(String)
+    params[:ht2_acte][:type_observations] = params[:ht2_acte][:type_observations]&.split(',') if params[:ht2_acte][:type_observations].is_a?(String)
 
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
@@ -202,39 +200,24 @@ class Ht2ActesController < ApplicationController
 
   def set_variables_form
     if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
-      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Avenant", "Convention", "Liste d'actes", "Transaction", "Autre"]
-      @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
-      @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes", 'Transaction', 'Autre']
+      @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
+      @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ["Autre contrat", "Avenant", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Liste d'actes", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA à bons de commande", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
-      @liste_types_observations = ["Compatibilité avec la programmation", "Construction de l’EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
-      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+      @liste_natures = ['Autre contrat', 'Avenant', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
+      @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+      @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_natures = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
-      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
-      @liste_types_observations = ["Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Pièce(s) manquante(s)", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_natures = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
+      @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
+      @liste_types_observations = ['Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     end
-    @liste_motifs_suspension = ["Erreur d’imputation", "Erreur dans la construction de l’EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
-  end
-
-  def associate_centre_financier(acte)
-    code = acte.centre_financier_code
-    if code.present?
-      centre = CentreFinancier.find_by(code: code)
-      if centre
-        # Supprimer les associations existantes et ajouter la nouvelle
-        acte.centre_financiers.destroy_all
-        acte.centre_financiers << centre
-      end
-    else
-      # Si pas de code, supprimer toutes les associations
-      acte.centre_financiers.destroy_all
-    end
+    @liste_motifs_suspension = ['Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
   end
 
   def check_acte_conditions
     # acte en cours d'instruction ou suspendu (si renseigne une date de fin)
-    @conditions_met = @acte.etat != "en pré-instruction" && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+    @conditions_met = @acte.etat != 'en pré-instruction' && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
   end
 
   def calculate_suspensions_stats(actes)
@@ -398,54 +381,6 @@ class Ht2ActesController < ApplicationController
       }
     end
     top_suspension_motifs_chart_data
-  end
-
-  def set_delai_traitement(acte)
-    # S'assurer que les dates nécessaires sont présentes
-    if acte.etat == 'clôturé' && acte.date_chorus.present? && acte.date_cloture.present?
-      # Calculer la durée totale en jours
-      delai_total = (acte.date_cloture.to_date - acte.date_chorus.to_date).to_i
-
-      # Calculer le délai en fonction du type d'acte et des suspensions
-      delai_final = if acte.suspensions.empty?
-                      delai_total
-                    elsif acte.type_acte == 'avis'
-                      # Pour les avis, soustraire la durée de chaque suspension
-                      duree_suspensions = acte.suspensions.sum do |suspension|
-                        if suspension.date_suspension.present? && suspension.date_reprise.present?
-                          (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
-                        else
-                          0
-                        end
-                      end
-
-                      # Délai total moins durée des suspensions
-                      [delai_total - duree_suspensions, 0].max
-                    elsif acte.type_acte == 'visa' || acte.type_acte == 'TF'
-                      # Pour les visas, prendre le délai entre la dernière reprise et la clôture
-                      derniere_suspension = acte.suspensions.order(date_reprise: :desc).first
-
-                      if derniere_suspension&.date_reprise.present?
-                        (acte.date_cloture.to_date - derniere_suspension.date_reprise.to_date).to_i
-                      else
-                        delai_total
-                      end
-                    else
-                      # Si type inconnu, retourner le délai total
-                      delai_total
-                    end
-
-      # Mettre à jour la colonne delai_traitement sans déclencher les callbacks
-      acte.update_column(:delai_traitement, delai_final)
-    end
-  end
-
-  def set_delai_traitement_pre_instruction(acte)
-    if acte.etat == 'clôturé après pré-instruction'
-      acte.update_column(:date_cloture, Date.today)
-      delai_final = (acte.date_cloture.to_date - acte.created_at.to_date).to_i
-      acte.update_column(:delai_traitement, delai_final)
-    end
   end
 
   def user_ht2_stats(users)

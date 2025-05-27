@@ -6,11 +6,13 @@ class Ht2Acte < ApplicationRecord
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
-  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank?}, allow_destroy: true
-  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank?}, allow_destroy: true
+  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank? }, allow_destroy: true
   before_save :set_etat_acte
-  before_save :calculate_date_limite
   before_create :set_numero_utilisateur
+  after_save :calculate_date_limite_if_needed
+  after_save :associate_centre_financier_if_needed
+  after_update :calculate_delai_traitement_if_needed
 
   has_rich_text :commentaire_disponibilite_credits do |attachable|
     attachable.image_processing_options = {
@@ -25,10 +27,11 @@ class Ht2Acte < ApplicationRecord
   scope :suspendus, -> { where(etat: ["suspendu"]) }
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture","date_limite", "decision_finale","delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur","objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
+
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financiers", "echeanciers","poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
+    ["centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
@@ -51,12 +54,14 @@ class Ht2Acte < ApplicationRecord
   # Methode pour regrouper tous les actes avec le même numéro chorus
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
+
     Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
   end
 
   def dernier_acte_cloture_chorus
     # Récupère le dernier acte clôturé
     return nil if tous_actes_meme_chorus.is_a?(Array)
+
     tous_actes_meme_chorus.where(etat: 'clôturé').order(created_at: :desc).first
   end
 
@@ -125,6 +130,7 @@ class Ht2Acte < ApplicationRecord
   def self.duree_total_moyenne
     # Si aucun acte, retourne 0
     return 0 if count.zero?
+
     # Somme des délais de traitement
     somme_durees = sum do |acte|
       acte.duree_total || 0
@@ -157,6 +163,8 @@ class Ht2Acte < ApplicationRecord
       self.etat = "en cours d'instruction"
     elsif self.etat == "en pré-instruction"
       self.pre_instruction = true
+    elsif self.etat == 'suspendu' && self.suspensions.last&.date_reprise.present?
+      self.etat = "en cours d'instruction"
     end
   end
 
@@ -169,29 +177,123 @@ class Ht2Acte < ApplicationRecord
   end
 
   # Methode pour mettre à jour la date limite
-  def calculate_date_limite
-    self.date_limite = calculate_date_limite_value
-  end
-  def calculate_date_limite_value
-    if suspensions.exists? && date_chorus.present?
-      total_suspension_days = suspensions.sum do |suspension|
-        if suspension.date_reprise.present?
-          (suspension.date_reprise - suspension.date_suspension).to_i
-        else
-          0
-        end
-      end
-      if type_acte == 'avis'
-        date_chorus + 15.days + total_suspension_days
-      elsif type_acte == 'visa' || type_acte == 'TF'
-        if last_suspension&.date_reprise.present?
-          last_suspension.date_reprise + 15.days
-        else
-          date_chorus + 15.days
-        end
-      end
-    elsif date_chorus.present?
-      date_chorus + 15.days
+  def calculate_date_limite_if_needed
+    return unless ['en cours d\'instruction', 'suspendu', 'en attente de validation'].include?(etat) && date_chorus.present?
+
+    new_date_limite = if etat == 'suspendu'
+                        nil
+                      else
+                        calculate_date_limite_value
+                      end
+
+    if new_date_limite != date_limite
+      update_column(:date_limite, new_date_limite)
     end
+  end
+
+  def calculate_date_limite_value
+    return nil unless date_chorus.present?
+
+    base_date = date_chorus + 15.days
+
+    return base_date unless suspensions.exists?
+
+    total_suspension_days = suspensions.sum do |suspension|
+      if suspension.date_reprise.present? && suspension.date_suspension.present?
+        (suspension.date_reprise - suspension.date_suspension).to_i
+      else
+        0
+      end
+    end
+    case type_acte
+    when 'avis'
+      base_date + total_suspension_days
+    when 'visa', 'TF'
+      if last_suspension&.date_reprise.present?
+        last_suspension.date_reprise + 15.days
+      else
+        base_date
+      end
+    else
+      base_date
+    end
+  end
+
+  def associate_centre_financier_if_needed
+    # Vérifier si le centre_financier_code a changé
+    if saved_change_to_centre_financier_code?
+      associate_centre_financier
+    end
+  end
+
+  def associate_centre_financier
+    return unless centre_financier_code.present?
+
+    centre = CentreFinancier.find_by(code: centre_financier_code)
+    if centre
+      # Supprimer les associations existantes et ajouter la nouvelle
+      centre_financiers.destroy_all
+      centre_financiers << centre
+    else
+      # Si pas de code ou code invalide, supprimer toutes les associations
+      centre_financiers.destroy_all
+    end
+  end
+
+  def calculate_delai_traitement_if_needed
+    # Calculer les délais selon l'état final
+    case etat
+    when 'clôturé'
+      calculate_delai_traitement if saved_change_to_etat? || date_cloture.blank?
+    when 'clôturé après pré-instruction'
+      calculate_delai_traitement_pre_instruction if saved_change_to_etat?
+    when 'en pré-instruction'
+      # renvoie en pré-instruction
+      update_columns(
+        date_cloture: nil,
+        delai_traitement: nil
+      )
+    end
+  end
+
+  def calculate_delai_traitement
+    return unless etat == 'clôturé' && date_chorus.present? && date_cloture.present?
+
+    delai_total = (date_cloture.to_date - date_chorus.to_date).to_i
+
+    delai_final = if suspensions.empty?
+                    delai_total
+                  elsif type_acte == 'avis'
+                    # Pour les avis, soustraire la durée de chaque suspension
+                    duree_suspensions = suspensions.sum do |suspension|
+                      if suspension.date_suspension.present? && suspension.date_reprise.present?
+                        (suspension.date_reprise.to_date - suspension.date_suspension.to_date).to_i
+                      else
+                        0
+                      end
+                    end
+                    [delai_total - duree_suspensions, 0].max
+                  elsif %w[visa TF].include?(type_acte)
+                    # Pour les visas, prendre le délai entre la dernière reprise et la clôture
+                    derniere_suspension = suspensions.order(date_reprise: :desc).first
+                    if derniere_suspension&.date_reprise.present?
+                      (date_cloture.to_date - derniere_suspension.date_reprise.to_date).to_i
+                    else
+                      delai_total
+                    end
+                  else
+                    delai_total
+                  end
+
+    update_column(:delai_traitement, delai_final)
+  end
+
+  def calculate_delai_traitement_pre_instruction
+    return unless etat == 'clôturé après pré-instruction'
+
+    update_columns(
+      date_cloture: Date.today,
+      delai_traitement: (Date.today - created_at.to_date).to_i
+    )
   end
 end
