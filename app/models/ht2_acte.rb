@@ -14,12 +14,7 @@ class Ht2Acte < ApplicationRecord
   after_save :associate_centre_financier_if_needed
   after_update :calculate_delai_traitement_if_needed
 
-  has_rich_text :commentaire_disponibilite_credits do |attachable|
-    attachable.image_processing_options = {
-      resize_to_limit: [nil, 400],
-      format: :jpg
-    }
-  end
+  has_rich_text :commentaire_disponibilite_credits
 
   scope :en_attente_validation, -> { where(etat: ["en attente de validation"]) }
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }

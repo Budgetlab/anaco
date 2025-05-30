@@ -14,6 +14,11 @@ export default class extends Controller {
             event.preventDefault();
             alert("Seules les images sont autorisées dans ce champ");
         }
+        // vérifier poids des fichiers
+        if (event.file.size > 1024 * 1024 * 1){
+            event.preventDefault();
+            alert("La taille maximale par fichier autorisée est de 1 Mo.");
+        }
     }
 
 }
