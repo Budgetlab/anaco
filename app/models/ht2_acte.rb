@@ -20,9 +20,13 @@ class Ht2Acte < ApplicationRecord
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
+  scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :annee_courante, -> { where("EXTRACT(year FROM created_at) = ?", Date.current.year) }
+
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -165,10 +169,17 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur
   def set_numero_utilisateur
-    # Trouver le plus grand numéro actuellement utilisé pour cet utilisateur
-    derniere_valeur = user.ht2_actes.maximum(:numero_utilisateur) || 0
+    annee_courte = Date.current.year.to_s.last(2)
+    # Trouver le plus grand numéro pour cette année et cet utilisateur
+    pattern = "#{annee_courte}-%"
+    derniere_valeur = user.ht2_actes
+                          .where("numero_formate LIKE ?", pattern)
+                          .maximum(:numero_utilisateur) || 0
     # Incrémenter pour le nouvel acte
-    self.numero_utilisateur = derniere_valeur + 1
+    nouveau_numero = derniere_valeur + 1
+    self.numero_utilisateur = nouveau_numero
+    # Formater le numéro avec des zéros à gauche
+    self.numero_formate = "#{annee_courte}-#{nouveau_numero.to_s.rjust(4, '0')}"
   end
 
   # Methode pour mettre à jour la date limite

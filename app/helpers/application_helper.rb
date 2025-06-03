@@ -6,6 +6,23 @@ module ApplicationHelper
     value.presence || default
   end
 
+  # Pour assurer que les images et pièces jointes sont correctement affichées dans les PDFs
+  def format_for_pdf(content)
+    return content unless content.present?
+
+    # Convertir les URL relatives en URL absolues pour les images
+    content = content.gsub(/src="\/([^"]+)"/) do |match|
+      "src=\"#{root_url.chomp('/')}\/#{$1}\""
+    end
+
+    # Assurer que les images ont une taille maximale
+    content = content.gsub(/<img/) do |match|
+      "#{match} style=\"max-width: 100%; height: auto;\""
+    end
+
+    content
+  end
+
   def format_number(nombre)
     case nombre
     when nil, ''

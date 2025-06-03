@@ -5,8 +5,15 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_admin!, only: [:synthese_utilisateurs]
 
   def index
-    @statut_user = current_user.statut
-    @actes = @statut_user == 'admin' ? Ht2Acte.where(etat: ['clôturé', 'clôturé après pré-instruction']).includes(:user).order(date_cloture: :desc) : current_user.ht2_actes.order(created_at: :desc)
+    redirect_to root_path and return unless ['DCB','CBR'].include?(current_user.statut)
+
+    # actes année en cours
+    @actes = current_user.ht2_actes.where(
+      id: [
+        current_user.ht2_actes.clotures.annee_courante,
+        current_user.ht2_actes.non_clotures
+      ].map(&:ids).flatten
+    ).order(created_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
@@ -30,6 +37,49 @@ class Ht2ActesController < ApplicationController
     @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
     @pagy_cloture_pre_instruction, @actes_cloture_pre_instruction = pagy(@actes_cloture_pre_instruction_all, page_param: :page_cloture_pre_instruction)
+
+    respond_to do |format|
+      format.html
+      format.xlsx
+    end
+  end
+
+  def historique
+    @statut_user = current_user.statut
+    actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
+    @q = actes.ransack(params[:q])
+    @actes_all = @q.result.includes(:user).order(created_at: :desc)
+    @pagy, @actes = pagy(@actes_all, limit: 10)
+    @liste_natures = [
+      'Accord cadre à bons de commande',
+      'Accord cadre à marchés subséquents',
+      'Affectation complémentaire',
+      'Affectation initiale',
+      'Autre',
+      'Autre contrat',
+      'Avenant',
+      'Bail',
+      'Bon de commande',
+      'Convention',
+      'Décision diverse',
+      'Dotation en fonds propres',
+      "Liste d'actes",
+      'MAPA à bons de commande',
+      'MAPA à tranches',
+      'MAPA mixte',
+      'MAPA unique',
+      'Marché à tranches',
+      'Marché mixte',
+      'Marché unique',
+      'Prêt ou avance',
+      'Remboursement de mise à disposition T3',
+      'Retrait',
+      'Subvention',
+      "Subvention pour charges d'investissement",
+      'Subvention pour charges de service public',
+      'Transaction',
+      'Transfert'
+    ]
 
     respond_to do |format|
       format.html
@@ -90,6 +140,52 @@ class Ht2ActesController < ApplicationController
   def show
     @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(created_at: :asc) : [@acte]
     @acte_courant = @acte
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        begin
+          # Redirect to export_pdf action which is specifically designed for PDF generation
+          redirect_to ht2_acte_export_pdf_path(@acte, format: :pdf)
+        rescue => e
+          Rails.logger.error("PDF generation error in show action: #{e.message}")
+          Rails.logger.error(e.backtrace.join("\n"))
+          flash[:error] = "Une erreur est survenue lors de la génération du PDF. Veuillez réessayer plus tard."
+          redirect_to ht2_acte_path(@acte)
+        end
+      end
+    end
+  end
+
+  def export_pdf
+    @acte = Ht2Acte.find(params[:ht2_acte_id])
+    respond_to do |format|
+      format.html
+      format.pdf do
+        begin
+          render pdf: "acte_ht2_#{@acte.numero_utilisateur}",
+                 template: 'ht2_actes/export_pdf',
+                 layout: 'pdf',
+                 formats: [:html],
+                 disposition: 'inline',
+                 show_as_html: params[:debug].present?,
+                 javascript_delay: 2000,
+                 window_status: 'ready',
+                 enable_javascript: true,
+                 enable_local_file_access: true,
+                 orientation: 'Portrait',
+                 page_size: 'A4',
+                 margin: { top: 15, bottom: 15, left: 10, right: 10 },
+                 no_stop_slow_scripts: true,
+                 timeout: 60 # Increase timeout to 60 seconds
+        rescue => e
+          Rails.logger.error("PDF generation error in export_pdf action: #{e.message}")
+          Rails.logger.error(e.backtrace.join("\n"))
+          flash[:error] = "Une erreur est survenue lors de la génération du PDF. Veuillez réessayer plus tard."
+          redirect_to ht2_acte_path(@acte)
+        end
+      end
+    end
   end
 
   def destroy
@@ -188,7 +284,7 @@ class Ht2ActesController < ApplicationController
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture,
-                                     :decision_finale, :numero_utilisateur, :delai_traitement, type_observations: [],
+                                     :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])

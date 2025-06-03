@@ -1,22 +1,3 @@
-<div class="fr-mb-1w title-btn ">
-
-  <div class="fr-text--italic fr-mb-1w">
-    Acte n°<%= acte.numero_utilisateur %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-    <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
-    <% end %>
-  </div>
-
-  <% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
-    <div data-controller="pdf-export">
-      <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
-              data-action="pdf-export#export" data-pdf-export-target="button"
-              data-pdf-export-title="<%= acte.type_acte %>_<%= acte.numero_utilisateur %>.pdf">
-        Exporter au format PDF
-      </button>
-    </div>
-  <% end %>
-</div>
-
 <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
   <%= acte.etat %>
 </p>
@@ -59,11 +40,7 @@
 
 <% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
   <div id="containPDF">
-    <div class="fr-text--italic fr-mb-1w fr-hidden print">
-      Acte n°<%= acte.numero_utilisateur %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-      <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
-      <% end %>
-    </div>
+
     <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-h6">Proposition décision de contrôle</div>
@@ -74,7 +51,7 @@
         </div>
 
         <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.commentaire_proposition_decision)), :html => { :target => '_blank' }) %></div>
+        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
       </div>
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-card-round--blue">
@@ -94,7 +71,7 @@
           <% end %>
 
           <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
-          <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.observations)), :html => { :target => '_blank' }) %></div>
+          <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
         </div>
       </div>
     </div>
@@ -178,7 +155,7 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <div>Précisions sur l'acte</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_value(acte.precisions_acte)), :html => { :target => '_blank' }) %></div>
+        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.precisions_acte))), :html => { :target => '_blank' }) %></div>
       </div>
     </div>
 

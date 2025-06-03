@@ -53,11 +53,14 @@ Rails.application.routes.draw do
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'
 
-    resources :ht2_actes
+    resources :ht2_actes do
+      get 'export_pdf', to: 'ht2_actes#export_pdf'
+    end
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
     get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
+    get 'historique_ht2', to: 'ht2_actes#historique'
     resources :centre_financiers, only: [:new]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'

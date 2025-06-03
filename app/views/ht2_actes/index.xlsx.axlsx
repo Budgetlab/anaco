@@ -71,7 +71,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
   actes_visa.each do |acte|
     row_data = [
       acte.type_acte,
-      acte.numero_utilisateur,
+      acte.numero_formate,
       acte.etat,
       acte.instructeur,
       acte.created_at,
@@ -152,7 +152,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
   actes_avis.each do |acte|
     row_data = [
       acte.type_acte,
-      acte.numero_utilisateur,
+      acte.numero_formate,
       acte.etat,
       acte.instructeur,
       acte.created_at,
@@ -228,7 +228,7 @@ wb.add_worksheet(name: "TF") do |sheet|
   actes_tf.each do |acte|
     row_data = [
       acte.type_acte,
-      acte.numero_utilisateur,
+      acte.numero_formate,
       acte.etat,
       acte.instructeur,
       acte.created_at,

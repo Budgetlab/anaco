@@ -28,7 +28,7 @@
         <h1 class="title-btn">
           <span class="fr-capitalize"><%= @acte.type_acte %> HT2
             <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
-            <% else %>n°<%= @acte.numero_utilisateur %>
+            <% else %>n°<%= @acte.numero_formate %>
             <% end %>
           </span>
           <% if @acte.numero_chorus.present? && ['DCB', 'CBR'].include?(current_user.statut)  %>
@@ -50,6 +50,25 @@
           </ul>
           <% @actes_groupe.each do |acte| %>
             <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
+              <div class="fr-mb-1w title-btn ">
+
+                <div class="fr-text--italic fr-mb-1w">
+                  Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
+                  <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                  <% end %>
+                </div>
+
+                <% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
+                  <%= link_to ht2_acte_export_pdf_path(acte, format: :pdf), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line fr-hidden', target: '_blank' do %> Télécharger PDF <% end %>
+                  <div data-controller="pdf-export" class="fr-hidden">
+                    <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
+                            data-action="pdf-export#export" data-pdf-export-target="button"
+                            data-pdf-export-title="<%= acte.type_acte %>_<%= acte.numero_formate %>.pdf">
+                      Exporter au format PDF
+                    </button>
+                  </div>
+                <% end %>
+              </div>
               <%= render 'ht2_acte_details', acte: acte %>
             </div>
           <% end %>

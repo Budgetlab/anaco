@@ -1,4 +1,4 @@
-<% content_for :title do %>Validation finale <%= @acte.type_acte %> n°<%= @acte.numero_utilisateur %> | ANACO
+<% content_for :title do %>Validation finale <%= @acte.type_acte %> n°<%= @acte.numero_formate %> | ANACO
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
@@ -18,7 +18,7 @@
           </li>
           <li>
             <a class="fr-breadcrumb__link" aria-current="page">Validation finale <%= @acte.type_acte %>
-              n°<%= @acte.numero_utilisateur %></a>
+              n°<%= @acte.numero_formate %></a>
           </li>
         </ol>
       </div>
@@ -28,7 +28,7 @@
 
         <h1>
           <span class="fr-icon-arrow-right-line fr-icon--lg no-print" aria-hidden="true"></span> Validation
-          finale <%= @acte.type_acte %> n°<%= @acte.numero_utilisateur %>
+          finale <%= @acte.type_acte %> n°<%= @acte.numero_formate %>
         </h1>
         <% if @acte.etat == 'en attente de validation' %>
           <%= render 'form_validation' %>
