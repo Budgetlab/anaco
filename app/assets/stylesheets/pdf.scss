@@ -1,0 +1,404 @@
+/* PDF-specific styles based on DSFR classes used in export_pdf.html.erb */
+
+/* Base styles */
+body {
+  font-family: "Marianne", arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #333;
+  margin: 0;
+  padding: 10px;
+}
+
+/* Hide unnecessary elements */
+.fr-breadcrumb,
+.fr-tabs,
+.fr-btn,
+.fr-btns-group,
+.no-print {
+  display: none !important;
+}
+
+/* Layout classes */
+.fr-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.fr-grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.5rem;
+}
+
+.fr-grid-row--gutters {
+  margin: 0 -1rem;
+}
+
+.fr-grid-row--gutters > [class^=fr-col-],
+.fr-grid-row--gutters > [class*=" fr-col-"],
+.fr-grid-row--gutters > .fr-col {
+  padding: 0.5rem;
+}
+
+/* Column system based on 12 columns */
+.fr-col {
+  flex: 1;
+  padding: 0 0.5rem;
+}
+
+.fr-col-12 {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 0.5rem;
+}
+
+.fr-col-6 {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  padding: 0 0.5rem;
+}
+
+/* Responsive columns */
+.fr-col-lg-12 {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 0.5rem;
+}
+
+.fr-col-lg-6 {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  padding: 0 0.5rem;
+}
+
+/* Margin and padding utilities */
+.fr-my-1v { margin-top: 4px; margin-bottom: 4px; }
+.fr-my-1w { margin-top: 4px; margin-bottom: 4px; }
+.fr-my-2w { margin-top: 8px; margin-bottom: 8px; }
+.fr-my-3w { margin-top: 12px; margin-bottom: 12px; }
+.fr-mb-1w { margin-bottom: 4px; }
+.fr-mb-4w { margin-bottom: 16px; }
+.fr-mt-2w { margin-top: 8px; }
+
+/* Typography */
+.fr-text--bold { 
+  font-weight: 700; 
+}
+
+.fr-text--italic { 
+  font-style: italic; 
+}
+
+.fr-capitalize { 
+  text-transform: capitalize; 
+}
+
+/* Heading styles */
+h1 {
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  margin: var(--title-spacing);
+}
+.fr-h6 {
+  font-family: "Marianne", arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5rem;
+  margin: 1rem 0 0.5rem 0;
+  color: #1e1e1e;
+}
+
+/* Paragraph styles */
+p {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* Cards */
+.fr-card-round--blue{
+  background-color: #f5f5fe !important;
+  padding: 8px 1rem;
+  border-radius: 20px;
+}
+
+
+/* Tables */
+
+.fr-table {
+  --table-offset: calc(0px);
+  --row-height: 0.125rem;
+  --text-spacing: 0;
+  --title-spacing: 0;
+  position: relative;
+  margin-bottom: 2.5rem;
+  margin-top: 1rem;
+  padding-top: calc(0px);
+
+}
+
+.fr-table__container {
+  overflow: auto;
+  padding-top: calc(0px);
+}
+.fr-table__content .fr-cell--center {
+  text-align: center;
+}
+.fr-table__content .fr-cell__title {
+  font-weight: 700;
+}
+.fr-table__content .fr-cell--inline {
+  display: flex;
+  align-items: center;
+  margin: 0 -0.5rem;
+}
+.fr-table__content .fr-cell--inline > * {
+  margin: 0 0.5rem;
+}
+
+.fr-table__content .fr-cell--multiline,
+.fr-table__content .fr-cell--multiline * {
+  white-space: normal;
+}
+.fr-table__content table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.fr-table__content table thead {
+  position: relative;
+}
+.fr-table__content table thead::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: inherit;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+  z-index: 1;
+}
+.fr-table__content table thead th {
+  font-weight: 700;
+  background-color: #f6f6f6;
+
+  --idle: transparent;
+  --hover: #dfdfdf;
+  --active: #cfcfcf;
+  background-image: linear-gradient(0deg, #3a3a3a, #3a3a3a), linear-gradient(0deg, #929292, #929292);
+}
+.fr-table__content table thead th[role=columnheader] {
+  background-size: 100% 1px, 1px 100%;
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 100%, 100% 0;
+  background-image: linear-gradient(0deg, #3a3a3a, #3a3a3a), linear-gradient(0deg, #929292, #929292);
+}
+.fr-table__content table tbody th {
+  background-size: 100% 1px, 1px 100%;
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 100%, 100% 0;
+  background-color: #f6f6f6;
+
+  --idle: transparent;
+  --hover: #dfdfdf;
+  --active: #cfcfcf;
+  background-image: linear-gradient(0deg, #3a3a3a, #3a3a3a), linear-gradient(0deg, #929292, #929292);
+}
+.fr-table__content table tbody tr::after {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--row-height);
+  z-index: 2;
+  pointer-events: none;
+  transform: translateY(-0.125rem);
+  background-size: 0.125rem 100%, 0.125rem 100%, 100% 0.125rem, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 0 0, 100% 0, 0 0, 0 100%;
+  background-image: linear-gradient(0deg, #000091, #000091), linear-gradient(0deg, #000091, #000091), linear-gradient(0deg, #000091, #000091), linear-gradient(0deg, #000091, #000091);
+}
+
+.fr-table__content table tbody tr[aria-selected=true]::after,
+.fr-table__content table tbody tr[aria-selected=true] + tr::after {
+  content: "";
+}
+.fr-table__content th,
+.fr-table__content td {
+  display: table-cell;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+}
+
+.fr-table::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0;
+}
+
+.fr-table:not(.fr-table--no-scroll) > table {
+  width: 100%;
+}
+
+.fr-table > table {
+  width: 100%;
+  display: block;
+  overflow: auto;
+  border-spacing: 0;
+}
+
+.fr-table > table td,
+.fr-table > table th {
+  text-align: left;
+  vertical-align: middle;
+  display: table-cell;
+  border: 0;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+.fr-table > table th {
+  font-weight: 700;
+}
+
+.fr-table > table thead {
+  background-size: 100% 1px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(0deg, var(--border-plain-grey), var(--border-plain-grey));
+  background-color: var(--background-alt-grey);
+
+  --idle: transparent;
+  --hover: var(--background-alt-grey-hover);
+  --active: var(--background-alt-grey-active);
+  color: var(--text-title-grey);
+}
+
+.fr-table > table thead td,
+.fr-table > table thead th {
+  font-weight: 700;
+  padding-bottom: 0.875rem;
+}
+
+/* Badges and tags */
+.fr-badge, .fr-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  margin: 2px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* Badge colors - using official DSFR colors */
+.fr-badge {
+  background-color: #000091; /* blue-france */
+  color: white;
+}
+
+.fr-badge--success {
+  background-color: #18753c; /* green-bourgeon */
+  color: white;
+}
+
+.fr-badge--error {
+  background-color: #ce0500; /* red-marianne */
+  color: white;
+}
+
+.fr-badge--new {
+  background-color: #000091; /* blue-france */
+  color: white;
+}
+
+.fr-badge--green-menthe {
+  background-color: #009081; /* green-menthe */
+  color: white;
+}
+
+.fr-badge--green-archipel {
+  background-color: #009099; /* green-archipel */
+  color: white;
+}
+
+.fr-badge--pink-tuile {
+  background-color: #ce614a; /* pink-tuile */
+  color: white;
+}
+
+.fr-badge--beige-gris-galet {
+  background-color: #a9a096; /* beige-gris-galet */
+  color: white;
+}
+
+/* Tags */
+.fr-tag {
+  background-color: #f6f6f6;
+  color: #000;
+  border: 1px solid #ddd;
+}
+
+.fr-badge--no-icon::before {
+  display: none;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.trix-content img,
+action-text-attachment img,
+.attachment img,
+img.attachment {
+  max-width: 400px !important;
+  width: auto !important;
+  height: auto !important;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+/* Avoid page breaks inside important elements */
+.fr-table,
+.fr-card-round--blue {
+  page-break-inside: avoid;
+}
+
+/* Custom classes */
+#containPDF {
+  width: 100%;
+}
+
+.containtAll {
+  width: 100%;
+}
+
+/* Hide icons on links */
+.hide-icons::before,
+.hide-icons::after {
+  display: none !important;
+}
