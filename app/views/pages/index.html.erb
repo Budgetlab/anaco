@@ -131,8 +131,13 @@
                       <div class="fr-tile__body">
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
-                            <%= link_to ht2_actes_path do %>
-                              Consulter<% if @statut_user == "admin" %> les<% else %>/ajouter mes<% end %> actes
+                            <% if @statut_user == "admin" %>
+                              <%= link_to historique_ht2_path do %> Consulter les actes
+                              <% end %>
+                            <% else %>
+                              <%= link_to ht2_actes_path do %>
+                                Consulter/ajouter mes actes
+                              <% end %>
                             <% end %>
                           </h3>
                         </div>
