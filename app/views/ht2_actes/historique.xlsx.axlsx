@@ -31,9 +31,9 @@ cell_style = wb.styles.add_style(
 )
 
 # Filtre les actes par type
-actes_visa = @actes.select { |acte| acte.type_acte == 'visa' }
-actes_avis = @actes.select { |acte| acte.type_acte == 'avis' }
-actes_tf = @actes.select { |acte| acte.type_acte == 'TF' }
+actes_visa = @actes_all.select { |acte| acte.type_acte == 'visa' }
+actes_avis = @actes_all.select { |acte| acte.type_acte == 'avis' }
+actes_tf = @actes_all.select { |acte| acte.type_acte == 'TF' }
 
 # Onglet 1 : Visas
 wb.add_worksheet(name: "Visas") do |sheet|

@@ -19,9 +19,11 @@
               </button>
             </li>
             <li>
-              <button class="fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary"><%= link_to historique_ht2_path(format: :xlsx) do %>
+              <button class="fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary">
+                <%= link_to historique_ht2_path(format: :xlsx) do %>
                   Télécharger les actes
-                <% end %></button>
+                <% end %>
+              </button>
             </li>
           </ul>
         </div>
@@ -35,13 +37,16 @@
               </div>
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-4">
+              <div class="fr-col-3">
                 <%= render_tag_group "Type d'acte", :type_acte_in, ["avis","visa",'TF'] %>
               </div>
-              <div class="fr-col-4">
+              <div class="fr-col-3">
+                <%= render_tag_group "Exercice", :annee_in, (2025..Date.today.year).to_a.map(&:to_s) %>
+              </div>
+              <div class="fr-col-3">
                 <%= render_select_group("Nature", :nature_in, @liste_natures) %>
               </div>
-              <div class="fr-col-4">
+              <div class="fr-col-3">
                 <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map { |p| p.nom }) %>
               </div>
             </div>

@@ -22,11 +22,10 @@ class Ht2Acte < ApplicationRecord
   scope :suspendus, -> { where(etat: ["suspendu"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
-  scope :annee_courante, -> { where("EXTRACT(year FROM created_at) = ?", Date.current.year) }
-
+  scope :annee_courante, -> { where(annee: Date.current.year) }
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -167,7 +166,7 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
-  # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur
+  # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur + annee
   def set_numero_utilisateur
     annee_courte = Date.current.year.to_s.last(2)
     # Trouver le plus grand numéro pour cette année et cet utilisateur
@@ -180,6 +179,8 @@ class Ht2Acte < ApplicationRecord
     self.numero_utilisateur = nouveau_numero
     # Formater le numéro avec des zéros à gauche
     self.numero_formate = "#{annee_courte}-#{nouveau_numero.to_s.rjust(4, '0')}"
+    # Définir l'année à la création
+    self.annee = Date.current.year
   end
 
   # Methode pour mettre à jour la date limite
@@ -291,7 +292,10 @@ class Ht2Acte < ApplicationRecord
                     delai_total
                   end
 
-    update_column(:delai_traitement, delai_final)
+    update_columns(
+      delai_traitement: delai_final,
+      annee: date_cloture.year  # Ajouter ici
+    )
   end
 
   def calculate_delai_traitement_pre_instruction
@@ -299,7 +303,8 @@ class Ht2Acte < ApplicationRecord
 
     update_columns(
       date_cloture: Date.today,
-      delai_traitement: (Date.today - created_at.to_date).to_i
+      delai_traitement: (Date.today - created_at.to_date).to_i,
+      annee: Date.today.year
     )
   end
 end

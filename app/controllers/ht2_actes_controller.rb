@@ -283,7 +283,7 @@ class Ht2ActesController < ApplicationController
                                      :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
-                                     :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture,
+                                     :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
