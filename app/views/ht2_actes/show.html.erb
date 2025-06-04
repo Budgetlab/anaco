@@ -13,7 +13,12 @@
             <% end %>
           </li>
           <li>
-            <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Actes HT2
+            <% if current_user.statut == "admin" %>
+              <%= link_to historique_ht2_path, class: "fr-breadcrumb__link" do %> Actes HT2
+              <% end %>
+            <% else %>
+              <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Actes HT2
+              <% end %>
             <% end %>
           </li>
           <li>
@@ -31,7 +36,7 @@
             <% else %>n°<%= @acte.numero_formate %>
             <% end %>
           </span>
-          <% if @acte.numero_chorus.present? && ['DCB', 'CBR'].include?(current_user.statut)  %>
+          <% if @acte.numero_chorus.present? && ['DCB', 'CBR'].include?(current_user.statut) %>
             <%= link_to new_ht2_acte_path(parent_id: @acte.dernier_acte_cloture_chorus), class: 'fr-btn' do %>
               Nouvelle saisine
             <% end %>
@@ -59,7 +64,9 @@
                 </div>
 
                 <% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
-                  <%= link_to ht2_acte_export_pdf_path(acte, format: :pdf), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line fr-hidden', target: '_blank' do %> Télécharger PDF <% end %>
+                  <%= link_to ht2_acte_export_pdf_path(acte, format: :pdf), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line fr-hidden', target: '_blank' do %>
+                    Télécharger PDF
+                  <% end %>
                   <div data-controller="pdf-export" class="fr-hidden">
                     <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
                             data-action="pdf-export#export" data-pdf-export-target="button"

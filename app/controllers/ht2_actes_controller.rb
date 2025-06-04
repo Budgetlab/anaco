@@ -221,6 +221,9 @@ class Ht2ActesController < ApplicationController
                   end
     # chargement des actes en fonction du profil
     @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
+    # Filtrer par année
+    @selected_year = params[:year].presence&.to_i || Date.current.year
+    @ht2_actes = @ht2_actes.where(annee: @selected_year)
     # Récupérer le programme sélectionné (s'il y en a un)
     @selected_programme_id = params[:programme_id].presence
     # Filtrer par programme si un programme est sélectionné
@@ -481,7 +484,7 @@ class Ht2ActesController < ApplicationController
 
   def user_ht2_stats(users)
     users.includes(:ht2_actes).map do |user|
-      ht2_actes = user.ht2_actes
+      ht2_actes = user.ht2_actes.annee_courante
 
       actes_clotures = ht2_actes.where(etat: 'clôturé')
       actes_non_clotures = ht2_actes.where.not(etat: 'clôturé')
