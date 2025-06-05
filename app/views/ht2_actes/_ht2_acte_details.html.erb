@@ -204,6 +204,7 @@
                 <caption> Lignes de poste</caption>
                 <thead>
                 <tr>
+                  <th> Numéro</th>
                   <th> Centre financier</th>
                   <th> Montant (€)</th>
                   <th> Domaine fonctionnel</th>
@@ -216,6 +217,7 @@
                 <tbody>
                 <% acte.poste_lignes.each do |ligne| %>
                   <tr>
+                    <td> <%= ligne.numero  %></td>
                     <td> <%= ligne.centre_financier_code %> </td>
                     <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
                     <td> <%= ligne.domaine_fonctionnel %> </td>
@@ -227,6 +229,7 @@
                 <% end %>
                 <tr class="fr-table--total">
                   <td>Total</td>
+                  <td></td>
                   <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
                   <td></td>
                   <td></td>

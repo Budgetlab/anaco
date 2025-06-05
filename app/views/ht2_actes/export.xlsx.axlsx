@@ -42,6 +42,7 @@ currency_style = wb.styles.add_style(
   sz: 10,
   alignment: { horizontal: :center, vertical: :center },
   border: { style: :thin, color: '000000' },
+  num_fmt: 4,
 
 )
 
@@ -67,7 +68,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
   # TITRE PRINCIPAL
   sheet.add_row ["FICHE DE CONTRÔLE ACTE #{@acte.type_acte.upcase} N° #{@acte.numero_formate}"],
                 style: [title_style]
-  sheet.merge_cells("A#{current_row}:G#{current_row}")
+  sheet.merge_cells("A#{current_row}:H#{current_row}")
   sheet.row_style(current_row - 1, title_style)
   sheet.add_row
   current_row += 2
@@ -121,7 +122,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          @acte.numero_chorus,
          @acte.date_chorus&.strftime('%d/%m/%Y'),
          "#{@acte.delai_traitement} jour#{'s' if @acte.delai_traitement != 1}"
-       ], style: cell_style
+       ], style: [cell_style, cell_style, cell_style, currency_style, cell_style, cell_style, cell_style]
    current_row += 3
    sheet.add_row
 
@@ -142,8 +143,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
    # Précisions sur l'acte
    if @acte.precisions_acte.present?
-     sheet.add_row ["Précisions sur l'acte"], style: [section_header_style]
-     sheet.add_row [@acte.precisions_acte], style: [cell_style]
+     sheet.add_row ["Précisions sur l'acte"], style: section_header_style
+     sheet.add_row [@acte.precisions_acte], style: cell_style
      sheet.add_row
      current_row += 3
    end
@@ -167,6 +168,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          sheet.add_row ["LIGNES DE POSTE"], style: [section_header_style]
 
          sheet.add_row [
+           "Numéro",
            "Centre financier",
            "Montant (€)",
            "Domaine fonctionnel",
@@ -179,6 +181,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
          @acte.poste_lignes.each do |ligne|
            sheet.add_row [
+             ligne.numero,
              ligne.centre_financier_code,
              ligne.montant,
              ligne.domaine_fonctionnel,
@@ -186,7 +189,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              ligne.compte_budgetaire,
              ligne.code_activite,
              ligne.axe_ministeriel
-           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
            current_row += 1
          end
          sheet.add_row
@@ -266,4 +269,5 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          end
    end
 
+   sheet.column_widths(*Array.new(8, 30))
 end
