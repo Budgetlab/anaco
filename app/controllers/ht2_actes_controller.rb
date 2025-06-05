@@ -157,10 +157,13 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def export_pdf
-    @acte = Ht2Acte.find(params[:ht2_acte_id])
+  def export
+    @acte = Ht2Acte.find(params[:id])
     respond_to do |format|
       format.html
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"acte_#{@acte.numero_formate}_#{Date.current.strftime('%Y%m%d')}.xlsx\""
+      end
       format.pdf do
         begin
           render pdf: "acte_ht2_#{@acte.numero_utilisateur}",

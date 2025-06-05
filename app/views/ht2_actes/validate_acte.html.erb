@@ -136,6 +136,8 @@
                       <% if @acte.type_acte == 'TF' %>Opération d’investissement
                       <% else %>Objet
                       <% end %></th>
+                    <th>Ordonnateur</th>
+                    <th>Pré-instruction</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -145,6 +147,8 @@
                       <td> <%= format_value(@acte.beneficiaire) %></td>
                     <% end %>
                     <td> <%= format_value(@acte.objet) %></td>
+                    <td> <%= format_value(@acte.ordonnateur) %></td>
+                    <td> <%= @acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
                   </tr>
                   </tbody>
                 </table>

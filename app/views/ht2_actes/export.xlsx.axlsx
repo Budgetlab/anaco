@@ -1,0 +1,269 @@
+wb = xlsx_package.workbook
+
+# Styles de base
+title_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 16,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  bg_color: 'dae1f2',
+  fg_color: '161616',
+  border: { style: :thin, color: '000000' }
+)
+header_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  bg_color: 'dae1f2',
+  fg_color: '161616',
+  border: { style: :thin, color: '000000' }
+)
+
+section_header_style = wb.styles.add_style(
+                      font_name: 'Marianne',
+                      sz: 11,
+                      b: true,
+                      alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+                      bg_color: 'ededed',
+                      fg_color: '161616',
+                      border: { style: :thin, color: '000000' }
+                    )
+
+cell_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' }
+)
+
+currency_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  alignment: { horizontal: :center, vertical: :center },
+  border: { style: :thin, color: '000000' },
+
+)
+
+check_ok_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 14,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  fg_color: '008000'
+)
+
+check_ko_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 14,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  fg_color: 'FF0000'
+)
+
+wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
+  current_row = 1
+
+  # TITRE PRINCIPAL
+  sheet.add_row ["FICHE DE CONTRÔLE ACTE #{@acte.type_acte.upcase} N° #{@acte.numero_formate}"],
+                style: [title_style]
+  sheet.merge_cells("A#{current_row}:G#{current_row}")
+  sheet.row_style(current_row - 1, title_style)
+  sheet.add_row
+  current_row += 2
+
+   # En-têtes des décisions
+   sheet.add_row [
+     "Proposition de décision",
+     "Commentaire proposition",
+     "Décision finale",
+     "Type d'observations",
+     "Observations à l'ordonnateur",
+   ], style: header_style
+   type_obs = @acte.type_observations&.join(", ") if @acte.type_observations.present?
+   sheet.add_row [
+         @acte.proposition_decision,
+         @acte.commentaire_proposition_decision,
+         @acte.decision_finale,
+         type_obs,
+         @acte.observations,
+       ], style: cell_style
+
+   sheet.add_row
+   current_row += 2
+
+   # INFORMATIONS SUR L'ACTE
+   sheet.add_row ["INFORMATIONS SUR L'ACTE"], style: [section_header_style]
+
+   # Première table d'informations
+   montant_label = case @acte.type_acte
+                  when 'avis' then 'Montant estimatif global (AE)'
+                  when 'visa' then 'Montant engagé'
+                  when 'TF' then 'Montant total affecté'
+                  end
+
+   nature_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Nature de l'acte"
+
+   sheet.add_row [
+     "Instructeur",
+     "Valideur",
+     nature_label,
+     montant_label,
+     "N°Chorus",
+     "Date réception Chorus",
+     "Délai de traitement"
+   ], style: header_style
+   sheet.add_row [
+         @acte.instructeur,
+         @acte.valideur,
+         @acte.nature,
+         @acte.montant_ae,
+         @acte.numero_chorus,
+         @acte.date_chorus&.strftime('%d/%m/%Y'),
+         "#{@acte.delai_traitement} jour#{'s' if @acte.delai_traitement != 1}"
+       ], style: cell_style
+   current_row += 3
+   sheet.add_row
+
+   # Deuxième table d'informations
+   headers = ["Centre financier"]
+   headers << "Bénéficiaire" if @acte.type_acte != 'TF'
+   objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
+   headers += [objet_label,"Ordonnateur", "Pré-instruction"]
+
+   sheet.add_row headers, style: header_style
+
+   data_row = [@acte.centre_financier_code]
+   data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
+   data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
+   sheet.add_row data_row, style: cell_style
+   sheet.add_row
+   current_row += 3
+
+   # Précisions sur l'acte
+   if @acte.precisions_acte.present?
+     sheet.add_row ["Précisions sur l'acte"], style: [section_header_style]
+     sheet.add_row [@acte.precisions_acte], style: [cell_style]
+     sheet.add_row
+     current_row += 3
+   end
+
+   # INFORMATIONS COMPLÉMENTAIRES
+   if @acte.action.present? || @acte.sous_action.present? || @acte.activite.present?
+     sheet.add_row ["INFORMATIONS COMPLÉMENTAIRES"], style: [section_header_style]
+
+     comp_headers = ["Action", "Sous-action", "Activité"]
+     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present?
+     sheet.add_row comp_headers, style: header_style
+
+     comp_data = [@acte.action, @acte.sous_action, @acte.activite]
+     comp_data << @acte.numero_tf if @acte.numero_tf.present?
+     sheet.add_row comp_data, style: cell_style
+     sheet.add_row
+     current_row += 4
+   end
+   # LIGNES DE POSTE
+   if @acte.poste_lignes.present?
+         sheet.add_row ["LIGNES DE POSTE"], style: [section_header_style]
+
+         sheet.add_row [
+           "Centre financier",
+           "Montant (€)",
+           "Domaine fonctionnel",
+           "Fonds",
+           "Compte budgétaire",
+           "Code activité",
+           "Axe ministériel"
+         ], style: header_style
+         current_row += 1
+
+         @acte.poste_lignes.each do |ligne|
+           sheet.add_row [
+             ligne.centre_financier_code,
+             ligne.montant,
+             ligne.domaine_fonctionnel,
+             ligne.fonds,
+             ligne.compte_budgetaire,
+             ligne.code_activite,
+             ligne.axe_ministeriel
+           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+           current_row += 1
+         end
+         sheet.add_row
+         current_row += 1
+   end
+
+   # ÉCHÉANCIER
+   if @acte.echeanciers.present?
+     sheet.add_row ["ÉCHÉANCIER"], style: [section_header_style]
+     sheet.add_row ["Année", "Montant AE (€)", "Montant CP (€)"], style: header_style
+     current_row += 2
+
+     @acte.echeanciers.order(annee: :asc).each do |echeancier|
+       sheet.add_row [
+         echeancier.annee,
+         echeancier.montant_ae,
+         echeancier.montant_cp
+       ], style: [cell_style, currency_style, currency_style]
+       current_row += 1
+     end
+     sheet.add_row
+     current_row += 1
+   end
+   # CRITÈRES
+   sheet.add_row ["CRITÈRES DE CONTRÔLE"], style: [section_header_style]
+
+    sheet.add_row [
+      "Disponibilité des crédits",
+      "Imputation de la dépense",
+      "Exactitude de l'évaluation",
+      "Compatibilité programmation"
+    ], style: header_style
+
+    sheet.add_row [
+      @acte.disponibilite_credits? ? "✓" : "✗",
+      @acte.imputation_depense? ? "✓" : "✗",
+      @acte.consommation_credits? ? "✓" : "✗",
+      @acte.programmation? ? "✓" : "✗"
+    ], style: [
+      @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
+      @acte.imputation_depense? ? check_ok_style : check_ko_style,
+      @acte.consommation_credits? ? check_ok_style : check_ko_style,
+      @acte.programmation? ? check_ok_style : check_ko_style
+    ]
+   current_row += 3
+   sheet.add_row
+   # Observations critères
+   if @acte.commentaire_disponibilite_credits.present?
+    sheet.add_row ["Observations sur les critères"], style: [section_header_style]
+    sheet.add_row [clean_action_text(@acte.commentaire_disponibilite_credits)], style: [cell_style]
+    sheet.add_row
+   end
+
+   # SUSPENSIONS/INTERRUPTIONS
+   if @acte.suspensions.present?
+         type_suspension = @acte.type_acte == 'avis' ? 'SUSPENSION' : 'INTERRUPTION'
+         sheet.add_row ["#{type_suspension}S"], style: [section_header_style]
+
+         sheet.add_row [
+           type_suspension.capitalize,
+           "Date #{type_suspension.downcase}",
+           "Date de reprise",
+           "Motif",
+           "Observations"
+         ], style: header_style
+         current_row += 2
+
+         @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index|
+           sheet.add_row [
+             "n°#{index + 1}",
+             suspension.date_suspension&.strftime('%d/%m/%Y'),
+             suspension.date_reprise&.strftime('%d/%m/%Y'),
+             suspension.motif,
+             suspension.observations
+           ], style: cell_style
+           current_row += 1
+         end
+   end
+
+end

@@ -54,7 +54,9 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
 
     resources :ht2_actes do
-      get 'export_pdf', to: 'ht2_actes#export_pdf'
+      member do
+        get :export
+      end
     end
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'

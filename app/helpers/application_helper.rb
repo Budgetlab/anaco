@@ -149,4 +149,15 @@ module ApplicationHelper
       cell.add_style bg_color: color
     end
   end
+
+  # Helper simple pour nettoyer le contenu ActionText
+  def clean_action_text(content)
+    return '' if content.blank?
+
+    # Supprimer les balises HTML et garder le texte
+    text = ActionController::Base.helpers.strip_tags(content.to_s)
+
+    # Supprimer les espaces en trop
+    text.gsub(/\s+/, ' ').strip
+  end
 end
