@@ -56,6 +56,7 @@ Rails.application.routes.draw do
     resources :ht2_actes do
       member do
         get :export
+        get :download_attachments
       end
     end
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'

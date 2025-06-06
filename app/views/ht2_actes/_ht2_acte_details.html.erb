@@ -329,8 +329,15 @@
       </div>
     </div>
     <div class="fr-mt-2w">Observations</div>
+
     <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
 
+    <% if rich_text_has_images?(acte.commentaire_disponibilite_credits) %>
+      <%= link_to download_attachments_ht2_acte_path(acte),
+                  class: 'fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left fr-mt-2w', data: { turbo: false } do %>
+        Télécharger les images (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
+      <% end %>
+    <% end %>
 
     <% if acte.suspensions.present? %>
       <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>

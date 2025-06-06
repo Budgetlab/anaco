@@ -511,6 +511,7 @@ DEPENDENCIES
   ransack
   roo (~> 2.8.0)
   rubocop
+  rubyzip
   sassc-rails
   selenium-webdriver
   sprockets-rails

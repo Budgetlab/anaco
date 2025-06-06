@@ -160,4 +160,17 @@ module ApplicationHelper
     # Supprimer les espaces en trop
     text.gsub(/\s+/, ' ').strip
   end
+  def rich_text_has_images?(rich_text_content)
+    return false if rich_text_content.blank?
+
+    doc = Nokogiri::HTML::DocumentFragment.parse(rich_text_content.to_s)
+    doc.css('action-text-attachment[content-type^="image"]').any?
+  end
+
+  def count_images_in_rich_text(rich_text_content)
+    return 0 if rich_text_content.blank?
+
+    doc = Nokogiri::HTML::DocumentFragment.parse(rich_text_content.to_s)
+    doc.css('action-text-attachment[content-type^="image"]').count
+  end
 end

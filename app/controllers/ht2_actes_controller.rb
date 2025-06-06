@@ -279,6 +279,37 @@ class Ht2ActesController < ApplicationController
     @stats_dcb = user_ht2_stats(@users_dcb)
   end
 
+  def download_attachments
+    @acte = Ht2Acte.find(params[:id])
+
+    # Extraire les attachments du rich text
+    attachments = extract_attachments_from_rich_text(@acte.commentaire_disponibilite_credits)
+
+    if attachments.empty?
+      redirect_back(fallback_location: ht2_acte_path(@acte), alert: "Aucune image trouvée dans les observations.")
+      return
+    end
+
+    # Si une seule image, télécharger directement
+    if attachments.size == 1
+      attachment = attachments.first
+      send_data attachment.download,
+                filename: attachment.filename.to_s,
+                type: attachment.content_type,
+                disposition: 'attachment'
+      return
+    end
+
+    # Si plusieurs images, créer un ZIP
+    zip_data = create_zip_with_attachments(attachments, @acte.id)
+
+    send_data zip_data,
+              filename: "acte_#{@acte.id}_images_#{Date.current.strftime('%Y%m%d')}.zip",
+              type: 'application/zip',
+              disposition: 'attachment'
+
+  end
+
   private
 
   def ht2_acte_params
@@ -506,5 +537,52 @@ class Ht2ActesController < ApplicationController
         delai_moyen: actes_clotures.delai_moyen_traitement,
       }
     end
+  end
+
+  # Méthode pour extraire les attachments d'un rich text
+  def extract_attachments_from_rich_text(rich_text_content)
+    return [] if rich_text_content.blank?
+
+    attachments = []
+
+    # Méthode 1: Utiliser les associations directes d'ActionText (le plus fiable)
+    if rich_text_content.respond_to?(:embeds)
+      Rails.logger.debug "Utilisation des embeds ActionText"
+      attachments = rich_text_content.embeds.select(&:image?)
+      Rails.logger.debug "Attachments trouvés via embeds: #{attachments.count}"
+      return attachments unless attachments.empty?
+    end
+    attachments
+  end
+
+  # Méthode pour créer un ZIP avec les attachments
+  def create_zip_with_attachments(attachments, acte_id)
+    require 'zip'
+
+    zip_data = Zip::OutputStream.write_buffer do |zip|
+      attachments.each_with_index do |attachment, index|
+        begin
+          # Nom du fichier dans le ZIP
+          filename = attachment.respond_to?(:filename) ? attachment.filename.to_s : "image_#{index + 1}"
+
+          # Ajouter l'extension si elle manque
+          unless filename.include?('.')
+            extension = attachment.respond_to?(:content_type) ?
+                          Marcel::MimeType.for(attachment.content_type).split('/').last : 'png'
+            filename = "#{filename}.#{extension}"
+          end
+
+          # Télécharger et ajouter au ZIP
+          file_data = attachment.respond_to?(:download) ? attachment.download : attachment.blob.download
+          zip.put_next_entry("acte_#{acte_id}_#{filename}")
+          zip.write(file_data)
+
+        rescue => e
+          Rails.logger.error "Erreur lors de l'ajout de #{attachment} au ZIP: #{e.message}"
+        end
+      end
+    end
+
+    zip_data.string
   end
 end

@@ -63,6 +63,7 @@ gem 'ferrum'
 gem 'google-cloud-storage'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
+gem 'rubyzip'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
