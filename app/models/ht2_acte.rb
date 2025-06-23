@@ -23,6 +23,13 @@ class Ht2Acte < ApplicationRecord
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
+  # Scope combiné pour éviter les requêtes multiples
+  scope :actifs_annee_courante, -> {
+    where(
+      "(date_cloture IS NULL) OR (date_cloture IS NOT NULL AND annee = ?)",
+      Date.current.year
+    )
+  }
 
   def self.ransackable_attributes(auth_object = nil)
     ["action", "activite", "annee", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]

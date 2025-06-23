@@ -64,11 +64,16 @@ class ApplicationController < ActionController::Base
 
   def authenticate_dcb_or_admin!
     authenticate_user!
-    redirect_to root_path unless current_user.statut == 'admin' || current_user.statut == 'DCB'
+    redirect_to root_path unless ['admin', 'DCB'].include?(current_user.statut)
+  end
+
+  def authenticate_dcb_or_cbr
+    authenticate_user!
+    redirect_to root_path unless ['CBR', 'DCB'].include?(current_user.statut)
   end
 
   def redirect_if_cbr
-    redirect_to root_path if current_user.statut == "CBR"
+    redirect_to root_path if current_user.statut == 'CBR'
   end
 
 end

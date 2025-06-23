@@ -38,7 +38,7 @@
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-3">
-                <%= render_tag_group "Type d'acte", :type_acte_in, ["avis","visa",'TF'] %>
+                <%= render_tag_group "Type d'acte", :type_acte_in, ["avis", "visa", 'TF'] %>
               </div>
               <div class="fr-col-3">
                 <%= render_tag_group "Exercice", :annee_in, (2025..Date.today.year).to_a.map(&:to_s) %>
@@ -46,9 +46,11 @@
               <div class="fr-col-3">
                 <%= render_select_group("Nature", :nature_in, @liste_natures) %>
               </div>
-              <div class="fr-col-3">
-                <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map { |p| p.nom }) %>
-              </div>
+              <% if @statut_user == 'admin' %>
+                <div class="fr-col-3">
+                  <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map { |p| p.nom }) %>
+                </div>
+              <% end %>
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12">
@@ -72,14 +74,14 @@
                     <th scope="col">N°acte</th>
                     <th scope="col">
                       <% sort_date = "" %>
-                      <% if params[:q] && params[:q][:s] == "created_at desc" %>
+                      <% if params[:q] && params[:q][:s] == "updated_at desc" %>
                         <% sort_date = "asc" %>
-                      <% elsif params[:q] && params[:q][:s] == "created_at asc" %>
+                      <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
                         <% sort_date = "desc" %>
                       <% end %>
                       <div class="fr-cell--sort">
-                        <span class="fr-cell__title">Créé le</span>
-                        <%= sort_link(@q, :created_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                        <span class="fr-cell__title">Actualisé le</span>
+                        <%= sort_link(@q, :updated_at, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
                       </div>
                     </th>
                     <th scope="col">Centre financier</th>

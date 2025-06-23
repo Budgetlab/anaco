@@ -3,22 +3,16 @@ class Ht2ActesController < ApplicationController
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
   before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs]
+  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
 
   def index
-    redirect_to root_path and return unless ['DCB','CBR'].include?(current_user.statut)
-
     # actes année en cours
-    @actes = current_user.ht2_actes.where(
-      id: [
-        current_user.ht2_actes.clotures.annee_courante,
-        current_user.ht2_actes.non_clotures
-      ].map(&:ids).flatten
-    ).order(created_at: :desc)
+    @actes = current_user.ht2_actes.actifs_annee_courante.order(updated_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
     @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
-    @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation], search_key: :q_validation)
+    @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
     @q_cloture = filtered_actes.where(etat: 'clôturé').ransack(params[:q_cloture], search_key: :q_cloture)
     @q_cloture_pre_instruction = filtered_actes.where(etat: 'clôturé après pré-instruction').ransack(params[:q_cloture_pre_instruction], search_key: :q_cloture_pre_instruction)
 
@@ -48,7 +42,7 @@ class Ht2ActesController < ApplicationController
     @statut_user = current_user.statut
     actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
     @q = actes.ransack(params[:q])
-    @actes_all = @q.result.includes(:user).order(created_at: :desc)
+    @actes_all = @q.result.includes(:user).order(updated_at: :desc)
     @pagy, @actes = pagy(@actes_all, limit: 10)
     @liste_natures = [
       'Accord cadre à bons de commande',
@@ -140,21 +134,6 @@ class Ht2ActesController < ApplicationController
   def show
     @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(created_at: :asc) : [@acte]
     @acte_courant = @acte
-
-    respond_to do |format|
-      format.html
-      format.pdf do
-        begin
-          # Redirect to export_pdf action which is specifically designed for PDF generation
-          redirect_to ht2_acte_export_pdf_path(@acte, format: :pdf)
-        rescue => e
-          Rails.logger.error("PDF generation error in show action: #{e.message}")
-          Rails.logger.error(e.backtrace.join("\n"))
-          flash[:error] = "Une erreur est survenue lors de la génération du PDF. Veuillez réessayer plus tard."
-          redirect_to ht2_acte_path(@acte)
-        end
-      end
-    end
   end
 
   def export
