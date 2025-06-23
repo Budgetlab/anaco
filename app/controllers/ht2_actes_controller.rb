@@ -499,8 +499,8 @@ class Ht2ActesController < ApplicationController
     users.includes(:ht2_actes).map do |user|
       ht2_actes = user.ht2_actes.annee_courante
 
-      actes_clotures = ht2_actes.where(etat: 'clôturé')
-      actes_non_clotures = ht2_actes.where.not(etat: 'clôturé')
+      actes_clotures = ht2_actes.clotures
+      actes_non_clotures = ht2_actes.non_clotures
 
       actes_avec_suspension_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:ht2_acte_id).uniq
       actes_avec_suspensions_count = actes_avec_suspension_ids.size

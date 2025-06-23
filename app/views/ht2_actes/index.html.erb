@@ -291,9 +291,9 @@
                       <th scope="col">N°Chorus</th>
                       <th scope="col">
                         <% sort_date = "" %>
-                        <% if params[:q_validation] && params[:q_validation][:s] == "date_limite desc" %>
+                        <% if params[:q_validation] && params[:q_validation][:s] == "date_limite asc" %>
                           <% sort_date = "asc" %>
-                        <% elsif params[:q_validation] && params[:q_validation][:s] == "date_limite asc" %>
+                        <% elsif params[:q_validation] && params[:q_validation][:s] == "date_limite desc" %>
                           <% sort_date = "desc" %>
                         <% end %>
                         <div class="fr-cell--sort">
@@ -370,9 +370,9 @@
                       <th scope="col">N°Chorus</th>
                       <th scope="col">
                         <% sort_date = "" %>
-                        <% if params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite desc" %>
+                        <% if params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite asc" %>
                           <% sort_date = "asc" %>
-                        <% elsif params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite asc" %>
+                        <% elsif params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite desc" %>
                           <% sort_date = "desc" %>
                         <% end %>
                         <div class="fr-cell--sort">
@@ -450,9 +450,9 @@
                       <th scope="col">N°Chorus</th>
                       <th scope="col">
                         <% sort_date = "" %>
-                        <% if params[:q_cloture] && params[:q_cloture][:s] == "date_cloture desc" %>
+                        <% if params[:q_cloture] && params[:q_cloture][:s] == "date_cloture asc" %>
                           <% sort_date = "asc" %>
-                        <% elsif params[:q_cloture] && params[:q_cloture][:s] == "date_cloture asc" %>
+                        <% elsif params[:q_cloture] && params[:q_cloture][:s] == "date_cloture desc" %>
                           <% sort_date = "desc" %>
                         <% end %>
                         <div class="fr-cell--sort">
@@ -535,9 +535,9 @@
                       <th scope="col">Montant</th>
                       <th scope="col">
                         <% sort_date = "" %>
-                        <% if params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture desc" %>
+                        <% if params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture asc" %>
                           <% sort_date = "asc" %>
-                        <% elsif params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture asc" %>
+                        <% elsif params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture desc" %>
                           <% sort_date = "desc" %>
                         <% end %>
                         <div class="fr-cell--sort">

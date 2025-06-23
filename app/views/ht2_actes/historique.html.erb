@@ -74,9 +74,9 @@
                     <th scope="col">N°acte</th>
                     <th scope="col">
                       <% sort_date = "" %>
-                      <% if params[:q] && params[:q][:s] == "updated_at desc" %>
+                      <% if params[:q] && params[:q][:s] == "updated_at asc" %>
                         <% sort_date = "asc" %>
-                      <% elsif params[:q] && params[:q][:s] == "updated_at asc" %>
+                      <% elsif params[:q] && params[:q][:s] == "updated_at desc" %>
                         <% sort_date = "desc" %>
                       <% end %>
                       <div class="fr-cell--sort">
@@ -101,7 +101,7 @@
                       <td>
                         <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                         n°<%= acte.numero_formate %></td>
-                      <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                      <td><%= l(acte.updated_at, format: "%e/%m/%y") %></td>
                       <td><%= acte.centre_financier_code %></td>
                       <td class="fr-cell--multiline"><%= acte.nature %></td>
                       <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
