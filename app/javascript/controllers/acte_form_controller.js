@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton']
 
     connect() {
         if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
@@ -18,6 +18,9 @@ export default class extends Controller {
         }
         if (this.hasEtatCheckboxTarget) {
             this.toggleChorusFields()
+        }
+        if (this.hasAddButtonTarget){
+            this.toggleAddButton()
         }
     }
 
@@ -53,6 +56,9 @@ export default class extends Controller {
 
     confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
+    }
+    setClotureSuspension(){
+        this.submitActionTarget.value = "clôturé après suspension/interruption"
     }
 
     setNombreInput() {
@@ -293,6 +299,46 @@ export default class extends Controller {
             document.querySelectorAll('.pre_instruction_fields').forEach(element => {
                 element.classList.remove('fr-hidden')
             })
+        }
+    }
+
+    toggleAddButton() {
+
+        // Récupérer la dernière .nested-form-wrapper
+        const wrappers = this.element.querySelectorAll(".nested-form-wrapper")
+        const lastWrapper = wrappers[wrappers.length - 1]
+        if (!lastWrapper) {
+            this.addButtonTarget.disabled = false
+            return
+        }
+
+        const requiredInputs = lastWrapper.querySelectorAll(
+            'input[id*="date_suspension"], select[id*="motif"], input[id*="date_reprise"]'
+        )
+
+        const allFilled = Array.from(requiredInputs).every(el => el.value && el.value.trim() !== "")
+
+        this.addButtonTarget.disabled = !allFilled
+    }
+
+    removeDisable(){
+        this.addButtonTarget.disabled = false
+    }
+    checkDecision(event){
+        const selectedValue = event.target.value;
+        const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
+        const cloture_button = document.getElementById('cloture_button');
+        const validation_button = document.getElementById('validation_button');
+        if (selectedValue === "Retour sans décision (sans suite)"){
+            date_cloture_wrapper.classList.remove('fr-hidden');
+            cloture_button.classList.remove('fr-hidden');
+            validation_button.classList.add('fr-hidden');
+            document.getElementById('date_cloture').value = null;
+        }else{
+            date_cloture_wrapper.classList.add('fr-hidden');
+            document.getElementById('date_cloture').value = null;
+            cloture_button.classList.add('fr-hidden');
+            validation_button.classList.remove('fr-hidden');
         }
     }
 

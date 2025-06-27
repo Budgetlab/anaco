@@ -8,7 +8,7 @@ class Ht2Acte < ApplicationRecord
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank? }, allow_destroy: true
-  before_save :set_etat_acte
+  after_save :set_etat_acte
   before_create :set_numero_utilisateur
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
@@ -163,13 +163,13 @@ class Ht2Acte < ApplicationRecord
 
   def set_etat_acte
     if self.suspensions.present? && self.suspensions.last&.date_reprise.nil?
-      self.etat = "suspendu"
+      update_column(:etat,"suspendu")
     elsif !etat.present?
-      self.etat = "en cours d'instruction"
+      update_column(:etat, "en cours d'instruction")
     elsif self.etat == "en pré-instruction"
-      self.pre_instruction = true
-    elsif self.etat == 'suspendu' && self.suspensions.last&.date_reprise.present?
-      self.etat = "en cours d'instruction"
+      update_column(:pre_instruction , true)
+    elsif self.etat == 'suspendu' && (self.suspensions.last&.date_reprise.present? || self.suspensions.empty?)
+      update_column(:etat, "en cours d'instruction")
     end
   end
 

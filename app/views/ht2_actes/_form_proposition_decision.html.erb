@@ -20,6 +20,21 @@
         </div>
       </div>
     <% else %>
+      <% if @acte.etat == 'suspendu' %>
+        <div class="fr-notice fr-notice--info fr-mb-2w">
+          <div class="fr-container">
+            <div class="fr-notice__body">
+              <p>
+                <span class="fr-notice__title">Cet acte est suspendu. Vous pouvez à ce stade reprendre ou clôturer définitivement l'acte. </span>
+                <span class="fr-notice__desc">Pour clôturer l'acte choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture. Autrement renseignez une date de reprise et poursuivez l'instruction de l'acte.</span>
+              </p>
+              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
+                le message
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
       <template data-nested-form-target="template">
         <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
           <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
@@ -32,8 +47,8 @@
 
       <!-- Inserted elements will be injected before that target. -->
       <div data-nested-form-target="target"></div>
-      <button type="button" data-action="nested-form#add" class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left fr-mb-2w">Ajouter
-        une <%= type_suspension %></button>
+      <button type="button" data-action="nested-form#add" data-acte-form-target="addButton" class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left fr-mb-2w">
+        Ajouter une <%= type_suspension %></button>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
@@ -44,7 +59,12 @@
           <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
         </div>
       </div>
-
+      <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
+        <div class="fr-select-group">
+          <label for="date_cloture" class="fr-label">Date de clôture*</label>
+          <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr", action: "change->acte-form#checkValidation"}, id: "date_cloture", placeholder: "- sélectionner -" %>
+        </div>
+      </div>
     </div>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
@@ -97,7 +117,11 @@
               </button>
             </li>
           <% else %>
-            <li><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
+            <li id="cloture_button" class="fr-hidden">
+              <button aria-controls="modal-archiver" data-fr-opened="false" type="button" class="fr-btn">Clôturer l'acte
+              </button>
+            </li>
+            <li id="validation_button"><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
           <% end %>
         </ul>
       </div>
@@ -127,6 +151,31 @@
           </div>
         </div>
       </dialog>
+    <% else %>
+      <dialog id="modal-archiver" class="fr-modal" aria-labelledby="modal-archiver-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container fr-container--fluid fr-container-md">
+          <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+              <div class="fr-modal__body">
+                <div class="fr-modal__header">
+                  <button aria-controls="modal-archiver" title="Fermer" type="button" id="button-133" class="fr-btn--close fr-btn">Fermer</button>
+                </div>
+                <div class="fr-modal__content">
+                  <h1 id="modal-archiver-title" class="fr-modal__title">
+                    <span class="fr-icon-info-line fr-icon--lg" aria-hidden="true"></span> Clôturer l'acte
+                  </h1>
+                  <p>Une fois clôturé à ce stade, l’acte est archivé dans la liste des actes clôturés après
+                    suspension/interruption. L’acte n’a plus vocation à être repris en instruction.</p>
+                  <div>
+                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#setClotureSuspension" } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
     <% end %>
+
   <% end %>
 </div>

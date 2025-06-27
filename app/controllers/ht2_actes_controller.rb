@@ -117,8 +117,8 @@ class Ht2ActesController < ApplicationController
   def update
     @etape = params[:etape].to_i || 1
     # États valides pour la transition
-    etats_valides = ["en cours d'instruction", 'en attente de validation',
-                     'en attente de validation Chorus', 'clôturé après pré-instruction', 'clôturé']
+    etats_valides = ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus',
+                     'clôturé après pré-instruction', 'clôturé', 'clôturé après suspension']
     @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
     if @acte.update(ht2_acte_params)
       # Les callbacks du modèle s'occupent automatiquement de :

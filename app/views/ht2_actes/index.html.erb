@@ -173,7 +173,9 @@
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td>
+                          <% if acte.date_limite %>
                           <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                            <% end %>
                         </td>
                         <td>
                           <div class="fr-align-center">
@@ -242,7 +244,7 @@
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
-                        <td><%= l(acte.last_date_suspension, format: "%e/%m/%y") %></td>
+                        <td><% if acte.last_date_suspension %><%= l(acte.last_date_suspension, format: "%e/%m/%y") %><% end %></td>
                         <td><%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
                             Actualiser
                           <% end %></td>
@@ -315,7 +317,9 @@
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td>
+                          <% if acte.date_limite %>
                           <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                            <% end %>
                         </td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
@@ -394,7 +398,9 @@
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= acte.numero_chorus %></td>
                         <td>
+                          <% if acte.date_limite %>
                           <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                            <% end %>
                         </td>
                         <td class="fr-cell--multiline">
                           <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
