@@ -133,7 +133,7 @@
             <% end %>
 
             <li class="fr-nav__item">
-              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) || current_page?(synthese_ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes</button>
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) || current_page?(historique_ht2_path) || current_page?(synthese_ht2_actes_path) || current_page?(synthese_users_ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes</button>
               <div class="fr-collapse fr-menu" id="menu-actes">
                 <ul class="fr-menu__list">
                   <% if ['CBR', 'DCB'].include?(current_user.statut) %>

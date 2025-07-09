@@ -164,10 +164,9 @@
                   <h1 id="modal-archiver-title" class="fr-modal__title">
                     <span class="fr-icon-info-line fr-icon--lg" aria-hidden="true"></span> Clôturer l'acte
                   </h1>
-                  <p>Une fois clôturé à ce stade, l’acte est archivé dans la liste des actes clôturés après
-                    suspension/interruption. L’acte n’a plus vocation à être repris en instruction.</p>
+                  <p>Une fois clôturé à ce stade, l’acte n’a plus vocation à être repris en instruction.</p>
                   <div>
-                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#setClotureSuspension" } %>
+                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
                   </div>
                 </div>
               </div>

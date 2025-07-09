@@ -57,9 +57,6 @@ export default class extends Controller {
     confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
     }
-    setClotureSuspension(){
-        this.submitActionTarget.value = "clôturé après suspension/interruption"
-    }
 
     setNombreInput() {
         const fields = document.querySelectorAll("[data-acte-form-number-field]");
