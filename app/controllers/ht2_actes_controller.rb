@@ -7,7 +7,7 @@ class Ht2ActesController < ApplicationController
 
   def index
     # actes année en cours
-    @actes = current_user.ht2_actes.actifs_annee_courante.order(updated_at: :desc)
+    @actes = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)
     filtered_actes = @q.result(distinct: true)
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
@@ -20,7 +20,7 @@ class Ht2ActesController < ApplicationController
     @actes_instruction_all = @q_instruction.result(distinct: true)
     @actes_validation_all = @q_validation.result(distinct: true)
     @actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
-    @actes_suspendu_all = filtered_actes.where(etat: 'suspendu').includes(:suspensions)
+    @actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
     @actes_cloture_all = @q_cloture.result(distinct: true)
     @actes_cloture_pre_instruction_all = @q_cloture_pre_instruction.result(distinct: true)
 
@@ -42,7 +42,7 @@ class Ht2ActesController < ApplicationController
     @statut_user = current_user.statut
     actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
     @q = actes.ransack(params[:q])
-    @actes_all = @q.result.includes(:user).order(updated_at: :desc)
+    @actes_all = @q.result.includes(:user, :suspensions).order(updated_at: :desc)
     @pagy, @actes = pagy(@actes_all, limit: 10)
     @liste_natures = [
       'Accord cadre à bons de commande',

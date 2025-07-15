@@ -180,11 +180,16 @@ export default class extends Controller {
     checkChorusNumberExistence(event) {
         const numero = event.target.value;
         const acteId = event.target.dataset.acteId || ""
+        const typeActe = event.target.dataset.typeActe || "";
         const message = document.getElementById('message-chorus-number-existence')
         const url = this.data.get("checkchorusurl")
         const numero_size = numero.length
         const message_nombre = document.getElementById('message-chorus-number')
-        if (numero_size !== 10) {
+        let requiredLength = 10;
+        if (typeActe === "TF") {
+            requiredLength = 8;
+        }
+        if (numero_size !== requiredLength) {
             message.classList.add('fr-hidden')
             message_nombre.classList.remove('fr-hidden')
         } else {

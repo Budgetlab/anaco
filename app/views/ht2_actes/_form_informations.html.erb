@@ -103,11 +103,11 @@
           <label for="numero_chorus" class="fr-label">N° Chorus
             <% if @acte.type_acte == 'TF' %>de la TF
             <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "numero_chorus_info" } %></label>
-          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id } %>
+          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id, type_acte: @acte.type_acte } %>
           <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
             avec ce numéro Chorus existe déjà</p>
           <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-number">Le n°Chorus ne comporte pas
-            10 chiffres.</p>
+            <%= @acte.type_acte == 'TF' ? '8' : '10'%> chiffres.</p>
         </div>
       </div>
       <% if @acte.type_acte != 'TF' %>
@@ -188,32 +188,33 @@
             </div>
           </div>
         </div>
+        <% if @acte.type_acte != 'TF' %>
+          <template data-nested-form2-target="template">
+            <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
+              <%= render "form_poste_ligne", f: poste_ligne_fields %>
+            <% end %>
+          </template>
 
-        <template data-nested-form2-target="template">
-          <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
+          <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
             <%= render "form_poste_ligne", f: poste_ligne_fields %>
           <% end %>
-        </template>
 
-        <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
-          <%= render "form_poste_ligne", f: poste_ligne_fields %>
-        <% end %>
+          <!-- Inserted elements will be injected before that target. -->
+          <div data-nested-form2-target="target"></div>
+          <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+            Ajouter une ligne de poste
+          </button>
 
-        <!-- Inserted elements will be injected before that target. -->
-        <div data-nested-form2-target="target"></div>
-        <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
-          Ajouter une ligne de poste
-        </button>
-
-        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-          <div class="fr-cart__body">
-            <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
-            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><span data-acte-form-target="totalMontant">0</span>
-              €</p>
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                <span data-acte-form-target="totalMontant">0</span>
+                €</p>
+            </div>
           </div>
-        </div>
 
-        <% if @acte.type_acte != 'TF' %>
+
           <div class="fr-h6 fr-my-2w">Échéancier (facultatif)</div>
 
           <template data-nested-form-target="template">
