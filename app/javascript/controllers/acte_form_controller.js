@@ -5,9 +5,6 @@ export default class extends Controller {
     static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton']
 
     connect() {
-        if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
-            this.checkValidation()
-        }
 
         this.setNombreInput();
 
@@ -21,20 +18,6 @@ export default class extends Controller {
             this.toggleAddButton()
         }
     }
-
-    // pour check soumission à la validation
-    checkValidation() {
-        const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
-        const conditionsMet = this.submitButtonTarget.dataset.conditionsMet === "true"
-        this.submitButtonTarget.disabled = !(allFieldsFilled && conditionsMet)
-    }
-
-    // pour check validation finale
-    checkSubmission() {
-        const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
-        this.submitButtonTarget.disabled = !allFieldsFilled
-    }
-
     setValidation(event) {
         this.submitActionTarget.value = "en attente de validation"
     }
@@ -55,6 +38,8 @@ export default class extends Controller {
     confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
     }
+
+    // fonction pour enlever les required true pour la sauvegarde
     removeRequiredAndSubmit(){
         this.element.querySelectorAll('[required]').forEach(field => {
             field.removeAttribute('required');
@@ -342,7 +327,7 @@ export default class extends Controller {
         const cloture_button = document.getElementById('cloture_button');
         const date_cloture = document.getElementById('date_cloture');
         const validation_button = document.getElementById('validation_button');
-        if (selectedValue === "Retour sans décision (sans suite)"){
+        if (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori"){
             date_cloture_wrapper.classList.remove('fr-hidden');
             cloture_button.classList.remove('fr-hidden');
             validation_button.classList.add('fr-hidden');

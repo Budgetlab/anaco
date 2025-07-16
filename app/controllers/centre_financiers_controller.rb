@@ -6,7 +6,7 @@ class CentreFinanciersController < ApplicationController
     puts query
 
     @centre_financiers = if query.present?
-                           CentreFinancier.where("code LIKE ?", "#{query}%").limit(10).order(code: :asc)
+                           CentreFinancier.where("code ILIKE ?", "#{query}%").limit(10).order(code: :asc)
                          else
                            []
                          end

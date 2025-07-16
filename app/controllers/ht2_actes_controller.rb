@@ -118,7 +118,7 @@ class Ht2ActesController < ApplicationController
                      'clôturé après pré-instruction', 'clôturé']
     @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
     # maj décision finale si cloture retour sans decision
-    @acte.decision_finale = params[:ht2_acte][:proposition_decision] if params[:ht2_acte][:proposition_decision].present? && params[:ht2_acte][:proposition_decision] == 'Retour sans décision (sans suite)' && params[:submit_action] == 'clôturé'
+    @acte.decision_finale = params[:ht2_acte][:proposition_decision] if params[:ht2_acte][:proposition_decision].present? && ['Retour sans décision (sans suite)','Saisine a posteriori'].include?(params[:ht2_acte][:proposition_decision]) && params[:submit_action] == 'clôturé'
     if @acte.update(ht2_acte_params)
       # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
       path = @etape <= 3 && @acte.etat != 'en attente de validation' ? edit_ht2_acte_path(@acte, etape: @etape) : ht2_actes_path

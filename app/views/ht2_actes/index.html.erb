@@ -52,7 +52,7 @@
         <%= search_form_for @q, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
           <div class="fr-search-bar" role="search">
             <label class="fr-label" for="search-input"> Rechercher </label>
-            <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_cont,
+            <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_cont,
                                placeholder: "Rechercher un acte par n° acte, n°Chorus, centre financier, instructeur, valideur",
                                class: "fr-input",
                                id: "search-input", oninput: 'this.form.requestSubmit()' %>
@@ -139,7 +139,7 @@
                                 Supprimer
                               <% end %>
                               <%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                                Archiver
+                                Clôturer
                               <% end %>
                             </div>
                           </td>
@@ -492,7 +492,7 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes archivés [<%= @actes_cloture_all.count %>]</h2>
+        <h2 class="fr-mt-2w">Actes <%= Date.today.year %> clôturés [<%= @actes_cloture_all.count %>]</h2>
         <% if @actes_cloture.present? %>
           <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
             <div class="fr-table__wrapper">
