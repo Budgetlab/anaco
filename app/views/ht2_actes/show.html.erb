@@ -63,17 +63,8 @@
                   <% end %>
                 </div>
 
-                <% if acte.etat == "clôturé" || acte.etat == 'clôturé après pré-instruction' %>
-                  <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
-                    Télécharger
-                  <% end %>
-                  <div data-controller="pdf-export" class="fr-hidden">
-                    <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
-                            data-action="pdf-export#export" data-pdf-export-target="button"
-                            data-pdf-export-title="<%= acte.type_acte %>_<%= acte.numero_formate %>.pdf">
-                      Exporter au format PDF
-                    </button>
-                  </div>
+                <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
+                  Télécharger
                 <% end %>
               </div>
               <%= render 'ht2_acte_details', acte: acte %>

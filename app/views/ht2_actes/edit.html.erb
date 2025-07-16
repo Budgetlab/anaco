@@ -59,11 +59,15 @@
                   <% end %>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <%= link_to edit_ht2_acte_path(@acte, etape: 3), 'aria-current': @etape == 3, class: "fr-sidemenu__link" do %>
-                    Étape 3 : Proposition de décision de contrôle
-                    <% if @acte.etat == "suspendu" %>
-                      <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
+                  <% if @conditions_met == true %>
+                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), 'aria-current': @etape == 3, class: "fr-sidemenu__link" do %>
+                      Étape 3 : Proposition de décision de contrôle
+                      <% if @acte.etat == "suspendu" %>
+                        <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
+                      <% end %>
                     <% end %>
+                  <% else %>
+                    <a disabled class="fr-sidemenu__link">Étape 3 : Proposition de décision de contrôle</a>
                   <% end %>
                 </li>
               </ul>

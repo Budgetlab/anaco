@@ -382,3 +382,7 @@ a.fr-tag[aria-pressed=true]::after{
 .flatpickr-calendar {
   z-index: 99999 !important; /* ou plus, selon le z-index de ton modal */
 }
+
+.fr-follow .fr-tabs__panel{
+  background-color: var(--background-default-grey);
+}
