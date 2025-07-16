@@ -5,7 +5,7 @@
     <div class="fr-notice__body">
       <p>
         <span class="fr-notice__title">Un guide d’utilisateur est disponible dans l’onglet Informations, rubrique FAQ</span>
-        <%= link_to faq_path, target: "_self", class: "fr-notice__link" do %>Accéder au guide utilisateur
+        <%= link_to faq_path, target: "_self", class: "fr-notice__link" do %>Télécharger le guide utilisateur
         <% end %>
       </p>
     </div>
@@ -96,7 +96,7 @@
           </li>
           <li role="presentation">
             <button type="button" id="storybook-tab-4" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-4-panel">A
-              valider dans Chorus [<%= @actes_validation_chorus_all.count %>]
+              clôturer dans Chorus [<%= @actes_validation_chorus_all.count %>]
             </button>
           </li>
         </ul>

@@ -11,6 +11,7 @@ export default class extends Controller {
       dateFormat: "d/m/Y",
       defaultDate: this.element.value || null,
       allowInput: true,
+      ...(this.element.dataset.flatpickrMinDate && { minDate: this.element.dataset.flatpickrMinDate })
     })
   }
 

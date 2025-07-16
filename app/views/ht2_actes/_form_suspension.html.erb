@@ -5,13 +5,13 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="date_suspension_#{unique_id}" class="fr-label">Date début <%= type_suspension %>*</label>
-        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr", acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation change->acte-form#toggleAddButton change->acte-form#checkRepriseVsSuspension"}, value: format_date(f.object.date_suspension), id: "date_suspension_#{unique_id}", placeholder: "- sélectionner -" %>
+        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr", acte_form_target: "fieldRequire", action: "change->acte-form#toggleAddButton change->acte-form#checkRepriseVsSuspension"}, value: format_date(f.object.date_suspension), id: "date_suspension_#{unique_id}", placeholder: "- sélectionner -", required: true %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="motif_#{unique_id}" class="fr-label">Motif <%= type_suspension %>*</label>
-        <%= f.select :motif, options_for_select([["- sélectionner -", ""]] + @liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {}, { id: "motif_#{unique_id}", class: "fr-select", data: {acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation change->acte-form#toggleAddButton"}} %>
+        <%= f.select :motif, options_for_select(@liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {prompt: "- sélectionner -" }, { id: "motif_#{unique_id}", class: "fr-select", required: true, data: {acte_form_target: "fieldRequire", action: "change->acte-form#toggleAddButton"}} %>
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="date_reprise_#{unique_id}" class="fr-label">Date fin <%= type_suspension %></label>
-        <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr", acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation change->acte-form#toggleAddButton change->acte-form#checkRepriseVsSuspension"}, value: format_date(f.object.date_reprise), id: "date_reprise_#{unique_id}", placeholder: "- sélectionner -" %>
+        <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr", acte_form_target: "fieldRequire", action: "change->acte-form#toggleAddButton change->acte-form#checkRepriseVsSuspension"}, value: format_date(f.object.date_reprise), id: "date_reprise_#{unique_id}", placeholder: "- sélectionner -", required: true %>
         <p class="fr-message cwarning fr-text--small fr-hidden" id="message-reprise-suspension-<%= unique_id %>">Attention, la date de fin est antérieure à la date de début</p>
       </div>
     </div>

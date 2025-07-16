@@ -2,14 +2,14 @@
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
-    <%= hidden_field_tag :etape, 4 %>
+    <%= hidden_field_tag :etape, 3 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
     <% if @acte.etat == "en pré-instruction" %>
       <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez à ce stade compléter et enregistrer les informations suivantes ou clôturer et archiver définitivement l'acte. <br>Pour soumettre cet acte à validation ou ajouter des suspensions/interruptions vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
+              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez compléter et enregistrer les informations suivantes ou clôturer définitivement l'acte à ce stade de pré-instruction. <br>Pour soumettre cet acte à validation ou ajouter des suspensions/interruptions vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
                   l'étape 1
                 <% end %>.</span>
             </p>
@@ -26,7 +26,7 @@
             <div class="fr-notice__body">
               <p>
                 <span class="fr-notice__title">Cet acte est suspendu. Vous pouvez à ce stade reprendre ou clôturer définitivement l'acte. </span>
-                <span class="fr-notice__desc">Pour clôturer l'acte choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture. Autrement renseignez une date de reprise et poursuivez l'instruction de l'acte.</span>
+                <span class="fr-notice__desc">Pour clôturer l'acte à ce stade choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture.</span>
               </p>
               <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
                 le message
@@ -53,16 +53,17 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
-          <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle
-            <% unless @acte.etat == 'en pré-instruction' %>*
-            <% end %></label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select",required: true, data: {action: "change->acte-form#checkDecision" } } %>
+          <label for="proposition_decision" class="fr-label">
+            Proposition de décision de contrôle<% unless @acte.etat == 'en pré-instruction' %>*<% end %>
+          </label>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select",required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { action: "change->acte-form#checkDecision" } : {})} %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
         <div class="fr-select-group">
           <label for="date_cloture" class="fr-label">Date de clôture*</label>
-          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture)}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus)}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <p class="fr-message fr-message--info fr-text--small">Renseigner une date pour clôturer l'acte directement à cette étape </p>
         </div>
       </div>
     </div>
@@ -108,73 +109,27 @@
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
           <li>
-            <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit"} %>
+            <%= f.submit "Enregistrer", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit"} %>
           </li>
           <% if @acte.etat == "en pré-instruction" %>
             <li>
-              <button aria-controls="modal-archiver" data-fr-opened="false" type="button" class="fr-btn">Clôturer et
-                archiver
-              </button>
+              <%= f.submit "Clôturer en pré-instruction", class: 'fr-btn', data: { action: "click->acte-form#setCloturePreInstruction" } %>
             </li>
           <% else %>
             <li id="cloture_button" class="fr-hidden">
-              <button aria-controls="modal-archiver" data-fr-opened="false" type="button" class="fr-btn">Clôturer l'acte
-              </button>
+              <%= f.submit "Clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
             </li>
-            <li id="validation_button"><%= f.submit "Enregistrer et soumettre à validation", class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
+            <li id="validation_button">
+              <%= button_tag type: 'submit',
+                             class: 'fr-btn fr-icon-checkbox-line fr-btn--icon-left',
+                             data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton" } do %>
+                Soumettre à validation
+                <% end %>
+            </li>
           <% end %>
         </ul>
       </div>
     </div>
-
-    <% if @acte.etat == "en pré-instruction" %>
-      <dialog id="modal-archiver" class="fr-modal" aria-labelledby="modal-archiver-title" data-fr-concealing-backdrop="true">
-        <div class="fr-container fr-container--fluid fr-container-md">
-          <div class="fr-grid-row fr-grid-row--center">
-            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-              <div class="fr-modal__body">
-                <div class="fr-modal__header">
-                  <button aria-controls="modal-archiver" title="Fermer" type="button" id="button-133" class="fr-btn--close fr-btn">Fermer</button>
-                </div>
-                <div class="fr-modal__content">
-                  <h1 id="modal-archiver-title" class="fr-modal__title">
-                    <span class="fr-icon-info-line fr-icon--lg" aria-hidden="true"></span> Clôturer et archiver l'acte
-                  </h1>
-                  <p>Une fois clôturé à ce stade, l’acte est archivé dans la liste des actes clôturés après
-                    pré-instruction. L’acte n’a plus vocation à être repris en instruction.</p>
-                  <div>
-                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#setCloturePreInstruction" } %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </dialog>
-    <% else %>
-      <dialog id="modal-archiver" class="fr-modal" aria-labelledby="modal-archiver-title" data-fr-concealing-backdrop="true">
-        <div class="fr-container fr-container--fluid fr-container-md">
-          <div class="fr-grid-row fr-grid-row--center">
-            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-              <div class="fr-modal__body">
-                <div class="fr-modal__header">
-                  <button aria-controls="modal-archiver" title="Fermer" type="button" id="button-133" class="fr-btn--close fr-btn">Fermer</button>
-                </div>
-                <div class="fr-modal__content">
-                  <h1 id="modal-archiver-title" class="fr-modal__title">
-                    <span class="fr-icon-info-line fr-icon--lg" aria-hidden="true"></span> Clôturer l'acte
-                  </h1>
-                  <p>Une fois clôturé à ce stade, l’acte n’a plus vocation à être repris en instruction.</p>
-                  <div>
-                    <%= f.submit "Archiver", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </dialog>
-    <% end %>
 
   <% end %>
 </div>
