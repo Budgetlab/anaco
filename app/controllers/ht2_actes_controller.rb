@@ -13,8 +13,7 @@ class Ht2ActesController < ApplicationController
     @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
     @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
     @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
-    @q_cloture = filtered_actes.where(etat: 'clôturé').ransack(params[:q_cloture], search_key: :q_cloture)
-    @q_cloture_pre_instruction = filtered_actes.where(etat: 'clôturé après pré-instruction').ransack(params[:q_cloture_pre_instruction], search_key: :q_cloture_pre_instruction)
+    @q_cloture = filtered_actes.where(etat: ['clôturé', 'clôturé après pré-instruction']).ransack(params[:q_cloture], search_key: :q_cloture)
 
     @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
     @actes_instruction_all = @q_instruction.result(distinct: true)
@@ -22,15 +21,13 @@ class Ht2ActesController < ApplicationController
     @actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
     @actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
     @actes_cloture_all = @q_cloture.result(distinct: true)
-    @actes_cloture_pre_instruction_all = @q_cloture_pre_instruction.result(distinct: true)
 
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction)
-    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction)
-    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation)
-    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus)
-    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu)
-    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture)
-    @pagy_cloture_pre_instruction, @actes_cloture_pre_instruction = pagy(@actes_cloture_pre_instruction_all, page_param: :page_cloture_pre_instruction)
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 10)
+    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 10)
+    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation, limit: 10)
+    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 10)
+    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 10)
+    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 10)
 
     respond_to do |format|
       format.html
@@ -328,8 +325,10 @@ class Ht2ActesController < ApplicationController
   end
 
   def check_acte_conditions
-    # acte en cours d'instruction ou suspendu (si renseigne une date de fin)
-    @conditions_met = @acte.etat != 'en pré-instruction' && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && @acte.date_chorus.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+    # acte en cours d'instruction ou suspendu (si renseigne une date de fin) ou en pré-instruction
+    @conditions_met = (@acte.etat != 'en pré-instruction' && @acte.date_chorus.present? || @acte.etat == 'en pré-instruction') && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+
+    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @conditions_met == false && @etape == 3
   end
 
   def calculate_suspensions_stats(actes)

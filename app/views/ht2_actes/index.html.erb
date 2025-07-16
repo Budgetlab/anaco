@@ -1,5 +1,16 @@
 <% content_for :title do %>Liste de travail - Actes HT2 | ANACO
 <% end %>
+<div class="fr-notice fr-notice--info">
+  <div class="fr-container">
+    <div class="fr-notice__body">
+      <p>
+        <span class="fr-notice__title">Un guide d’utilisateur est disponible dans l’onglet Informations, rubrique FAQ</span>
+        <%= link_to faq_path, target: "_self", class: "fr-notice__link" do %>Accéder au guide utilisateur
+        <% end %>
+      </p>
+    </div>
+  </div>
+</div>
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
@@ -57,389 +68,431 @@
     </div>
   </div>
   <%= render 'ht2_actes/flash_message' %>
-  <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
-
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-6w">Actes en pré-instruction [<%= @actes_pre_instruction_all.count %>]</h2>
-        <% if @actes_pre_instruction.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes en pré-instruction</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Date création</th>
-                      <th scope="col">Agent</th>
-                      <th scope="col">Centre financier</th>
-                      <th scope="col">Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_pre_instruction.each do |acte| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
-                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                        <td><%= acte.centre_financier_code %></td>
-                        <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td>
-                          <div class="fr-align-center">
-                            <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                              Actualiser
-                            <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression définitive?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
-                              Supprimer
-                            <% end %>
-                            <%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                              Archiver
-                            <% end %>
-                          </div>
-                        </td>
+</div>
+<%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+  <div class="fr-follow fr-my-3w">
+    <div class="fr-container">
+      <div class="fr-tabs fr-mt-2w">
+        <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+          <li role="presentation">
+            <button type="button" id="storybook-tab-0" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-0-panel">En
+              pré-instruction [<%= @actes_pre_instruction_all.count %>]
+            </button>
+          </li>
+          <li role="presentation">
+            <button type="button" id="storybook-tab-1" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-1-panel">En
+              cours d'instruction [<%= @actes_instruction_all.count %>]
+            </button>
+          </li>
+          <li role="presentation">
+            <button type="button" id="storybook-tab-2" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-2-panel">Suspendus/interrompus
+              [<%= @actes_suspendu_all.count %>]
+            </button>
+          </li>
+          <li role="presentation">
+            <button type="button" id="storybook-tab-3" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="storybook-tab-3-panel">A
+              valider [<%= @actes_validation_all.count %>]
+            </button>
+          </li>
+          <li role="presentation">
+            <button type="button" id="storybook-tab-4" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-4-panel">A
+              valider dans Chorus [<%= @actes_validation_chorus_all.count %>]
+            </button>
+          </li>
+        </ul>
+        <div id="storybook-tab-0-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-0" tabindex="0">
+          <% if @actes_pre_instruction.present? %>
+            <div class="fr-table--lg fr-table fr-table--no-caption">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Actes en pré-instruction</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th scope="col">N°acte</th>
+                        <th scope="col">Date création</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">Centre financier</th>
+                        <th scope="col">Nature</th>
+                        <th scope="col">Montant</th>
+                        <th scope="col"></th>
                       </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                      <% @actes_pre_instruction.each do |acte| %>
+                        <tr>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                            n°<%= acte.numero_formate %></td>
+                          <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
+                          <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td><%= acte.centre_financier_code %></td>
+                          <td class="fr-cell--multiline"><%= acte.nature %></td>
+                          <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                          <td>
+                            <div class="fr-align-center">
+                              <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                                Actualiser
+                              <% end %>
+                              <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression définitive?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
+                                Supprimer
+                              <% end %>
+                              <%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                                Archiver
+                              <% end %>
+                            </div>
+                          </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-table__footer">
+                <div class="fr-table__footer--start">
+                  <p class="fr-table__detail"><%= pluralize(@actes_pre_instruction_all.count, 'résultat', plural: 'résultats') %></p>
+                  <div class="fr-select-group">
+                    <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                      Nombre de lignes par page
+                    </label>
+                    <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="fr-table__footer--middle">
+                  <%== pagy_nav_custom(@pagy_pre_instruction) %>
                 </div>
               </div>
             </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_pre_instruction_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_pre_instruction) %>
-              </div>
+          <% else %>
+            <div class="fr-highlight">
+              <p>Aucun acte en pré-instruction à traiter</p>
             </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes en cours d'instruction [<%= @actes_instruction_all.count %>]</h2>
-        <% if @actes_instruction.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes en cours d'instruction</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Agent</th>
-                      <th scope="col">Centre financier</th>
-                      <th scope="col">Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">N°Chorus</th>
-                      <th scope="col">
-                        <% sort_date = "" %>
-                        <% if params[:q_instruction] && params[:q_instruction][:s] == "date_limite desc" %>
-                          <% sort_date = "asc" %>
-                        <% elsif params[:q_instruction] && params[:q_instruction][:s] == "date_limite asc" %>
-                          <% sort_date = "desc" %>
-                        <% end %>
-                        <div class="fr-cell--sort">
-                          <span class="fr-cell__title">Date limite de réponse</span>
-                          <%= sort_link(@q_instruction, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
-                        </div>
-                      </th>
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_instruction.each do |acte| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                        <td><%= acte.centre_financier_code %></td>
-                        <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= acte.numero_chorus %></td>
-                        <td>
-                          <% if acte.date_limite %>
-                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
-                            <% end %>
-                        </td>
-                        <td>
-                          <div class="fr-align-center">
-                            <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                              Actualiser
-                            <% end %>
-                            <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
-                              Supprimer
-                            <% end %>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_instruction_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_instruction) %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes suspendus/interrompus [<%= @actes_suspendu_all.count %>]</h2>
-        <% if @actes_suspendu.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes suspendus</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Agent</th>
-                      <th scope="col">Centre financier</th>
-                      <th scope="col">Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">N°Chorus</th>
-                      <th scope="col">Date de suspension</th>
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_suspendu.each do |acte| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                        <td><%= acte.centre_financier_code %></td>
-                        <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= acte.numero_chorus %></td>
-                        <td><% if acte.last_date_suspension %><%= l(acte.last_date_suspension, format: "%e/%m/%y") %><% end %></td>
-                        <td><%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                            Actualiser
-                          <% end %></td>
-                      </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_suspendu_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_suspendu) %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes en attente de validation [<%= @actes_validation_all.count %>]</h2>
-        <% if @actes_validation.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes en attente de validation</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Agent</th>
-                      <th scope="col">Centre financier - Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">N°Chorus</th>
-                      <th scope="col">
-                        <% sort_date = "" %>
-                        <% if params[:q_validation] && params[:q_validation][:s] == "date_limite asc" %>
-                          <% sort_date = "asc" %>
-                        <% elsif params[:q_validation] && params[:q_validation][:s] == "date_limite desc" %>
-                          <% sort_date = "desc" %>
-                        <% end %>
-                        <div class="fr-cell--sort">
-                          <span class="fr-cell__title">Date limite de réponse</span>
-                          <%= sort_link(@q_validation, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
-                        </div>
-                      </th>
-                      <th scope="col">Proposition de décision</th>
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_validation.each do |acte| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                        <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= acte.numero_chorus %></td>
-                        <td>
-                          <% if acte.date_limite %>
-                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
-                            <% end %>
-                        </td>
-                        <td class="fr-cell--multiline">
-                          <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
-                        </td>
-                        <td>
-                          <%= link_to validate_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
-                            Actualiser
+          <% end %>
+        </div>
+        <div id="storybook-tab-1-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-1" tabindex="0">
+          <% if @actes_instruction.present? %>
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Actes en cours d'instruction</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th scope="col">N°acte</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">Centre financier</th>
+                        <th scope="col">Nature</th>
+                        <th scope="col">Montant</th>
+                        <th scope="col">N°Chorus</th>
+                        <th scope="col">
+                          <% sort_date = "" %>
+                          <% if params[:q_instruction] && params[:q_instruction][:s] == "date_limite desc" %>
+                            <% sort_date = "asc" %>
+                          <% elsif params[:q_instruction] && params[:q_instruction][:s] == "date_limite asc" %>
+                            <% sort_date = "desc" %>
                           <% end %>
-                        </td>
+                          <div class="fr-cell--sort">
+                            <span class="fr-cell__title">Date limite de réponse</span>
+                            <%= sort_link(@q_instruction, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                          </div>
+                        </th>
+                        <th scope="col"></th>
                       </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_validation_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_validation) %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes en attente de validation dans Chorus [<%= @actes_validation_chorus_all.count %>]</h2>
-        <% if @actes_validation_chorus.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes en attente de validation</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Agent</th>
-                      <th scope="col">Centre Financier - Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">N°Chorus</th>
-                      <th scope="col">
-                        <% sort_date = "" %>
-                        <% if params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite asc" %>
-                          <% sort_date = "asc" %>
-                        <% elsif params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite desc" %>
-                          <% sort_date = "desc" %>
-                        <% end %>
-                        <div class="fr-cell--sort">
-                          <span class="fr-cell__title">Date limite de réponse</span>
-                          <%= sort_link(@q_validation_chorus, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
-                        </div>
-                      </th>
-                      <th scope="col">Proposition de décision</th>
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_validation_chorus.each do |acte| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                        <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= acte.numero_chorus %></td>
-                        <td>
-                          <% if acte.date_limite %>
-                          <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                      </thead>
+                      <tbody>
+                      <% @actes_instruction.each do |acte| %>
+                        <tr>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                            n°<%= acte.numero_formate %></td>
+                          <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td><%= acte.centre_financier_code %></td>
+                          <td class="fr-cell--multiline"><%= acte.nature %></td>
+                          <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                          <td><%= acte.numero_chorus %></td>
+                          <td>
+                            <% if acte.date_limite %>
+                              <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
                             <% end %>
-                        </td>
-                        <td class="fr-cell--multiline">
-                          <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
-                        </td>
-                        <td>
-                          <%= link_to validate_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
-                            Actualiser
-                          <% end %>
-                        </td>
+                          </td>
+                          <td>
+                            <div class="fr-align-center">
+                              <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                                Actualiser
+                              <% end %>
+                              <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
+                                Supprimer
+                              <% end %>
+                            </div>
+                          </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-table__footer">
+                <div class="fr-table__footer--start">
+                  <p class="fr-table__detail"><%= pluralize(@actes_instruction_all.count, 'résultat', plural: 'résultats') %></p>
+                  <div class="fr-select-group">
+                    <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                      Nombre de lignes par page
+                    </label>
+                    <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="fr-table__footer--middle">
+                  <%== pagy_nav_custom(@pagy_instruction) %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="fr-highlight">
+              <p>Aucun acte en cours d'instruction à traiter</p>
+            </div>
+          <% end %>
+        </div>
+        <div id="storybook-tab-2-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-2" tabindex="0">
+          <% if @actes_suspendu.present? %>
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Actes suspendus</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th scope="col">N°acte</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">Centre financier</th>
+                        <th scope="col">Nature</th>
+                        <th scope="col">Montant</th>
+                        <th scope="col">N°Chorus</th>
+                        <th scope="col">Date de suspension</th>
+                        <th scope="col"></th>
                       </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                      <% @actes_suspendu.each do |acte| %>
+                        <tr>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                            n°<%= acte.numero_formate %></td>
+                          <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td><%= acte.centre_financier_code %></td>
+                          <td class="fr-cell--multiline"><%= acte.nature %></td>
+                          <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                          <td><%= acte.numero_chorus %></td>
+                          <td>
+                            <% if acte.last_date_suspension %><%= l(acte.last_date_suspension, format: "%e/%m/%y") %>
+                            <% end %></td>
+                          <td><%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
+                              Actualiser
+                            <% end %></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-table__footer">
+                <div class="fr-table__footer--start">
+                  <p class="fr-table__detail"><%= pluralize(@actes_suspendu_all.count, 'résultat', plural: 'résultats') %></p>
+                  <div class="fr-select-group">
+                    <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                      Nombre de lignes par page
+                    </label>
+                    <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="fr-table__footer--middle">
+                  <%== pagy_nav_custom(@pagy_suspendu) %>
                 </div>
               </div>
             </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_validation_chorus_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+          <% else %>
+            <div class="fr-highlight">
+              <p>Aucun acte suspendu/interrompu à traiter</p>
+            </div>
+          <% end %>
+        </div>
+        <div id="storybook-tab-3-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="storybook-tab-3" tabindex="0">
+          <% if @actes_validation.present? %>
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Actes en attente de validation</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th scope="col">N°acte</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">Centre financier - Nature</th>
+                        <th scope="col">Montant</th>
+                        <th scope="col">N°Chorus</th>
+                        <th scope="col">
+                          <% sort_date = "" %>
+                          <% if params[:q_validation] && params[:q_validation][:s] == "date_limite asc" %>
+                            <% sort_date = "asc" %>
+                          <% elsif params[:q_validation] && params[:q_validation][:s] == "date_limite desc" %>
+                            <% sort_date = "desc" %>
+                          <% end %>
+                          <div class="fr-cell--sort">
+                            <span class="fr-cell__title">Date limite de réponse</span>
+                            <%= sort_link(@q_validation, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                          </div>
+                        </th>
+                        <th scope="col">Proposition de décision</th>
+                        <th scope="col"></th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <% @actes_validation.each do |acte| %>
+                        <tr>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                            n°<%= acte.numero_formate %></td>
+                          <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
+                          <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                          <td><%= acte.numero_chorus %></td>
+                          <td>
+                            <% if acte.date_limite %>
+                              <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                            <% end %>
+                          </td>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+                          </td>
+                          <td>
+                            <%= link_to validate_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
+                              Valider
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_validation_chorus) %>
+              <div class="fr-table__footer">
+                <div class="fr-table__footer--start">
+                  <p class="fr-table__detail"><%= pluralize(@actes_validation_all.count, 'résultat', plural: 'résultats') %></p>
+                  <div class="fr-select-group">
+                    <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                      Nombre de lignes par page
+                    </label>
+                    <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="fr-table__footer--middle">
+                  <%== pagy_nav_custom(@pagy_validation) %>
+                </div>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% else %>
+            <div class="fr-highlight">
+              <p>Aucun acte à valider</p>
+            </div>
+          <% end %>
+        </div>
+        <div id="storybook-tab-4-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-4" tabindex="0">
+          <% if @actes_validation_chorus.present? %>
+            <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption>Actes en attente de validation</caption>
+                      <thead>
+                      <tr class="fr-cell--multiline">
+                        <th scope="col">N°acte</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">Centre Financier - Nature</th>
+                        <th scope="col">Montant</th>
+                        <th scope="col">N°Chorus</th>
+                        <th scope="col">
+                          <% sort_date = "" %>
+                          <% if params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite asc" %>
+                            <% sort_date = "asc" %>
+                          <% elsif params[:q_validation_chorus] && params[:q_validation_chorus][:s] == "date_limite desc" %>
+                            <% sort_date = "desc" %>
+                          <% end %>
+                          <div class="fr-cell--sort">
+                            <span class="fr-cell__title">Date limite de réponse</span>
+                            <%= sort_link(@q_validation_chorus, :date_limite, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
+                          </div>
+                        </th>
+                        <th scope="col">Proposition de décision</th>
+                        <th scope="col"></th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <% @actes_validation_chorus.each do |acte| %>
+                        <tr>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                            n°<%= acte.numero_formate %></td>
+                          <td><p class="fr-tag"><%= acte.instructeur %></p></td>
+                          <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
+                          <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
+                          <td><%= acte.numero_chorus %></td>
+                          <td>
+                            <% if acte.date_limite %>
+                              <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
+                            <% end %>
+                          </td>
+                          <td class="fr-cell--multiline">
+                            <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+                          </td>
+                          <td>
+                            <%= link_to validate_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
+                              Clôturer
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-table__footer">
+                <div class="fr-table__footer--start">
+                  <p class="fr-table__detail"><%= pluralize(@actes_validation_chorus_all.count, 'résultat', plural: 'résultats') %></p>
+                  <div class="fr-select-group">
+                    <label class="fr-sr-only fr-label" for="table-footer-select-7847">
+                      Nombre de lignes par page
+                    </label>
+                    <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="fr-table__footer--middle">
+                  <%== pagy_nav_custom(@pagy_validation_chorus) %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="fr-highlight">
+              <p>Aucun acte à valider dans Chorus</p>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
+  </div>
 
-
+  <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes clôturés [<%= @actes_cloture_all.count %>]</h2>
+        <h2 class="fr-mt-2w">Actes archivés [<%= @actes_cloture_all.count %>]</h2>
         <% if @actes_cloture.present? %>
           <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
             <div class="fr-table__wrapper">
@@ -473,7 +526,8 @@
                     <tbody>
                     <% @actes_cloture.each_with_index do |acte, index| %>
                       <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
+                        <td class="fr-cell--multiline">
+                          <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
                           n°<%= acte.numero_formate %></td>
                         <td><%= acte.centre_financier_code %></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -481,7 +535,11 @@
                         <td><%= acte.numero_chorus %></td>
                         <td><%= l(acte.date_cloture, format: "%e/%m/%y") %></td>
                         <td class="fr-cell--multiline">
-                          <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p>
+                          <% if acte.etat == 'clôturé après pré-instruction' %>
+                            <p class="fr-badge fr-badge--sm fr-badge--yellow-tournesol"><%= acte.etat %></p>
+                          <% else %>
+                            <p class="fr-badge--sm <%= badge_class_for_decision(acte.decision_finale) %>"><%= acte.decision_finale %></p>
+                          <% end %>
                         </td>
                         <td>
                           <div class="fr-align-center">
@@ -521,88 +579,5 @@
         <% end %>
       </div>
     </div>
-
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <h2 class="fr-mt-2w">Actes clôturés après pré-instruction [<%= @actes_cloture_pre_instruction_all.count %>]</h2>
-        <% if @actes_cloture_pre_instruction.present? %>
-          <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
-            <div class="fr-table__wrapper">
-              <div class="fr-table__container">
-                <div class="fr-table__content">
-                  <table>
-                    <caption>Actes clôturés après pré-instruction</caption>
-                    <thead>
-                    <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
-                      <th scope="col">Centre financier</th>
-
-                      <th scope="col">Nature</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">
-                        <% sort_date = "" %>
-                        <% if params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture asc" %>
-                          <% sort_date = "asc" %>
-                        <% elsif params[:q_cloture_pre_instruction] && params[:q_cloture_pre_instruction][:s] == "date_cloture desc" %>
-                          <% sort_date = "desc" %>
-                        <% end %>
-                        <div class="fr-cell--sort">
-                          <span class="fr-cell__title">Date clôture</span>
-                          <%= sort_link(@q_cloture_pre_instruction, :date_cloture, '', default_order: :desc, class: 'fr-btn--sort fr-btn fr-btn--sm', aria: { sorting: sort_date }) %>
-                        </div>
-                      </th>
-
-                      <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% @actes_cloture_pre_instruction.each_with_index do |acte, index| %>
-                      <tr>
-                        <td><p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          n°<%= acte.numero_formate %></td>
-                        <td><%= acte.centre_financier_code %></td>
-                        <td class="fr-cell--multiline"><%= acte.nature %></td>
-                        <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-
-                        <td><%= l(acte.date_cloture, format: "%e/%m/%y") %></td>
-
-                        <td>
-                          <div class="fr-align-center">
-                            <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                              Consulter
-                            <% end %>
-
-                            <%= link_to new_ht2_acte_path(id: acte.id), aria: { describedby: "tooltip-#{index}" }, class: "fr-btn fr-btn--sm fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
-                              Dupliquer
-                            <% end %>
-                            <span class="fr-tooltip fr-placement" id="tooltip-<%= index %>" role="tooltip">Utiliser comme modèle pour un nouvel acte</span>
-
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="fr-table__footer">
-              <div class="fr-table__footer--start">
-                <p class="fr-table__detail"><%= pluralize(@actes_cloture_all.count, 'résultat', plural: 'résultats') %></p>
-                <div class="fr-select-group">
-                  <label class="fr-sr-only fr-label" for="table-footer-select-7847">
-                    Nombre de lignes par page
-                  </label>
-                  <div class="fr-messages-group" id="table-footer-select-7847-messages" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="fr-table__footer--middle">
-                <%== pagy_nav_custom(@pagy_cloture) %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-</div>
+  </div>
+<% end %>

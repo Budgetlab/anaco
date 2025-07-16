@@ -56,13 +56,13 @@
           <label for="proposition_decision" class="fr-label">Proposition de décision de contrôle
             <% unless @acte.etat == 'en pré-instruction' %>*
             <% end %></label>
-          <%= f.select :proposition_decision, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {}, { id: "proposition_decision", class: "fr-select", data: { acte_form_target: "fieldRequire", action: "change->acte-form#checkValidation" } } %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select",required: true, data: {action: "change->acte-form#checkDecision" } } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
         <div class="fr-select-group">
           <label for="date_cloture" class="fr-label">Date de clôture*</label>
-          <%= f.text_field :date_reprise, class: "fr-select", data: { controller: "flatpickr", action: "change->acte-form#checkValidation"}, id: "date_cloture", placeholder: "- sélectionner -" %>
+          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture)}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
           <li>
-            <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary' %>
+            <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit"} %>
           </li>
           <% if @acte.etat == "en pré-instruction" %>
             <li>
@@ -121,7 +121,7 @@
               <button aria-controls="modal-archiver" data-fr-opened="false" type="button" class="fr-btn">Clôturer l'acte
               </button>
             </li>
-            <li id="validation_button"><%= f.submit "Enregistrer et soumettre à validation", disabled: true, class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
+            <li id="validation_button"><%= f.submit "Enregistrer et soumettre à validation", class: 'fr-btn', data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton", conditions_met: @conditions_met } %></li>
           <% end %>
         </ul>
       </div>

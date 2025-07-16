@@ -10,7 +10,7 @@ export default class extends Controller {
       locale: 'fr',
       dateFormat: "d/m/Y",
       defaultDate: this.element.value || null,
-
+      allowInput: true,
     })
   }
 

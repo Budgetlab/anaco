@@ -1,7 +1,7 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>">
-  <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper' }) do |f| %>
+  <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper',action: "submit->acte-form#changeTextToFloat" }) do |f| %>
     <% if params[:parent_id].present? %>
       <%= hidden_field_tag :parent_id, params[:parent_id] %>
     <% end %>
@@ -44,7 +44,7 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
           <label for="instructeur" class="fr-label">Initiales de l'instructeur*</label>
-          <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission" } %>
+          <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", required: true %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
@@ -53,17 +53,16 @@
             <% if @acte.type_acte == 'TF' %>Type d’affectation*
             <% else %>Nature/type de l'acte*
             <% end %></label>
-          <%= f.select :nature, options_for_select([["- sélectionner -", ""]] + @liste_natures.map { |nature| [nature, nature] }, @acte.nature), {}, { id: "nature", class: "fr-select", data: { acte_form_target: 'fieldRequire', action: "change->acte-form#checkSubmission" } } %>
+          <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), {prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true} %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group" data-controller="autocomplete" data-autocomplete-url-value="<%= centre_financiers_autocomplete_path %>">
           <label for="centre_financier_code" class="fr-label">Centre financier*
             <%= render partial: "ht2_actes/tooltip", locals: { name: "cf" } %></label>
-          <%= f.text_field :centre_financier_code, value: @acte.centre_financier_code, id: "centre_financier_code", class: "fr-input",
+          <%= f.text_field :centre_financier_code, value: @acte.centre_financier_code, id: "centre_financier_code", class: "fr-input",required: true,
                            data: {
-                             acte_form_target: 'fieldRequire',
-                             action: "input->acte-form#checkSubmission input->autocomplete#search",
+                             action: "input->autocomplete#search",
                              autocomplete_target: "input"
                            } %>
           <div class="autocomplete-results" data-autocomplete-target="results" hidden>
@@ -84,7 +83,7 @@
             <% elsif @acte.type_acte == 'TF' %>Montant total
               affecté* <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
             <% end %></label>
-          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", data: { acte_form_target: 'fieldRequire montantAeField', action: "input->acte-form#checkSubmission input->acte-form#changeNumber input->acte-form#calculerEcart", acte_form_number_field: true, montant_precedent: @acte.dernier_acte_cloture_chorus&.montant_ae } %>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { acte_form_target: 'montantAeField', action: "input->acte-form#changeNumber input->acte-form#calculerEcart", acte_form_number_field: true, montant_precedent: @acte.dernier_acte_cloture_chorus&.montant_ae } %>
           <% if @acte.dernier_acte_cloture_chorus.present? %>
             <p class="fr-message fr-message--info fr-text--small">Variation avec acte précédent :
               <span data-acte-form-target="ecartMontant">0</span> €</p>
@@ -95,7 +94,7 @@
         <div class="fr-select-group">
           <label for="date_chorus" class="fr-label">Date de réception sur
             Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
-          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission" }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -" %>
+          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
@@ -258,7 +257,7 @@
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-          <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn', disabled: true, data: { acte_form_target: 'submitButton', action: "click->acte-form#changeTextToFloat" } %></li>
+          <li><%= f.submit "Valider et passer à l'étape suivante", class: 'fr-btn', data: { acte_form_target: 'submitButton' } %></li>
         </ul>
       </div>
     </div>

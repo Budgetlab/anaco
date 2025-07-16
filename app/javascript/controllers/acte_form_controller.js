@@ -7,8 +7,6 @@ export default class extends Controller {
     connect() {
         if (this.hasSubmitButtonTarget && this.submitButtonTarget.dataset.conditionsMet != undefined) {
             this.checkValidation()
-        } else if (this.hasSubmitButtonTarget) {
-            this.checkSubmission();
         }
 
         this.setNombreInput();
@@ -28,7 +26,6 @@ export default class extends Controller {
     checkValidation() {
         const allFieldsFilled = this.fieldRequireTargets.every(field => field.value.trim() !== "")
         const conditionsMet = this.submitButtonTarget.dataset.conditionsMet === "true"
-        console.log(this.fieldRequireTargets)
         this.submitButtonTarget.disabled = !(allFieldsFilled && conditionsMet)
     }
 
@@ -46,8 +43,9 @@ export default class extends Controller {
         this.submitActionTarget.value = "clôturé après pré-instruction"
     }
 
-    setInstruction(event) {
+    resetInstruction(event) {
         this.submitActionTarget.value = "en cours d'instruction"
+        this.removeRequiredAndSubmit()
     }
 
     confirmValidation(event) {
@@ -56,6 +54,12 @@ export default class extends Controller {
 
     confirmCloture(event) {
         this.submitActionTarget.value = "clôturé"
+    }
+    removeRequiredAndSubmit(){
+        this.element.querySelectorAll('[required]').forEach(field => {
+            field.removeAttribute('required');
+        });
+        this.element.submit();
     }
 
     setNombreInput() {
@@ -89,7 +93,7 @@ export default class extends Controller {
     }
 
     changeTextToFloat(event) {
-        event.preventDefault();
+        // event.preventDefault();
         const fields = document.querySelectorAll("[data-acte-form-number-field]");
         fields.forEach(field => {
             if (field.value.includes(',')) {
@@ -110,7 +114,7 @@ export default class extends Controller {
                 }
             }
         });
-        this.formTarget.submit();
+        //this.formTarget.submit();
     }
 
     changeNumber(event) {
@@ -254,41 +258,27 @@ export default class extends Controller {
     toggleChorusFields(){
         const is_checked = this.etatCheckboxTarget.checked
         const date_chorus = document.getElementById('date_chorus')
+        const numero_chorus = document.getElementById('numero_chorus')
+
+        if (!date_chorus || !numero_chorus) return;
+
         if (is_checked) {
             document.querySelectorAll('.chorus_fields').forEach(element => {
                 element.classList.add('fr-hidden');
             })
-            const numero_chorus = document.getElementById('numero_chorus')
             numero_chorus.value = null;
             date_chorus.value = null;
-            // Retirer la target fieldRequire du champ date_chorus
-            if (date_chorus.hasAttribute('data-acte-form-target')) {
-                const currentTargets = date_chorus.getAttribute('data-acte-form-target').split(' ');
-                const newTargets = currentTargets.filter(target => target !== 'fieldRequire');
 
-                if (newTargets.length > 0) {
-                    date_chorus.setAttribute('data-acte-form-target', newTargets.join(' '));
-                } else {
-                    date_chorus.removeAttribute('data-acte-form-target');
-                }
-            }
+            // Retirer le required
+            date_chorus.removeAttribute('required');
+
         } else {
             document.querySelectorAll('.chorus_fields').forEach(element => {
-                element.classList.remove('fr-hidden')
+                element.classList.remove('fr-hidden');
             })
-            // Ajouter la target fieldRequire au champ date_chorus
-            if (date_chorus.hasAttribute('data-acte-form-target')) {
-                const currentTargets = date_chorus.getAttribute('data-acte-form-target').split(' ');
-                if (!currentTargets.includes('fieldRequire')) {
-                    currentTargets.push('fieldRequire');
-                    date_chorus.setAttribute('data-acte-form-target', currentTargets.join(' '));
-                }
-            } else {
-                date_chorus.setAttribute('data-acte-form-target', 'fieldRequire');
-            }
+            // Ajouter le required
+            date_chorus.setAttribute('required', 'required');
         }
-        // Mettre à jour la validation après avoir modifié les targets
-        this.checkSubmission();
     }
     togglePreInstruction(event){
         event.preventDefault();
@@ -326,19 +316,42 @@ export default class extends Controller {
     removeDisable(){
         this.addButtonTarget.disabled = false
     }
+
+    checkRepriseVsSuspension(event) {
+        const wrapper = event.target.closest('.nested-form-wrapper');
+        if (!wrapper) return;
+
+        const dateSuspensionInput = wrapper.querySelector('[id^="date_suspension_"]');
+        const dateRepriseInput = wrapper.querySelector('[id^="date_reprise_"]');
+        const messageAlert = wrapper.querySelector('[id^="message-reprise-suspension-"]');
+
+        if (!dateSuspensionInput || !dateRepriseInput || !messageAlert) return;
+
+        const dateSuspension = dateSuspensionInput.value ? new Date(dateSuspensionInput.value.split("/").reverse().join("-")) : null;
+        const dateReprise = dateRepriseInput.value ? new Date(dateRepriseInput.value.split("/").reverse().join("-")) : null;
+
+        if (dateSuspension && dateReprise && dateReprise < dateSuspension) {
+            messageAlert.classList.remove('fr-hidden');
+        } else {
+            messageAlert.classList.add('fr-hidden');
+        }
+    }
     checkDecision(event){
         const selectedValue = event.target.value;
         const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
         const cloture_button = document.getElementById('cloture_button');
+        const date_cloture = document.getElementById('date_cloture');
         const validation_button = document.getElementById('validation_button');
         if (selectedValue === "Retour sans décision (sans suite)"){
             date_cloture_wrapper.classList.remove('fr-hidden');
             cloture_button.classList.remove('fr-hidden');
             validation_button.classList.add('fr-hidden');
-            document.getElementById('date_cloture').value = null;
+            date_cloture.value = null;
+            date_cloture.setAttribute('required', 'required');
         }else{
             date_cloture_wrapper.classList.add('fr-hidden');
-            document.getElementById('date_cloture').value = null;
+            date_cloture.value = null;
+            date_cloture.removeAttribute('required');
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
         }

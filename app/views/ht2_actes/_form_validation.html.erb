@@ -8,13 +8,13 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-input-group">
         <label for="valideur" class="fr-label">Initiales du valideur*</label>
-        <%= f.text_field :valideur, value: @acte.valideur, id: "valideur", class: "fr-input", data: { acte_form_target: 'fieldRequire', action: "input->acte-form#checkSubmission"} %>
+        <%= f.text_field :valideur, value: @acte.valideur, id: "valideur", class: "fr-input", required: true %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="decision_finale" class="fr-label">Décision finale de contrôle*</label>
-        <%= f.select :decision_finale, options_for_select([["- sélectionner -", ""]] + @liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale.presence || @acte.proposition_decision), {}, { id: "decision_finale", class: "fr-select", data: { acte_form_target: 'fieldRequire', action: "change->acte-form#checkSubmission"} } %>
+        <%= f.select :decision_finale, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale.presence || @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "decision_finale", class: "fr-select", required: true} %>
       </div>
     </div>
   </div>
@@ -53,9 +53,9 @@
     <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
       <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
         <li>
-          <%= f.submit "Renvoyer en phase d'instruction", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#setInstruction" } %>
+          <%= f.submit "Renvoyer en phase d'instruction", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#resetInstruction" } %>
         </li>
-        <li><%= f.submit "Valider", class: 'fr-btn',disabled: true, data: { action: "click->acte-form#confirmValidation", acte_form_target: 'submitButton'}  %></li>
+        <li><%= f.submit "Valider", class: 'fr-btn', data: { action: "click->acte-form#confirmValidation"}  %></li>
       </ul>
     </div>
   </div>
