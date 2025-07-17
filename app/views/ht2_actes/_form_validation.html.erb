@@ -1,4 +1,12 @@
-<h6 class="fr-my-3w">Validation finale</h6>
+<div class="title-btn fr-mt-4w">
+  <h1 class="fr-m-0">
+    Validation finale
+  </h1>
+  <%= link_to ht2_actes_path, class: "fr-link fr-icon-close-line fr-link--icon-right" do %>
+    Quitter le formulaire
+  <% end %>
+</div>
+<h6 class="fr-my-3w fr-capitalize"><%= @acte.type_acte %> n°<%= @acte.numero_formate %></h6>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
   <%= form_with(model: @acte) do |f| %>

@@ -2,33 +2,8 @@
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
-    <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
-      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
-        Voir le fil d’Ariane
-      </button>
-      <div class="fr-collapse" id="breadcrumb-1">
-        <ol class="fr-breadcrumb__list">
-          <li>
-            <%= link_to root_path, class: "fr-breadcrumb__link" do %> Accueil
-            <% end %>
-          </li>
-          <li>
-            <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Actes HT2
-            <% end %>
-          </li>
-          <li>
-            <a class="fr-breadcrumb__link" aria-current="page">Validation finale <%= @acte.type_acte %>
-              n°<%= @acte.numero_formate %></a>
-          </li>
-        </ol>
-      </div>
-    </nav>
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-10">
-
-        <h1>
-          Validation finale <%= @acte.type_acte %> n°<%= @acte.numero_formate %>
-        </h1>
         <% if @acte.etat == 'en attente de validation' %>
           <%= render 'form_validation' %>
           <hr class="fr-my-éw">
