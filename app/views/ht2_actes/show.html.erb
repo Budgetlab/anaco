@@ -62,10 +62,17 @@
                   <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
                   <% end %>
                 </div>
-
-                <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
-                  Télécharger
-                <% end %>
+                <div>
+                  <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
+                    Télécharger la fiche
+                  <% end %>
+                  <% if rich_text_has_images?(acte.commentaire_disponibilite_credits) %>
+                    <%= link_to download_attachments_ht2_acte_path(acte),
+                                class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line', data: { turbo: false } do %>
+                      Télécharger les PJ (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
+                    <% end %>
+                  <% end %>
+                </div>
               </div>
               <%= render 'ht2_acte_details', acte: acte %>
             </div>

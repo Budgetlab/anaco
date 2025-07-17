@@ -1,63 +1,77 @@
 <h6 class="fr-my-3w">Validation finale</h6>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
-<%= form_with(model: @acte) do |f| %>
-  <%= hidden_field_tag :etape, 5 %>
+  <%= form_with(model: @acte) do |f| %>
+    <%= hidden_field_tag :etape, 5 %>
 
-  <div class="fr-grid-row fr-grid-row--gutters">
-    <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-input-group">
-        <label for="valideur" class="fr-label">Initiales du valideur*</label>
-        <%= f.text_field :valideur, value: @acte.valideur, id: "valideur", class: "fr-input", required: true %>
-      </div>
-    </div>
-    <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-select-group">
-        <label for="decision_finale" class="fr-label">Décision finale de contrôle*</label>
-        <%= f.select :decision_finale, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale.presence || @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "decision_finale", class: "fr-select", required: true} %>
-      </div>
-    </div>
-  </div>
-  <div class="fr-grid-row fr-grid-row--gutters">
-    <div class="fr-col-12 fr-col-lg-12">
-      <div class="fr-input-group">
-        <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
-        <%= f.text_area :observations, class: 'fr-input' %>
-      </div>
-      <div data-controller="multi-select">
-        <div class="fr-select-group">
-          <label for="type_observations" class="fr-label">Type d'observations</label>
-          <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
-                         id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-input-group">
+          <label for="valideur" class="fr-label">Initiales du valideur*</label>
+          <%= f.text_field :valideur, value: @acte.valideur, id: "valideur", class: "fr-input", required: true %>
         </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-select-group">
+          <label for="decision_finale" class="fr-label">Décision finale de contrôle*</label>
+          <%= f.select :decision_finale, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.decision_finale.presence || @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "decision_finale", class: "fr-select", required: true } %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-input-group">
+          <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
+          <%= f.text_area :observations, class: 'fr-input' %>
+        </div>
+        <div data-controller="multi-select">
+          <div class="fr-select-group">
+            <label for="type_observations" class="fr-label">Type d'observations</label>
+            <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
+                           id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+          </div>
 
-        <!-- Conteneur pour afficher les tags -->
-        <ul id="selected_observations" class="fr-tags-group" data-multi-select-target="container">
-          <% @acte.type_observations&.each do |observation| %>
-            <li data-action="click->multi-select#remove" data-value="<%= observation %>">
-              <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= observation %>">
-                <%= observation %>
-              </button>
-            </li>
+          <!-- Conteneur pour afficher les tags -->
+          <ul id="selected_observations" class="fr-tags-group" data-multi-select-target="container">
+            <% @acte.type_observations&.each do |observation| %>
+              <li data-action="click->multi-select#remove" data-value="<%= observation %>">
+                <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= observation %>">
+                  <%= observation %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+
+          <!-- Champ caché pour stocker les valeurs sélectionnées -->
+          <%= f.hidden_field :type_observations, value: @acte.type_observations&.join(","), id: "hidden_type_observations", data: { multi_select_target: "hidden" } %>
+        </div>
+      </div>
+    </div>
+    <% if @acte.nature == "Liste d'actes" || (@acte.type_acte == 'avis' && @acte.nature == 'Transaction') %>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-6">
+          <div class="fr-select-group">
+            <label for="date_cloture" class="fr-label">Date de clôture*</label>
+            <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -", required: true %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <%= hidden_field_tag :submit_action, "", data: { acte_form_target: "submitAction" } %>
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li>
+            <%= f.submit "Renvoyer en phase d'instruction", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#resetInstruction" } %>
+          </li>
+          <% if @acte.nature == "Liste d'actes" || (@acte.type_acte == 'avis' && @acte.nature == 'Transaction') %>
+            <li><%= f.submit "Valider et clôturer", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %></li>
+          <% else %>
+            <li><%= f.submit "Valider", class: 'fr-btn', data: { action: "click->acte-form#confirmValidation" } %></li>
           <% end %>
         </ul>
-
-        <!-- Champ caché pour stocker les valeurs sélectionnées -->
-        <%= f.hidden_field :type_observations, value: @acte.type_observations&.join(","), id: "hidden_type_observations", data: { multi_select_target: "hidden" } %>
       </div>
     </div>
-  </div>
-
-  <div class="fr-grid-row fr-grid-row--gutters">
-    <%= hidden_field_tag :submit_action, "", data: {acte_form_target: "submitAction"} %>
-    <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
-      <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-        <li>
-          <%= f.submit "Renvoyer en phase d'instruction", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#resetInstruction" } %>
-        </li>
-        <li><%= f.submit "Valider", class: 'fr-btn', data: { action: "click->acte-form#confirmValidation"}  %></li>
-      </ul>
-    </div>
-  </div>
-<% end %>
+  <% end %>
 </div>

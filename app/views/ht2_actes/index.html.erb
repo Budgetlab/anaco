@@ -5,8 +5,7 @@
     <div class="fr-notice__body">
       <p>
         <span class="fr-notice__title">Un guide d’utilisateur est disponible dans l’onglet Informations, rubrique FAQ</span>
-        <%= link_to faq_path, target: "_self", class: "fr-notice__link" do %>Télécharger le guide utilisateur
-        <% end %>
+        <a href="/Guide_utilisateur_actes.pdf" download>Télécharger le guide utilisateur</a>
       </p>
     </div>
   </div>
@@ -124,7 +123,7 @@
                         <tr>
                           <td class="fr-cell--multiline">
                             <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                            n°<%= acte.numero_formate %></td>
+                            <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do%>n°<%= acte.numero_formate %><%end %></td>
                           <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                           <td><%= acte.centre_financier_code %></td>
@@ -207,7 +206,7 @@
                         <tr>
                           <td class="fr-cell--multiline">
                             <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                            n°<%= acte.numero_formate %></td>
+                            <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do%>n°<%= acte.numero_formate %><%end %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                           <td><%= acte.centre_financier_code %></td>
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -281,7 +280,7 @@
                         <tr>
                           <td class="fr-cell--multiline">
                             <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                            n°<%= acte.numero_formate %></td>
+                            <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do%>n°<%= acte.numero_formate %><%end %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                           <td><%= acte.centre_financier_code %></td>
                           <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -357,7 +356,7 @@
                         <tr>
                           <td class="fr-cell--multiline">
                             <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                            n°<%= acte.numero_formate %></td>
+                            <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do%>n°<%= acte.numero_formate %><%end %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                           <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
@@ -439,7 +438,7 @@
                         <tr>
                           <td class="fr-cell--multiline">
                             <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                            n°<%= acte.numero_formate %></td>
+                            <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do%>n°<%= acte.numero_formate %><% end %></td>
                           <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                           <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                           <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
