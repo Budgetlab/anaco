@@ -6,7 +6,7 @@ This document provides guidelines and information for developers working on this
 
 ### Environment Setup
 
-1. **Ruby Version**: 3.4.4 (as specified in `.ruby-version`)
+1. **Ruby Version**: 3.4.5 (as specified in `.ruby-version`)
 2. **Rails Version**: 7.2.2.1 or higher
 3. **Database**: PostgreSQL
 
