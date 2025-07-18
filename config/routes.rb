@@ -54,6 +54,9 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
 
     resources :ht2_actes do
+      collection do
+        post :bulk_cloture
+      end
       member do
         get :export
         get :download_attachments

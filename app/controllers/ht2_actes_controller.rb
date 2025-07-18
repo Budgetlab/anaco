@@ -133,6 +133,18 @@ class Ht2ActesController < ApplicationController
     end
   end
 
+  def bulk_cloture
+    ids = params[:acte_ids].flat_map { |id| id.to_s.split(',') }.map(&:strip).map(&:to_i)
+    date = params[:date_cloture]
+    redirect_to ht2_actes_path and return if date.nil?
+
+    Ht2Acte.where(id: ids).find_each do |acte|
+      acte.update(date_cloture: date, etat: "clôturé")
+    end
+
+    redirect_to ht2_actes_path, notice: "Actes clôturés avec succès."
+  end
+
   def show
     @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(created_at: :asc) : [@acte]
     @acte_courant = @acte
