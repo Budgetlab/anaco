@@ -35,81 +35,168 @@
         <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
       <% end %>
     </div>
+  <% elsif acte.etat == 'clôturé' %>
+    <div class="fr-my-2w">
+      <%= form_with(model: acte, method: :patch) do |f| %>
+        <%= hidden_field_tag :etape, 5 %>
+        <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+        <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+      <% end %>
+    </div>
   <% end %>
 <% end %>
 
 
-  <div id="containPDF">
+<div id="containPDF">
 
-    <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
-      <div class="fr-col-12 fr-col-lg-6">
-        <div class="fr-h6">Proposition décision de contrôle</div>
+  <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-h6">Proposition décision de contrôle</div>
 
-        <div>Proposition de décision de contrôle</div>
+      <div>Proposition de décision de contrôle</div>
+      <div>
+        <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></p>
+      </div>
+
+      <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-card-round--blue">
+        <div class="fr-h6">Validation finale</div>
+
+        <div>Décision finale</div>
         <div>
-          <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></p>
+          <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></p>
         </div>
 
-        <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-6">
-        <div class="fr-card-round--blue">
-          <div class="fr-h6">Validation finale</div>
+        <% if acte.type_observations.present? %>
+          <div class="fr-mt-2w">Type d'observations</div>
 
-          <div>Décision finale</div>
-          <div>
-            <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></p>
-          </div>
-
-          <% if acte.type_observations.present? %>
-            <div class="fr-mt-2w">Type d'observations</div>
-
-            <% acte.type_observations&.each do |observation| %>
-              <p class="fr-tag fr-my-1v"><%= observation %></p>
-            <% end %>
+          <% acte.type_observations&.each do |observation| %>
+            <p class="fr-tag fr-my-1v"><%= observation %></p>
           <% end %>
+        <% end %>
 
-          <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
-          <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
+        <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
+        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6">Informations sur l'acte</div>
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption> Informations</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Instructeur</th>
+              <th>Valideur</th>
+              <th>
+                <% if acte.type_acte == 'TF' %>Type d’affectation
+                <% else %>Nature de l'acte
+                <% end %></th>
+              <th>
+                <% if acte.type_acte == 'avis' %>Montant estimatif global (AE)
+                <% elsif acte.type_acte == 'visa' %>Montant engagé
+                <% elsif acte.type_acte == 'TF' %>Montant total affecté
+                <% end %></th>
+              <th>N°Chorus</th>
+              <th>Date réception Chorus</th>
+              <th>Délai de traitement</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td> <%= acte.instructeur %> </td>
+              <td> <%= format_value(acte.valideur) %></td>
+              <td> <%= acte.nature %></td>
+              <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
+              <td> <%= format_value(acte.numero_chorus) %></td>
+              <td> <%= format_date_text(acte.date_chorus) %></td>
+              <td>
+                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
+                <% else %>en cours
+                <% end %></td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="fr-h6">Informations sur l'acte</div>
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption> Informations</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Centre financier</th>
+              <% if acte.type_acte != 'TF' %>
+                <th>Bénéficiaire</th>
+              <% end %>
+              <th>
+                <% if acte.type_acte == 'TF' %>Opération d’investissement
+                <% else %>Objet
+                <% end %></th>
+              <th>Ordonnateur</th>
+              <th>Pré-instruction</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td> <%= format_value(acte.centre_financier_code) %></td>
+              <% if acte.type_acte != 'TF' %>
+                <td> <%= format_value(acte.beneficiaire) %></td>
+              <% end %>
+              <td> <%= format_value(acte.objet) %></td>
+              <td> <%= format_value(acte.ordonnateur) %></td>
+              <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Précisions sur l'acte</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.precisions_acte))), :html => { :target => '_blank' }) %></div>
+    </div>
+  </div>
+
+  <% if acte.action.present? || acte.sous_action.present? || acte.activite.present? %>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
           <div class="fr-table__content">
             <table>
-              <caption> Informations</caption>
+              <caption> Informations complémentaires</caption>
               <thead>
-              <tr class="fr-cell--multiline">
-                <th>Instructeur</th>
-                <th>Valideur</th>
-                <th>
-                  <% if acte.type_acte == 'TF' %>Type d’affectation
-                  <% else %>Nature de l'acte
-                  <% end %></th>
-                <th>
-                  <% if acte.type_acte == 'avis' %>Montant estimatif global (AE)
-                  <% elsif acte.type_acte == 'visa' %>Montant engagé
-                  <% elsif acte.type_acte == 'TF' %>Montant total affecté
-                  <% end %></th>
-                <th>N°Chorus</th>
-                <th>Date réception Chorus</th>
-                <th>Délai de traitement</th>
+              <tr>
+                <th> Action</th>
+                <th> Sous-action</th>
+                <th> Activité</th>
+                <% if acte.numero_tf.present? %>
+                  <th> Numéro Chorus de la TF associée</th>
+                <% end %>
               </tr>
               </thead>
               <tbody>
-              <tr class="fr-cell--multiline">
-                <td> <%= acte.instructeur %> </td>
-                <td> <%= format_value(acte.valideur) %></td>
-                <td> <%= acte.nature %></td>
-                <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
-                <td> <%= format_value(acte.numero_chorus) %></td>
-                <td> <%= format_date_text(acte.date_chorus) %></td>
-                <td> <% if ['clôturé','clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %><% else %>en cours<% end %></td>
+              <tr>
+                <td> <%= format_value(acte.action) %> </td>
+                <td> <%= format_value(acte.sous_action) %></td>
+                <td> <%= format_value(acte.activite) %> </td>
+                <% if acte.numero_tf.present? %>
+                  <td> <%= format_value(acte.numero_tf) %> </td>
+                <% end %>
               </tr>
               </tbody>
             </table>
@@ -117,36 +204,49 @@
         </div>
       </div>
     </div>
-
+  <% end %>
+  <% if acte.poste_lignes.present? %>
+    <div class="fr-h6 fr-my-3w">Lignes de poste</div>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
           <div class="fr-table__content">
             <table>
-              <caption> Informations</caption>
+              <caption> Lignes de poste</caption>
               <thead>
-              <tr class="fr-cell--multiline">
-                <th>Centre financier</th>
-                <% if acte.type_acte != 'TF' %>
-                  <th>Bénéficiaire</th>
-                <% end %>
-                <th>
-                  <% if acte.type_acte == 'TF' %>Opération d’investissement
-                  <% else %>Objet
-                  <% end %></th>
-                <th>Ordonnateur</th>
-                <th>Pré-instruction</th>
+              <tr>
+                <th> Numéro</th>
+                <th> Centre financier</th>
+                <th> Montant (€)</th>
+                <th> Domaine fonctionnel</th>
+                <th> Fonds</th>
+                <th> Compte budgétaire</th>
+                <th> Code activité</th>
+                <th> Axe ministériel</th>
               </tr>
               </thead>
               <tbody>
-              <tr class="fr-cell--multiline">
-                <td> <%= format_value(acte.centre_financier_code) %></td>
-                <% if acte.type_acte != 'TF' %>
-                  <td> <%= format_value(acte.beneficiaire) %></td>
-                <% end %>
-                <td> <%= format_value(acte.objet) %></td>
-                <td> <%= format_value(acte.ordonnateur) %></td>
-                <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
+              <% acte.poste_lignes.each do |ligne| %>
+                <tr>
+                  <td> <%= ligne.numero %></td>
+                  <td> <%= ligne.centre_financier_code %> </td>
+                  <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
+                  <td> <%= ligne.domaine_fonctionnel %> </td>
+                  <td> <%= ligne.fonds %> </td>
+                  <td> <%= ligne.compte_budgetaire %> </td>
+                  <td> <%= ligne.code_activite %> </td>
+                  <td> <%= ligne.axe_ministeriel %> </td>
+                </tr>
+              <% end %>
+              <tr class="fr-table--total">
+                <td>Total</td>
+                <td></td>
+                <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
               </tr>
               </tbody>
             </table>
@@ -154,218 +254,129 @@
         </div>
       </div>
     </div>
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
-        <div>Précisions sur l'acte</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.precisions_acte))), :html => { :target => '_blank' }) %></div>
-      </div>
-    </div>
-
-    <% if acte.action.present? || acte.sous_action.present? || acte.activite.present? %>
-      <div class="fr-table fr-table--no-caption">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table>
-                <caption> Informations complémentaires</caption>
-                <thead>
-                <tr>
-                  <th> Action</th>
-                  <th> Sous-action</th>
-                  <th> Activité</th>
-                  <% if acte.numero_tf.present? %>
-                    <th> Numéro Chorus de la TF associée</th>
-                  <% end %>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                  <td> <%= format_value(acte.action) %> </td>
-                  <td> <%= format_value(acte.sous_action) %></td>
-                  <td> <%= format_value(acte.activite) %> </td>
-                  <% if acte.numero_tf.present? %>
-                    <td> <%= format_value(acte.numero_tf) %> </td>
-                  <% end %>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-    <% if acte.poste_lignes.present? %>
-      <div class="fr-h6 fr-my-3w">Lignes de poste</div>
-      <div class="fr-table fr-table--no-caption">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table>
-                <caption> Lignes de poste</caption>
-                <thead>
-                <tr>
-                  <th> Numéro</th>
-                  <th> Centre financier</th>
-                  <th> Montant (€)</th>
-                  <th> Domaine fonctionnel</th>
-                  <th> Fonds</th>
-                  <th> Compte budgétaire</th>
-                  <th> Code activité</th>
-                  <th> Axe ministériel</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% acte.poste_lignes.each do |ligne| %>
-                  <tr>
-                    <td> <%= ligne.numero  %></td>
-                    <td> <%= ligne.centre_financier_code %> </td>
-                    <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
-                    <td> <%= ligne.domaine_fonctionnel %> </td>
-                    <td> <%= ligne.fonds %> </td>
-                    <td> <%= ligne.compte_budgetaire %> </td>
-                    <td> <%= ligne.code_activite %> </td>
-                    <td> <%= ligne.axe_ministeriel %> </td>
-                  </tr>
-                <% end %>
-                <tr class="fr-table--total">
-                  <td>Total</td>
-                  <td></td>
-                  <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-    <% if acte.echeanciers.present? %>
-      <div class="fr-h6 fr-my-3w">Échéancier</div>
-      <div class="fr-table fr-table--no-caption fr-table--no-scroll" id="table-echeancier-component">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table id="table-echeancier">
-                <caption> Échéancier</caption>
-                <thead>
-                <tr>
-                  <th> Année</th>
-                  <th> Montant AE (€)</th>
-                  <th> Montant CP (€)</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% acte.echeanciers.order(annee: :asc).each do |echeancier| %>
-                  <tr>
-                    <td> <%= echeancier.annee %> </td>
-                    <td> <%= number_to_currency(echeancier.montant_ae, unit: "€", format: "%n %u") %></td>
-                    <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
-                  </tr>
-                <% end %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-
-
-    <div class="fr-h6 fr-my-3w">Critères</div>
-    <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
+  <% end %>
+  <% if acte.echeanciers.present? %>
+    <div class="fr-h6 fr-my-3w">Échéancier</div>
+    <div class="fr-table fr-table--no-caption fr-table--no-scroll" id="table-echeancier-component">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
           <div class="fr-table__content">
             <table id="table-echeancier">
-              <caption> Critères</caption>
+              <caption> Échéancier</caption>
               <thead>
               <tr>
-                <th> Disponibilité des crédits</th>
-                <th> Imputation de la dépense</th>
-                <th> Exactitude de l’évaluation de la consommation des crédits</th>
-                <th> Compatibilité avec la programmation annuelle et pluriannuelle</th>
+                <th> Année</th>
+                <th> Montant AE (€)</th>
+                <th> Montant CP (€)</th>
               </tr>
               </thead>
               <tbody>
-
-              <tr>
-
-                <td>
-                  <% if acte.disponibilite_credits == true %>
-                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                  <% end %>
-                </td>
-
-                <td>
-                  <% if acte.imputation_depense == true %>
-                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                  <% end %>
-                </td>
-                <td>
-                  <% if acte.consommation_credits == true %>
-                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                  <% end %>
-                </td>
-                <td>
-                  <% if acte.programmation == true %>
-                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                  <% end %>
-                </td>
-              </tr>
-
+              <% acte.echeanciers.order(annee: :asc).each do |echeancier| %>
+                <tr>
+                  <td> <%= echeancier.annee %> </td>
+                  <td> <%= number_to_currency(echeancier.montant_ae, unit: "€", format: "%n %u") %></td>
+                  <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
+                </tr>
+              <% end %>
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-    <div class="fr-mt-2w">Observations</div>
+  <% end %>
 
-    <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
 
-    <% if acte.suspensions.present? %>
-      <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-      <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
-      <div class="fr-table fr-table--no-caption">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table>
-                <caption> Suspensions/Interruptions</caption>
-                <thead>
-                <tr>
-                  <th class="fr-capitalize"> <%= type_suspension %> </th>
-                  <th> Date <%= type_suspension %></th>
-                  <th> Date de reprise</th>
-                  <th> Motif</th>
-                  <th> Observations</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-                  <tr>
-                    <td> n°<%= index + 1 %></td>
-                    <td> <%= format_date_text(suspension.date_suspension) %> </td>
-                    <td> <%= format_date_text(suspension.date_reprise) %></td>
-                    <td> <%= suspension.motif %> </td>
-                    <td> <%= format_value(suspension.observations) %></td>
-                  </tr>
+  <div class="fr-h6 fr-my-3w">Critères</div>
+  <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table id="table-echeancier">
+            <caption> Critères</caption>
+            <thead>
+            <tr>
+              <th> Disponibilité des crédits</th>
+              <th> Imputation de la dépense</th>
+              <th> Exactitude de l’évaluation de la consommation des crédits</th>
+              <th> Compatibilité avec la programmation annuelle et pluriannuelle</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr>
+
+              <td>
+                <% if acte.disponibilite_credits == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                 <% end %>
-                </tbody>
-              </table>
-            </div>
+              </td>
+
+              <td>
+                <% if acte.imputation_depense == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+              <td>
+                <% if acte.consommation_credits == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+              <td>
+                <% if acte.programmation == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-mt-2w">Observations</div>
+
+  <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
+
+  <% if acte.suspensions.present? %>
+    <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+    <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
+    <div class="fr-table fr-table--no-caption">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption> Suspensions/Interruptions</caption>
+              <thead>
+              <tr>
+                <th class="fr-capitalize"> <%= type_suspension %> </th>
+                <th> Date <%= type_suspension %></th>
+                <th> Date de reprise</th>
+                <th> Motif</th>
+                <th> Observations</th>
+              </tr>
+              </thead>
+              <tbody>
+              <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+                <tr>
+                  <td> n°<%= index + 1 %></td>
+                  <td> <%= format_date_text(suspension.date_suspension) %> </td>
+                  <td> <%= format_date_text(suspension.date_reprise) %></td>
+                  <td> <%= suspension.motif %> </td>
+                  <td> <%= format_value(suspension.observations) %></td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
+</div>
 

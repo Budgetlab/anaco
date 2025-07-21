@@ -261,8 +261,8 @@ class Ht2Acte < ApplicationRecord
       calculate_delai_traitement if saved_change_to_etat? || date_cloture.blank?
     when 'clôturé après pré-instruction'
       calculate_delai_traitement_pre_instruction if saved_change_to_etat?
-    when 'en pré-instruction'
-      # renvoie en pré-instruction
+    when 'en pré-instruction', 'en cours d\'instruction'
+      # renvoie en pré-instruction, instruction
       update_columns(
         date_cloture: nil,
         delai_traitement: nil
