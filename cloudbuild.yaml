@@ -22,7 +22,7 @@ steps:
 
 substitutions:
   _REGION: europe-west1
-  _SERVICE_NAME: anaco-test
+  _SERVICE_NAME: anaco
   _INSTANCE_NAME: budgetlab
   _SECRET_NAME: anaco-secret
   
