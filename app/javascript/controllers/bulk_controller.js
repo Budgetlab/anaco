@@ -4,7 +4,9 @@ export default class extends Controller {
     static targets = ["checkbox", "bulkButton", "selectedCount", "count"]
 
     connect() {
+        if (this.hasBulkButtonTarget){
         this.updateButtonState()
+        }
     }
 
     toggleAll(event) {
