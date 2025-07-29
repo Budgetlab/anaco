@@ -1,5 +1,18 @@
 Rails.application.routes.draw do
   scope(:path => '/anaco') do
+    # 1. Routes Active Storage (montées manuellement ici) #Attention enlever match 404 si on eleve ces routes
+    #scope '/rails/active_storage' do
+    #  get '/blobs/redirect/:signed_id/*filename', to: 'active_storage/blobs/redirect#show', as: :rails_service_blob
+    #  get '/blobs/proxy/:signed_id/*filename', to: 'active_storage/blobs/proxy#show', as: :rails_service_blob_proxy
+    #  get '/blobs/:signed_id/*filename', to: 'active_storage/blobs/redirect#show'
+    #  get '/representations/redirect/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/redirect#show', as: :rails_blob_representation
+    #  get '/representations/proxy/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/proxy#show', as: :rails_blob_representation_proxy
+    #  get '/representations/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/redirect#show'
+    #  get '/disk/:encoded_key/*filename', to: 'active_storage/disk#show', as: :rails_disk_service
+    #  put '/disk/:encoded_token', to: 'active_storage/disk#update', as: :update_rails_disk_service
+    #  post '/direct_uploads', to: 'active_storage/direct_uploads#create', as: :rails_direct_uploads
+    #end
+
     devise_for :admin_users, ActiveAdmin::Devise.config
     ActiveAdmin.routes(self)
     devise_for :users, :path => '',
@@ -80,7 +93,7 @@ Rails.application.routes.draw do
     match '/500', via: :all, to: 'errors#error_500'
     match '/404', via: :all, to: 'errors#error_404'
     match '/503', via: :all, to: 'errors#error_503'
-    # match '*path', to: 'errors#error_404', via: :all
+    #match '*path', to: 'errors#error_404', via: :all #commenté car sinon pb routes pour active storage loadé apres 404 et renvoie automatiquement vers 404
   end
   get '/', to: redirect('/anaco')
   # get '/500', to: redirect('/anaco/500')

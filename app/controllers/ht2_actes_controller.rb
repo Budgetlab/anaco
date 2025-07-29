@@ -84,11 +84,11 @@ class Ht2ActesController < ApplicationController
     elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat'))
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat', 'pre_instruction'))
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
       id = params[:parent_id]
       @acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','pre_instruction'))
       @saisine = true
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis')

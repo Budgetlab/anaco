@@ -44,7 +44,7 @@ export default class extends Controller {
         this.element.querySelectorAll('[required]').forEach(field => {
             field.removeAttribute('required');
         });
-        this.element.submit();
+        //this.element.submit();
     }
 
     setNombreInput() {
