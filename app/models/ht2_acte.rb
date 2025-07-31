@@ -8,8 +8,9 @@ class Ht2Acte < ApplicationRecord
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank? }, allow_destroy: true
+  before_save :upcase_centre_financier_code
   after_save :set_etat_acte
-  before_create :set_numero_utilisateur
+  after_save :set_numero_utilisateur, if: :saved_change_to_annee?
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
   after_update :calculate_delai_traitement_if_needed
@@ -32,7 +33,7 @@ class Ht2Acte < ApplicationRecord
   }
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "beneficiaire", "centre_financier_code", "commentaire_proposition_decision", "complexite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "id", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "proposition_decision", "services_votes", "sous_action", "type_acte", "type_observations", "updated_at", "user_id", "valideur"]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -175,7 +176,7 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour obtenir le numéro d'ordre de l'acte pour l'utilisateur + annee
   def set_numero_utilisateur
-    annee_courte = Date.current.year.to_s.last(2)
+    annee_courte = self.annee.to_s.last(2)
     # Trouver le plus grand numéro pour cette année et cet utilisateur
     pattern = "#{annee_courte}-%"
     derniere_valeur = user.ht2_actes
@@ -183,11 +184,10 @@ class Ht2Acte < ApplicationRecord
                           .maximum(:numero_utilisateur) || 0
     # Incrémenter pour le nouvel acte
     nouveau_numero = derniere_valeur + 1
-    self.numero_utilisateur = nouveau_numero
-    # Formater le numéro avec des zéros à gauche
-    self.numero_formate = "#{annee_courte}-#{nouveau_numero.to_s.rjust(4, '0')}"
-    # Définir l'année à la création
-    self.annee = Date.current.year
+    update_columns(
+      numero_utilisateur: nouveau_numero,
+      numero_formate: "#{annee_courte}-#{nouveau_numero.to_s.rjust(4, '0')}"
+      )
   end
 
   # Methode pour mettre à jour la date limite
@@ -254,6 +254,10 @@ class Ht2Acte < ApplicationRecord
     end
   end
 
+  def upcase_centre_financier_code
+    self.centre_financier_code = centre_financier_code.upcase if centre_financier_code.present?
+  end
+
   def calculate_delai_traitement_if_needed
     # Calculer les délais selon l'état final
     case etat
@@ -301,7 +305,6 @@ class Ht2Acte < ApplicationRecord
 
     update_columns(
       delai_traitement: delai_final,
-      annee: date_cloture.year  # Ajouter ici
     )
   end
 
@@ -311,7 +314,6 @@ class Ht2Acte < ApplicationRecord
     update_columns(
       date_cloture: Date.today,
       delai_traitement: (Date.today - created_at.to_date).to_i,
-      annee: Date.today.year
     )
   end
 end

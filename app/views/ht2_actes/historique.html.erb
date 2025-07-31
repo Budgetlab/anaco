@@ -33,7 +33,7 @@
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-mb-1w">
                 <label class="fr-label fr-text--bold">Rechercher</label>
-                <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par n°acte, n°Chorus, centre financier', oninput: 'this.form.requestSubmit()' %>
+                <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_beneficiaire_or_activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par n°acte, n°Chorus, centre financier, bénéficiaire, activité', oninput: 'this.form.requestSubmit()' %>
               </div>
             </div>
             <div class="fr-grid-row fr-grid-row--gutters">
@@ -41,7 +41,7 @@
                 <%= render_tag_group "Type d'acte", :type_acte_in, ["avis", "visa", 'TF'] %>
               </div>
               <div class="fr-col-3">
-                <%= render_tag_group "Exercice", :annee_in, (2025..Date.today.year).to_a.map(&:to_s) %>
+                <%= render_tag_group "Exercice", :annee_in, (Date.today.year-5..Date.today.year+1).to_a.map(&:to_s) %>
               </div>
               <div class="fr-col-3">
                 <%= render_select_group("Nature", :nature_in, @liste_natures) %>

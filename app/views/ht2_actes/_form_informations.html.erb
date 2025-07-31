@@ -26,20 +26,6 @@
         <% end %>
       </div>
     <% end %>
-    <% if @acte.etat == "en cours d'instruction" && !@acte.date_chorus.present? %>
-      <div class="fr-notice fr-notice--warning fr-mb-2w">
-        <div class="fr-container">
-          <div class="fr-notice__body">
-            <p>
-              <span class="fr-notice__title">Vous n'avez pas renseigné de date de réception Chorus. Vous devrez la compléter avant de pouvoir soumettre l'acte à validation.</span>
-            </p>
-            <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
-              le message
-            </button>
-          </div>
-        </div>
-      </div>
-    <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
@@ -90,11 +76,21 @@
           <% end %>
         </div>
       </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="annee" class="fr-label">Exercice*</label>
+          <%= f.select :annee,
+                       options_for_select((Date.today.year - 10..Date.today.year + 1).to_a.reverse.map { |year| [year, year] }, @acte.annee || Date.today.year),
+                       {prompt: "- séléctionner -"},
+                       { id: "annee", class: "fr-select", required: true, data: {action: 'change->acte-form#validateYears'} } %>
+        </div>
+      </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
         <div class="fr-select-group">
           <label for="date_chorus" class="fr-label">Date de réception sur
             Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
-          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
+          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est différente de l'exercice sélectionné.</p>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
@@ -139,11 +135,11 @@
           <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
           <%= f.text_area :precisions_acte, class: 'fr-input' %>
         </div>
-        <% if @acte.etat.nil? %>
+        <% if @acte.etat != 'en pré-instruction' %>
           <div class="fr-checkbox-group chorus_fields">
             <%= f.check_box :pre_instruction, id: "pre_instruction_checkbox", data: { action: 'change->acte-form#togglePreInstruction' } %>
-            <label class="fr-label" for="pre_instruction_checkbox"> Cet acte a fait l’objet d’une pré-instruction (hors
-              ANACO) <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></label>
+            <label class="fr-label" for="pre_instruction_checkbox"> Cet acte a fait l’objet d’une
+              pré-instruction <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></label>
           </div>
         <% end %>
       </div>
@@ -161,6 +157,12 @@
 
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-select-group">
+              <label for="categorie" class="fr-label">Titre/Catégorie</label>
+              <%= f.select :categorie, options_for_select(@categories.map { |categorie| [categorie, categorie] }, @acte.categorie), { include_blank: "- sélectionner -" }, { id: "categorie", class: "fr-select" } %>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
               <label for="action" class="fr-label">Action</label>
               <%= f.text_field :action, value: @acte.action, id: "action", class: "fr-input" %>
@@ -172,23 +174,37 @@
               <%= f.text_field :sous_action, value: @acte.sous_action, id: "sous_action", class: "fr-input" %>
             </div>
           </div>
+        </div>
+
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
               <label for="activite" class="fr-label">Activité</label>
               <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
             </div>
           </div>
-        </div>
-        <% if @acte.type_acte != 'TF' %>
-          <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+          <% if @acte.type_acte != 'TF' %>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="numero_marche" class="fr-label">Numéro de marché</label>
+                <%= f.text_field :numero_marche, value: @acte.numero_marche, id: "numero_marche", class: "fr-input", data: { action: 'input->acte-form#checkNumeroMarcheLength' } %>
+                <p class="fr-message cwarning fr-text--small fr-hidden" id="message-marche-number">Le n° de marché ne
+                  comporte pas 10 chiffres.</p>
+              </div>
+            </div>
             <div class="fr-col-12 fr-col-lg-4">
               <div class="fr-input-group">
                 <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
                 <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
               </div>
             </div>
-          </div>
-
+          <% end %>
+        </div>
+        <div class="fr-checkbox-group fr-mb-2w">
+          <%= f.check_box :services_votes, id: "services_votes" %>
+          <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
+        </div>
+        <% if @acte.type_acte != 'TF' %>
           <template data-nested-form2-target="template">
             <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
               <%= render "form_poste_ligne", f: poste_ligne_fields %>
@@ -205,7 +221,7 @@
             Ajouter une ligne de poste
           </button>
 
-          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border" id="total_postes_card">
             <div class="fr-cart__body">
               <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
               <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
@@ -231,6 +247,31 @@
           <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
             Ajouter une année
           </button>
+
+          <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w" id="total_echeancier_card">
+            <div class="fr-col-12 fr-col-lg-4">
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total AE</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierAE">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total CP</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierCP">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>

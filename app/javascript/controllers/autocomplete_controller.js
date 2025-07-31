@@ -42,7 +42,7 @@ export default class extends Controller {
                 } else {
                     this.showResults(data)
                     // Vérifier si la saisie correspond exactement à un code dans la liste
-                    const exactMatch = data.some(item => item.code === query)
+                    const exactMatch = data.some(item => item.code === query.toUpperCase())
                     if (exactMatch) {
                         // le code renseigné correspond exactement à un code
                         this.hideNoResults()

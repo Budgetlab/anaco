@@ -2,14 +2,17 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP']
 
     connect() {
 
         this.setNombreInput();
 
         if (this.hasTotalMontantTarget) {
-            this.updateTotal()
+            this.updateTotalLignesPoste()
+        }
+        if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
+            this.updateTotalEcheancier()
         }
         if (this.hasEtatCheckboxTarget) {
             this.toggleChorusFields()
@@ -198,10 +201,24 @@ export default class extends Controller {
         }
     }
 
-    updateTotal() {
+    checkNumeroMarcheLength(event){
+        // action pour verifier numero de marché a 10 caractères
+        const numero = event.target.value;
+        const numero_size = numero.length
+        let requiredLength = 10;
+        const message_nombre = document.getElementById('message-marche-number')
+        if (numero_size > 0 && numero_size !== requiredLength) {
+            message_nombre.classList.remove('fr-hidden')
+        }else{
+            message_nombre.classList.add('fr-hidden')
+        }
+    }
+
+    updateTotalLignesPoste() {
+        // récupérer bloc
+        const montant_card = document.getElementById('total_postes_card')
         // Récupérer tous les champs de montant
         const montantFields = document.querySelectorAll('input[id="montant"]')
-
         // Calculer la somme
         let total = 0
         montantFields.forEach(field => {
@@ -212,6 +229,13 @@ export default class extends Controller {
 
         // Afficher le total formaté
         this.totalMontantTarget.textContent = total.toLocaleString('fr-FR')
+
+        // afficher le bloc si lignes présentes
+        if (montantFields.length === 0 || (montantFields.length === 1 && total === 0)) { // gérer le cas ou supp unique ligne de post length == 1
+            montant_card.classList.add('fr-hidden')
+        }else{
+            montant_card.classList.remove('fr-hidden')
+        }
     }
     updateTotalDelete(){
         // Récupérer la ligne qui va être supprimée
@@ -220,7 +244,55 @@ export default class extends Controller {
         // Récupérer le champ montant de cette ligne spécifique
         const montantField = ligneWrapper.querySelector('#montant');
         montantField.value = null;
-        this.updateTotal()
+        this.updateTotalLignesPoste()
+    }
+
+    updateTotalEcheancier(){
+        // récupérer bloc
+        const montant_card = document.getElementById('total_echeancier_card')
+        // Récupérer tous les champs de montant
+        const montantFields_cp = document.querySelectorAll('input[id="echeancier_cp"]')
+        // Calculer la somme
+        let total_cp = 0
+        montantFields_cp.forEach(field => {
+            // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
+            const value = this.numberFormat(field.value) || 0
+            total_cp += value
+        })
+        // Afficher le total formaté
+        this.totalMontantEcheancierCPTarget.textContent = total_cp.toLocaleString('fr-FR')
+
+        // Récupérer tous les champs de montant
+        const montantFields_ae = document.querySelectorAll('input[id="echeancier_ae"]')
+        // Calculer la somme
+        let total_ae = 0
+        montantFields_ae.forEach(field => {
+            // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
+            const value = this.numberFormat(field.value) || 0
+            total_ae += value
+        })
+
+        // Afficher le total formaté
+        this.totalMontantEcheancierAETarget.textContent = total_ae.toLocaleString('fr-FR')
+
+        // afficher le bloc si lignes présentes
+        if (montantFields_cp.length === 0 || (montantFields_cp.length === 1 && total_cp === 0 && total_ae ===0)) { // gérer le cas ou supp unique ligne de post length == 1
+            montant_card.classList.add('fr-hidden')
+        }else{
+            montant_card.classList.remove('fr-hidden')
+        }
+    }
+
+    updateTotalDeleteEcheancier(){
+        // Récupérer la ligne qui va être supprimée
+        const ligneWrapper = event.target.closest('.nested-form-wrapper');
+
+        // Récupérer le champ montant de cette ligne spécifique
+        const montantField_ae = ligneWrapper.querySelector('#echeancier_ae');
+        const montantField_cp = ligneWrapper.querySelector('#echeancier_cp');
+        montantField_ae.value = null;
+        montantField_cp.value = null;
+        this.updateTotalEcheancier();
     }
 
     calculerEcart() {
@@ -339,6 +411,37 @@ export default class extends Controller {
             date_cloture.removeAttribute('required');
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
+        }
+    }
+
+    validateYears() {
+        const anneeSelect = document.getElementById('annee')
+        const dateChorusInput = document.getElementById('date_chorus')
+        const alert = document.getElementById('alert-date-chorus')
+
+        if (!anneeSelect || !dateChorusInput) return
+
+        const selectedYear = parseInt(anneeSelect.value)
+        const dateChorusValue = dateChorusInput.value
+
+        if (!selectedYear || !dateChorusValue) {
+            alert.classList.add('fr-hidden')
+            return
+        }
+
+        // Parse la date au format français (dd/mm/yyyy)
+        const dateParts = dateChorusValue.split('/')
+        if (dateParts.length !== 3) {
+            alert.classList.add('fr-hidden')
+            return
+        }
+
+        const dateChorusYear = parseInt(dateParts[2])
+
+        if (selectedYear !== dateChorusYear) {
+            alert.classList.remove('fr-hidden')
+        } else {
+            alert.classList.add('fr-hidden')
         }
     }
 

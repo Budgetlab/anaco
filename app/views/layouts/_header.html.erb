@@ -20,7 +20,7 @@
           </div>
           <div class="fr-header__service">
             <%= link_to root_path, title: "Accueil - ANACO" do %>
-              <p class="fr-header__service-title">ANACO</p>
+              <p class="fr-header__service-title">ANACO <% if ENV["SERVICE_NAME"] == "anaco-test" %><span class="fr-badge fr-badge--sm fr-badge--warning fr-badge--no-icon fr-ml-1v">VERSION TEST</span><% end %></p>
             <% end %>
             <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
           </div>

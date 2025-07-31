@@ -313,9 +313,10 @@ class Ht2ActesController < ApplicationController
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
                                      :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
-                                     :proposition_decision, :commentaire_proposition_decision, :complexite, :observations,
+                                     :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
-                                     :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, type_observations: [],
+                                     :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement,
+                                     :categorie, :numero_marche, :services_votes, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
@@ -340,6 +341,7 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ['Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     end
     @liste_motifs_suspension = ['Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+    @categories = ['23','31','32','41','42','43','51','52','53','61','62','63','64','65','71','72','73']
   end
 
   def check_acte_conditions
