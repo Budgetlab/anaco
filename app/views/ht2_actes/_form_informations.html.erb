@@ -1,6 +1,6 @@
 <h2>Informations sur l'acte</h2>
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
-<div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>">
+<div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>" data-acte-form-prefixes-value="<%= nature_chorus_prefixes.to_json %>">
   <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper', action: "submit->acte-form#changeTextToFloat" }) do |f| %>
     <% if params[:parent_id].present? %>
       <%= hidden_field_tag :parent_id, params[:parent_id] %>
@@ -39,7 +39,7 @@
             <% if @acte.type_acte == 'TF' %>Type d’affectation*
             <% else %>Nature/type de l'acte*
             <% end %></label>
-          <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true } %>
+          <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true, data: {action: 'change->acte-form#checkNumeroNatureChorus'} } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
@@ -98,11 +98,12 @@
           <label for="numero_chorus" class="fr-label">N° Chorus
             <% if @acte.type_acte == 'TF' %>de la TF
             <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "numero_chorus_info" } %></label>
-          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence", acte_id: @acte.id, type_acte: @acte.type_acte } %>
+          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence input->acte-form#checkNumeroNatureChorus", acte_id: @acte.id, type_acte: @acte.type_acte } %>
           <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
             avec ce numéro Chorus existe déjà</p>
           <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-number">Le n°Chorus ne comporte pas
             <%= @acte.type_acte == 'TF' ? '8' : '10' %> chiffres.</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-nature">Le numéro Chorus ne correspond pas au format attendu pour cette nature d'acte.</p>
         </div>
       </div>
       <% if @acte.type_acte != 'TF' %>

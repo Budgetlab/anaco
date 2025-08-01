@@ -173,4 +173,37 @@ module ApplicationHelper
     doc = Nokogiri::HTML::DocumentFragment.parse(rich_text_content.to_s)
     doc.css('action-text-attachment[content-type^="image"]').count
   end
+
+  def nature_chorus_prefixes
+    {
+      'Bail' => '20',
+      'Bon de commande' => '14',
+      'Décision diverse' => '19',
+      'Marché unique' => '10',
+      'Marché à tranches' => '11',
+      'Marché mixte' => '12',
+      'MAPA unique' => '15',
+      'MAPA à tranches' => '16',
+      'MAPA à bons de commande' => '17',
+      'MAPA mixte' => '18',
+      'Subvention' => '21',
+      "Subvention pour charges d'investissement" => '21',
+      'Subvention pour charges de service public' => '21',
+      'Transfert' => '21',
+      'Accord cadre à bons de commande' => '13',
+      'Autre contrat' => '22'
+    }
+  end
+
+  def get_expected_prefix(nature)
+    nature_chorus_prefixes[nature]
+  end
+
+  def validate_chorus_prefix(nature, numero_chorus)
+    expected_prefix = get_expected_prefix(nature)
+    return true if expected_prefix.nil? || numero_chorus.blank?
+
+    numero_chorus.start_with?(expected_prefix)
+  end
+
 end

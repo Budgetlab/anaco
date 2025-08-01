@@ -3,7 +3,7 @@ import {Controller} from "@hotwired/stimulus"
 // Connects to data-controller="form-submit"
 export default class extends Controller {
     static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP']
-
+    static values = { prefixes: Object }
     connect() {
 
         this.setNombreInput();
@@ -192,12 +192,39 @@ export default class extends Controller {
                     if (data.exists) {
                         message.classList.remove('fr-hidden')
                     } else {
-                        message.classList.add('fr-hidden')
+                        message.classList.add('fr-hidden');
                     }
                 })
                 .catch(error => {
                     console.error("Erreur lors de la vérification:", error)
                 })
+        }
+    }
+
+    checkNumeroNatureChorus(){
+        const message_nature = document.getElementById('message-chorus-nature')
+        const selectedNature = document.getElementById('nature').value
+        const numeroChorus = document.getElementById('numero_chorus').value
+        // Si pas de nature sélectionnée ou pas de numéro, masquer l'alerte
+        if (!selectedNature || !numeroChorus) {
+            message_nature.classList.add('fr-hidden')
+            return
+        }
+        // Vérifier si cette nature a un préfixe attendu
+        const expectedPrefix = this.prefixesValue[selectedNature]
+        if (!expectedPrefix) {
+            // Pas de règle pour cette nature, masquer l'alerte
+            message_nature.classList.add('fr-hidden')
+            return
+        }
+
+        // Vérifier si le numéro commence par le bon préfixe
+        if (!numeroChorus.startsWith(expectedPrefix)) {
+            message_nature.textContent =
+                `Le numéro Chorus pour "${selectedNature}" devrait commencer par "${expectedPrefix}".`
+            message_nature.classList.remove('fr-hidden')
+        } else {
+            message_nature.classList.add('fr-hidden')
         }
     }
 
