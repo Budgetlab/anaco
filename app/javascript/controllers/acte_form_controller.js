@@ -181,7 +181,7 @@ export default class extends Controller {
         if (typeActe === "TF") {
             requiredLength = 8;
         }
-        if (numero_size !== requiredLength) {
+        if (numero_size > 0 && numero_size !== requiredLength) {
             message.classList.add('fr-hidden')
             message_nombre.classList.remove('fr-hidden')
         } else {
