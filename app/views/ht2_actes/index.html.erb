@@ -542,7 +542,7 @@
                   <input type="hidden" name="acte_ids[]" id="selected_acte_ids"/>
                   <div class="fr-select-group">
                     <label for="bulk_date_cloture" class="fr-label">Date de clôture</label>
-                    <%= text_field_tag :date_cloture, nil, class: "fr-select", id: "bulk_date_cloture", data: { controller: "flatpickr-modal", flatpickr_modal_append_to: "#bulk-modal" }, placeholder: "- sélectionner -", required: true %>
+                    <%= text_field_tag :date_cloture, nil, class: "fr-select", id: "bulk_date_cloture", data: { controller: "flatpickr-modal", flatpickr_modal_append_to: "#bulk-modal" }, placeholder: "dd/mm/yyyy", required: true %>
                   </div>
                   <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
                     <li>

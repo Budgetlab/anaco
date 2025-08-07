@@ -80,6 +80,8 @@ Rails.application.routes.draw do
     get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
     get 'historique_ht2', to: 'ht2_actes#historique'
+    get 'ajout_actes', to: 'ht2_actes#ajout_actes'
+    post 'import_actes', to: 'ht2_actes#import'
     resources :centre_financiers, only: [:new]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'

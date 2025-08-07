@@ -160,6 +160,66 @@ class Ht2Acte < ApplicationRecord
     (somme_delais / count.to_f).round
   end
 
+  def self.import(file)
+    data = Roo::Spreadsheet.open(file.path)
+    # Ligne 1 = noms de colonnes
+    headers = data.row(1).map(&:to_s).map(&:strip)
+    data.each_with_index do |row, idx|
+      next if idx == 0 || idx == 1 # skip header
+
+      row_data = Hash[[headers, row].transpose]
+
+      user = User.find_by(nom: row_data["user"].to_s.strip)
+      next unless user
+
+      # Champs
+      acte = Ht2Acte.new(
+        type_acte: row_data["type_acte"],
+        annee: row_data["annee"],
+        instructeur: row_data["instructeur"],
+        ordonnateur: row_data["ordonnateur"],
+        nature: row_data["nature"],
+        montant_ae: row_data["montant_ae"].to_f,
+        montant_global: row_data["montant_ae"].to_f,
+        centre_financier_code: row_data["centre_financier_code"],
+        date_chorus: row_data["date_chorus"].is_a?(Date) ? row_data["date_chorus"] : nil,
+        date_cloture: row_data["date_cloture"].is_a?(Date) ? row_data["date_cloture"] : nil,
+        date_limite: row_data["date_limite"].is_a?(Date) ? row_data["date_limite"] : nil,
+        numero_chorus: row_data["numero_chorus"].to_s,
+        beneficiaire: row_data["beneficiaire"],
+        objet: row_data["objet"],
+        etat: "clôturé",
+        numero_tf: row_data["numero_tf"].to_s.start_with?("TF") ? row_data["numero_tf"].to_s : nil,
+        numero_marche: row_data["numero_tf"].to_s.start_with?("TF") ? nil : row_data["numero_tf"].to_s,
+        user: user,
+        proposition_decision: row_data["decision_finale"],
+        decision_finale: row_data["decision_finale"],
+        precisions_acte: row_data["precisions_acte"],
+        valideur: row_data["instructeur"],
+        categorie: row_data["categorie"].to_s,
+        pre_instruction: row_data["pre_instruction"] == "OUI" ? true : false,
+        disponibilite_credits: row_data["disponibilite_credits"] == "OUI" ? true : false,
+        imputation_depense: row_data["imputation_depense"] == "OUI" ? true : false,
+        consommation_credits: row_data["consommation_credits"] == "OUI" ? true : false,
+        programmation: row_data["programmation"] == "OUI" ? true : false,
+        type_observations: row_data["type_observations"].present? ? [row_data["type_observations"]] : []
+      )
+
+      if acte.save
+        if row_data["date_suspension"].present? && row_data["date_reprise"].present?
+          acte.suspensions.create(
+            date_suspension: row_data["date_suspension"],
+            date_reprise: row_data["date_reprise"],
+            motif: row_data["motif"]
+          )
+        end
+      else
+        Rails.logger.warn "Erreur à la ligne #{i} : #{acte.errors.full_messages.join(', ')}"
+      end
+    end
+  end
+
+
   private
 
   def set_etat_acte

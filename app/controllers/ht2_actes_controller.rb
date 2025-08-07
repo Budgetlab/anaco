@@ -2,8 +2,9 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
   before_action :set_variables_form, only: [:edit, :validate_acte]
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
+  require 'axlsx'
 
   def index
     # actes année en cours
@@ -304,6 +305,15 @@ class Ht2ActesController < ApplicationController
 
   end
 
+  def ajout_actes; end
+
+  def import
+    Ht2Acte.import(params[:file])
+    respond_to do |format|
+      format.turbo_stream { redirect_to ajout_actes_path }
+    end
+  end
+
   private
 
   def ht2_acte_params
@@ -341,7 +351,7 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ['Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     end
     @liste_motifs_suspension = ['Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-    @categories = ['23','31','32','41','42','43','51','52','53','61','62','63','64','65','71','72','73']
+    @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 
   def check_acte_conditions
