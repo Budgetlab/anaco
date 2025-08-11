@@ -81,15 +81,16 @@ class Ht2ActesController < ApplicationController
 
   def new
     if params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
-      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte])
+      type_engagement = params[:type_acte] == "TF" ? 'Affectation initiale' : 'Engagement initial'
+      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte], type_engagement: type_engagement)
     elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat', 'pre_instruction'))
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat', 'pre_instruction', 'type_engagement'))
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
       id = params[:parent_id]
       @acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','pre_instruction'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','pre_instruction', 'type_engagement'))
       @saisine = true
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis')
@@ -99,6 +100,7 @@ class Ht2ActesController < ApplicationController
 
   def create
     @acte = current_user.ht2_actes.new(ht2_acte_params)
+    @acte.nature = "TF" if @acte.type_acte == "TF"
     if @acte.save
       # Association du centre financier dans model after save
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
@@ -147,7 +149,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def show
-    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(created_at: :asc) : [@acte]
+    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(annee: :asc, created_at: :asc) : [@acte]
     @acte_courant = @acte
   end
 
@@ -305,7 +307,9 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes; end
+  def ajout_actes
+    Ht2Acte.update_all("montant_global = montant_ae")
+  end
 
   def import
     Ht2Acte.import(params[:file])
@@ -326,7 +330,7 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement,
-                                     :categorie, :numero_marche, :services_votes, type_observations: [],
+                                     :categorie, :numero_marche, :services_votes,:type_engagement,type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
@@ -341,12 +345,14 @@ class Ht2ActesController < ApplicationController
       @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes", 'Transaction', 'Autre']
       @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+      @liste_engagements = ['Engagement initial', 'Engagement complémentaire']
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ['Autre contrat', 'Avenant', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
+      @liste_engagements = ['Engagement initial', 'Engagement complémentaire']
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_natures = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
+      @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     end

@@ -33,13 +33,23 @@
           <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", required: true %>
         </div>
       </div>
+      <% if @acte.type_acte != 'TF' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="nature" class="fr-label">
+              Nature de l'acte*
+            </label>
+            <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true, data: { action: 'change->acte-form#checkNumeroNatureChorus' } } %>
+          </div>
+        </div>
+      <% end %>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
-          <label for="nature" class="fr-label">
+          <label for="type_engagement" class="fr-label">
             <% if @acte.type_acte == 'TF' %>Type d’affectation*
-            <% else %>Nature/type de l'acte*
+            <% else %>Type d'engagement*
             <% end %></label>
-          <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true, data: {action: 'change->acte-form#checkNumeroNatureChorus'} } %>
+          <%= f.select :type_engagement, options_for_select(@liste_engagements.map { |nature| [nature, nature] }, @acte.type_engagement), { prompt: "- sélectionner -" }, { id: "type_engagement", class: "fr-select", required: true } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
@@ -61,7 +71,7 @@
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
-          <label for="montant_ae" class="fr-label">
+          <label for="montant_global" class="fr-label">
             <% if @acte.type_acte == 'avis' %>Montant estimatif global
               (AE)* <%= render partial: "ht2_actes/tooltip", locals: { name: "avis_montant_ae" } %>
             <% elsif @acte.type_acte == 'visa' %>Montant total
@@ -69,7 +79,7 @@
             <% elsif @acte.type_acte == 'TF' %>Montant total
               affecté* <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
             <% end %></label>
-          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { acte_form_target: 'montantAeField', action: "input->acte-form#changeNumber input->acte-form#calculerEcart", acte_form_number_field: true, montant_precedent: @acte.dernier_acte_cloture_chorus&.montant_ae } %>
+          <%= f.text_field :montant_global, value: @acte.montant_global, id: "montant_global", class: "fr-input", required: true, data: { acte_form_target: 'montantAeField', action: "input->acte-form#changeNumber input->acte-form#calculerEcart", acte_form_number_field: true, montant_precedent: @acte.dernier_acte_cloture_chorus&.montant_global } %>
           <% if @acte.dernier_acte_cloture_chorus.present? %>
             <p class="fr-message fr-message--info fr-text--small">Variation avec acte précédent :
               <span data-acte-form-target="ecartMontant">0</span> €</p>
@@ -77,12 +87,18 @@
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="montant_ae" class="fr-label">Montant de cet acte (AE)*</label>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
           <label for="annee" class="fr-label">Exercice*</label>
           <%= f.select :annee,
                        options_for_select((Date.today.year - 10..Date.today.year + 1).to_a.reverse.map { |year| [year, year] }, @acte.annee || Date.today.year),
-                       {prompt: "- séléctionner -"},
-                       { id: "annee", class: "fr-select", required: true, data: {action: 'change->acte-form#validateYears'} } %>
+                       { prompt: "- séléctionner -" },
+                       { id: "annee", class: "fr-select", required: true, data: { action: 'change->acte-form#validateYears' } } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
@@ -90,7 +106,8 @@
           <label for="date_chorus" class="fr-label">Date de réception sur
             Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
           <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
-          <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est différente de l'exercice sélectionné.</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
+            différente de l'exercice sélectionné.</p>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4 chorus_fields">
@@ -103,7 +120,8 @@
             avec ce numéro Chorus existe déjà</p>
           <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-number">Le n°Chorus ne comporte pas
             <%= @acte.type_acte == 'TF' ? '8' : '10' %> chiffres.</p>
-          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-nature">Le numéro Chorus ne correspond pas au format attendu pour cette nature d'acte.</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-nature">Le numéro Chorus ne
+            correspond pas au format attendu pour cette nature d'acte.</p>
         </div>
       </div>
       <% if @acte.type_acte != 'TF' %>

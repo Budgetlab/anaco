@@ -103,14 +103,15 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
                   when 'TF' then 'Montant total affecté'
                   end
 
-   nature_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Nature de l'acte"
+   type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
 
    sheet.add_row [
      "Instructeur",
      "Valideur",
-     nature_label,
+     "Nature de l'acte",
+     type_label,
      montant_label,
-     "N°Chorus",
+     "Montant de cet acte",
      "Date réception Chorus",
      "Délai de traitement"
    ], style: header_style
@@ -118,23 +119,24 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          @acte.instructeur,
          @acte.valideur,
          @acte.nature,
+         @acte.type_engagement,
+         @acte.montant_global,
          @acte.montant_ae,
-         @acte.numero_chorus,
          @acte.date_chorus&.strftime('%d/%m/%Y'),
          "#{@acte.delai_traitement} jour#{'s' if @acte.delai_traitement != 1}"
-       ], style: [cell_style, cell_style, cell_style, currency_style, cell_style, cell_style, cell_style]
+       ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
    current_row += 3
    sheet.add_row
 
    # Deuxième table d'informations
-   headers = ["Centre financier"]
+   headers = ["Centre financier","N°Chorus"]
    headers << "Bénéficiaire" if @acte.type_acte != 'TF'
    objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
    headers += [objet_label,"Ordonnateur", "Pré-instruction"]
 
    sheet.add_row headers, style: header_style
 
-   data_row = [@acte.centre_financier_code]
+   data_row = [@acte.centre_financier_code, @acte.numero_chorus]
    data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
    data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
    sheet.add_row data_row, style: cell_style

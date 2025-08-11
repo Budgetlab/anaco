@@ -45,7 +45,9 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Instructeur',
     'Date création',
     'Nature',
+    "Type d'engagement",
     'Montant engagé',
+    'Montant total engagé',
     'Centre financier',
     'Numéro Chorus',
     'Date réception Chorus',
@@ -78,7 +80,9 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.instructeur,
       acte.created_at,
       acte.nature,
+      acte.type_engagement,
       acte.montant_ae,
+      acte.montant_global,
       acte.centre_financier_code,
       acte.numero_chorus,
       acte.date_chorus,
@@ -104,11 +108,11 @@ wb.add_worksheet(name: "Visas") do |sheet|
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
     styles[4] = date_style  # Date création
-    styles[6] = number_style  # Montant AE
-    styles[7] = number_style  # Montant global
-    styles[9] = date_style  # Date réception Chorus
-    styles[10] = date_style  # Date réception Chorus
-    styles[22] = date_style
+    styles[7] = number_style  # Montant AE
+    styles[8] = number_style  # Montant global
+    styles[11] = date_style  # Date réception Chorus
+    styles[12] = date_style  # Date réception Chorus
+    styles[24] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -130,6 +134,8 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Instructeur',
     'Date création',
     'Nature',
+    "Type d'engagement",
+    'Montant',
     'Montant estimatif global',
     'Centre financier',
     'Numéro Chorus',
@@ -163,7 +169,9 @@ wb.add_worksheet(name: "Avis") do |sheet|
       acte.instructeur,
       acte.created_at,
       acte.nature,
+      acte.type_engagement,
       acte.montant_ae,
+      acte.montant_global,
       acte.centre_financier_code,
       acte.numero_chorus,
       acte.date_chorus,
@@ -187,10 +195,11 @@ wb.add_worksheet(name: "Avis") do |sheet|
 
     styles = Array.new(headers.count, cell_style)
     styles[4] = date_style
-    styles[6] = number_style
-    styles[9] = date_style
-    styles[10] = date_style
-    styles[22] = date_style
+    styles[7] = number_style
+    styles[8] = number_style
+    styles[11] = date_style
+    styles[12] = date_style
+    styles[24] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -211,6 +220,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Instructeur',
     'Date création',
     "Type d'affectation",
+    "Montant affectation",
     'Montant total affecté',
     'Centre financier',
     'Numéro Chorus',
@@ -242,8 +252,9 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.etat,
       acte.instructeur,
       acte.created_at,
-      acte.nature,
+      acte.type_engagement,
       acte.montant_ae,
+      acte.montant_global,
       acte.centre_financier_code,
       acte.numero_chorus,
       acte.date_chorus,
@@ -267,9 +278,10 @@ wb.add_worksheet(name: "TF") do |sheet|
     styles = Array.new(headers.count, cell_style)
     styles[4] = date_style
     styles[6] = number_style
-    styles[9] = date_style
+    styles[7] = number_style
     styles[10] = date_style
-    styles[21] = date_style
+    styles[11] = date_style
+    styles[22] = date_style
 
     sheet.add_row row_data, style: styles
   end
