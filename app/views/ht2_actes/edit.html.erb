@@ -2,7 +2,7 @@
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
-    <div class="fr-grid-row fr-grid-row--gutters fr-my-4w">
+    <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="title-btn">
           <% if @acte.numero_saisine > 1 %>
@@ -27,7 +27,7 @@
             <div class="fr-collapse" id="sidemenu-collapse-94">
 
               <ul class="fr-sidemenu__list">
-                <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm">Acte
+                <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
                   n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
                 <li class="fr-sidemenu__item">
                   <%= link_to edit_ht2_acte_path(@acte, etape: 1), 'aria-current': @etape == 1, class: "fr-sidemenu__link" do %>

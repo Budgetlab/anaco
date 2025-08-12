@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'etatCheckbox', 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction']
     static values = { prefixes: Object }
     connect() {
 
@@ -14,11 +14,15 @@ export default class extends Controller {
         if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
             this.updateTotalEcheancier()
         }
-        if (this.hasEtatCheckboxTarget) {
-            this.toggleChorusFields()
-        }
         if (this.hasAddButtonTarget){
             this.toggleAddButton()
+        }
+        if (this.hasEtatRadioTarget){
+            // modal nouvel acte
+            this.togglePreInstruction()
+        }
+        if (this.hasLabelSwitchPreInstructionTarget){
+            this.syncPreInstrution()
         }
     }
     setValidation(event) {
@@ -339,43 +343,25 @@ export default class extends Controller {
         this.ecartMontantTarget.textContent = ecartFormate
     }
 
-    toggleChorusFields(){
-        const is_checked = this.etatCheckboxTarget.checked
-        const date_chorus = document.getElementById('date_chorus')
-        const numero_chorus = document.getElementById('numero_chorus')
-
-        if (!date_chorus || !numero_chorus) return;
-
-        if (is_checked) {
-            document.querySelectorAll('.chorus_fields').forEach(element => {
-                element.classList.add('fr-hidden');
-            })
-            numero_chorus.value = null;
-            date_chorus.value = null;
-
-            // Retirer le required
-            date_chorus.removeAttribute('required');
-
-        } else {
-            document.querySelectorAll('.chorus_fields').forEach(element => {
-                element.classList.remove('fr-hidden');
-            })
-            // Ajouter le required
-            date_chorus.setAttribute('required', 'required');
-        }
-    }
+    // Modal affichage choix pre instruction si en cours d'instruction
     togglePreInstruction(event){
-        event.preventDefault();
-        const is_checked = event.target.checked
-        if (is_checked) {
-            document.querySelectorAll('.pre_instruction_fields').forEach(element => {
-                element.classList.add('fr-hidden');
-            })
-        } else {
-            document.querySelectorAll('.pre_instruction_fields').forEach(element => {
-                element.classList.remove('fr-hidden')
-            })
-        }
+        const selected = this.etatRadioTargets.find(r => r.checked)?.value
+        const show = selected === "en cours d'instruction"
+
+        // afficher/cacher le bloc
+        const bloc = document.getElementById('pre-instruction-block')
+        bloc.hidden = !show
+
+        // activer/désactiver + gérer required/checked
+        this.preRadioTargets.forEach((el, idx) => {
+            if (!show) el.checked = false
+            el.required = show && idx === 0 //
+        })
+    }
+
+    syncPreInstrution(){
+        const on = this.inputSwitchPreInstructionTarget.checked
+        this.labelSwitchPreInstructionTarget.textContent = on ? "Oui" : "Non"
     }
 
     toggleAddButton() {

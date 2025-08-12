@@ -17,7 +17,7 @@
               <%= link_to historique_ht2_path, class: "fr-breadcrumb__link" do %> Actes HT2
               <% end %>
             <% else %>
-              <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Actes HT2
+              <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Liste de travail - Actes HT2
               <% end %>
             <% end %>
           </li>
@@ -27,6 +27,8 @@
         </ol>
       </div>
     </nav>
+
+    <%= render 'ht2_actes/flash_message' %>
 
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">

@@ -7,25 +7,8 @@
     <% end %>
     <%= hidden_field_tag :etape, 2 %>
     <%= f.hidden_field :type_acte, value: @acte.type_acte %>
-    <% if @acte.etat.nil? || @acte.etat == 'en pré-instruction' %>
-      <div class="fr-grid-row fr-grid-row--gutters pre_instruction_fields">
-        <div class="fr-col-12">
-          <div class="fr-checkbox-group">
-            <%= f.check_box :etat, { id: "pre_instruction_phase", data: { acte_form_target: 'etatCheckbox', action: 'change->acte-form#toggleChorusFields' } }, "en pré-instruction", "en cours d'instruction" %>
-            <label class="fr-label" for="pre_instruction_phase"> Cet acte est en phase de pré-instruction
-              <% if @acte.etat == 'en pré-instruction' %>
-                <span class="fr-hint-text">Décocher cette case si vous souhaitez passer l'acte en cours d'instruction</span>
-              <% end %></label>
-          </div>
-        </div>
-        <% if @acte.etat == 'en pré-instruction' %>
-          <div class="fr-alert fr-alert--info fr-alert--sm fr-my-2w  chorus_fields">
-            <p>En décochant cette case, l'acte passera en cours d'instruction après validation. Indiquer à minima la
-              date de réception sur Chorus de l’acte pour poursuivre. </p>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
+    <%= f.hidden_field :etat, value: @acte.etat %>
+
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
@@ -88,7 +71,7 @@
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
-          <label for="montant_ae" class="fr-label">Montant de cet acte (AE)*</label>
+          <label for="montant_ae" class="fr-label"><% if @acte.type_acte == 'avis' %>Montant de cet acte (AE)*<% elsif @acte.type_acte == 'visa' %>Montant engagé sur l'acte*<%else %>Montant de l'affectation*<% end %></label>
           <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
         </div>
       </div>
@@ -101,16 +84,18 @@
                        { id: "annee", class: "fr-select", required: true, data: { action: 'change->acte-form#validateYears' } } %>
         </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-4 chorus_fields">
-        <div class="fr-select-group">
-          <label for="date_chorus" class="fr-label">Date de réception sur
-            Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
-          <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
-          <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
-            différente de l'exercice sélectionné.</p>
+      <% if @acte.etat != 'en pré-instruction' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="date_chorus" class="fr-label">Date de réception sur
+              Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+            <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
+            <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
+              différente de l'exercice sélectionné.</p>
+          </div>
         </div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4 chorus_fields">
+      <% end %>
+      <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
           <label for="numero_chorus" class="fr-label">N° Chorus
             <% if @acte.type_acte == 'TF' %>de la TF
@@ -155,10 +140,18 @@
           <%= f.text_area :precisions_acte, class: 'fr-input' %>
         </div>
         <% if @acte.etat != 'en pré-instruction' %>
-          <div class="fr-checkbox-group chorus_fields">
-            <%= f.check_box :pre_instruction, id: "pre_instruction_checkbox", data: { action: 'change->acte-form#togglePreInstruction' } %>
-            <label class="fr-label" for="pre_instruction_checkbox"> Cet acte a fait l’objet d’une
-              pré-instruction <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></label>
+            <div class="fr-label fr-mb-1w"> Cet acte a-t-il fait l’objet d’une
+              pré-instruction antérieur ? <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></div>
+
+
+          <div class="fr-toggle" data-controller="acte-form">
+            <%= f.check_box :pre_instruction,
+                            { class: "fr-toggle__input",
+                              id: "pre_instruction_toggle",
+                              data: { action: "change->acte-form#syncPreInstrution", "acte-form-target": "inputSwitchPreInstruction" } },
+                            "true", "false" %>
+            <label class="fr-toggle__label" for="pre_instruction_toggle" data-acte-form-target="labelSwitchPreInstruction">Non</label>
+            <div class="fr-messages-group" id="pre_instruction_messages" aria-live="polite"></div>
           </div>
         <% end %>
       </div>

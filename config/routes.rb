@@ -76,6 +76,11 @@ Rails.application.routes.draw do
       end
     end
     get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
+    get 'show_modal_acte/:id', to: 'ht2_actes#show_modal', as: 'show_modal_acte'
+    get 'modal_delete_acte/:id', to: 'ht2_actes#modal_delete', as: 'modal_delete_acte'
+    get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
+    get 'modal_cloture_acte/:id', to: 'ht2_actes#modal_cloture', as: 'modal_cloture_acte'
+    post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
     get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'

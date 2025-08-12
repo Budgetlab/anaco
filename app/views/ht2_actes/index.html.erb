@@ -20,35 +20,111 @@
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w title-btn">
         Liste de travail <%= Date.current.year %> - Actes HT2
-        <nav role="navigation" class="fr-translate fr-nav" id="translate-id">
-          <div class="fr-nav__item fr-nav--dropdown">
-            <button aria-controls="menu-add-acte" aria-expanded="false" type='button' id='button-add' class="fr-btn fr-icon-add-line fr-btn--icon-left">Nouvel
-              acte
-            </button>
-            <div class="fr-collapse fr-menu fr-menu--dropdown" id="menu-add-acte">
-              <ul class="fr-menu__list">
-                <li>
-                  <%= link_to new_ht2_acte_path(type_acte: 'avis'), class: 'fr-nav__link' do %>
-                    Nouvel avis
-                  <% end %>
-                </li>
-                <li>
-                  <%= link_to new_ht2_acte_path(type_acte: 'visa'), class: 'fr-nav__link' do %>
-                    Nouveau visa
-                  <% end %>
-                </li>
-                <li>
-                  <%= link_to new_ht2_acte_path(type_acte: 'TF'), class: 'fr-nav__link' do %>
-                    Nouvelle TF
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+        <button aria-controls="nouvel-acte-modal" data-fr-opened="false" type="button" class="fr-btn fr-icon-add-line fr-btn--icon-lef">Nouvel
+          acte
+        </button>
       </h1>
     </div>
   </div>
+
+  <dialog id="nouvel-acte-modal" class="fr-modal" aria-labelledby="modal-nouvel-acte-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button class="fr-btn--close fr-btn" aria-controls="nouvel-acte-modal" title="Fermer">
+                Fermer
+              </button>
+            </div>
+            <div class="fr-modal__content" data-controller="acte-form">
+              <h2 id="modal-nouvel-acte-title" class="fr-modal__title">Ajouter un acte</h2>
+              <%= form_with url: new_ht2_acte_path, method: :get, data: { turbo: false } do |f| %>
+                <fieldset class="fr-fieldset" id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
+                  <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend">
+                    Choisissez un type d'acte
+                  </legend>
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= f.radio_button :type_acte, "avis", id: "avis", required: true %>
+                      <label class="fr-label" for="avis"> Avis </label>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= f.radio_button :type_acte, "visa", id: "visa" %>
+                      <label class="fr-label" for="visa"> Visa </label>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= f.radio_button :type_acte, "TF", id: "TF" %>
+                      <label class="fr-label" for="TF"> TF </label>
+                    </div>
+                  </div>
+                  <div class="fr-messages-group" id="storybook-form-messages" aria-live="polite">
+                  </div>
+                </fieldset>
+
+                <fieldset class="fr-fieldset" id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
+                  <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend"> Précisez
+                    l'état de l'acte
+                  </legend>
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= f.radio_button :etat, "en cours d'instruction", id: "etat_1", required: true, data: { "acte-form-target": "etatRadio", action: "change->acte-form#togglePreInstruction" } %>
+                      <label class="fr-label" for="etat_1">
+                        <p class="fr-badge fr-badge--green-archipel">En cours d'instruction</p>
+                        <span class="fr-hint-text">Traitement standard d’un acte</span></label>
+                    </div>
+
+
+                    <!-- Sous-question conditionnelle -->
+                    <div id="pre-instruction-block" class="fr-mt-2w fr-ml-2w" hidden>
+                      <fieldset class="fr-fieldset" aria-labelledby="legend-pre-inst">
+                        <legend id="legend-pre-inst" class="fr-fieldset__legend--regular fr-fieldset__legend">
+                          Cet acte a-t-il fait l’objet d’une pré-instruction antérieure ?
+                        </legend>
+
+                        <div class="fr-fieldset__element fr-fieldset__element--inline">
+                          <div class="fr-radio-group fr-radio-rich">
+                            <%= f.radio_button :pre_instruction, "true", id: "pre_instruction_yes", data: { "acte-form-target": "preRadio" } %>
+                            <label class="fr-label" for="pre_instruction_yes">Oui</label>
+                          </div>
+                        </div>
+
+                        <div class="fr-fieldset__element fr-fieldset__element--inline">
+                          <div class="fr-radio-group fr-radio-rich">
+                            <%= f.radio_button :pre_instruction, "false", id: "pre_instruction_no", data: { "acte-form-target": "preRadio" } %>
+                            <label class="fr-label" for="pre_instruction_no">Non</label>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+                  </div>
+
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= f.radio_button :etat, "en pré-instruction", id: "etat_2", data: { "acte-form-target": "etatRadio", action: "change->acte-form#togglePreInstruction" } %>
+                      <label class="fr-label" for="etat_2">
+                        <p class="fr-badge fr-badge--new fr-badge--no-icon">En pré-instruction</p>
+                        <span class="fr-hint-text">Sollicitation informelle avant saisine</span></label>
+                    </div>
+                  </div>
+                  <div class="fr-messages-group" id="storybook-form-messages" aria-live="polite">
+                  </div>
+                </fieldset>
+
+                <div class="fr-mt-4w">
+                  <%= f.submit "Commencer l'instruction", class: "fr-btn", name: nil %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 
   <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
     <div class="fr-col-12 title-btn">
@@ -78,7 +154,7 @@
     <div class="fr-follow fr-my-3w">
       <div class="fr-container">
         <div class="fr-tabs fr-mt-2w">
-          <ul class="fr-tabs__list" role="tablist" aria-label="[A modifier | nom du système d'onglet]">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Actes">
             <li role="presentation">
               <button type="button" id="storybook-tab-0" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-0-panel">En
                 pré-instruction [<%= @actes_pre_instruction_all.count %>]
@@ -107,6 +183,7 @@
           </ul>
           <div id="storybook-tab-0-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-0" tabindex="0">
             <% if @actes_pre_instruction.present? %>
+
               <div class="fr-table--lg fr-table fr-table--no-caption">
                 <div class="fr-table__wrapper">
                   <div class="fr-table__container">
@@ -138,17 +215,9 @@
                             <td class="fr-cell--multiline"><%= acte.nature %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td>
-                              <div class="fr-align-center">
-                                <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                                  Actualiser
-                                <% end %>
-                                <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression définitive?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
-                                  Supprimer
-                                <% end %>
-                                <%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                                  Clôturer
-                                <% end %>
-                              </div>
+                              <a href="<%= show_modal_acte_path(acte)%>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-icon-settings-5-line fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
+                                Actions sur l'acte
+                              </a>
                             </td>
                           </tr>
                         <% end %>
@@ -172,6 +241,7 @@
                   </div>
                 </div>
               </div>
+
             <% else %>
               <div class="fr-highlight">
                 <p>Aucun acte en pré-instruction à traiter</p>
@@ -228,14 +298,9 @@
                               <% end %>
                             </td>
                             <td>
-                              <div class="fr-align-center">
-                                <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                                  Actualiser
-                                <% end %>
-                                <%= link_to ht2_acte_path(acte), data: { 'turbo-method': :delete, turbo_confirm: 'Confirmer la suppression?' }, class: 'fr-btn fr-btn--sm fr-icon-delete-bin-line' do %>
-                                  Supprimer
-                                <% end %>
-                              </div>
+                              <a href="<%= show_modal_acte_path(acte)%>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-icon-settings-5-line fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
+                                Actions sur l'acte
+                              </a>
                             </td>
                           </tr>
                         <% end %>
@@ -343,7 +408,6 @@
                         <thead>
                         <tr class="fr-cell--multiline">
                           <th scope="col">N°acte</th>
-                          <th scope="col">Agent</th>
                           <th scope="col">Centre financier - Nature</th>
                           <th scope="col">Montant</th>
                           <th scope="col">N°Chorus</th>
@@ -371,10 +435,9 @@
                               <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
                                 n°<%= acte.numero_formate %>
                               <% end %></td>
-                            <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                             <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                            <td><%= acte.numero_chorus %></td>
+                            <td class="fr-cell--multiline"><%= acte.numero_chorus %></td>
                             <td>
                               <% if acte.date_limite %>
                                 <span class='fr-icon-flag-fill fr-mr-1v fr-icon--sm <%= flag_date(acte.date_limite) %>' aria-hidden='true'></span><%= l(acte.date_limite, format: "%e/%m/%y") %>
@@ -385,7 +448,7 @@
                             </td>
                             <td>
                               <%= link_to validate_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
-                                Valider
+                                Consulter et valider
                               <% end %>
                             </td>
                           </tr>
@@ -524,6 +587,10 @@
         </div>
       </div>
     </div>
+
+    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :modal %>
+    </dialog>
 
     <dialog id="bulk-modal" class="fr-modal" aria-labelledby="modal-bulk-title" data-fr-concealing-backdrop="true">
       <div class="fr-container fr-container--fluid fr-container-md">

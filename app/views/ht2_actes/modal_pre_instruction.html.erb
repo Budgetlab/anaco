@@ -1,0 +1,48 @@
+<%= turbo_frame_tag :modal, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">Passer l'acte en instruction</h2>
+            <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
+              n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
+
+            <div class="fr-alert fr-alert--info fr-my-2w">
+              <h3 class="fr-alert__title">Démarrer l'instruction</h3>
+              <p>Pour démarrer l'instruction de l'acte, veuillez ajouter la date de réception sur Chorus. Il s'agit de
+                la date faisant foi juridiquement pour calculer le délai d'instruction de l'acte. Vous pourrez ensuite
+                mettre à jour les informations sur l'acte.</p>
+            </div>
+
+            <%= form_with model: @acte, data: { turbo_frame: "_top"} do |f| %>
+              <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+              <div class="fr-select-group">
+                <label for="date_chorus" class="fr-label">Date de réception sur
+                  Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+                <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr-modal", flatpickr_modal_append_to: '#modal-acte' }, id: "date_chorus", placeholder: "dd/mm/yyyy", required: true %>
+              </div>
+              <ul class="fr-btns-group">
+                <li>
+                  <%= f.submit "Valider et poursuivre l'instruction", class: "fr-btn" %>
+                </li>
+              </ul>
+            <% end %>
+            <ul class="fr-btns-group">
+              <li>
+                <%= link_to show_modal_acte_path(@acte), class: "fr-btn fr-btn--secondary" do %>
+                  Retour
+                <% end %>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

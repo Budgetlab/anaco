@@ -39,6 +39,8 @@ module Ht2ActesHelper
       'fr-badge fr-badge--pink-tuile'
     when 'clôturé'
       'fr-badge fr-badge--success fr-badge--no-icon'
+    when 'clôturé après pré-instruction'
+      'fr-badge fr-badge--yellow-tournesol'
     else
       'fr-badge'
     end

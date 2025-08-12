@@ -3,7 +3,16 @@
 </p>
 
 <% if acte.user == current_user %>
-  <% if ["en pré-instruction", "en cours d'instruction"].include?(acte.etat) %>
+  <% if acte.etat == "en pré-instruction" %>
+    <div class="fr-my-2w">
+      <a href="<%= show_modal_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-icon-settings-5-line fr-btn--icon-left " data-fr-opened="false" aria-controls="modal-acte">
+        Actions sur l'acte
+      </a>
+    </div>
+    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :modal %>
+    </dialog>
+  <% elsif acte.etat == "en cours d'instruction" %>
     <ul class="fr-btns-group fr-btns-group--inline fr-my-2w">
       <li><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
           Actualiser
@@ -21,10 +30,16 @@
         Actualiser
       <% end %>
     </div>
-  <% elsif ["en attente de validation", "en attente de validation Chorus"].include?(acte.etat) %>
+  <% elsif acte.etat == "en attente de validation" %>
     <div class="fr-my-2w">
       <%= link_to validate_acte_path(acte), class: "fr-btn", data: { turbo_frame: "_top" } do %>
         Valider
+      <% end %>
+    </div>
+  <% elsif acte.etat ==  "en attente de validation Chorus" %>
+    <div class="fr-my-2w">
+      <%= link_to validate_acte_path(acte), class: "fr-btn", data: { turbo_frame: "_top" } do %>
+        Valider dans Chorus
       <% end %>
     </div>
   <% elsif acte.etat == "clôturé après pré-instruction" %>
@@ -125,6 +140,8 @@
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
+                <% elsif acte.etat == 'suspendu' %>
+                  suspendu
                 <% else %>en cours
                 <% end %></td>
             </tr>

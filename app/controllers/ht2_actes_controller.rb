@@ -1,6 +1,6 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte, :show_modal, :modal_delete, :modal_cloture, :cloture_pre_instruction, :modal_pre_instruction]
   before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
@@ -80,9 +80,9 @@ class Ht2ActesController < ApplicationController
   end
 
   def new
-    if params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
+    if params[:type_acte].present? && params[:etat].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
       type_engagement = params[:type_acte] == "TF" ? 'Affectation initiale' : 'Engagement initial'
-      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte], type_engagement: type_engagement)
+      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte], type_engagement: type_engagement, etat: params[:etat], pre_instruction: params[:pre_instruction])
     elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
@@ -93,7 +93,7 @@ class Ht2ActesController < ApplicationController
       @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','pre_instruction', 'type_engagement'))
       @saisine = true
     else
-      @acte = current_user.ht2_actes.new(type_acte: 'avis')
+      @acte = current_user.ht2_actes.new(type_acte: 'avis',etat: "en cours d'instruction")
     end
     set_variables_form
   end
@@ -129,7 +129,16 @@ class Ht2ActesController < ApplicationController
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
-        redirect_to ht2_actes_path, notice: "Acte #{@acte.etat} enregistré avec succès."
+        if @etape == 4
+          notice = 'Update'
+        elsif @etape == 5
+          notice = "Validation"
+        elsif @etape == 6
+          notice = "Validation Chorus"
+        else
+          notice = "Acte mis à jour avec succès."
+        end
+        redirect_to ht2_acte_path(@acte), notice: notice
       end
     else
       render :edit
@@ -151,6 +160,19 @@ class Ht2ActesController < ApplicationController
   def show
     @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(annee: :asc, created_at: :asc) : [@acte]
     @acte_courant = @acte
+  end
+
+  def show_modal; end
+
+  def modal_delete; end
+
+  def modal_cloture; end
+
+  def modal_pre_instruction; end
+
+  def cloture_pre_instruction
+    @acte.update(etat: "clôturé après pré-instruction")
+    redirect_to ht2_actes_path, notice: "Acte clôturé après pré-instruction avec succès."
   end
 
   # export fiche excel d'un acte
@@ -308,7 +330,11 @@ class Ht2ActesController < ApplicationController
   end
 
   def ajout_actes
+    # a enlever apres test
     Ht2Acte.update_all("montant_global = montant_ae")
+    @actes_tf = Ht2Acte.where(type_acte: 'TF')
+    @actes_tf.where("type_engagement IS NULL OR type_engagement = ''").update_all("type_engagement = nature")
+    @actes_tf.update_all("nature = 'TF'")
   end
 
   def import

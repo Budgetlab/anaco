@@ -2,7 +2,7 @@
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
-    <div class="fr-grid-row fr-grid-row--gutters fr-my-4w">
+    <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="title-btn">
           <% if @saisine && @acte.numero_chorus.present? %>
@@ -26,7 +26,7 @@
               les étapes
             </button>
             <div class="fr-collapse" id="sidemenu-collapse-94">
-
+              <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %> <%= @acte.etat %></p>
               <ul class="fr-sidemenu__list">
 
                 <li class="fr-sidemenu__item">

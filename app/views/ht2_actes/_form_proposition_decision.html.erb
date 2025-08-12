@@ -2,16 +2,17 @@
 <div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
-    <%= hidden_field_tag :etape, 3 %>
+    <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
     <% if @acte.etat == "en pré-instruction" %>
       <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">L'acte est en phase de pré-instruction. Vous pouvez compléter et enregistrer les informations suivantes ou clôturer définitivement l'acte à ce stade de pré-instruction. <br>Pour soumettre cet acte à validation ou ajouter des suspensions/interruptions vous devez passer l'acte en cours d'instruction à <%= link_to edit_ht2_acte_path(@acte, etape: 1) do %>
-                  l'étape 1
-                <% end %>.</span>
+              <span class="fr-notice__title">L'acte est en phase de pré-instruction.</span>
+              <span class="fr-notice__desc">
+                Vous pouvez compléter et enregistrer les informations suivantes. Vous pourrez ultérieurement passer l'acte en cours d'instruction ou clôturer définitivement l'acte à ce stade de pré-instruction.
+                L'ajout de suspensions/interruptions n'est pas possible à ce stade et est possible uniquement pour les actes en cours d'instruction.</span>
             </p>
             <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
               le message
@@ -54,16 +55,19 @@
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-select-group">
           <label for="proposition_decision" class="fr-label">
-            Proposition de décision de contrôle<% unless @acte.etat == 'en pré-instruction' %>*<% end %>
+            Proposition de décision de contrôle
+            <% unless @acte.etat == 'en pré-instruction' %>*
+            <% end %>
           </label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), {prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select",required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { action: "change->acte-form#checkDecision" } : {})} %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { action: "change->acte-form#checkDecision" } : {}) } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
         <div class="fr-select-group">
           <label for="date_cloture" class="fr-label">Date de clôture*</label>
-          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus)}, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
-          <p class="fr-message fr-message--info fr-text--small">Renseigner une date pour clôturer l'acte directement à cette étape </p>
+          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <p class="fr-message fr-message--info fr-text--small">Renseigner une date pour clôturer l'acte directement à
+            cette étape </p>
         </div>
       </div>
     </div>
@@ -108,23 +112,24 @@
       <%= hidden_field_tag :submit_action, "", data: { acte_form_target: "submitAction" } %>
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
-          <li>
-            <%= f.submit "Enregistrer", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit"} %>
-          </li>
+
           <% if @acte.etat == "en pré-instruction" %>
             <li>
-              <%= f.submit "Clôturer en pré-instruction", class: 'fr-btn', data: { action: "click->acte-form#setCloturePreInstruction" } %>
+              <%= f.submit "Enregistrer les modifications", class: 'fr-btn' %>
             </li>
           <% else %>
+            <li>
+              <%= f.submit "Enregistrer les modifications", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
+            </li>
             <li id="cloture_button" class="fr-hidden">
-              <%= f.submit "Clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
+              <%= f.submit "Enregistrer et clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
             </li>
             <li id="validation_button">
               <%= button_tag type: 'submit',
                              class: 'fr-btn fr-icon-checkbox-line fr-btn--icon-left',
                              data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton" } do %>
-                Soumettre à validation
-                <% end %>
+                Enregister et soumettre à validation
+              <% end %>
             </li>
           <% end %>
         </ul>

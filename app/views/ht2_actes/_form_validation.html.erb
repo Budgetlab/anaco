@@ -6,8 +6,9 @@
     Quitter le formulaire
   <% end %>
 </div>
-<h6 class="fr-my-3w fr-capitalize"><%= @acte.type_acte %> n°<%= @acte.numero_formate %></h6>
-<div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<h6 class="fr-mt-3w fr-mb-1v fr-capitalize"><%= @acte.type_acte %> n°<%= @acte.numero_formate %> </h6>
+<a class="fr-link" href="#content-acte"><span aria-hidden="true" class="fr-icon-arrow-down-fill fr-icon--sm"></span> Consulter les informations de l'acte ci-dessous</a>
+<div class="cwarning fr-my-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
 <div data-controller="acte-form">
   <%= form_with(model: @acte) do |f| %>
     <%= hidden_field_tag :etape, 5 %>

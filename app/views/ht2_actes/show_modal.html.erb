@@ -1,0 +1,55 @@
+<%= turbo_frame_tag :modal do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">
+              <span class="fr-icon-settings-5-line  fr-icon--lg" aria-hidden="true"></span>Actions sur l'acte</h2>
+            <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
+              n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
+
+            <div class="fr-mt-2w">
+              <ul class="fr-btns-group fr-btns-group--icon-left">
+                <% if @acte.etat == 'en pré-instruction' %>
+                  <li>
+                    <%= link_to modal_pre_instruction_path(@acte), class: "fr-btn fr-icon-arrow-go-forward-line" do %>
+                      Passer l'acte en instruction
+                    <% end %>
+                  </li>
+                <% end %>
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+                    Actualiser les informations
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to ht2_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-eye-line", data: { turbo_frame: "_top" } do %>
+                    Consulter l'acte
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
+                    Supprimer l'acte
+                  <% end %>
+                </li>
+                <% if @acte.etat == 'en pré-instruction' %>
+                  <li>
+                    <%= link_to modal_cloture_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-lock-line" do %>
+                      Clôturer l'acte
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
