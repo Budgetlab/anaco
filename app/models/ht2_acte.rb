@@ -329,7 +329,9 @@ class Ht2Acte < ApplicationRecord
       # renvoie en pré-instruction, instruction
       update_columns(
         date_cloture: nil,
-        delai_traitement: nil
+        delai_traitement: nil,
+        decision_finale: nil,
+        valideur: nil,
       )
     end
   end

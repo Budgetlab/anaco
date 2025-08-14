@@ -1,7 +1,7 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte, :show_modal, :modal_delete, :modal_cloture, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte]
-  before_action :set_variables_form, only: [:edit, :validate_acte, :modal_validate_acte]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte]
+  before_action :set_variables_form, only: [:edit, :modal_validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
   require 'axlsx'
@@ -129,14 +129,14 @@ class Ht2ActesController < ApplicationController
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
-        if @etape == 4
-          notice = 'Update'
-        elsif @acte.etat == 'en attente de validation'
-          notice = "Acte désormais en attente de validation."
-        elsif @acte.etat == 'en attente de validation Chorus'
-          notice = "Validation"
+        if @acte.etat == 'en attente de validation'
+          notice = "Acte enregistré et en attente de validation."
         elsif @acte.etat == 'clôturé'
           notice = "Acte clôturé avec succès."
+        elsif @etape == 4
+            notice = 'Update'
+        elsif @acte.etat == 'en attente de validation Chorus'
+          notice = "Validation"
         elsif @etape == 7
           notice = "Acte renvoyé en pré-instruction avec succès."
         elsif @etape == 8
@@ -174,7 +174,7 @@ class Ht2ActesController < ApplicationController
 
   def modal_delete; end
 
-  def modal_cloture; end
+  def modal_cloture_preinstruction; end
 
   def modal_pre_instruction; end
 
@@ -224,8 +224,6 @@ class Ht2ActesController < ApplicationController
     @acte&.destroy
     redirect_to ht2_actes_path, notice: "Acte supprimé avec succès."
   end
-
-  def validate_acte; end
 
   def modal_validate_acte; end
 

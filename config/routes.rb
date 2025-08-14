@@ -75,12 +75,11 @@ Rails.application.routes.draw do
         get :download_attachments
       end
     end
-    get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
     get 'new_modal_acte', to: 'ht2_actes#new_modal', as: 'new_modal_acte'
     get 'show_modal_acte/:id', to: 'ht2_actes#show_modal', as: 'show_modal_acte'
     get 'modal_delete_acte/:id', to: 'ht2_actes#modal_delete', as: 'modal_delete_acte'
     get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
-    get 'modal_cloture_acte/:id', to: 'ht2_actes#modal_cloture', as: 'modal_cloture_acte'
+    get 'modal_cloture_preinstruction_acte/:id', to: 'ht2_actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
     get 'modal_renvoie_instruction/:id', to: 'ht2_actes#modal_renvoie_instruction', as: 'modal_renvoie_instruction'
     get 'modal_validate_acte/:id', to: 'ht2_actes#modal_validate_acte', as: 'modal_validate_acte'
     post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'

@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction', 'decision']
     static values = { prefixes: Object }
     connect() {
 
@@ -16,6 +16,9 @@ export default class extends Controller {
         }
         if (this.hasAddButtonTarget){
             this.toggleAddButton()
+        }
+        if (this.hasDecisionTarget){
+            this.checkDecision()
         }
         if (this.hasEtatRadioTarget){
             // modal nouvel acte
@@ -397,8 +400,8 @@ export default class extends Controller {
             messageAlert.classList.add('fr-hidden');
         }
     }
-    checkDecision(event){
-        const selectedValue = event.target.value;
+    checkDecision(){
+        const selectedValue = this.decisionTarget.value;
         const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
         const cloture_button = document.getElementById('cloture_button');
         const date_cloture = document.getElementById('date_cloture');

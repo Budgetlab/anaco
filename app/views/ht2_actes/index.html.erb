@@ -457,9 +457,10 @@
                               <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                             </td>
                             <td>
-                              <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-btn--sm" data-fr-opened="false" aria-controls="modal-acte">
+                              <%= link_to ht2_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>
                                 Clôturer
-                              </a>
+                              <% end %>
+
                             </td>
                           </tr>
                         <% end %>

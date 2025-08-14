@@ -59,7 +59,7 @@
             <% unless @acte.etat == 'en pré-instruction' %>*
             <% end %>
           </label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { action: "change->acte-form#checkDecision" } : {}) } %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision' , action: "change->acte-form#checkDecision" } : {}) } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">

@@ -40,7 +40,7 @@
                 </li>
                 <% if @acte.etat == 'en pré-instruction' %>
                   <li>
-                    <%= link_to modal_cloture_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-lock-line" do %>
+                    <%= link_to modal_cloture_preinstruction_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-lock-line" do %>
                       Clôturer l'acte
                     <% end %>
                   </li>
