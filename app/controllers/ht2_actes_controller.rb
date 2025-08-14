@@ -1,7 +1,7 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte, :show_modal, :modal_delete, :modal_cloture, :cloture_pre_instruction, :modal_pre_instruction]
-  before_action :set_variables_form, only: [:edit, :validate_acte]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :validate_acte, :show_modal, :modal_delete, :modal_cloture, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte]
+  before_action :set_variables_form, only: [:edit, :validate_acte, :modal_validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
   require 'axlsx'
@@ -131,10 +131,16 @@ class Ht2ActesController < ApplicationController
       else
         if @etape == 4
           notice = 'Update'
-        elsif @etape == 5
+        elsif @acte.etat == 'en attente de validation'
+          notice = "Acte désormais en attente de validation."
+        elsif @acte.etat == 'en attente de validation Chorus'
           notice = "Validation"
-        elsif @etape == 6
-          notice = "Validation Chorus"
+        elsif @acte.etat == 'clôturé'
+          notice = "Acte clôturé avec succès."
+        elsif @etape == 7
+          notice = "Acte renvoyé en pré-instruction avec succès."
+        elsif @etape == 8
+          notice = "Acte renvoyé en instruction avec succès."
         else
           notice = "Acte mis à jour avec succès."
         end
@@ -162,6 +168,8 @@ class Ht2ActesController < ApplicationController
     @acte_courant = @acte
   end
 
+  def new_modal; end
+
   def show_modal; end
 
   def modal_delete; end
@@ -172,8 +180,10 @@ class Ht2ActesController < ApplicationController
 
   def cloture_pre_instruction
     @acte.update(etat: "clôturé après pré-instruction")
-    redirect_to ht2_actes_path, notice: "Acte clôturé après pré-instruction avec succès."
+    redirect_to ht2_acte_path(@acte), notice: "clôturé après pré-instruction"
   end
+
+  def modal_renvoie_instruction; end
 
   # export fiche excel d'un acte
   def export
@@ -216,6 +226,8 @@ class Ht2ActesController < ApplicationController
   end
 
   def validate_acte; end
+
+  def modal_validate_acte; end
 
   def check_chorus_number
     numero_chorus = params[:numero_chorus]
@@ -335,6 +347,8 @@ class Ht2ActesController < ApplicationController
     @actes_tf = Ht2Acte.where(type_acte: 'TF')
     @actes_tf.where("type_engagement IS NULL OR type_engagement = ''").update_all("type_engagement = nature")
     @actes_tf.update_all("nature = 'TF'")
+    @actes_autres = Ht2Acte.where.not(type_acte: 'TF')
+    @actes_autres.update_all("type_engagement = 'Engagement complémentaire'")
   end
 
   def import

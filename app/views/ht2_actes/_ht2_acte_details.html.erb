@@ -3,15 +3,15 @@
 </p>
 
 <% if acte.user == current_user %>
+  <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+    <%= turbo_frame_tag :modal %>
+  </dialog>
   <% if acte.etat == "en pré-instruction" %>
     <div class="fr-my-2w">
       <a href="<%= show_modal_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-icon-settings-5-line fr-btn--icon-left " data-fr-opened="false" aria-controls="modal-acte">
         Actions sur l'acte
       </a>
     </div>
-    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
-      <%= turbo_frame_tag :modal %>
-    </dialog>
   <% elsif acte.etat == "en cours d'instruction" %>
     <ul class="fr-btns-group fr-btns-group--inline fr-my-2w">
       <li><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
@@ -31,21 +31,28 @@
       <% end %>
     </div>
   <% elsif acte.etat == "en attente de validation" %>
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-my-2w">
+      <li>
+        <a href="<%= modal_validate_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
+          Valider
+        </a>
+      </li>
+      <li>
+        <a href="<%= modal_renvoie_instruction_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
+          Renvoyer l'acte en instruction
+        </a>
+      </li>
+    </ul>
+  <% elsif acte.etat == "en attente de validation Chorus" %>
     <div class="fr-my-2w">
-      <%= link_to validate_acte_path(acte), class: "fr-btn", data: { turbo_frame: "_top" } do %>
-        Valider
-      <% end %>
-    </div>
-  <% elsif acte.etat ==  "en attente de validation Chorus" %>
-    <div class="fr-my-2w">
-      <%= link_to validate_acte_path(acte), class: "fr-btn", data: { turbo_frame: "_top" } do %>
-        Valider dans Chorus
-      <% end %>
+      <a href="<%= validate_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn " data-fr-opened="false" aria-controls="modal-acte">
+        Valider dans Chorus et clôturer
+      </a>
     </div>
   <% elsif acte.etat == "clôturé après pré-instruction" %>
     <div class="fr-my-2w">
       <%= form_with(model: acte, method: :patch) do |f| %>
-        <%= hidden_field_tag :etape, 5 %>
+        <%= hidden_field_tag :etape, 7 %>
         <%= f.hidden_field :etat, value: "en pré-instruction" %>
         <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
       <% end %>
@@ -53,7 +60,7 @@
   <% elsif acte.etat == 'clôturé' %>
     <div class="fr-my-2w">
       <%= form_with(model: acte, method: :patch) do |f| %>
-        <%= hidden_field_tag :etape, 5 %>
+        <%= hidden_field_tag :etape, 8 %>
         <%= f.hidden_field :etat, value: "en cours d'instruction" %>
         <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
       <% end %>
@@ -160,6 +167,7 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
+              <th>Exercice</th>
               <th>Centre financier</th>
               <th>N°Chorus</th>
               <% if acte.type_acte != 'TF' %>
@@ -175,6 +183,7 @@
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
+              <td><%= acte.annee %></td>
               <td> <%= format_value(acte.centre_financier_code) %></td>
               <td> <%= format_value(acte.numero_chorus) %></td>
               <% if acte.type_acte != 'TF' %>

@@ -71,7 +71,11 @@
       </div>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
-          <label for="montant_ae" class="fr-label"><% if @acte.type_acte == 'avis' %>Montant de cet acte (AE)*<% elsif @acte.type_acte == 'visa' %>Montant engagé sur l'acte*<%else %>Montant de l'affectation*<% end %></label>
+          <label for="montant_ae" class="fr-label">
+            <% if @acte.type_acte == 'avis' %>Montant de cet acte (AE)*
+            <% elsif @acte.type_acte == 'visa' %>Montant engagé sur l'acte*
+            <% else %>Montant de l'affectation*
+            <% end %></label>
           <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
         </div>
       </div>
@@ -140,11 +144,12 @@
           <%= f.text_area :precisions_acte, class: 'fr-input' %>
         </div>
         <% if @acte.etat != 'en pré-instruction' %>
-            <div class="fr-label fr-mb-1w"> Cet acte a-t-il fait l’objet d’une
-              pré-instruction antérieur ? <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></div>
+          <div class="fr-label fr-mb-1w fr-hidden"> Cet acte a-t-il fait l’objet d’une
+            pré-instruction antérieur
+            ? <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></div>
 
 
-          <div class="fr-toggle" data-controller="acte-form">
+          <div class="fr-toggle fr-hidden" data-controller="acte-form">
             <%= f.check_box :pre_instruction,
                             { class: "fr-toggle__input",
                               id: "pre_instruction_toggle",

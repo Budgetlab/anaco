@@ -129,14 +129,14 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    sheet.add_row
 
    # Deuxième table d'informations
-   headers = ["Centre financier","N°Chorus"]
+   headers = ["Exercice","Centre financier","N°Chorus"]
    headers << "Bénéficiaire" if @acte.type_acte != 'TF'
    objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
    headers += [objet_label,"Ordonnateur", "Pré-instruction"]
 
    sheet.add_row headers, style: header_style
 
-   data_row = [@acte.centre_financier_code, @acte.numero_chorus]
+   data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
    data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
    data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
    sheet.add_row data_row, style: cell_style

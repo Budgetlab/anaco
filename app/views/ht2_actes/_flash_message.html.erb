@@ -1,7 +1,7 @@
 <% if flash.any? %>
   <% flash.each do |type, msg| %>
     <% if msg[0..3] == 'Acte' %>
-      <div class="fr-alert fr-alert--success fr-mt-2w">
+      <div class="fr-alert fr-alert--success fr-mb-2w">
         <h3 class="fr-alert__title">
           <%= msg %>
         </h3>
@@ -29,10 +29,10 @@
           le message
         </button>
       </div>
-    <% elsif msg == 'Validation Chorus' %>
+    <% elsif msg == 'clôturé après pré-instruction' %>
       <div class="fr-alert fr-alert--success fr-mb-2w">
         <h3 class="fr-alert__title">
-          L'acte a été clôturé avec succès.
+          Acte clôturé après pré-instruction avec succès.
         </h3>
         <p>Vous pouvez consulter les informations de cet acte ci-dessous ou retourner sur votre liste de travail. <%= link_to ht2_actes_path do %>Retourner sur la liste de travail<% end %></p>
         <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer
