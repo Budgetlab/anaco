@@ -23,8 +23,8 @@
               <%= f.hidden_field :etat, value: "en cours d'instruction" %>
               <%= hidden_field_tag :etape, 8 %>
               <div class="fr-input-group">
-                <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
-                <%= f.text_area :observations,rows:6, class: 'fr-input' %>
+                <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de décision de contrôle</label>
+                <%= f.text_area :commentaire_proposition_decision,rows:6, class: 'fr-input' %>
               </div>
               <ul class="fr-btns-group">
                 <li>

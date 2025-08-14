@@ -29,7 +29,9 @@
     </nav>
 
     <%= render 'ht2_actes/flash_message' %>
-
+    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :modal %>
+    </dialog>
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">

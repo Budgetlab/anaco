@@ -1,7 +1,4 @@
 <% if acte.user == current_user %>
-  <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
-    <%= turbo_frame_tag :modal %>
-  </dialog>
   <% if acte.etat == "en pré-instruction" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
       <h3 class="fr-callout__title">Acte en pré-instruction</h3>
@@ -98,6 +95,9 @@
       </div>
     </div>
   <% elsif acte.etat == "clôturé après pré-instruction" %>
+    <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
+      <%= acte.etat %>
+    </p>
     <div class="fr-my-2w">
       <%= form_with(model: acte, method: :patch) do |f| %>
         <%= hidden_field_tag :etape, 7 %>
@@ -106,6 +106,9 @@
       <% end %>
     </div>
   <% elsif acte.etat == 'clôturé' %>
+    <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
+      <%= acte.etat %>
+    </p>
     <div class="fr-my-2w">
       <%= form_with(model: acte, method: :patch) do |f| %>
         <%= hidden_field_tag :etape, 8 %>
