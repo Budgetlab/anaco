@@ -181,10 +181,13 @@
                 <% end %></th>
               <th>
                 <% if acte.type_acte == 'avis' %>Montant estimatif global (AE)
-                <% elsif acte.type_acte == 'visa' %>Montant engagé
+                <% elsif acte.type_acte == 'visa' %>Montant total engagé
                 <% elsif acte.type_acte == 'TF' %>Montant total affecté
                 <% end %></th>
-              <th>Montant de cet acte</th>
+              <th><% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
+                <% elsif acte.type_acte == 'visa' %>Montant engagé par l'acte
+                <% else %>Montant de l'affectation
+                <% end %></th>
               <th>Date réception Chorus</th>
               <th>Délai de traitement</th>
             </tr>

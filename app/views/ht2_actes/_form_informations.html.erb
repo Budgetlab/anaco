@@ -72,8 +72,8 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
           <label for="montant_ae" class="fr-label">
-            <% if @acte.type_acte == 'avis' %>Montant de cet acte (AE)*
-            <% elsif @acte.type_acte == 'visa' %>Montant engagé sur l'acte*
+            <% if @acte.type_acte == 'avis' %>Montant de l'acte (AE)*
+            <% elsif @acte.type_acte == 'visa' %>Montant engagé par l'acte*
             <% else %>Montant de l'affectation*
             <% end %></label>
           <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
