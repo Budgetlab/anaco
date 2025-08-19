@@ -438,6 +438,38 @@
       </div>
     </div>
   </div>
+  <%
+    raw = @acte.sheet_data
+    parsed =
+      begin
+        x = raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
+        x = JSON.parse(x) if x.is_a?(String) # anti double-encodage
+        x
+      rescue JSON::ParserError
+        {}
+      end
+
+    blank = ->(v) { v.nil? || v.to_s.strip == "" }
+
+    # Récupère toutes les matrices de lignes (v4: data | v5: worksheets[].data)
+    matrices =
+      if parsed.is_a?(Hash) && parsed["worksheets"].is_a?(Array)
+        parsed["worksheets"].map { |ws| ws["data"] }.compact
+      else
+        [parsed["data"]]
+      end
+
+    has_cells =
+      matrices.any? do |rows|
+        Array(rows).any? { |row| Array(row).any? { |cell| !blank.call(cell) } }
+      end
+  %>
+  <% if has_cells %>
+    <div class="fr-mt-2w">Tableur</div>
+
+    <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= @acte.sheet_data.to_json.html_safe %>'></div>
+  <% end %>
+
   <div class="fr-mt-2w">Observations</div>
 
   <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>

@@ -92,6 +92,24 @@
         </fieldset>
       </div>
     </div>
+    <div class="mt-4">
+      <label class="form-label">Tableur</label>
+
+      <%= f.hidden_field :sheet_data, id: dom_id(@acte, :sheet_data) %>
+
+      <div
+        data-controller="sheet"
+        data-sheet-input-id-value="<%= dom_id(@acte, :sheet_data) %>"
+        data-sheet-initial-value='<%= (@acte.sheet_data || { data: [] }).to_json %>'
+        data-sheet-min-cols-value="6"
+        data-sheet-min-rows-value="10"
+      ></div>
+
+      <p class="fr-hint-text mt-2">
+        Clique droit pour insérer/supprimer des lignes/colonnes.
+      </p>
+    </div>
+
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-input-group" data-controller="trix">

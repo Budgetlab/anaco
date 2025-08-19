@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_11_095321) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_18_091334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -234,6 +234,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_11_095321) do
     t.string "numero_marche"
     t.boolean "services_votes", default: false
     t.string "type_engagement"
+    t.jsonb "sheet_data", default: {"data" => []}
     t.index ["annee"], name: "index_ht2_actes_on_annee"
     t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
     t.index ["delai_traitement"], name: "index_ht2_actes_on_delai_traitement"

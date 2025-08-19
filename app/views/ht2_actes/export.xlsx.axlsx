@@ -8,7 +8,6 @@ title_style = wb.styles.add_style(
   alignment: { horizontal: :center, vertical: :center },
   bg_color: 'dae1f2',
   fg_color: '161616',
-  border: { style: :thin, color: '000000' }
 )
 header_style = wb.styles.add_style(
   font_name: 'Marianne',
@@ -51,7 +50,8 @@ check_ok_style = wb.styles.add_style(
   sz: 14,
   b: true,
   alignment: { horizontal: :center, vertical: :center },
-  fg_color: '008000'
+  fg_color: '008000',
+  border: { style: :thin, color: '000000' }
 )
 
 check_ko_style = wb.styles.add_style(
@@ -59,7 +59,8 @@ check_ko_style = wb.styles.add_style(
   sz: 14,
   b: true,
   alignment: { horizontal: :center, vertical: :center },
-  fg_color: 'FF0000'
+  fg_color: 'FF0000',
+  border: { style: :thin, color: '000000' },
 )
 
 wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
@@ -104,6 +105,17 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
                   end
 
    type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
+   delai =
+     if ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat)
+       n = @acte.delai_traitement.to_i
+       "#{n} jour#{'s' if n != 1}"  # évite la dépendance à pluralize
+       # ou si tu préfères et que les helpers sont dispo :
+       # helpers.pluralize(@acte.delai_traitement.to_i, 'jour')
+     elsif @acte.etat == 'suspendu'
+       'suspendu'
+     else
+       'en cours'
+     end
 
    sheet.add_row [
      "Instructeur",
@@ -123,7 +135,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          @acte.montant_global,
          @acte.montant_ae,
          @acte.date_chorus&.strftime('%d/%m/%Y'),
-         "#{@acte.delai_traitement} jour#{'s' if @acte.delai_traitement != 1}"
+         delai
        ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
    current_row += 3
    sheet.add_row
@@ -276,4 +288,85 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    end
 
    sheet.column_widths(*Array.new(8, 30))
+   # -- Réglages d’impression (feuille principale)
+   last_row_index = sheet.rows.size # nombre total de lignes ajoutées
+   sheet.page_setup.orientation   = :landscape
+   sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur
+   sheet.page_setup.fit_to_height = 0      # hauteur auto (plusieurs pages si besoin)
+
+   sheet.print_options.grid_lines = false
+   sheet.print_options.headings = false
+   sheet.print_options.horizontal_centered = true
+
+   sheet.page_margins do |m|
+     m.left   = 0.5
+     m.right  = 0.5
+     m.top    = 0.5
+     m.bottom = 0.5
+     m.header = 0.3
+     m.footer = 0.3
+   end
+
+   # Si tu sais que la feuille tient en 8 colonnes (A:H), fixe la zone d’impression :
+   #sheet.print_area = "A1:H#{last_row_index}"
+end
+
+# ===== Onglet(s) Tableur issu(s) du mini tableur ============================
+# @acte.sheet_data est du type:
+# - v4 : { "data": [ [..], [..], ... ] }
+# - v5 : { "worksheets": [ { "name": "Feuille 1", "data": [..] }, ... ] }
+raw = @acte.sheet_data
+
+# Parse robuste (gère double encodage JSON)
+begin
+  parsed = raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
+  parsed = JSON.parse(parsed) if parsed.is_a?(String)
+rescue JSON::ParserError
+  parsed = {}
+end
+
+# Helper: écriture d'une grille simple
+write_grid = lambda do |sheet, rows|
+  rows ||= []
+
+  rows.each do |row|
+    r = Array(row)
+    sheet.add_row r, style: Array.new(r.length, cell_style)
+  end
+
+  max_cols = rows.map { |r| Array(r).length }.max || 1
+  sheet.column_widths(*Array.new(max_cols, 20))
+  # -- Réglages d’impression (feuille principale)
+  last_row_index = sheet.rows.size # nombre total de lignes ajoutées
+  sheet.page_setup.orientation   = :landscape
+  sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur
+  sheet.page_setup.fit_to_height = 0      # hauteur auto (plusieurs pages si besoin)
+
+  sheet.print_options.grid_lines = false
+  sheet.print_options.headings = false
+  sheet.print_options.horizontal_centered = true
+
+  sheet.page_margins do |m|
+    m.left   = 0.5
+    m.right  = 0.5
+    m.top    = 0.5
+    m.bottom = 0.5
+    m.header = 0.3
+    m.footer = 0.3
+  end
+end
+
+if parsed.is_a?(Hash) && parsed['worksheets'].present?
+  # Multi-feuilles (v5)
+  parsed['worksheets'].each_with_index do |ws, idx|
+    name = ws['name'].presence || "Tableur #{idx + 1}"
+    wb.add_worksheet(name: name) do |sheet|
+      write_grid.call(sheet, ws['data'])
+    end
+  end
+elsif parsed.is_a?(Hash) && parsed['data'].present?
+  # Une seule grille (v4 / v5 simple)
+  wb.add_worksheet(name: "Tableur") do |sheet|
+    write_grid.call(sheet, parsed['data'])
+  end
 end
