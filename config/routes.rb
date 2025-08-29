@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       end
     end
     get 'schemas_remplissage' => "schemas#schemas_remplissage"
+    get 'generate_schemas_pdf' => "schemas#generate_schemas_pdf"
 
     resources :programmes do
       resources :schemas, only: [:new, :create]
