@@ -66,6 +66,12 @@
         <%= f.text_field :axe_ministeriel, class: "fr-input", id: 'axe_ministeriel' %>
       </div>
     </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="flux" class="fr-label">Flux</label>
+        <%= f.select :flux, [["1","1"], ["2","2"], ["3","3"],["4","4"]],{ prompt: "- sélectionner -" }, { id: 'axe_ministeriel', class: "fr-select" } %>
+      </div>
+    </div>
   </div>
   <%= f.hidden_field :_destroy %>
 </div>

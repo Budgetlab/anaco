@@ -86,11 +86,13 @@ class Ht2ActesController < ApplicationController
     elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'numero_chorus', 'etat', 'pre_instruction', 'type_engagement'))
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat'))
+      @acte.etat = acte_parent.etat == "en pré-instruction" ? acte_parent.etat : "en cours d'instruction"
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
       id = params[:parent_id]
       @acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','pre_instruction', 'type_engagement'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement'))
+      @acte.etat = "en cours d'instruction"
       @saisine = true
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis',etat: "en cours d'instruction")
@@ -368,10 +370,11 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
-                                     :categorie, :numero_marche, :services_votes,:type_engagement,type_observations: [],
+                                     :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
+                                     type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel])
+                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux])
   end
 
   def set_acte_ht2
@@ -383,18 +386,18 @@ class Ht2ActesController < ApplicationController
       @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes", 'Transaction', 'Autre']
       @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Engagement initial', 'Engagement complémentaire']
+      @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ['Autre contrat', 'Avenant', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
-      @liste_engagements = ['Engagement initial', 'Engagement complémentaire']
+      @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
       @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ['Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation', 'Pièce(s) manquante(s)', 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     end
-    @liste_motifs_suspension = ['Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+    @liste_motifs_suspension = ['Conformité des pièces','Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 

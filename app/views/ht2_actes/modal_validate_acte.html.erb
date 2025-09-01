@@ -69,11 +69,11 @@
                     <div class="fr-col-12 fr-col-lg-6">
                       <div class="fr-select-group">
                         <label for="date_cloture" class="fr-label">Date de clôture*</label>
-                        <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -", required: true %>
+                        <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr-modal", flatpickr_modal_append_to: '#modal-acte' }, id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
                       </div>
                     </div>
                   </div>
-                  <ul class="fr-btns-group">
+                  <ul class="fr-btns-group fr-mt-4w">
                     <li>
                       <%= f.submit "Valider et clôturer", class: 'fr-btn' %>
                     </li>

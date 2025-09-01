@@ -3,6 +3,14 @@
   <%= form_with(model: @acte) do |f| %>
     <%= hidden_field_tag :etape, 3 %>
     <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-checkbox-group fr-mb-2w">
+          <%= f.check_box :programmation_prevue, id: "programmation_prevue" %>
+          <label class="fr-label" for="programmation_prevue">L’acte figurait dans le dernier document de programmation.</label>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <h6 class="fr-my-1w">1. Disponibilité des
           crédits <%= render partial: "ht2_actes/tooltip", locals: { name: "disponibilite_credits" } %></h6>

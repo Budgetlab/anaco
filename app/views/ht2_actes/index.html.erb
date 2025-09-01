@@ -97,7 +97,7 @@
                         <caption>Actes en pré-instruction</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">N°acte</th>
+                          <th scope="col">Acte</th>
                           <th scope="col">Date création</th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
@@ -110,18 +110,16 @@
                         <% @actes_pre_instruction.each do |acte| %>
                           <tr>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                              <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                                n°<%= acte.numero_formate %>
-                              <% end %></td>
+                              <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                            </td>
                             <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= acte.nature %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td>
                               <a href="<%= show_modal_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-icon-settings-5-line fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
-                                Actions sur l'acte
+                                Actions
                               </a>
                             </td>
                           </tr>
@@ -163,7 +161,7 @@
                         <caption>Actes en cours d'instruction</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">N°acte</th>
+                          <th scope="col">Acte</th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Nature</th>
@@ -188,10 +186,8 @@
                         <% @actes_instruction.each do |acte| %>
                           <tr>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                              <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                                n°<%= acte.numero_formate %>
-                              <% end %></td>
+                              <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                            </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                             <td><%= acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -204,7 +200,7 @@
                             </td>
                             <td>
                               <a href="<%= show_modal_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-icon-settings-5-line fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
-                                Actions sur l'acte
+                                Actions
                               </a>
                             </td>
                           </tr>
@@ -245,7 +241,7 @@
                         <caption>Actes suspendus</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">N°acte</th>
+                          <th scope="col">Acte</th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Nature</th>
@@ -259,10 +255,8 @@
                         <% @actes_suspendu.each do |acte| %>
                           <tr>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                              <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                                n°<%= acte.numero_formate %>
-                              <% end %></td>
+                              <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                            </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                             <td><%= acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -312,7 +306,7 @@
                         <caption>Actes en attente de validation</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">N°acte</th>
+                          <th scope="col">Acte</th>
                           <th scope="col">Centre financier - Nature</th>
                           <th scope="col">Montant</th>
                           <th scope="col">N°Chorus</th>
@@ -336,10 +330,8 @@
                         <% @actes_validation.each do |acte| %>
                           <tr>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                              <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                                n°<%= acte.numero_formate %>
-                              <% end %></td>
+                              <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                            </td>
                             <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td class="fr-cell--multiline"><%= acte.numero_chorus %></td>
@@ -407,7 +399,7 @@
                         <tr class="fr-cell--multiline">
                           <th scope="col" class="fr-cell--fixed fr-col-check">
                             <span class="fr-sr-only">Sélectionner</span></th>
-                          <th scope="col">N°acte</th>
+                          <th scope="col">Acte</th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre Financier - Nature</th>
                           <th scope="col">Montant</th>
@@ -440,10 +432,8 @@
                               </div>
                             </th>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                              <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                                n°<%= acte.numero_formate %>
-                              <% end %></td>
+                              <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                            </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                             <td class="fr-cell--multiline"><%= acte.centre_financier_code %> - <%= acte.nature %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
@@ -546,7 +536,7 @@
                     <caption>Actes clôturés</caption>
                     <thead>
                     <tr class="fr-cell--multiline">
-                      <th scope="col">N°acte</th>
+                      <th scope="col">Acte</th>
                       <th scope="col">Centre financier</th>
                       <th scope="col">Nature</th>
                       <th scope="col">Montant</th>
@@ -571,10 +561,8 @@
                     <% @actes_cloture.each_with_index do |acte, index| %>
                       <tr>
                         <td class="fr-cell--multiline">
-                          <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                          <%= link_to ht2_acte_path(acte), data: { turbo_frame: "_top" } do %>
-                            n°<%= acte.numero_formate %>
-                          <% end %></td>
+                          <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                        </td>
                         <td><%= acte.centre_financier_code %></td>
                         <td class="fr-cell--multiline"><%= acte.nature %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>

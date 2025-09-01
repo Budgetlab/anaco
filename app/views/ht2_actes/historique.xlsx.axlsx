@@ -51,11 +51,13 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Montant total engagé',
     'Centre financier',
     'Numéro Chorus',
-    'Date réception Chorus',
+    'Date de saisine',
     'Date limite de réponse',
     'Bénéficiaire',
     'Objet',
     'Ordonnateur',
+    'Pré-instruction',
+    'Programmation prévue',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -92,6 +94,8 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.beneficiaire,
       acte.objet,
       acte.ordonnateur,
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.programmation_prevue ? "Oui" : "Non",
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -114,7 +118,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
     styles[9] = number_style  # Montant global
     styles[12] = date_style  # Date réception Chorus
     styles[13] = date_style  # Date réception Chorus
-    styles[25] = date_style
+    styles[27] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -143,11 +147,13 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Montant estimatif global',
     'Centre financier',
     'Numéro Chorus',
-    'Date réception Chorus',
+    'Date de saisine',
     'Date limite de réponse',
     'Bénéficiaire',
     'Objet',
     'Ordonnateur',
+    'Pré-instruction',
+    'Programmation prévue',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -184,6 +190,8 @@ wb.add_worksheet(name: "Avis") do |sheet|
       acte.beneficiaire,
       acte.objet,
       acte.ordonnateur,
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.programmation_prevue ? "Oui" : "Non",
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -204,7 +212,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
     styles[9] = number_style
     styles[12] = date_style
     styles[13] = date_style
-    styles[25] = date_style
+    styles[27] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -231,10 +239,12 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Montant total affecté',
     'Centre financier',
     'Numéro Chorus',
-    'Date réception Chorus',
+    'Date de saisine',
     'Date limite de réponse',
     "Opération d'investissement",
     'Ordonnateur',
+    'Pré-instruction',
+    'Programmation prévue',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -269,6 +279,8 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.date_limite,
       acte.objet,
       acte.ordonnateur,
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.programmation_prevue ? "Oui" : "Non",
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
@@ -289,7 +301,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     styles[8] = number_style
     styles[11] = date_style
     styles[12] = date_style
-    styles[23] = date_style
+    styles[25] = date_style
 
     sheet.add_row row_data, style: styles
   end

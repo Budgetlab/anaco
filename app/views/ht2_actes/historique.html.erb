@@ -71,7 +71,7 @@
                     <% if @statut_user == 'admin' %>
                       <th class="fr-cell--fixed" scope="col">Contrôleur</th>
                     <% end %>
-                    <th scope="col">N°acte</th>
+                    <th scope="col">Acte</th>
                     <th scope="col">Exercice
                     </th>
                     <th scope="col">Centre financier</th>
@@ -88,9 +88,9 @@
                       <% if @statut_user == 'admin' %>
                         <td><%= acte.user.nom %></td>
                       <% end %>
-                      <td>
-                        <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %></p>
-                        n°<%= acte.numero_formate %></td>
+                      <td class="fr-cell--multiline">
+                        <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                      </td>
                       <td><%= acte.annee %></td>
                       <td><%= acte.centre_financier_code %></td>
                       <td class="fr-cell--multiline"><%= acte.nature %></td>
@@ -98,7 +98,7 @@
                       <td><%= acte.numero_chorus %></td>
 
                       <td class="fr-cell--multiline">
-                        <p class="<%= badge_class_for_etat_actes(acte.etat) %>"><%= acte.etat %></p>
+                        <p class="fr-badge--sm <%= badge_class_for_etat_actes(acte.etat) %>"><%= acte.etat %></p>
                       </td>
                       <td>
                         <div class="fr-align-center">

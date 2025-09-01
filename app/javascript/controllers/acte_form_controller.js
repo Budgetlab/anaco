@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant","ecartMontant", "montantAeField", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction', 'decision']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction', 'decision', 'typeEngagement', 'montantAe']
     static values = { prefixes: Object }
     connect() {
 
@@ -154,10 +154,38 @@ export default class extends Controller {
                 inputElement.value = null;
             }
         }
+        // ICI on applique la règle "toujours négatif" si c'est un retrait pour montant AE
+        if (this.hasMontantAeTarget && inputElement === this.montantAeTarget) {
+            this.ensureNegativeIfNeeded(inputElement)
+        }
 
         // Repositionner le curseur
         const lengthDiff = inputElement.value.length - orginalLength;
         inputElement.setSelectionRange(end + lengthDiff, end + lengthDiff);
+
+    }
+
+    changeType() {
+        this.ensureNegativeIfNeeded(this.montantAeTarget)
+    }
+
+    ensureNegativeIfNeeded(inputElement) {
+        // Si le type est un retrait, on force le signe négatif
+        const type = this.typeEngagementTarget?.value
+        const isRetrait = ["Retrait d'engagement", "Retrait"].includes(type)
+
+        // Laisser passer le cas où l'utilisateur tape juste "-"
+        if (inputElement.value === "-" || inputElement.value.trim() === "") return
+
+        if (isRetrait) {
+            // force le signe négatif
+            if (!inputElement.value.trim().startsWith("-")) {
+                inputElement.value = "-" + inputElement.value.trim()
+            }
+        } else {
+            // optionnel : si tu veux retirer le "-" quand ce n'est PAS un retrait
+            inputElement.value = inputElement.value.replace(/^\s*-/, "")
+        }
     }
 
     toggleMessage() {
@@ -318,23 +346,6 @@ export default class extends Controller {
         montantField_ae.value = null;
         montantField_cp.value = null;
         this.updateTotalEcheancier();
-    }
-
-    calculerEcart() {
-        // Vérifier si on a tous les éléments nécessaires pour calculer l'écart
-        if (!this.hasEcartMontantTarget || !this.hasMontantAeFieldTarget) return
-
-        const montantPrecedent = parseFloat(this.montantAeFieldTarget.dataset.montantPrecedent) || 0
-        const montantActuel = this.numberFormat(this.montantAeFieldTarget.value)
-
-        // Calculer l'écart
-        const ecart = montantActuel - montantPrecedent
-
-        // Formater l'écart avec le signe (+ ou -) et deux décimales
-        const ecartFormate = ecart.toLocaleString('fr-FR')
-
-        // Mise à jour de l'affichage
-        this.ecartMontantTarget.textContent = ecartFormate
     }
 
     // Modal affichage choix pre instruction si en cours d'instruction

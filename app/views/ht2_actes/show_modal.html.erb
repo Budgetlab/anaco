@@ -34,6 +34,11 @@
                   <% end %>
                 </li>
                 <li>
+                  <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
+                    Dupliquer l'acte
+                  <% end %>
+                </li>
+                <li>
                   <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
                     Supprimer l'acte
                   <% end %>

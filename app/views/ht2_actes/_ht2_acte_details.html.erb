@@ -9,13 +9,18 @@
           </a>
         </li>
         <li>
-          <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary' do %>
+          <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-icon-edit-line fr-btn--secondary' do %>
             Actualiser les informations
           <% end %>
         </li>
         <li>
+          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
+            Dupliquer
+          <% end %>
+        </li>
+        <li>
           <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
-            Supprimer l'acte
+            Supprimer
           </a>
         </li>
         <li>
@@ -34,8 +39,13 @@
           <% end %>
         </li>
         <li>
+          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
+            Dupliquer
+          <% end %>
+        </li>
+        <li>
           <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
-            Supprimer l'acte
+            Supprimer
           </a>
         </li>
       </ul>
@@ -179,16 +189,17 @@
                 <% if acte.type_acte == 'TF' %>Type d’affectation
                 <% else %>Type d'engagement
                 <% end %></th>
+              <th><% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
+                <% elsif acte.type_acte == 'visa' %>Montant engagé par l'acte
+                <% else %>Montant de l'affectation
+                <% end %></th>
               <th>
                 <% if acte.type_acte == 'avis' %>Montant estimatif global (AE)
                 <% elsif acte.type_acte == 'visa' %>Montant total engagé
                 <% elsif acte.type_acte == 'TF' %>Montant total affecté
                 <% end %></th>
-              <th><% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
-                <% elsif acte.type_acte == 'visa' %>Montant engagé par l'acte
-                <% else %>Montant de l'affectation
-                <% end %></th>
-              <th>Date réception Chorus</th>
+
+              <th>Date de saisine</th>
               <th>Délai de traitement</th>
             </tr>
             </thead>
@@ -200,8 +211,8 @@
                 <td> <%= acte.nature %></td>
               <% end %>
               <td> <%= acte.type_engagement %></td>
-              <td> <%= number_to_currency(acte.montant_global, unit: "€", format: "%n %u") %> </td>
               <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
+              <td> <%= number_to_currency(acte.montant_global, unit: "€", format: "%n %u") %> </td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
@@ -237,6 +248,7 @@
                 <% end %></th>
               <th>Ordonnateur</th>
               <th>Pré-instruction</th>
+              <th>Programmation prévue</th>
             </tr>
             </thead>
             <tbody>
@@ -250,6 +262,7 @@
               <td> <%= format_value(acte.objet) %></td>
               <td> <%= format_value(acte.ordonnateur) %></td>
               <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
+              <td> <%= acte.programmation_prevue == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
           </table>
@@ -316,7 +329,7 @@
             <table>
               <caption> Lignes de poste</caption>
               <thead>
-              <tr>
+              <tr class="fr-cell--multiline">
                 <th> Numéro</th>
                 <th> Centre financier</th>
                 <th> Montant (€)</th>
@@ -325,11 +338,12 @@
                 <th> Compte budgétaire</th>
                 <th> Code activité</th>
                 <th> Axe ministériel</th>
+                <th> Flux</th>
               </tr>
               </thead>
               <tbody>
               <% acte.poste_lignes.each do |ligne| %>
-                <tr>
+                <tr class="fr-cell--multiline">
                   <td> <%= ligne.numero %></td>
                   <td> <%= ligne.centre_financier_code %> </td>
                   <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
@@ -338,12 +352,14 @@
                   <td> <%= ligne.compte_budgetaire %> </td>
                   <td> <%= ligne.code_activite %> </td>
                   <td> <%= ligne.axe_ministeriel %> </td>
+                  <td> <%= ligne.flux %> </td>
                 </tr>
               <% end %>
               <tr class="fr-table--total">
                 <td>Total</td>
                 <td></td>
                 <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
