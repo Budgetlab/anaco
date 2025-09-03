@@ -119,6 +119,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
       min_height = [30, (estimated_lines * 20)].max
       sheet.rows[current_row - 1].height = min_height
 
+   sheet.add_row
+
    # INFORMATIONS SUR L'ACTE
    current_row = sheet.rows.length + 1
    sheet.add_row ["INFORMATIONS SUR L'ACTE","","","","","","",""], style: section_header_style
@@ -310,6 +312,12 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
     current_row = sheet.rows.length + 1
     sheet.add_row [clean_action_text(@acte.commentaire_disponibilite_credits),"","",""], style: cell_style
     sheet.merge_cells "A#{current_row}:D#{current_row}"
+    sheet.row_style current_row, cell_style
+     # Définir une hauteur minimale basée sur la longueur du texte
+       comment_length = (clean_action_text(@acte.commentaire_disponibilite_credits)||"").length
+       estimated_lines = (comment_length / 100.0).ceil
+       min_height = [30, (estimated_lines * 20)].max
+       sheet.rows[current_row - 1].height = min_height
     sheet.add_row
    end
 

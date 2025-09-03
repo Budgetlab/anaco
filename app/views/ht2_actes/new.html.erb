@@ -6,7 +6,7 @@
       <div class="fr-col-12 fr-col-lg-12">
         <div class="title-btn">
           <% if @saisine && @acte.numero_chorus.present? %>
-            <h1>Saisine n°<%= @acte_parent.numero_saisine + 1 %> - <%= @acte.type_acte %> HT2 CHORUS
+            <h1>Saisine n°<%= @acte_parent.tous_actes_meme_chorus.count + 1 %> - <%= @acte.type_acte %> HT2 CHORUS
               n°<%= @acte.numero_chorus %></h1>
           <% else %>
             <h1>Formulaire <%= @acte.type_acte %> HT2</h1>
