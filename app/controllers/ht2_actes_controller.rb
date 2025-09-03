@@ -86,13 +86,15 @@ class Ht2ActesController < ApplicationController
     elsif params[:id].present? # nouveau modèle
       id = params[:id]
       acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat'))
+      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'annee'))
       @acte.etat = acte_parent.etat == "en pré-instruction" ? acte_parent.etat : "en cours d'instruction"
+      @acte.annee = Date.today.year
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
       id = params[:parent_id]
       @acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee'))
       @acte.etat = "en cours d'instruction"
+      @acte.annee = Date.today.year
       @saisine = true
     else
       @acte = current_user.ht2_actes.new(type_acte: 'avis',etat: "en cours d'instruction")

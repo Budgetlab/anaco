@@ -23,21 +23,31 @@
                     <% end %>
                   </li>
                 <% end %>
-                <li>
-                  <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
-                    Actualiser les informations
-                  <% end %>
-                </li>
+                <% if @acte.etat == 'suspendu' %>
+                  <li>
+                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--sm fr-icon-edit-line', data: { turbo_frame: "_top" } do %>
+                      Actualiser les informations
+                    <% end %>
+                  </li>
+                <% else %>
+                  <li>
+                    <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+                      Actualiser les informations
+                    <% end %>
+                  </li>
+                <% end %>
                 <li>
                   <%= link_to ht2_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-eye-line", data: { turbo_frame: "_top" } do %>
                     Consulter l'acte
                   <% end %>
                 </li>
-                <li>
-                  <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
-                    Dupliquer l'acte
-                  <% end %>
-                </li>
+                <% if @acte.etat != 'suspendu' %>
+                  <li>
+                    <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line", data: { turbo_frame: "_top" } do %>
+                      Dupliquer l'acte
+                    <% end %>
+                  </li>
+                <% end %>
                 <li>
                   <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
                     Supprimer l'acte

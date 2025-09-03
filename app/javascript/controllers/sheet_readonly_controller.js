@@ -38,8 +38,14 @@ export default class extends Controller {
     }
 
     disconnect() {
-        if (this.worksheets) {
-            this.worksheets.forEach(ws => ws.destroy())
+        try {
+            // Détruit le spreadsheet monté dans ce conteneur DOM
+            jspreadsheet.destroy(this.element)
+        } catch (e) {
+            console.warn("JSS destroy error:", e)
+        } finally {
+            this.worksheets = null
+            this.sheet = null
         }
     }
 }

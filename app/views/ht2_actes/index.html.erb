@@ -265,9 +265,11 @@
                             <td>
                               <% if acte.last_date_suspension %><%= l(acte.last_date_suspension, format: "%e/%m/%y") %>
                               <% end %></td>
-                            <td><%= link_to edit_ht2_acte_path(acte, etape: 3), class: 'fr-btn fr-btn--secondary fr-btn--sm', data: { turbo_frame: "_top" } do %>
-                                Actualiser
-                              <% end %></td>
+                            <td>
+                              <a href="<%= show_modal_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-icon-settings-5-line fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
+                                Actions
+                              </a>
+                            </td>
                           </tr>
                         <% end %>
                         </tbody>

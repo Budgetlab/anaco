@@ -9,22 +9,22 @@
           </a>
         </li>
         <li>
-          <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-icon-edit-line fr-btn--secondary' do %>
+          <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-icon-edit-line fr-btn--secondary' do %>
             Actualiser les informations
           <% end %>
         </li>
         <li>
-          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
+          <%= link_to new_ht2_acte_path(id: acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
             Dupliquer
           <% end %>
         </li>
         <li>
-          <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
+          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
             Supprimer
           </a>
         </li>
         <li>
-          <a href="<%= modal_cloture_preinstruction_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-lock-line" data-fr-opened="false" aria-controls="modal-acte">
+          <a href="<%= modal_cloture_preinstruction_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-lock-line" data-fr-opened="false" aria-controls="modal-acte">
             Clôturer l'acte
           </a>
         </li>
@@ -39,12 +39,12 @@
           <% end %>
         </li>
         <li>
-          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
+          <%= link_to new_ht2_acte_path(id: acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
             Dupliquer
           <% end %>
         </li>
         <li>
-          <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
+          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
             Supprimer
           </a>
         </li>
@@ -59,7 +59,7 @@
           <% end %>
         </li>
         <li>
-          <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
+          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
             Supprimer l'acte
           </a>
         </li>
@@ -89,13 +89,13 @@
         l'acte.</p>
       <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
         <div class="fr-col-12 fr-col-lg-6">
-          <%= form_with(model: @acte) do |f| %>
+          <%= form_with(model: acte) do |f| %>
             <%= hidden_field_tag :etape, 6 %>
             <%= f.hidden_field :etat, value: 'clôturé' %>
 
             <div class="fr-select-group">
               <label for="date_cloture" class="fr-label">Date de validation dans Chorus*</label>
-              <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
+              <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(acte.date_chorus) }, value: format_date(acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
 
             </div>
             <div><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></div>
@@ -108,24 +108,42 @@
     <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
       <%= acte.etat %>
     </p>
-    <div class="fr-my-2w">
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
+        <li>
+          <%= link_to new_ht2_acte_path(parent_id: acte.id), class: 'fr-btn' do %>
+            Nouvelle saisine
+          <% end %>
+        </li>
+      <% end %>
+      <li>
       <%= form_with(model: acte, method: :patch) do |f| %>
         <%= hidden_field_tag :etape, 7 %>
         <%= f.hidden_field :etat, value: "en pré-instruction" %>
         <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
       <% end %>
-    </div>
+      </li>
+    </ul>
   <% elsif acte.etat == 'clôturé' %>
     <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
       <%= acte.etat %>
     </p>
-    <div class="fr-my-2w">
-      <%= form_with(model: acte, method: :patch) do |f| %>
-        <%= hidden_field_tag :etape, 8 %>
-        <%= f.hidden_field :etat, value: "en cours d'instruction" %>
-        <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
+        <li>
+          <%= link_to new_ht2_acte_path(parent_id: acte.id), class: 'fr-btn' do %>
+            Nouvelle saisine
+          <% end %>
+        </li>
       <% end %>
-    </div>
+      <li>
+        <%= form_with(model: acte, method: :patch) do |f| %>
+          <%= hidden_field_tag :etape, 8 %>
+          <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+          <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+        <% end %>
+      </li>
+    </ul>
   <% end %>
 <% else %>
   <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
@@ -189,7 +207,8 @@
                 <% if acte.type_acte == 'TF' %>Type d’affectation
                 <% else %>Type d'engagement
                 <% end %></th>
-              <th><% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
+              <th>
+                <% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
                 <% elsif acte.type_acte == 'visa' %>Montant engagé par l'acte
                 <% else %>Montant de l'affectation
                 <% end %></th>
@@ -458,7 +477,7 @@
     </div>
   </div>
   <%
-    raw = @acte.sheet_data
+    raw = acte.sheet_data
     parsed =
       begin
         x = raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
@@ -486,7 +505,7 @@
   <% if has_cells %>
     <div class="fr-mt-2w">Tableur</div>
 
-    <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= @acte.sheet_data.to_json.html_safe %>'></div>
+    <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= acte.sheet_data.to_json %>'></div>
   <% end %>
 
   <div class="fr-mt-2w">Observations</div>
