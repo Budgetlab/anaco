@@ -23,8 +23,7 @@
             <%= form_with model: @acte, data: { turbo_frame: "_top"} do |f| %>
               <%= f.hidden_field :etat, value: "en cours d'instruction" %>
               <div class="fr-select-group">
-                <label for="date_chorus" class="fr-label">Date de réception sur
-                  Chorus* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+                <label for="date_chorus" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
                 <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr-modal", flatpickr_modal_append_to: '#modal-acte' }, id: "date_chorus", placeholder: "jj/mm/aaaa", required: true %>
               </div>
               <ul class="fr-btns-group">

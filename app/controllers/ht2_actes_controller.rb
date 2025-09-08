@@ -343,15 +343,7 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes
-    # a enlever apres test
-    Ht2Acte.update_all("montant_global = montant_ae")
-    @actes_tf = Ht2Acte.where(type_acte: 'TF')
-    @actes_tf.where("type_engagement IS NULL OR type_engagement = ''").update_all("type_engagement = nature")
-    @actes_tf.update_all("nature = 'TF'")
-    @actes_autres = Ht2Acte.where.not(type_acte: 'TF')
-    @actes_autres.update_all("type_engagement = 'Engagement complémentaire'")
-  end
+  def ajout_actes; end
 
   def import
     Ht2Acte.import(params[:file])

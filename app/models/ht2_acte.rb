@@ -13,7 +13,7 @@ class Ht2Acte < ApplicationRecord
   after_save :set_numero_utilisateur, if: :saved_change_to_annee?
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
-  after_update :calculate_delai_traitement_if_needed
+  after_save :calculate_delai_traitement_if_needed
 
   has_rich_text :commentaire_disponibilite_credits
 
@@ -170,7 +170,7 @@ class Ht2Acte < ApplicationRecord
       row_data = Hash[[headers, row].transpose]
 
       user = User.find_by(nom: row_data["user"].to_s.strip)
-      next unless user
+      next unless user && row_data["montant_ae"].present? && row_data["date_cloture"].present?
 
       # Champs
       acte = Ht2Acte.new(
@@ -180,7 +180,7 @@ class Ht2Acte < ApplicationRecord
         ordonnateur: row_data["ordonnateur"],
         nature: row_data["nature"],
         montant_ae: row_data["montant_ae"].to_f,
-        montant_global: row_data["montant_ae"].to_f,
+        montant_global: ["Engagement initial", "Affectation initiale"].include?(row_data["type_engagement"]) ? row_data["montant_ae"].to_f : nil,
         centre_financier_code: row_data["centre_financier_code"],
         date_chorus: row_data["date_chorus"].is_a?(Date) ? row_data["date_chorus"] : nil,
         date_cloture: row_data["date_cloture"].is_a?(Date) ? row_data["date_cloture"] : nil,
@@ -188,9 +188,9 @@ class Ht2Acte < ApplicationRecord
         numero_chorus: row_data["numero_chorus"].to_s,
         beneficiaire: row_data["beneficiaire"],
         objet: row_data["objet"],
-        etat: "clôturé",
-        numero_tf: row_data["numero_tf"].to_s.start_with?("TF") ? row_data["numero_tf"].to_s : nil,
-        numero_marche: row_data["numero_tf"].to_s.start_with?("TF") ? nil : row_data["numero_tf"].to_s,
+        etat: row_data["decision_finale"].present? ? "clôturé" : "clôturé après pré-instruction",
+        numero_tf: row_data["numero_tf"].to_s,
+        numero_marche: row_data["numero_marche"].to_s,
         user: user,
         proposition_decision: row_data["decision_finale"],
         decision_finale: row_data["decision_finale"],
@@ -202,6 +202,8 @@ class Ht2Acte < ApplicationRecord
         imputation_depense: row_data["imputation_depense"] == "OUI" ? true : false,
         consommation_credits: row_data["consommation_credits"] == "OUI" ? true : false,
         programmation: row_data["programmation"] == "OUI" ? true : false,
+        type_engagement: row_data["type_engagement"],
+        programmation_prevue: row_data["programmation_prevue"] == "OUI" ? true : false,
         type_observations: row_data["type_observations"].present? ? [row_data["type_observations"]] : []
       )
 

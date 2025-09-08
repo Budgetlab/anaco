@@ -58,7 +58,7 @@
 
                 <div class="fr-text--italic fr-mb-1w">
                   Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-                  <% if acte.etat == "clôturé" %>, validé dans Chorus le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction"%>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
                   <% end %>
                 </div>
                 <div>
