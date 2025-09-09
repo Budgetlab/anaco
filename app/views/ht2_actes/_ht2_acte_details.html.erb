@@ -537,7 +537,7 @@
                   <td> <%= format_date_text(suspension.date_suspension) %> </td>
                   <td> <%= format_date_text(suspension.date_reprise) %></td>
                   <td> <%= suspension.motif %> </td>
-                  <td> <%= format_value(suspension.observations) %></td>
+                  <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
                 </tr>
               <% end %>
               </tbody>
