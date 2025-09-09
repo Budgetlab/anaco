@@ -276,7 +276,7 @@ class Ht2ActesController < ApplicationController
     @ht2_visa_decisions = @ht2_actes_clotures.where(type_acte: 'visa').group(:decision_finale).count
     @ht2_tf_decisions = @ht2_actes_clotures.where(type_acte: 'TF').group(:decision_finale).count
     @ht2_suspensions_motif = calculate_suspensions_stats(@ht2_actes_clotures)
-    @actes_par_mois = calculate_actes_par_mois(@ht2_actes, @statut_user == 'admin')
+    @actes_par_mois = calculate_actes_par_mois(@ht2_actes, @statut_user == 'admin', @selected_year)
     @suspensions_distribution = calculate_suspensions_distribution(@ht2_actes_clotures)
     @top_suspension_motifs_chart_data = calculate_top_motifs(@ht2_actes_clotures)
     # Construire la requête agrégée
@@ -433,9 +433,9 @@ class Ht2ActesController < ApplicationController
     stats
   end
 
-  def calculate_actes_par_mois(actes, admin)
+  def calculate_actes_par_mois(actes, admin, year)
     # Obtenir l'année en cours
-    current_year = Date.today.year
+    current_year = year
 
     # Préparer un tableau pour chaque mois de l'année
     mois = (1..12).map do |month|

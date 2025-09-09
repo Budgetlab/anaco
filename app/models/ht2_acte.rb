@@ -208,7 +208,7 @@ class Ht2Acte < ApplicationRecord
       )
 
       if acte.save
-        if row_data["date_suspension"].present? && row_data["date_reprise"].present?
+        if row_data["date_suspension"].present? && row_data["date_reprise"].present? && row_data["motif"].present?
           acte.suspensions.create(
             date_suspension: row_data["date_suspension"],
             date_reprise: row_data["date_reprise"],

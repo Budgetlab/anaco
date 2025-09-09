@@ -863,12 +863,12 @@ export default class extends Controller {
         if (isAdmin) {
             series = [
                 {
-                    name: 'Actes créés - CBR',
+                    name: 'Actes reçus - CBR',
                     stack: 'Créés',
                     data: data.map(item => item.created_cbr),
                 },
                 {
-                    name: 'Actes créés - DCB',
+                    name: 'Actes reçus - DCB',
                     stack: 'Créés',
                     data: data.map(item => item.created_dcb),
                 },
@@ -886,7 +886,7 @@ export default class extends Controller {
         } else {
             series = [
                 {
-                    name: 'Actes créés',
+                    name: 'Actes reçus',
                     stack: 'Créés',
                     data: data.map(item => item.actes_crees),
                 },

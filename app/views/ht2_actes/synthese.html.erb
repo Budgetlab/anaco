@@ -16,7 +16,7 @@
           <div class="fr-select-group">
             <label class="fr-label" for="year">Filtrer par exercice</label>
             <%= select_tag :year,
-                           options_for_select((2025..Date.current.year).to_a.reverse.map { |year| [year, year] }, @selected_year),
+                           options_for_select((2020..Date.current.year).to_a.reverse.map { |year| [year, year] }, @selected_year),
                            class: "fr-select",
                            onchange: "this.form.submit();" %>
           </div>
