@@ -1,6 +1,6 @@
 <div class="nested-form-wrapper fr-mb-3w" data-new-record="<%= f.object.new_record? %>">
   <% unique_id = "#{f.object.object_id}" %>
-  <div class="fr-h6 fr-capitalize"><%= type_suspension %> <button type="button" data-action="acte-form#removeDisable nested-form#remove"><span class="fr-icon-delete-bin-line fr-icon--sm cbleu"></span></button></div>
+
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
@@ -32,6 +32,7 @@
       </div>
     </div>
   </div>
-
+  <button type="button" data-action="acte-form#removeDisable nested-form#remove" class="fr-btn fr-btn--secondary fr-icon-delete-bin-line fr-btn--icon-left fr-btn--sm">Supprimer</button>
   <%= f.hidden_field :_destroy %>
+  <hr class="fr-hr fr-my-2w">
 </div>

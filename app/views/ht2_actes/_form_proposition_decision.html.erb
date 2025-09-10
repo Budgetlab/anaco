@@ -36,20 +36,23 @@
           </div>
         </div>
       <% end %>
-      <template data-nested-form-target="template">
-        <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
+      <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+        <h3 class="fr-callout__title fr-capitalize fr-mb-2w"><%= type_suspension%></h3>
+        <template data-nested-form-target="template">
+          <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
+            <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+          <% end %>
+        </template>
+
+        <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
           <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
         <% end %>
-      </template>
 
-      <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
-        <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
-      <% end %>
-
-      <!-- Inserted elements will be injected before that target. -->
-      <div data-nested-form-target="target"></div>
-      <button type="button" data-action="nested-form#add" data-acte-form-target="addButton" class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left fr-mb-2w">
-        Ajouter une <%= type_suspension %></button>
+        <!-- Inserted elements will be injected before that target. -->
+        <div data-nested-form-target="target"></div>
+        <button type="button" data-action="nested-form#add acte-form#toggleAddButton" data-acte-form-target="addButton" class="fr-btn fr-icon-add-line fr-btn--icon-left fr-mb-2w">
+          Ajouter une <%= type_suspension %></button>
+      </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
@@ -59,7 +62,7 @@
             <% unless @acte.etat == 'en pré-instruction' %>*
             <% end %>
           </label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision' , action: "change->acte-form#checkDecision" } : {}) } %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
