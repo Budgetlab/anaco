@@ -117,11 +117,11 @@
         </li>
       <% end %>
       <li>
-      <%= form_with(model: acte, method: :patch) do |f| %>
-        <%= hidden_field_tag :etape, 7 %>
-        <%= f.hidden_field :etat, value: "en pré-instruction" %>
-        <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
-      <% end %>
+        <%= form_with(model: acte, method: :patch) do |f| %>
+          <%= hidden_field_tag :etape, 7 %>
+          <%= f.hidden_field :etat, value: "en pré-instruction" %>
+          <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+        <% end %>
       </li>
     </ul>
   <% elsif acte.etat == 'clôturé' %>
@@ -504,8 +504,9 @@
   %>
   <% if has_cells %>
     <div class="fr-mt-2w">Tableur</div>
-
-    <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= acte.sheet_data.to_json %>'></div>
+    <div class="sheet-scroll">
+      <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= acte.sheet_data.to_json %>'></div>
+    </div>
   <% end %>
 
   <div class="fr-mt-2w">Observations</div>

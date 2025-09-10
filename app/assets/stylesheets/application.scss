@@ -390,3 +390,18 @@ a.fr-tag[aria-pressed=true]::after{
 .fr-follow .fr-tabs__panel{
   background-color: var(--background-default-grey);
 }
+
+/* Conteneur scrollable */
+.sheet-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;     /* optionnel */
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* iOS */
+}
+
+/* Laisse la grille dépasser en largeur pour que le scroll apparaisse */
+/* v5 */
+.sheet-scroll .jss,
+.sheet-scroll .jss_container {
+  min-width: max-content;
+}
