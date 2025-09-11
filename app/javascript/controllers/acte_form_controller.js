@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'labelSwitchPreInstruction', 'inputSwitchPreInstruction', 'decision', 'typeEngagement', 'montantAe']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe']
     static values = { prefixes: Object }
     connect() {
 
@@ -23,9 +23,6 @@ export default class extends Controller {
         if (this.hasEtatRadioTarget){
             // modal nouvel acte
             this.togglePreInstruction()
-        }
-        if (this.hasLabelSwitchPreInstructionTarget){
-            this.syncPreInstrution()
         }
     }
     setValidation(event) {
@@ -362,11 +359,12 @@ export default class extends Controller {
             if (!show) el.checked = false
             el.required = show && idx === 0 //
         })
-    }
 
-    syncPreInstrution(){
-        const on = this.inputSwitchPreInstructionTarget.checked
-        this.labelSwitchPreInstructionTarget.textContent = on ? "Oui" : "Non"
+        // ➕ par défaut : si le bloc est visible et qu'aucun choix n'est coché, cocher "Non"
+        if (show && !this.preRadioTargets.some(r => r.checked)) {
+            const non = this.preRadioTargets.find(r => r.id === 'pre_instruction_no' || r.value === 'false')
+            if (non) non.checked = true
+        }
     }
 
     toggleAddButton() {

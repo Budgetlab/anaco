@@ -14,7 +14,7 @@
           </li>
           <li>
             <% if current_user.statut == "admin" %>
-              <%= link_to historique_ht2_path, class: "fr-breadcrumb__link" do %> Actes HT2
+              <%= link_to historique_ht2_path, class: "fr-breadcrumb__link" do %> Historique Actes HT2
               <% end %>
             <% else %>
               <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Liste de travail - Actes HT2
@@ -41,6 +41,9 @@
             <% end %>
           </span>
         </h1>
+        <% if current_user.statut == "admin" %>
+        <h2><%= @acte.user.nom %></h2>
+        <% end %>
 
         <div class="fr-tabs">
           <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">

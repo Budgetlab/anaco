@@ -8,6 +8,7 @@
     <%= hidden_field_tag :etape, 2 %>
     <%= f.hidden_field :type_acte, value: @acte.type_acte %>
     <%= f.hidden_field :etat, value: @acte.etat %>
+    <%= f.hidden_field :pre_instruction, value: @acte.pre_instruction %>
 
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-4">
@@ -138,22 +139,7 @@
           <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
           <%= f.text_area :precisions_acte, class: 'fr-input' %>
         </div>
-        <% if @acte.etat != 'en pré-instruction' %>
-          <div class="fr-label fr-mb-1w fr-hidden"> Cet acte a-t-il fait l’objet d’une
-            pré-instruction antérieur
-            ? <%= render partial: "ht2_actes/tooltip", locals: { name: "pre_instruction_info" } %></div>
 
-
-          <div class="fr-toggle fr-hidden" data-controller="acte-form">
-            <%= f.check_box :pre_instruction,
-                            { class: "fr-toggle__input",
-                              id: "pre_instruction_toggle",
-                              data: { action: "change->acte-form#syncPreInstrution", "acte-form-target": "inputSwitchPreInstruction" } },
-                            "true", "false" %>
-            <label class="fr-toggle__label" for="pre_instruction_toggle" data-acte-form-target="labelSwitchPreInstruction">Non</label>
-            <div class="fr-messages-group" id="pre_instruction_messages" aria-live="polite"></div>
-          </div>
-        <% end %>
       </div>
     </div>
 
