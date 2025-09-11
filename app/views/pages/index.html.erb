@@ -68,17 +68,22 @@
                 <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></h3>
               <div class="fr-card__desc">
                 <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">HT2</p>
+                <% if @statut_user == "DCB" || @statut_user == "CBR" %>
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12">
+                      <ul class="fr-btns-group fr-btns-group--icon-left  fr-mt-2w">
+                        <li>
+                          <a href="<%= new_modal_acte_path %>" data-turbo-frame="new_modal" class="fr-btn fr-icon-add-line" data-fr-opened="false" aria-controls="nouvel-acte-modal">
+                            Nouvel acte
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                <% end %>
                 <div class="fr-grid-row fr-grid-row--gutters">
                   <div class="fr-col-12 fr-col-lg-6">
-                    <div class="fr-text--center">
-                      <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-                        <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_echeance_courte %> </p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance < 5 jours</p>
-                        </div>
-                      </div>
-                    </div>
+
                     <div class="fr-text--center">
                       <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
@@ -97,17 +102,18 @@
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="fr-col-12 fr-col-lg-6">
                     <div class="fr-text--center">
-                      <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
                         <div class="fr-cart__body">
-                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_long_delay %></p>
-                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours <br>hors délai</p>
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_echeance_courte %> </p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes avec échéance < 5 jours</p>
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-6">
+
                     <div class="fr-text--center">
                       <%= image_tag "artwork/pictograms/digital/search.svg", class: "fr-responsive-img image-icone", alt: "" %>
                       <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
@@ -123,6 +129,15 @@
                         <div class="fr-cart__body">
                           <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_suspendu %> </p>
                           <p class="fr-text--lg fr-mb-0 text_center">Actes suspendus et interrompus à date</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-text--center">
+                      <%= image_tag "artwork/pictograms/digital/mail-send.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                      <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @ht2_long_delay %></p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes en cours <br>hors délai</p>
                         </div>
                       </div>
                     </div>
@@ -170,7 +185,11 @@
 
     </div>
   </div>
-
+  <% if @statut_user == "DCB" || @statut_user == "CBR" %>
+    <dialog id="nouvel-acte-modal" class="fr-modal" aria-labelledby="modal-nouvel-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :new_modal %>
+    </dialog>
+  <% end %>
   <div class="fr-follow">
     <div class="fr-container">
       <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">

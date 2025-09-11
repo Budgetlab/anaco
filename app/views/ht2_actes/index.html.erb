@@ -250,8 +250,8 @@
                                 n°<%= acte.numero_formate %></p>
                             </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td><%= format_value(acte.centre_financier_code) %></td>
-                            <td class="fr-cell--multiline"><%= acte.beneficiaire %></td>
+                            <td><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td><%= format_value(acte.numero_chorus) %></td>
                             <td>

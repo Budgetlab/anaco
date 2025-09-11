@@ -75,7 +75,7 @@
                     <th scope="col">Exercice
                     </th>
                     <th scope="col">Centre financier</th>
-                    <th scope="col">Nature</th>
+                    <th scope="col">Bénéficiaire</th>
                     <th scope="col">Montant</th>
                     <th scope="col">N°Chorus</th>
                     <th scope="col">Statut</th>
@@ -93,9 +93,9 @@
                       </td>
                       <td><%= acte.annee %></td>
                       <td><%= acte.centre_financier_code %></td>
-                      <td class="fr-cell--multiline"><%= acte.nature %></td>
+                      <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                       <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                      <td><%= acte.numero_chorus %></td>
+                      <td><%= format_value(acte.numero_chorus) %></td>
 
                       <td class="fr-cell--multiline">
                         <p class="fr-badge--sm <%= badge_class_for_etat_actes(acte.etat) %>"><%= acte.etat %></p>

@@ -287,6 +287,12 @@ h1, h2{
   justify-content: space-between;
   align-items: center;
 }
+.fr-btn--full {
+  display: block !important; /* Transforme le bouton en bloc pour qu'il occupe toute la largeur */
+  width: 100% !important; /* Étend la largeur sur 100% */
+  text-align: center !important; /* Centre le texte horizontalement */
+}
+
 .fr-align-center {
   display: flex;
   justify-content: center; /* Centrer les éléments horizontalement */
