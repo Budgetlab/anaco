@@ -8,7 +8,7 @@
       </h1>
 
 
-      <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w">
+      <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
         <div class="fr-table__header">
           <p class="fr-table__detail"></p>
           <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
@@ -84,9 +84,9 @@
                   </thead>
                   <tbody>
                   <% @actes.each_with_index do |acte, index| %>
-                    <tr class="fr-cell--multiline">
+                    <tr>
                       <% if @statut_user == 'admin' %>
-                        <td><%= acte.user.nom %></td>
+                        <td class="fr-cell--multiline"><%= acte.user.nom %></td>
                       <% end %>
                       <td class="fr-cell--multiline">
                         <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
