@@ -17,7 +17,7 @@
                          data: {
                            action: "input->autocomplete#search",
                            autocomplete_target: "input"
-                         } %>
+                         }, required: true%>
         <div class="autocomplete-results" data-autocomplete-target="results" hidden>
           <!-- Les résultats seront insérés ici par JavaScript -->
         </div>
@@ -70,6 +70,12 @@
       <div class="fr-select-group">
         <label for="flux" class="fr-label">Flux</label>
         <%= f.select :flux, [["1","1"], ["2","2"], ["3","3"],["4","4"]],{ prompt: "- sélectionner -" }, { id: 'axe_ministeriel', class: "fr-select" } %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="groupe_marchandises_poste" class="fr-label">Groupe de marchandises</label>
+        <%= f.text_field :groupe_marchandises, class: "fr-input", id: 'groupe_marchandises_poste' %>
       </div>
     </div>
   </div>

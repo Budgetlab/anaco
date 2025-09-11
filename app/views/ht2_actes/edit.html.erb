@@ -63,27 +63,27 @@
                 <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
                   n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
                 <li class="fr-sidemenu__item">
-                  <%= link_to edit_ht2_acte_path(@acte, etape: 1), 'aria-current': @etape == 1, class: "fr-sidemenu__link" do %>
+                  <button aria-controls="modal-etape1" data-fr-opened="false" aria-current="<%= @etape == 1 %>" type="button" class="fr-sidemenu__link">
                     Étape 1 : Informations sur l'acte
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
-                  <% end %>
+                  </button>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <%= link_to edit_ht2_acte_path(@acte, etape: 2), 'aria-current': @etape == 2, class: "fr-sidemenu__link" do %>
+                  <button aria-controls="modal-etape2" data-fr-opened="false" aria-current="<%= @etape == 2 %>" type="button" class="fr-sidemenu__link">
                     Étape 2 : Contrôle des critères
                     <% unless @acte.disponibilite_credits.nil? %>
                       <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
                     <% end %>
-                  <% end %>
+                  </button>
                 </li>
                 <li class="fr-sidemenu__item">
                   <% if @conditions_met == true %>
-                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), 'aria-current': @etape == 3, class: "fr-sidemenu__link" do %>
+                    <button aria-controls="modal-etape3" data-fr-opened="false" aria-current="<%= @etape == 3 %>" type="button" class="fr-sidemenu__link">
                       Étape 3 : Proposition de décision de contrôle
                       <% if @acte.etat == "suspendu" %>
                         <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
                       <% end %>
-                    <% end %>
+                    </button>
                   <% else %>
                     <a disabled class="fr-sidemenu__link">Étape 3 : Proposition de décision de contrôle</a>
                   <% end %>
@@ -105,4 +105,107 @@
       </div>
     </div>
   </div>
+
+  <dialog id="modal-etape1" class="fr-modal" aria-labelledby="modal-etape1-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button aria-controls="modal-etape1" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+            </div>
+            <div class="fr-modal__content">
+              <h2 id="modal-etape1-title" class="fr-modal__title">
+                Quitter l'étape
+              </h2>
+              <div class="fr-alert fr-alert--warning fr-mb-4w">
+                <h3 class="fr-alert__title">Vous êtes sur la point de quitter cette étape.</h3>
+                <p>Les données modifiées ne seront pas sauvegardées. Êtes-vous sûrs de vouloir continuer ?</p>
+              </div>
+              <ul class="fr-btns-group fr-btns-group--inline">
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte, etape: 1), class: "fr-btn" do %>
+                    Quitter et aller à l'étape 1
+                  <% end %>
+                </li>
+                <li>
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape1" >
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="modal-etape2" class="fr-modal" aria-labelledby="modal-etape2-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button aria-controls="modal-etape2" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+            </div>
+            <div class="fr-modal__content">
+              <h2 id="modal-etape2-title" class="fr-modal__title">
+                Quitter l'étape
+              </h2>
+              <div class="fr-alert fr-alert--warning fr-mb-4w">
+                <h3 class="fr-alert__title">Vous êtes sur la point de quitter cette étape.</h3>
+                <p>Les données modifiées ne seront pas sauvegardées. Êtes-vous sûrs de vouloir continuer ?</p>
+              </div>
+              <ul class="fr-btns-group fr-btns-group--inline">
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte, etape: 2), class: "fr-btn" do %>
+                    Quitter et aller à l'étape 2
+                  <% end %>
+                </li>
+                <li>
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape2" >
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="modal-etape3" class="fr-modal" aria-labelledby="modal-etape3-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button aria-controls="modal-etape3" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+            </div>
+            <div class="fr-modal__content">
+              <h2 id="modal-etape3-title" class="fr-modal__title">
+                Quitter l'étape
+              </h2>
+              <div class="fr-alert fr-alert--warning fr-mb-4w">
+                <h3 class="fr-alert__title">Vous êtes sur la point de quitter cette étape.</h3>
+                <p>Les données modifiées ne seront pas sauvegardées. Êtes-vous sûrs de vouloir continuer ?</p>
+              </div>
+              <ul class="fr-btns-group fr-btns-group--inline">
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte, etape: 3), class: "fr-btn" do %>
+                    Quitter et aller à l'étape 3
+                  <% end %>
+                </li>
+                <li>
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape3" >
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </main>

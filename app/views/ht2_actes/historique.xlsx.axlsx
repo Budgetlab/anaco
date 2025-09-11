@@ -41,6 +41,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
+    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
@@ -57,7 +58,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Objet',
     'Ordonnateur',
     'Pré-instruction',
-    'Programmation prévue',
+    'Acte programmé',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -79,6 +80,7 @@ wb.add_worksheet(name: "Visas") do |sheet|
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
+      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
@@ -113,12 +115,12 @@ wb.add_worksheet(name: "Visas") do |sheet|
 
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
-    styles[5] = date_style  # Date création
-    styles[8] = number_style  # Montant AE
-    styles[9] = number_style  # Montant global
-    styles[12] = date_style  # Date réception Chorus
+    styles[6] = date_style  # Date création
+    styles[9] = number_style  # Montant AE
+    styles[10] = number_style  # Montant global
     styles[13] = date_style  # Date réception Chorus
-    styles[27] = date_style
+    styles[14] = date_style  # Date réception Chorus
+    styles[28] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -137,6 +139,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
+    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
@@ -153,7 +156,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Objet',
     'Ordonnateur',
     'Pré-instruction',
-    'Programmation prévue',
+    'Acte programmé',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -175,6 +178,7 @@ wb.add_worksheet(name: "Avis") do |sheet|
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
+      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
@@ -207,12 +211,12 @@ wb.add_worksheet(name: "Avis") do |sheet|
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[5] = date_style
-    styles[8] = number_style
+    styles[6] = date_style
     styles[9] = number_style
-    styles[12] = date_style
+    styles[10] = number_style
     styles[13] = date_style
-    styles[27] = date_style
+    styles[14] = date_style
+    styles[28] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -230,6 +234,7 @@ wb.add_worksheet(name: "TF") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
+    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
@@ -244,7 +249,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     "Opération d'investissement",
     'Ordonnateur',
     'Pré-instruction',
-    'Programmation prévue',
+    'Acte programmé',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
@@ -266,6 +271,7 @@ wb.add_worksheet(name: "TF") do |sheet|
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
+      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
@@ -296,12 +302,12 @@ wb.add_worksheet(name: "TF") do |sheet|
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[5] = date_style
-    styles[7] = number_style
+    styles[6] = date_style
     styles[8] = number_style
-    styles[11] = date_style
+    styles[9] = number_style
     styles[12] = date_style
-    styles[25] = date_style
+    styles[13] = date_style
+    styles[26] = date_style
 
     sheet.add_row row_data, style: styles
   end

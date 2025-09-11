@@ -172,9 +172,6 @@
               <%= f.text_field :sous_action, value: @acte.sous_action, id: "sous_action", class: "fr-input" %>
             </div>
           </div>
-        </div>
-
-        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
               <label for="activite" class="fr-label">Activité</label>
@@ -196,9 +193,15 @@
                 <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
               </div>
             </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="groupe_marchandises" class="fr-label">Groupe de marchandises</label>
+                <%= f.text_field :groupe_marchandises, class: "fr-input", id: 'groupe_marchandises' %>
+              </div>
+            </div>
           <% end %>
         </div>
-        <div class="fr-checkbox-group fr-mb-2w">
+        <div class="fr-checkbox-group fr-my-2w">
           <%= f.check_box :services_votes, id: "services_votes" %>
           <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
         </div>

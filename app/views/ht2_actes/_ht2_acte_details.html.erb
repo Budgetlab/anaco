@@ -136,7 +136,7 @@
           <% end %>
         </li>
       <% end %>
-      <li>
+      <li class="fr-hidden">
         <%= form_with(model: acte, method: :patch) do |f| %>
           <%= hidden_field_tag :etape, 8 %>
           <%= f.hidden_field :etat, value: "en cours d'instruction" %>
@@ -267,7 +267,6 @@
                 <% end %></th>
               <th>Ordonnateur</th>
               <th>Pré-instruction</th>
-              <th>Programmation prévue</th>
             </tr>
             </thead>
             <tbody>
@@ -281,7 +280,6 @@
               <td> <%= format_value(acte.objet) %></td>
               <td> <%= format_value(acte.ordonnateur) %></td>
               <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
-              <td> <%= acte.programmation_prevue == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
           </table>
@@ -296,7 +294,7 @@
     </div>
   </div>
 
-  <% if acte.categorie.present? || acte.action.present? || acte.sous_action.present? || acte.activite.present? || acte.numero_marche.present? || acte.numero_tf.present? || acte.services_votes == true %>
+  <% if acte.categorie.present? || acte.action.present? || acte.sous_action.present? || acte.activite.present? || acte.numero_marche.present? || acte.numero_tf.present? || acte.services_votes == true || acte.groupe_marchandises.present? %>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
@@ -304,7 +302,7 @@
             <table>
               <caption> Informations complémentaires</caption>
               <thead>
-              <tr>
+              <tr class="fr-cell--multiline">
                 <th> Catégorie</th>
                 <th> Action</th>
                 <th> Sous-action</th>
@@ -314,6 +312,9 @@
                 <% end %>
                 <% if acte.numero_tf.present? %>
                   <th> Numéro Chorus de la TF associée</th>
+                <% end %>
+                <% if acte.groupe_marchandises.present? %>
+                  <th> Groupe de marchandises</th>
                 <% end %>
                 <th> Services votés</th>
               </tr>
@@ -329,6 +330,9 @@
                 <% end %>
                 <% if acte.numero_tf.present? %>
                   <td> <%= format_value(acte.numero_tf) %> </td>
+                <% end %>
+                <% if acte.groupe_marchandises.present? %>
+                  <td> <%= format_value(acte.groupe_marchandises) %></td>
                 <% end %>
                 <td><%= acte.services_votes == true ? 'Oui' : 'Non' %></td>
               </tr>
@@ -358,6 +362,7 @@
                 <th> Code activité</th>
                 <th> Axe ministériel</th>
                 <th> Flux</th>
+                <th> Groupe de marchandises</th>
               </tr>
               </thead>
               <tbody>
@@ -372,12 +377,14 @@
                   <td> <%= ligne.code_activite %> </td>
                   <td> <%= ligne.axe_ministeriel %> </td>
                   <td> <%= ligne.flux %> </td>
+                  <td> <%= ligne.groupe_marchandises %></td>
                 </tr>
               <% end %>
               <tr class="fr-table--total">
                 <td>Total</td>
                 <td></td>
                 <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -433,6 +440,7 @@
             <caption> Critères</caption>
             <thead>
             <tr>
+              <th> Acte programmé </th>
               <th> Disponibilité des crédits</th>
               <th> Imputation de la dépense</th>
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
@@ -442,14 +450,18 @@
             <tbody>
 
             <tr>
-
+              <td>
+                <% if acte.programmation_prevue == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
               <td>
                 <% if acte.disponibilite_credits == true %>
                   <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                 <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                 <% end %>
               </td>
-
               <td>
                 <% if acte.imputation_depense == true %>
                   <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>

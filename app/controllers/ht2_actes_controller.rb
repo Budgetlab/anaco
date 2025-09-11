@@ -23,12 +23,12 @@ class Ht2ActesController < ApplicationController
     @actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
     @actes_cloture_all = @q_cloture.result(distinct: true)
 
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 10)
-    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 10)
+    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 15)
+    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 15)
     @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation, limit: 10)
-    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 10)
-    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 10)
-    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 10)
+    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 15)
+    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 15)
+    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
 
     respond_to do |format|
       format.html
@@ -41,7 +41,7 @@ class Ht2ActesController < ApplicationController
     actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
     @q = actes.ransack(params[:q])
     @actes_all = @q.result.includes(:user, :suspensions).order(updated_at: :desc)
-    @pagy, @actes = pagy(@actes_all, limit: 10)
+    @pagy, @actes = pagy(@actes_all, limit: 20)
     @liste_natures = [
       'Accord cadre à bons de commande',
       'Accord cadre à marchés subséquents',
@@ -365,10 +365,10 @@ class Ht2ActesController < ApplicationController
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
-                                     type_observations: [],
+                                     :groupe_marchandises, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux])
+                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises])
   end
 
   def set_acte_ht2
