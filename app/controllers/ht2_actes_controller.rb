@@ -623,7 +623,7 @@ class Ht2ActesController < ApplicationController
 
           # Télécharger et ajouter au ZIP
           file_data = attachment.respond_to?(:download) ? attachment.download : attachment.blob.download
-          zip.put_next_entry("acte_#{acte_id}_#{filename}")
+          zip.put_next_entry("#{index + 1}_acte_#{acte_id}_#{filename}")
           zip.write(file_data)
 
         rescue => e
