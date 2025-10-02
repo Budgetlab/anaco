@@ -41,7 +41,7 @@ class Ht2ActesController < ApplicationController
     actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
     @q = actes.ransack(params[:q])
     @actes_all = @q.result.includes(:user, :suspensions).order(updated_at: :desc)
-    @pagy, @actes = pagy(@actes_all, limit: 20)
+    @filtres_count = count_active_filters(params[:q])
     @liste_natures = [
       'Accord cadre à bons de commande',
       'Accord cadre à marchés subséquents',
@@ -74,8 +74,13 @@ class Ht2ActesController < ApplicationController
     ]
 
     respond_to do |format|
-      format.html
-      format.xlsx
+      format.html do
+        @pagy, @actes = pagy(@actes_all, limit: 20)
+      end
+      format.xlsx do
+        # @actes_all contient déjà tous les résultats filtrés
+        # Pas besoin de pagination pour l'export
+      end
     end
   end
 
@@ -633,5 +638,31 @@ class Ht2ActesController < ApplicationController
     end
 
     zip_data.string
+  end
+
+  def count_active_filters(q_params)
+    return 0 if q_params.blank?
+
+    count = 0
+
+    # Filtres de type tableau
+    count += Array(q_params[:type_acte_in]).reject(&:blank?).size
+    count += Array(q_params[:exercice_in]).reject(&:blank?).size
+    count += Array(q_params[:etat_in]).reject(&:blank?).size
+    count += Array(q_params[:services_votes_in]).reject(&:blank?).size
+
+    # Filtres de type texte/select
+    count += 1 if q_params[:numero_formate_or_numero_chorus_cont].present?
+    count += 1 if q_params[:nature_eq].present?
+    count += 1 if q_params[:user_nom_eq].present?
+    count += 1 if q_params[:centre_financier_code_cont].present?
+    count += 1 if q_params[:beneficiaire_cont].present?
+    count += 1 if q_params[:activite_cont].present?
+    count += 1 if q_params[:date_cloture_gteq].present?
+    count += 1 if q_params[:date_cloture_lteq].present?
+    count += 1 if q_params[:date_chorus_gteq].present?
+    count += 1 if q_params[:date_chorus_lteq].present?
+
+    count
   end
 end

@@ -6,61 +6,24 @@
       <h1 class="fr-mt-6w title-btn">
         Historique des actes HT2
       </h1>
+      <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+        <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
+          <div class="fr-table__header">
+            <p class="fr-table__detail"></p>
+            <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
+              <li>
+                <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+                  Filtrer les résultats <% if @filtres_count > 0 %>(<%= @filtres_count %>)<% end %>
+                </button>
+              </li>
+              <li>
+                <%= link_to historique_ht2_path(format: :xlsx, q: params[:q]&.to_unsafe_h),
+                            class: "fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary",
+                            data: { turbo: false } do %> Télécharger les actes (<%= @actes_all.count%>)<% end %>
 
-
-      <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
-        <div class="fr-table__header">
-          <p class="fr-table__detail"></p>
-          <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
-            <li>
-              <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="filtres" aria-expanded="false">Filtrer
-                les
-                résultats
-              </button>
-            </li>
-            <li>
-              <button class="fr-btn fr-icon-download-line fr-btn--icon-left fr-btn--secondary">
-                <%= link_to historique_ht2_path(format: :xlsx) do %>
-                  Télécharger les actes
-                <% end %>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="fr-collapse fr-collapse--grey fr-px-2w" id="filtres" data-controller="request">
-          <div class="fr-h4 fr-my-2w">Filtrer les résultats</div>
-          <%= search_form_for @q, url: historique_ht2_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12 fr-mb-1w">
-                <label class="fr-label fr-text--bold">Rechercher</label>
-                <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_beneficiaire_or_activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par n°acte, n°Chorus, centre financier, bénéficiaire, activité', oninput: 'this.form.requestSubmit()' %>
-              </div>
-            </div>
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-3">
-                <%= render_tag_group "Type d'acte", :type_acte_in, ["avis", "visa", 'TF'] %>
-              </div>
-              <div class="fr-col-3">
-                <%= render_tag_group "Exercice", :annee_in, (Date.today.year-5..Date.today.year+1).to_a.map(&:to_s) %>
-              </div>
-              <div class="fr-col-3">
-                <%= render_select_group("Nature", :nature_in, @liste_natures) %>
-              </div>
-              <% if @statut_user == 'admin' %>
-                <div class="fr-col-3">
-                  <%= render_select_group("Contrôleur", :user_nom_in, User.where(statut: ['DCB', 'CBR']).order(nom: :asc).map { |p| p.nom }) %>
-                </div>
-              <% end %>
-            </div>
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12">
-                <%= render_tag_group 'Statut', :etat_in, ["en pré-instruction", "en cours d'instruction", "en attente de validation", "en attente de validation Chorus", 'suspendu', 'clôturé', 'clôturé après pré-instruction'] %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
-        <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+              </li>
+            </ul>
+          </div>
           <div class="fr-table__wrapper">
             <div class="fr-table__container">
               <div class="fr-table__content">
@@ -89,7 +52,8 @@
                         <td class="fr-cell--multiline"><%= acte.user.nom %></td>
                       <% end %>
                       <td class="fr-cell--multiline">
-                        <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %> n°<%= acte.numero_formate %></p>
+                        <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
+                          n°<%= acte.numero_formate %></p>
                       </td>
                       <td><%= acte.annee %></td>
                       <td><%= acte.centre_financier_code %></td>
@@ -128,10 +92,201 @@
               <%== pagy_nav_custom(@pagy) %>
             </div>
           </div>
-        <% end %>
-      </div>
-
-
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
+
+<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+  <div class="fr-container--fluid">
+    <div class="fr-modal-custom__row--left">
+      <div class="fr-col-12">
+        <div class="fr-modal-custom__body">
+          <div class="fr-modal__header">
+            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
+          </div>
+          <%= search_form_for @q, url: historique_ht2_path, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+            <div class="fr-modal__content">
+              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                Filtrer les résultats
+              </h2>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                  <div>
+                    <span class="fr-label fr-text--bold">Type d’acte</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :type_acte_in)) %>
+                      <% ['avis', 'visa', 'TF'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[type_acte_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Exercice</span>
+                    <% selected_years = Array(params.dig(:q, :exercice_in)).map(&:to_s) %>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% (2019..Date.today.year + 1).each do |y| %>
+                        <% y_str = y.to_s %>
+                        <% checked = selected_years.include?(y_str) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[exercice_in][]',
+                                              y_str,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= y_str %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">État</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :etat_in)) %>
+                      <% ['en pré-instruction', "en cours d'instruction", 'suspendu', 'en attente de validation', 'en attente de validation Chorus', 'clôturé', 'clôturé après pré-instruction'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[etat_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <span class="fr-label fr-text--bold">Services votés</span>
+                    <% selected = Array(params.dig(:q, :services_votes_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                        <% checked = selected.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[services_votes_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Numéro d'acte ou Chorus</label>
+                  <%= f.search_field :numero_formate_or_numero_chorus_cont, class: "fr-input", placeholder: 'Rechercher un acte par n°acte, n°Chorus' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Nature</label>
+                  <%= f.select :nature_eq, options_for_select(@liste_natures, params.dig(:q, :nature_eq)), { include_blank: 'Toutes' }, class: "fr-select" %>
+                </div>
+                <% if @statut_user == 'admin' %>
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Contrôleur</label>
+                    <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
+                    <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
+                  </div>
+                <% end %>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Centre financier</label>
+                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Bénéficiaire</label>
+                  <%= f.search_field :beneficiaire_cont, class: "fr-input", placeholder: 'Rechercher un acte par bénéficiaire' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Activité</label>
+                  <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
+                </div>
+                <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Clôture entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
+                      <%= f.date_field :date_cloture_gteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_cloture_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
+                      <%= f.date_field :date_cloture_lteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_cloture_lteq) %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Réception entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_chorus_gteq, 'Du', class: 'fr-label' %>
+                      <%= f.date_field :date_chorus_gteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_chorus_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_chorus_lteq, 'Au', class: 'fr-label' %>
+                      <%= f.date_field :date_chorus_lteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_chorus_lteq) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-modal__footer">
+              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                <li>
+                  <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                </li>
+                <li>
+                  <%= link_to historique_ht2_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                    Réinitialiser
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
