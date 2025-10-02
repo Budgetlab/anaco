@@ -232,6 +232,31 @@
                   <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
                 </div>
                 <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Montant entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :montant_ae_gteq, 'Montant minimum (€)', class: 'fr-label' %>
+                      <%= f.number_field :montant_ae_gteq,
+                                         class: 'fr-input',
+                                         step: '0.01',
+                                         min: '0',
+                                         placeholder: '0.00',
+                                         value: params.dig(:q, :montant_ae_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :montant_ae_lteq, 'Montant maximum (€)', class: 'fr-label' %>
+                      <%= f.number_field :montant_ae_lteq,
+                                         class: 'fr-input',
+                                         step: '0.01',
+                                         min: '0',
+                                         placeholder: '0.00',
+                                         value: params.dig(:q, :montant_ae_lteq) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="fr-col-12">
                   <span class="fr-label fr-text--bold">Clôture entre</span>
 
                   <div class="fr-grid-row fr-grid-row--gutters">

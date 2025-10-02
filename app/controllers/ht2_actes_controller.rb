@@ -664,6 +664,8 @@ class Ht2ActesController < ApplicationController
     count += 1 if q_params[:date_cloture_lteq].present?
     count += 1 if q_params[:date_chorus_gteq].present?
     count += 1 if q_params[:date_chorus_lteq].present?
+    count += 1 if q_params[:montant_ae_gteq].present?  # Ajout
+    count += 1 if q_params[:montant_ae_lteq].present?  # Ajout
 
     count
   end
