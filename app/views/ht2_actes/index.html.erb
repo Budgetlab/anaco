@@ -61,32 +61,32 @@
         <div class="fr-tabs fr-mt-2w">
           <ul class="fr-tabs__list" role="tablist" aria-label="Actes">
             <li role="presentation">
-              <button type="button" id="storybook-tab-0" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-0-panel">En
+              <button type="button" id="storybook-tab-0" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'preinstruction' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'preinstruction' ? 'true' : 'false' %>" aria-controls="storybook-tab-0-panel">En
                 pré-instruction [<%= @actes_pre_instruction_all.count %>]
               </button>
             </li>
             <li role="presentation">
-              <button type="button" id="storybook-tab-1" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-1-panel">En
+              <button type="button" id="storybook-tab-1" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'instruction' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'instruction' ? 'true' : 'false' %>" aria-controls="storybook-tab-1-panel">En
                 cours d'instruction [<%= @actes_instruction_all.count %>]
               </button>
             </li>
             <li role="presentation">
-              <button type="button" id="storybook-tab-2" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-2-panel">Suspendus/interrompus
+              <button type="button" id="storybook-tab-2" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'suspendu' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'suspendu' ? 'true' : 'false' %>" aria-controls="storybook-tab-2-panel">Suspendus/interrompus
                 [<%= @actes_suspendu_all.count %>]
               </button>
             </li>
             <li role="presentation">
-              <button type="button" id="storybook-tab-3" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="storybook-tab-3-panel">A
+              <button type="button" id="storybook-tab-3" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'validation' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'validation' ? 'true' : 'false' %>" aria-controls="storybook-tab-3-panel">A
                 valider [<%= @actes_validation_all.count %>]
               </button>
             </li>
             <li role="presentation">
-              <button type="button" id="storybook-tab-4" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-4-panel">A
+              <button type="button" id="storybook-tab-4" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'cloture' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'cloture' ? 'true' : 'false' %>" aria-controls="storybook-tab-4-panel">A
                 clôturer dans Chorus [<%= @actes_validation_chorus_all.count %>]
               </button>
             </li>
           </ul>
-          <div id="storybook-tab-0-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-0" tabindex="0">
+          <div id="storybook-tab-0-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'preinstruction' %>" role="tabpanel" aria-labelledby="storybook-tab-0" tabindex="0">
             <% if @actes_pre_instruction.present? %>
 
               <div class="fr-table--lg fr-table fr-table--no-caption fr-table--col-restricted">
@@ -152,7 +152,7 @@
               </div>
             <% end %>
           </div>
-          <div id="storybook-tab-1-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-1" tabindex="0">
+          <div id="storybook-tab-1-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'instruction' %>" role="tabpanel" aria-labelledby="storybook-tab-1" tabindex="0">
             <% if @actes_instruction.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -222,7 +222,7 @@
               </div>
             <% end %>
           </div>
-          <div id="storybook-tab-2-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-2" tabindex="0">
+          <div id="storybook-tab-2-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'suspendu' %>" role="tabpanel" aria-labelledby="storybook-tab-2" tabindex="0">
             <% if @actes_suspendu.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -290,7 +290,7 @@
               </div>
             <% end %>
           </div>
-          <div id="storybook-tab-3-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="storybook-tab-3" tabindex="0">
+          <div id="storybook-tab-3-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'validation' %>" role="tabpanel" aria-labelledby="storybook-tab-3" tabindex="0">
             <% if @actes_validation.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -362,7 +362,7 @@
               </div>
             <% end %>
           </div>
-          <div id="storybook-tab-4-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-4" tabindex="0">
+          <div id="storybook-tab-4-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'cloture' %>" role="tabpanel" aria-labelledby="storybook-tab-4" tabindex="0">
             <% if @actes_validation_chorus.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__header">

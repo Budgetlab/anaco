@@ -14,13 +14,18 @@ class AvisController < ApplicationController
   # Page historique des avis
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where.not(phase: 'execution').order(created_at: :desc)
+    avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
-    @pagy, @avis_page = pagy(@avis_all)
+    @filtres_count = count_active_filters(params[:q])
     respond_to do |format|
-      format.html
-      format.xlsx
+      format.html do
+        @pagy, @avis_page = pagy(@avis_all, limit: 15)
+      end
+      format.xlsx do
+        # @actes_all contient déjà tous les résultats filtrés
+        # Pas besoin de pagination pour l'export
+      end
     end
   end
 
@@ -92,10 +97,15 @@ class AvisController < ApplicationController
     avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
-    @pagy, @avis_page = pagy(@avis_all)
+    @filtres_count = count_active_filters(params[:q])
     respond_to do |format|
-      format.html
-      format.xlsx
+      format.html do
+        @pagy, @avis_page = pagy(@avis_all, limit: 15)
+      end
+      format.xlsx do
+        # @actes_all contient déjà tous les résultats filtrés
+        # Pas besoin de pagination pour l'export
+      end
     end
   end
 
@@ -201,6 +211,26 @@ class AvisController < ApplicationController
 
   def dcb_is_updating?
     @bop.user_id == @bop.dcb_id && params[:avi][:etat] != 'Brouillon'
+  end
+
+  def count_active_filters(q_params)
+    return 0 if q_params.blank?
+
+    count = 0
+
+    # Filtres de type tableau
+    count += Array(q_params[:phase_in]).reject(&:blank?).size
+    count += Array(q_params[:annee_in]).reject(&:blank?).size
+    count += Array(q_params[:etat_in]).reject(&:blank?).size
+    count += Array(q_params[:statut_in]).reject(&:blank?).size
+
+    # Filtres de type texte/select
+    count += 1 if q_params[:bop_code_cont].present?
+    count += 1 if q_params[:user_nom_eq].present?
+    count += 1 if q_params[:date_envoi_gteq].present?
+    count += 1 if q_params[:date_envoi_lteq].present?
+
+    count
   end
 
 end

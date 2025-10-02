@@ -7,6 +7,7 @@ class Ht2ActesController < ApplicationController
   require 'axlsx'
 
   def index
+    @selected_tab = params[:tab] || 'validation'
     # actes année en cours
     @actes = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
     @q = @actes.ransack(params[:q], search_key: :q)

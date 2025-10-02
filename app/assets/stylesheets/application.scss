@@ -503,3 +503,11 @@ a.fr-tag[aria-pressed=true]::after{
 .sheet-scroll .jss_container {
   min-width: max-content;
 }
+
+.fr-home-actes .fr-tile__title{
+  margin-bottom: 0 !important
+}
+
+.fr-home-follow{
+  background-color: var(--background-alt-blue-france);
+}
