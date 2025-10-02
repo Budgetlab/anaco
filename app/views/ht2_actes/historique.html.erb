@@ -13,7 +13,7 @@
             <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
               <li>
                 <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-                  Filtrer les résultats <% if @filtres_count > 0 %>(<%= @filtres_count %>)<% end %>
+                  Filtrer les résultats <%= " (#{@filtres_count})" if @filtres_count > 0 %>
                 </button>
               </li>
               <li>
@@ -269,6 +269,23 @@
                                        value: params.dig(:q, :date_chorus_lteq) %>
                     </div>
                   </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Trier par</label>
+                  <%= f.select :s,
+                               options_for_select(
+                                 [
+                                   ['Par défaut (dernière modification)', 'updated_at desc'],
+                                   ['Date de clôture croissante', 'date_cloture asc'],
+                                   ['Date de clôture décroissante', 'date_cloture desc'],
+                                   ['Date de réception croissante', 'date_chorus asc'],
+                                   ['Date de réception décroissante', 'date_chorus desc']
+                                 ],
+                                 params.dig(:q, :s)
+                               ),
+                               { include_blank: false },
+                               class: "fr-select" %>
                 </div>
               </div>
             </div>

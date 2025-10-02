@@ -40,7 +40,9 @@ class Ht2ActesController < ApplicationController
     @statut_user = current_user.statut
     actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
     @q = actes.ransack(params[:q])
-    @actes_all = @q.result.includes(:user, :suspensions).order(updated_at: :desc)
+    # Gestion du tri
+    sort_order = params.dig(:q, :s) || 'updated_at desc'
+    @actes_all = @q.result.includes(:user, :suspensions).order(sort_order)
     @filtres_count = count_active_filters(params[:q])
     @liste_natures = [
       'Accord cadre à bons de commande',
