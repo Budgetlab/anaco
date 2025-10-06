@@ -36,7 +36,7 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="domaine_fonctionnel" class="fr-label">Domaine fonctionnel</label>
+        <label for="domaine_fonctionnel" class="fr-label">Action/Sous-action</label>
         <%= f.text_field :domaine_fonctionnel, id: "domaine_fonctionnel", class: "fr-input" %>
       </div>
     </div>
@@ -48,8 +48,8 @@
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="compte_budgetaire" class="fr-label">Compte budgétaire</label>
-        <%= f.text_field :compte_budgetaire, class: "fr-input", id: 'compte_budgetaire' %>
+        <label for="compte_budgetaire" class="fr-label">Titre/Catégorie</label>
+        <%= f.select :compte_budgetaire, @categories.map { |categorie| [categorie, categorie] }, { prompt: "- sélectionner -" }, { id: "compte_budgetaire", class: "fr-select" } %>
       </div>
     </div>
   </div>

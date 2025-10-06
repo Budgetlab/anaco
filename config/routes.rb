@@ -82,6 +82,7 @@ Rails.application.routes.draw do
     get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
     get 'modal_cloture_preinstruction_acte/:id', to: 'ht2_actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
     get 'modal_renvoie_instruction/:id', to: 'ht2_actes#modal_renvoie_instruction', as: 'modal_renvoie_instruction'
+    get 'modal_renvoie_validation/:id', to: 'ht2_actes#modal_renvoie_validation', as: 'modal_renvoie_validation'
     get 'modal_validate_acte/:id', to: 'ht2_actes#modal_validate_acte', as: 'modal_validate_acte'
     post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'

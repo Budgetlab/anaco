@@ -1,6 +1,6 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte, :modal_renvoie_validation]
   before_action :set_variables_form, only: [:edit, :modal_validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
@@ -196,6 +196,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def modal_renvoie_instruction; end
+  def modal_renvoie_validation; end
 
   # export fiche excel d'un acte
   def export

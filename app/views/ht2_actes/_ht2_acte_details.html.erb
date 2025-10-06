@@ -87,22 +87,29 @@
       <h3 class="fr-callout__title">Clôturer l'acte</h3>
       <p class="fr-callout__text">Indiquer la date de validation dans Chorus pour marquer la fin du contrôle sur
         l'acte.</p>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-        <div class="fr-col-12 fr-col-lg-6">
-          <%= form_with(model: acte) do |f| %>
-            <%= hidden_field_tag :etape, 6 %>
-            <%= f.hidden_field :etat, value: 'clôturé' %>
 
+      <%= form_with(model: acte) do |f| %>
+        <%= hidden_field_tag :etape, 6 %>
+        <%= f.hidden_field :etat, value: 'clôturé' %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+          <div class="fr-col-12 fr-col-lg-6">
             <div class="fr-select-group">
               <label for="date_cloture" class="fr-label">Date de validation dans Chorus*</label>
               <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(acte.date_chorus) }, value: format_date(acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
 
             </div>
-            <div><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></div>
-
-          <% end %>
+          </div>
         </div>
-      </div>
+        <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+          <li><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></li>
+          <li>
+            <a href="<%= modal_renvoie_validation_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
+              Renvoyer l'acte en validation
+            </a></li>
+        </ul>
+      <% end %>
+
+
     </div>
   <% elsif acte.etat == "clôturé après pré-instruction" %>
     <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
@@ -356,9 +363,9 @@
                 <th> Numéro</th>
                 <th> Centre financier</th>
                 <th> Montant (€)</th>
-                <th> Domaine fonctionnel</th>
+                <th> Action/Sous-action</th>
                 <th> Fonds</th>
-                <th> Compte budgétaire</th>
+                <th> Titre/Catégorie</th>
                 <th> Code activité</th>
                 <th> Axe ministériel</th>
                 <th> Flux</th>
@@ -440,7 +447,7 @@
             <caption> Critères</caption>
             <thead>
             <tr>
-              <th> Acte programmé </th>
+              <th> Acte programmé</th>
               <th> Disponibilité des crédits</th>
               <th> Imputation de la dépense</th>
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
