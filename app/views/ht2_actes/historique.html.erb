@@ -178,6 +178,27 @@
                       <% end %>
                     </ul>
                   </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Décision finale</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :decision_finale_in)) %>
+                      <% ['Visa accordé', "Visa accordé avec observations", 'Refus de visa', 'Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[decision_finale_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
 
                   <div>
                     <span class="fr-label fr-text--bold">Services votés</span>

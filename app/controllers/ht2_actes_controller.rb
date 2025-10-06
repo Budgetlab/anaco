@@ -652,6 +652,7 @@ class Ht2ActesController < ApplicationController
     count += Array(q_params[:type_acte_in]).reject(&:blank?).size
     count += Array(q_params[:exercice_in]).reject(&:blank?).size
     count += Array(q_params[:etat_in]).reject(&:blank?).size
+    count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
     count += Array(q_params[:services_votes_in]).reject(&:blank?).size
 
     # Filtres de type texte/select
