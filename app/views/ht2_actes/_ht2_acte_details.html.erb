@@ -301,7 +301,7 @@
     </div>
   </div>
 
-  <% if acte.categorie.present? || acte.action.present? || acte.sous_action.present? || acte.activite.present? || acte.numero_marche.present? || acte.numero_tf.present? || acte.services_votes == true || acte.groupe_marchandises.present? %>
+  <% if acte.categorie.present? || acte.action.present? || acte.activite.present? || acte.numero_marche.present? || acte.numero_tf.present? || acte.services_votes == true || acte.groupe_marchandises.present? %>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
@@ -311,8 +311,7 @@
               <thead>
               <tr class="fr-cell--multiline">
                 <th> Catégorie</th>
-                <th> Action</th>
-                <th> Sous-action</th>
+                <th> Action/Sous-action</th>
                 <th> Activité</th>
                 <% if acte.numero_marche.present? %>
                   <th> Numéro de marché</th>
@@ -330,7 +329,6 @@
               <tr>
                 <td> <%= format_value(acte.categorie) %> </td>
                 <td> <%= format_value(acte.action) %> </td>
-                <td> <%= format_value(acte.sous_action) %></td>
                 <td> <%= format_value(acte.activite) %> </td>
                 <% if acte.numero_marche.present? %>
                   <td> <%= format_value(acte.numero_marche) %> </td>

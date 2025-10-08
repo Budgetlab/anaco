@@ -136,7 +136,7 @@
                   </div>
                   <div>
                     <span class="fr-label fr-text--bold">Exercice</span>
-                    <% selected_years = Array(params.dig(:q, :exercice_in)).map(&:to_s) %>
+                    <% selected_years = Array(params.dig(:q, :annee_in)).map(&:to_s) %>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% (2019..Date.today.year + 1).each do |y| %>
                         <% y_str = y.to_s %>
@@ -146,7 +146,7 @@
                                  data-controller="tag-select"
                                  data-action="change->tag-select#toggle"
                                  role="button">
-                            <%= check_box_tag 'q[exercice_in][]',
+                            <%= check_box_tag 'q[annee_in][]',
                                               y_str,
                                               checked,
                                               class: "fr-sr-only",

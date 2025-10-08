@@ -485,7 +485,7 @@ a.fr-tag[aria-pressed=true]::after{
   z-index: 99999 !important; /* ou plus, selon le z-index de ton modal */
 }
 
-.fr-follow .fr-tabs__panel{
+.fr-follow .fr-tabs__panel, .fr-container-blue .fr-tabs__panel{
   background-color: var(--background-default-grey);
 }
 
@@ -508,6 +508,6 @@ a.fr-tag[aria-pressed=true]::after{
   margin-bottom: 0 !important
 }
 
-.fr-home-follow{
+.fr-home-follow, .fr-container-blue{
   background-color: var(--background-alt-blue-france);
 }

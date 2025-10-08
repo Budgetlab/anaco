@@ -8,32 +8,98 @@ class Ht2ActesController < ApplicationController
 
   def index
     @selected_tab = params[:tab] || 'validation'
+
     # actes année en cours
-    @actes = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
-    @q = @actes.ransack(params[:q], search_key: :q)
-    filtered_actes = @q.result(distinct: true)
-    @q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
-    @q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
-    @q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
-    @q_cloture = filtered_actes.where(etat: ['clôturé', 'clôturé après pré-instruction']).ransack(params[:q_cloture], search_key: :q_cloture)
+    base_scope = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
 
-    @actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
-    @actes_instruction_all = @q_instruction.result(distinct: true)
-    @actes_validation_all = @q_validation.result(distinct: true)
-    @actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
-    @actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
+    # système onglet
+    current_state = [
+      'en pré-instruction',
+      "en cours d'instruction",
+      'suspendu',
+      'en attente de validation',
+      'en attente de validation Chorus'
+    ]
+    @actes = base_scope.where(etat: current_state)
+    @q_current = @actes.ransack(params[:q_current], search_key: :q_current)
+    @actes_filtered = @q_current.result(distinct: true)
+
+    # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
+    @actes_pre_instruction_all      = @actes_filtered.where(etat: 'en pré-instruction')
+    @actes_instruction_all          = @actes_filtered.where(etat: "en cours d'instruction")
+    @actes_suspendu_all             = @actes_filtered.where(etat: 'suspendu')
+    @actes_validation_all           = @actes_filtered.where(etat: 'en attente de validation')
+    @actes_validation_chorus_all    = @actes_filtered.where(etat: 'en attente de validation Chorus')
+
+    @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
+    @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
+    @pagy_suspendu,            @actes_suspendu            = pagy(@actes_suspendu_all,            page_param: :page_suspendu,            limit: 15)
+    @pagy_validation,          @actes_validation          = pagy(@actes_validation_all,          page_param: :page_validation,          limit: 10)
+    @pagy_validation_chorus,   @actes_validation_chorus   = pagy(@actes_validation_chorus_all,   page_param: :page_validation_chorus,   limit: 15)
+
+    # actes clotures
+    @actes_closed = base_scope.where(etat: ['clôturé', 'clôturé après pré-instruction'])
+    @q_cloture = @actes_closed.ransack(params[:q_cloture], search_key: :q_cloture)
     @actes_cloture_all = @q_cloture.result(distinct: true)
-
-    @pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 15)
-    @pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 15)
-    @pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation, limit: 10)
-    @pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 15)
-    @pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 15)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
+    @filtres_count = count_active_filters(params[:q_cloture])
 
+    #@q = @actes.ransack(params[:q], search_key: :q)
+    #filtered_actes = @q.result(distinct: true)
+    #@q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
+    #@q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
+    #@q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
+    #@q_cloture = filtered_actes.where(etat: ['clôturé', 'clôturé après pré-instruction']).ransack(params[:q_cloture], search_key: :q_cloture)
+#
+    #@actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
+    #@actes_instruction_all = @q_instruction.result(distinct: true)
+    #@actes_validation_all = @q_validation.result(distinct: true)
+    #@actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
+    #@actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
+    #@actes_cloture_all = @q_cloture.result(distinct: true)
+#
+    #@pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 15)
+    #@pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 15)
+    #@pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation, limit: 10)
+    #@pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 15)
+    #@pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 15)
+    #@pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
+    @liste_natures = [
+      'Accord cadre à bons de commande',
+      'Accord cadre à marchés subséquents',
+      'Affectation complémentaire',
+      'Affectation initiale',
+      'Autre',
+      'Autre contrat',
+      'Avenant',
+      'Bail',
+      'Bon de commande',
+      'Convention',
+      'Décision diverse',
+      'Dotation en fonds propres',
+      "Liste d'actes",
+      'MAPA à bons de commande',
+      'MAPA à tranches',
+      'MAPA mixte',
+      'MAPA unique',
+      'Marché à tranches',
+      'Marché mixte',
+      'Marché unique',
+      'Prêt ou avance',
+      'Remboursement de mise à disposition T3',
+      'Retrait',
+      'Subvention',
+      "Subvention pour charges d'investissement",
+      'Subvention pour charges de service public',
+      'Transaction',
+      'Transfert'
+    ]
     respond_to do |format|
       format.html
-      format.xlsx
+      format.xlsx do
+        scope = params[:scope].presence || 'current'
+        @actes = scope == 'closed' ? @actes_cloture_all : @actes_filtered
+      end
     end
   end
 
@@ -352,7 +418,13 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes; end
+  def ajout_actes
+    Ht2Acte.where.not(sous_action: [nil, ""]).find_each do |acte|
+      combined = [acte.action.presence, acte.sous_action.presence].compact.join("-")
+      puts combined
+      acte.update!(action: combined)
+    end
+  end
 
   def import
     Ht2Acte.import(params[:file])
@@ -651,7 +723,7 @@ class Ht2ActesController < ApplicationController
 
     # Filtres de type tableau
     count += Array(q_params[:type_acte_in]).reject(&:blank?).size
-    count += Array(q_params[:exercice_in]).reject(&:blank?).size
+    count += Array(q_params[:annee_in]).reject(&:blank?).size
     count += Array(q_params[:etat_in]).reject(&:blank?).size
     count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
     count += Array(q_params[:services_votes_in]).reject(&:blank?).size

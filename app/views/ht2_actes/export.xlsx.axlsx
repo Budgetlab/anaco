@@ -204,7 +204,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    end
 
    # INFORMATIONS COMPLÉMENTAIRES
-   if @acte.categorie.present? || @acte.action.present? || @acte.sous_action.present? || @acte.activite.present? || @acte.numero_marche.present? || @acte.numero_tf.present? || @acte.groupe_marchandises.present?
+   if @acte.categorie.present? || @acte.action.present? || @acte.activite.present? || @acte.numero_marche.present? || @acte.numero_tf.present? || @acte.groupe_marchandises.present?
      current_row = sheet.rows.length + 1
      current_row = sheet.rows.length + 1
      sheet.add_row ["INFORMATIONS COMPLÉMENTAIRES","","","","","","","", ""], style: section_header_style
@@ -212,14 +212,14 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.row_style current_row, section_header_style
      sheet.rows[current_row-1].height = 30
 
-     comp_headers = ["Catégorie","Action", "Sous-action", "Activité"]
+     comp_headers = ["Catégorie","Action/Sous-action", "Activité"]
      comp_headers << "Numéro de marché" if @acte.numero_marche.present?
      comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present?
      comp_headers << "Groupe de marchandises" if @acte.groupe_marchandises.present?
      comp_headers << "Services votés"
      sheet.add_row comp_headers, style: header_style
 
-     comp_data = [@acte.categorie, @acte.action, @acte.sous_action, @acte.activite]
+     comp_data = [@acte.categorie, @acte.action, @acte.activite]
      comp_data << @acte.numero_marche if @acte.numero_marche.present?
      comp_data << @acte.numero_tf if @acte.numero_tf.present?
      comp_data << @acte.groupe_marchandises if @acte.groupe_marchandises.present?
