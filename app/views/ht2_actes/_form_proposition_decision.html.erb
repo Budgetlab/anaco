@@ -67,10 +67,10 @@
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
         <div class="fr-select-group">
-          <label for="date_cloture" class="fr-label">Date de clôture*</label>
-          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <label for="date_cloture" class="fr-label">Date de clôture</label>
+          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus), action: "input->acte-form#clotureSkipValidation" }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
           <p class="fr-message fr-message--info fr-text--small">Renseigner une date pour clôturer l'acte directement à
-            cette étape </p>
+            cette étape sans soumettre à validation.</p>
         </div>
       </div>
     </div>

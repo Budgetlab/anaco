@@ -412,19 +412,25 @@ export default class extends Controller {
     checkDecision(){
         const selectedValue = this.decisionTarget.value;
         const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
-        const cloture_button = document.getElementById('cloture_button');
         const date_cloture = document.getElementById('date_cloture');
-        const validation_button = document.getElementById('validation_button');
         if (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori"){
             date_cloture_wrapper.classList.remove('fr-hidden');
-            cloture_button.classList.remove('fr-hidden');
-            validation_button.classList.add('fr-hidden');
             date_cloture.value = null;
-            date_cloture.setAttribute('required', 'required');
         }else{
             date_cloture_wrapper.classList.add('fr-hidden');
             date_cloture.value = null;
-            date_cloture.removeAttribute('required');
+
+        }
+    }
+
+    clotureSkipValidation(){
+        const cloture_button = document.getElementById('cloture_button');
+        const validation_button = document.getElementById('validation_button');
+        const date_cloture = document.getElementById('date_cloture');
+        if (date_cloture.value){
+            cloture_button.classList.remove('fr-hidden');
+            validation_button.classList.add('fr-hidden');
+        }else{
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
         }
