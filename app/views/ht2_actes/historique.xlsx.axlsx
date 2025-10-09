@@ -41,35 +41,43 @@ wb.add_worksheet(name: "Visas") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
-    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
-    'Date création',
+    'Ordonnateur',
+    'Programme',
+    'Centre financier',
+    'Titre/Catégorie',
+    'Numéro Marché',
+    'Numéro TF',
+    'Numéro Chorus',
     'Nature',
     "Type d'engagement",
+    'Objet',
+    'Bénéficiaire',
     'Montant engagé',
     'Montant total engagé',
-    'Centre financier',
-    'Numéro Chorus',
-    'Date de saisine',
-    'Date limite de réponse',
-    'Bénéficiaire',
-    'Objet',
-    'Ordonnateur',
-    'Pré-instruction',
+    'Services votés',
     'Acte programmé',
+    'Pré-instruction',
+    'Date création',
+    'Date de saisine',
+    'Suspension',
+    'Date de suspension',
+    'Date fin de suspension',
+    'Date limite de réponse',
+    'Motif suspension',
+    'Proposition décision de contrôle',
+    'Décision finale',
+    'Date clôture',
+    'Type observations',
+    'Délai de traitement',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
     'Programmation',
-    'Suspension',
-    'Proposition décision de contrôle',
-    'Valideur final',
-    'Décision finale',
-    'Date clôture',
-    'Délai de traitement',
     'Observations pour ordonnateur',
+    'Valideur final',
     'Commentaire interne',
   ]
 
@@ -77,50 +85,67 @@ wb.add_worksheet(name: "Visas") do |sheet|
 
   # Données pour les visas
   actes_visa.each do |acte|
+    # ---- Dernière suspension (par date_suspension si présente, sinon created_at) ----
+        last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
+
+        last_susp_date        = last_susp&.date_suspension
+        last_susp_end_date    = last_susp&.date_reprise
+        last_susp_motif       = last_susp&.motif
+        has_suspension        = last_susp.present? ? "Oui" : "Non"
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
-      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
-      acte.created_at,
+      acte.ordonnateur,
+      acte.programme_principal&.numero,
+      acte.centre_financier_code,
+      acte.categorie,
+      acte.numero_marche,
+      acte.numero_tf,
+      acte.numero_chorus,
       acte.nature,
       acte.type_engagement,
+      acte.objet,
+      acte.beneficiaire,
       acte.montant_ae,
       acte.montant_global,
-      acte.centre_financier_code,
-      acte.numero_chorus,
-      acte.date_chorus,
-      acte.date_limite,
-      acte.beneficiaire,
-      acte.objet,
-      acte.ordonnateur,
-      acte.pre_instruction ? "Oui" : "Non",
+      acte.services_votes ? "Oui" : "Non",
       acte.programmation_prevue ? "Oui" : "Non",
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.created_at,
+      acte.date_chorus,
+      has_suspension,
+      last_susp_date,
+      last_susp_end_date,
+      acte.date_limite,
+      last_susp_motif,
+      acte.proposition_decision,
+      acte.decision_finale,
+      acte.date_cloture,
+      (acte.type_observations&.join(", ") if acte.type_observations.present?),
+      acte.delai_traitement,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
       acte.programmation ? "Oui" : "Non",
-      acte.suspensions.any? ? "Oui" : "Non",
-      acte.proposition_decision,
-      acte.valideur,
-      acte.decision_finale,
-      acte.date_cloture,
-      acte.delai_traitement,
       acte.observations,
+      acte.valideur,
       acte.commentaire_proposition_decision
 
     ]
 
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
-    styles[6] = date_style  # Date création
-    styles[9] = number_style  # Montant AE
-    styles[10] = number_style  # Montant global
-    styles[13] = date_style  # Date réception Chorus
-    styles[14] = date_style  # Date réception Chorus
-    styles[28] = date_style
+    styles[16] = number_style  # Montant AE
+    styles[17] = number_style  # Montant global
+    styles[21] = date_style  # Date creation Chorus
+    styles[22] = date_style  # Date réception Chorus
+    styles[24] = date_style
+    styles[25] = date_style
+    styles[26] = date_style
+    styles[30] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -139,84 +164,109 @@ wb.add_worksheet(name: "Avis") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
-    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
-    'Date création',
+    'Ordonnateur',
+    'Programme',
+    'Centre financier',
+    'Titre/Catégorie',
+    'Numéro Marché',
+    'Numéro TF',
+    'Numéro Chorus',
     'Nature',
     "Type d'engagement",
+    'Objet',
+    'Bénéficiaire',
     'Montant',
     'Montant estimatif global',
-    'Centre financier',
-    'Numéro Chorus',
-    'Date de saisine',
-    'Date limite de réponse',
-    'Bénéficiaire',
-    'Objet',
-    'Ordonnateur',
-    'Pré-instruction',
+    'Services votés',
     'Acte programmé',
+    'Pré-instruction',
+    'Date création',
+    'Date de saisine',
+    'Suspension',
+    'Date de suspension',
+    'Date fin de suspension',
+    'Date limite de réponse',
+    'Motif suspension',
+    'Proposition décision de contrôle',
+    'Décision finale',
+    'Date clôture',
+    'Type observations',
+    'Délai de traitement',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
     'Programmation',
-    'Suspension',
-    'Proposition décision de contrôle',
-    'Valideur final',
-    'Décision finale',
-    'Date clôture',
-    'Délai de traitement',
     'Observations pour ordonnateur',
-    'Commentaire interne'
+    'Valideur final',
+    'Commentaire interne',
   ]
 
   sheet.add_row headers, style: header_style
 
   # Données
   actes_avis.each do |acte|
+    # ---- Dernière suspension (par date_suspension si présente, sinon created_at) ----
+        last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
+
+        last_susp_date        = last_susp&.date_suspension
+        last_susp_end_date    = last_susp&.date_reprise
+        last_susp_motif       = last_susp&.motif
+        has_suspension        = last_susp.present? ? "Oui" : "Non"
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
-      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
-      acte.created_at,
+      acte.ordonnateur,
+      acte.programme_principal&.numero,
+      acte.centre_financier_code,
+      acte.categorie,
+      acte.numero_marche,
+      acte.numero_tf,
+      acte.numero_chorus,
       acte.nature,
       acte.type_engagement,
+      acte.objet,
+      acte.beneficiaire,
       acte.montant_ae,
       acte.montant_global,
-      acte.centre_financier_code,
-      acte.numero_chorus,
-      acte.date_chorus,
-      acte.date_limite,
-      acte.beneficiaire,
-      acte.objet,
-      acte.ordonnateur,
-      acte.pre_instruction ? "Oui" : "Non",
+      acte.services_votes ? "Oui" : "Non",
       acte.programmation_prevue ? "Oui" : "Non",
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.created_at,
+      acte.date_chorus,
+      has_suspension,
+      last_susp_date,
+      last_susp_end_date,
+      acte.date_limite,
+      last_susp_motif,
+      acte.proposition_decision,
+      acte.decision_finale,
+      acte.date_cloture,
+      (acte.type_observations&.join(", ") if acte.type_observations.present?),
+      acte.delai_traitement,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
       acte.programmation ? "Oui" : "Non",
-      acte.suspensions.any? ? "Oui" : "Non",
-      acte.proposition_decision,
-     acte.valideur,
-     acte.decision_finale,
-     acte.date_cloture,
-     acte.delai_traitement,
-     acte.observations,
-     acte.commentaire_proposition_decision
+      acte.observations,
+      acte.valideur,
+      acte.commentaire_proposition_decision
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[6] = date_style
-    styles[9] = number_style
-    styles[10] = number_style
-    styles[13] = date_style
-    styles[14] = date_style
-    styles[28] = date_style
+    styles[16] = number_style  # Montant AE
+    styles[17] = number_style  # Montant global
+    styles[21] = date_style  # Date creation Chorus
+    styles[22] = date_style  # Date réception Chorus
+    styles[24] = date_style
+    styles[25] = date_style
+    styles[26] = date_style
+    styles[30] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -234,33 +284,40 @@ wb.add_worksheet(name: "TF") do |sheet|
   headers = [
     @statut_user == 'admin' ? 'Contrôleur' : 'Type Acte',
     'Exercice',
-    'Services votés',
     'Numéro Acte',
     'Etat',
     'Instructeur',
-    'Date création',
+    'Ordonnateur',
+    'Programme',
+    'Centre financier',
+    'Titre/Catégorie',
+    'Numéro TF',
+    'Numéro Chorus',
     "Type d'affectation",
+    "Opération d'investissement",
     "Montant affectation",
     'Montant total affecté',
-    'Centre financier',
-    'Numéro Chorus',
-    'Date de saisine',
-    'Date limite de réponse',
-    "Opération d'investissement",
-    'Ordonnateur',
-    'Pré-instruction',
+    'Services votés',
     'Acte programmé',
+    'Pré-instruction',
+    'Date création',
+    'Date de saisine',
+    'Suspension',
+    'Date de suspension',
+    'Date fin de suspension',
+    'Date limite de réponse',
+    'Motif suspension',
+    'Proposition décision de contrôle',
+    'Décision finale',
+    'Date clôture',
+    'Type observations',
+    'Délai de traitement',
     'Disponibilité crédits',
     'Imputation dépense',
     'Consommation crédits',
     'Programmation',
-    'Suspension',
-    'Proposition décision de contrôle',
-    'Valideur final',
-    'Décision finale',
-    'Date clôture',
-    'Délai de traitement',
     'Observations pour ordonnateur',
+    'Valideur final',
     'Commentaire interne'
   ]
 
@@ -268,46 +325,62 @@ wb.add_worksheet(name: "TF") do |sheet|
 
   # Données
   actes_tf.each do |acte|
+  # ---- Dernière suspension (par date_suspension si présente, sinon created_at) ----
+      last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
+
+      last_susp_date        = last_susp&.date_suspension
+      last_susp_end_date    = last_susp&.date_reprise
+      last_susp_motif       = last_susp&.motif
+      has_suspension        = last_susp.present? ? "Oui" : "Non"
     row_data = [
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
-      acte.services_votes ? "Oui" : "Non",
       acte.numero_formate,
       acte.etat,
       acte.instructeur,
-      acte.created_at,
+      acte.ordonnateur,
+      acte.programme_principal&.numero,
+      acte.centre_financier_code,
+      acte.categorie,
+      acte.numero_tf,
+      acte.numero_chorus,
       acte.type_engagement,
+      acte.objet,
       acte.montant_ae,
       acte.montant_global,
-      acte.centre_financier_code,
-      acte.numero_chorus,
-      acte.date_chorus,
-      acte.date_limite,
-      acte.objet,
-      acte.ordonnateur,
-      acte.pre_instruction ? "Oui" : "Non",
+      acte.services_votes ? "Oui" : "Non",
       acte.programmation_prevue ? "Oui" : "Non",
+      acte.pre_instruction ? "Oui" : "Non",
+      acte.created_at,
+      acte.date_chorus,
+      has_suspension,
+      last_susp_date,
+      last_susp_end_date,
+      acte.date_limite,
+      last_susp_motif,
+      acte.proposition_decision,
+      acte.decision_finale,
+      acte.date_cloture,
+      (acte.type_observations&.join(", ") if acte.type_observations.present?),
+      acte.delai_traitement,
       acte.disponibilite_credits ? "Oui" : "Non",
       acte.imputation_depense ? "Oui" : "Non",
       acte.consommation_credits ? "Oui" : "Non",
       acte.programmation ? "Oui" : "Non",
-      acte.suspensions.any? ? "Oui" : "Non",
-      acte.proposition_decision,
-      acte.valideur,
-      acte.decision_finale,
-      acte.date_cloture,
-      acte.delai_traitement,
       acte.observations,
-      acte.commentaire_proposition_decision
+      acte.valideur,
+      acte.commentaire_proposition_decision,
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[6] = date_style
-    styles[8] = number_style
-    styles[9] = number_style
-    styles[12] = date_style
-    styles[13] = date_style
-    styles[26] = date_style
+    styles[13] = number_style   # Montant affectation
+    styles[14] = number_style   # Montant total affecté
+    styles[18] = date_style     # Date création
+    styles[19] = date_style     # Date de saisine (date_chorus)
+    styles[21] = date_style     # Date de suspension (dernière)
+    styles[22] = date_style     # Date fin de suspension (dernière)
+    styles[23] = date_style     # Date limite de réponse
+    styles[27] = date_style     # Date clôture
 
     sheet.add_row row_data, style: styles
   end

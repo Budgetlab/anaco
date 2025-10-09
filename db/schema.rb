@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_11_084917) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_09_110945) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -117,7 +117,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_084917) do
     t.string "dotation"
     t.bigint "programme_id"
     t.bigint "dcb_id"
+    t.boolean "deconcentre", default: false, null: false
     t.index ["dcb_id"], name: "index_bops_on_dcb_id"
+    t.index ["deconcentre"], name: "index_bops_on_deconcentre"
     t.index ["programme_id"], name: "index_bops_on_programme_id"
     t.index ["user_id"], name: "index_bops_on_user_id"
   end
@@ -128,8 +130,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_11_084917) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "programme_id"
+    t.string "statut", default: "Actif", null: false
+    t.boolean "deconcentre", default: false, null: false
     t.index ["bop_id"], name: "index_centre_financiers_on_bop_id"
+    t.index ["deconcentre"], name: "index_centre_financiers_on_deconcentre"
     t.index ["programme_id"], name: "index_centre_financiers_on_programme_id"
+    t.index ["statut"], name: "index_centre_financiers_on_statut"
   end
 
   create_table "centre_financiers_ht2_actes", id: false, force: :cascade do |t|

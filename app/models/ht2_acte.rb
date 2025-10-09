@@ -1,7 +1,18 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
-  has_many :programmes, through: :centre_financiers
+  # Association via le champ centre_financier_code principal
+  belongs_to :centre_financier_principal,
+             class_name: 'CentreFinancier',
+             foreign_key: :centre_financier_code,
+             primary_key: :code,
+             optional: true
+  # Programme principal (via le centre_financier_code)
+  delegate :programme, to: :centre_financier_principal, prefix: true, allow_nil: true
+  # Cela créera automatiquement la méthode centre_financier_principal_programme
+  # Mais vous pouvez créer un alias :
+  alias_method :programme_principal, :centre_financier_principal_programme
+
   has_many :suspensions, dependent: :destroy
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
@@ -305,13 +316,17 @@ class Ht2Acte < ApplicationRecord
     return unless centre_financier_code.present?
 
     centre = CentreFinancier.find_by(code: centre_financier_code)
+    centre_financiers.destroy_all
     if centre
       # Supprimer les associations existantes et ajouter la nouvelle
-      centre_financiers.destroy_all
       centre_financiers << centre
     else
       # Si pas de code ou code invalide, supprimer toutes les associations
-      centre_financiers.destroy_all
+      centre = CentreFinancier.create!(
+        code: centre_financier_code,
+        statut: 'non valide',
+      )
+      centre_financiers << centre
     end
   end
 

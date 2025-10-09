@@ -2,12 +2,20 @@ class CentreFinancier < ApplicationRecord
   has_and_belongs_to_many :ht2_actes
   belongs_to :programme, optional: true
   belongs_to :bop, optional: true
+  # Via le champ direct
+  has_many :ht2_actes_principaux,
+           class_name: 'Ht2Acte',
+           foreign_key: :centre_financier_code,
+           primary_key: :code
+
+  scope :non_valide, -> { where(statut: 'non valide') }
+  scope :actif, -> { where(statut: 'Actif') }
 
   def self.ransackable_associations(auth_object = nil)
     ["ht2_actes"]
   end
   def self.ransackable_attributes(auth_object = nil)
-    ["bop_id", "code", "created_at", "id", "id_value", "updated_at", "programme_id"]
+    ["bop_id", "code", "created_at","deconcentre", "id", "id_value", "updated_at", "programme_id", "statut"]
   end
 
   def self.import(file)
@@ -21,7 +29,9 @@ class CentreFinancier < ApplicationRecord
       code_bop = row_data['Code'][0..8]
       code_programme = row_data['Code'][1..3]
 
-      cf.bop_id = Bop.where(code: code_bop).pick(:id)
+      bop = Bop.find_by(code: code_bop)
+      cf.bop_id = bop.id if bop
+      cf.deconcentre = bop.deconcentre if bop
       cf.programme_id = Programme.where(numero: code_programme).pick(:id)
       cf.save
     end

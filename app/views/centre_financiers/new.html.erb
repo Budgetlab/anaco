@@ -15,8 +15,9 @@
         <% end %>
       </div>
       <div class="fr-my-4w"><%= CentreFinancier.all.count%> CF</div>
-      <% CentreFinancier.all.order(code: :asc).each do |cf| %>
-        <div><%= cf.code %> - <%= cf.bop_id %></div>
+      <div class=""><%= @centre_financiers_non_valide.count%> CF non validés:</div>
+      <% @centre_financiers_non_valide.all.order(code: :asc).each do |cf| %>
+        <div><%= cf.code %> - <%= cf.ht2_actes.map(&:id) %></div>
       <%end %>
     </div>
   </div>

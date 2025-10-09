@@ -1,5 +1,6 @@
 class CentreFinanciersController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:new, :import]
 
   def autocomplete
     query = params[:query].to_s.strip
@@ -15,15 +16,7 @@ class CentreFinanciersController < ApplicationController
   end
 
   def new
-    Programme.all.each do |programme|
-      code = "0#{programme.numero}"
-      next if CentreFinancier.exists?(code: code)
-
-      cf = CentreFinancier.new
-      cf.code = code
-      cf.programme_id = programme.id
-      cf.save
-    end
+    @centre_financiers_non_valide = CentreFinancier.non_valide
   end
 
   def import

@@ -109,7 +109,7 @@ class Ht2ActesController < ApplicationController
     @q = actes.ransack(params[:q])
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
-    @actes_all = @q.result.includes(:user, :suspensions).order(sort_order)
+    @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
     @filtres_count = count_active_filters(params[:q])
     @liste_natures = [
       'Accord cadre à bons de commande',
