@@ -289,12 +289,13 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    sheet.merge_cells "A#{current_row}:E#{current_row}"
    sheet.row_style current_row, section_header_style
    sheet.rows[current_row-1].height = 30
+   critere4 = @acte.services_votes == true ? "Engagement éligible à la gestion des services votés" : "Compatibilité programmation"
     sheet.add_row [
       "Acte programmé",
       "Disponibilité des crédits",
       "Imputation de la dépense",
       "Exactitude de l'évaluation",
-      "Compatibilité programmation"
+      critere4
     ], style: header_style
 
     sheet.add_row [
