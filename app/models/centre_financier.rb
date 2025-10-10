@@ -12,10 +12,10 @@ class CentreFinancier < ApplicationRecord
   scope :actif, -> { where(statut: 'Actif') }
 
   def self.ransackable_associations(auth_object = nil)
-    ["ht2_actes"]
+    ["bop", "ht2_actes", "ht2_actes_principaux", "programme"]
   end
   def self.ransackable_attributes(auth_object = nil)
-    ["bop_id", "code", "created_at","deconcentre", "id", "id_value", "updated_at", "programme_id", "statut"]
+    ["bop_id", "code", "created_at", "deconcentre", "id", "id_value", "programme_id", "statut", "updated_at"]
   end
 
   def self.import(file)

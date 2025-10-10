@@ -47,7 +47,7 @@ class Ht2Acte < ApplicationRecord
     ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
+    ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
@@ -214,15 +214,16 @@ class Ht2Acte < ApplicationRecord
         programmation: row_data["programmation"] == "OUI" ? true : false,
         type_engagement: row_data["type_engagement"],
         programmation_prevue: row_data["programmation_prevue"] == "OUI" ? true : false,
+        observations: row_data["observations"],
         type_observations: row_data["type_observations"].present? ? [row_data["type_observations"]] : []
       )
 
       if acte.save
-        if row_data["date_suspension"].present? && row_data["date_reprise"].present? && row_data["motif"].present?
+        if row_data["date_suspension"].present? && row_data["date_reprise"].present?
           acte.suspensions.create(
             date_suspension: row_data["date_suspension"],
             date_reprise: row_data["date_reprise"],
-            motif: row_data["motif"]
+            motif: row_data["motif"] || 'Autre'
           )
         end
       else
