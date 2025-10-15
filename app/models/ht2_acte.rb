@@ -170,6 +170,11 @@ class Ht2Acte < ApplicationRecord
     (somme_delais / count.to_f).round
   end
 
+  # Rend le recalcul appelable publiquement
+  def recalculate_delai_traitement!
+    calculate_delai_traitement
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
@@ -225,6 +230,8 @@ class Ht2Acte < ApplicationRecord
             date_reprise: row_data["date_reprise"],
             motif: row_data["motif"] || 'Autre'
           )
+          # recalcul APRÈS les suspensions
+          acte.recalculate_delai_traitement!
         end
       else
         Rails.logger.warn "Erreur à la ligne #{i} : #{acte.errors.full_messages.join(', ')}"

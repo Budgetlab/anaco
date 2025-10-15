@@ -418,13 +418,7 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes
-    Ht2Acte.where.not(sous_action: [nil, ""]).find_each do |acte|
-      combined = [acte.action.presence, acte.sous_action.presence].compact.join("-")
-      puts combined
-      acte.update!(action: combined)
-    end
-  end
+  def ajout_actes; end
 
   def import
     Ht2Acte.import(params[:file])
