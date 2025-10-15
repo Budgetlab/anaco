@@ -207,10 +207,10 @@ class Ht2Acte < ApplicationRecord
         numero_tf: row_data["numero_tf"].to_s,
         numero_marche: row_data["numero_marche"].to_s,
         user: user,
-        proposition_decision: row_data["decision_finale"],
+        proposition_decision: row_data["proposition_decision"].present? ? row_data["proposition_decision"] : row_data["decision_finale"],
         decision_finale: row_data["decision_finale"],
         precisions_acte: row_data["precisions_acte"],
-        valideur: row_data["instructeur"],
+        valideur: row_data["valideur"].present? ? row_data["valideur"] : row_data["instructeur"],
         categorie: row_data["categorie"].to_s,
         pre_instruction: row_data["pre_instruction"] == "OUI" ? true : false,
         disponibilite_credits: row_data["disponibilite_credits"] == "OUI" ? true : false,
@@ -220,6 +220,7 @@ class Ht2Acte < ApplicationRecord
         type_engagement: row_data["type_engagement"],
         programmation_prevue: row_data["programmation_prevue"] == "OUI" ? true : false,
         observations: row_data["observations"],
+        commentaire_proposition_decision: row_data["commentaire_proposition_decision"],
         type_observations: row_data["type_observations"].present? ? [row_data["type_observations"]] : []
       )
 
