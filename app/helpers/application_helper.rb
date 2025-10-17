@@ -1,6 +1,28 @@
 module ApplicationHelper
   include Pagy::Frontend
 
+  # Pour formater une valeur simple
+  def format_value(value, default = "Non renseigné")
+    value.presence || default
+  end
+
+  # Pour assurer que les images et pièces jointes sont correctement affichées dans les PDFs
+  def format_for_pdf(content)
+    return content unless content.present?
+
+    # Convertir les URL relatives en URL absolues pour les images
+    content = content.gsub(/src="\/([^"]+)"/) do |match|
+      "src=\"#{root_url.chomp('/')}\/#{$1}\""
+    end
+
+    # Assurer que les images ont une taille maximale
+    content = content.gsub(/<img/) do |match|
+      "#{match} style=\"max-width: 100%; height: auto;\""
+    end
+
+    content
+  end
+
   def format_number(nombre)
     case nombre
     when nil, ''
@@ -9,7 +31,11 @@ module ApplicationHelper
       number_with_delimiter('%.12g' % ('%.1f' % nombre), locale: :fr)
     end
   end
+  def format_date_text(date, format = "%e/%m/%y", default = "Non renseigné")
+    date.present? ? l(date, format: format) : default
+  end
 
+  # pour formulaire
   def format_date(date)
     unless date.nil?
       date = date.strftime('%d/%m/%Y')
@@ -123,4 +149,61 @@ module ApplicationHelper
       cell.add_style bg_color: color
     end
   end
+
+  # Helper simple pour nettoyer le contenu ActionText
+  def clean_action_text(content)
+    return '' if content.blank?
+
+    # Supprimer les balises HTML et garder le texte
+    text = ActionController::Base.helpers.strip_tags(content.to_s)
+
+    # Supprimer les espaces en trop
+    text.gsub(/\s+/, ' ').strip
+  end
+  def rich_text_has_images?(rich_text_content)
+    return false if rich_text_content.blank?
+
+    doc = Nokogiri::HTML::DocumentFragment.parse(rich_text_content.to_s)
+    doc.css('action-text-attachment[content-type^="image"]').any?
+  end
+
+  def count_images_in_rich_text(rich_text_content)
+    return 0 if rich_text_content.blank?
+
+    doc = Nokogiri::HTML::DocumentFragment.parse(rich_text_content.to_s)
+    doc.css('action-text-attachment[content-type^="image"]').count
+  end
+
+  def nature_chorus_prefixes
+    {
+      'Bail' => '20',
+      'Bon de commande' => '14',
+      'Décision diverse' => '19',
+      'Marché unique' => '10',
+      'Marché à tranches' => '11',
+      'Marché mixte' => '12',
+      'MAPA unique' => '15',
+      'MAPA à tranches' => '16',
+      'MAPA à bons de commande' => '17',
+      'MAPA mixte' => '18',
+      'Subvention' => '21',
+      "Subvention pour charges d'investissement" => '21',
+      'Subvention pour charges de service public' => '21',
+      'Transfert' => '21',
+      'Accord cadre à bons de commande' => '13',
+      'Autre contrat' => '22'
+    }
+  end
+
+  def get_expected_prefix(nature)
+    nature_chorus_prefixes[nature]
+  end
+
+  def validate_chorus_prefix(nature, numero_chorus)
+    expected_prefix = get_expected_prefix(nature)
+    return true if expected_prefix.nil? || numero_chorus.blank?
+
+    numero_chorus.start_with?(expected_prefix)
+  end
+
 end

@@ -1,0 +1,24 @@
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1>
+          <span class="fr-capitalize"><%= @acte.type_acte %> HT2
+            <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+            <% else %>n°<%= @acte.numero_utilisateur %>
+            <% end %>
+          </span>
+        </h1>
+        <div class="fr-mb-1w title-btn ">
+
+          <div class="fr-text--italic fr-mb-1w">
+            Acte n°<%= @acte.numero_utilisateur %>, créé le <%= l(@acte.created_at, format: "%e/%m/%y") %>
+            <% if @acte.etat == "clôturé" %>, validé dans Chorus le <%= l(@acte.date_cloture, format: "%e/%m/%y") %>
+            <% end %>
+          </div>
+        </div>
+        <%= render 'ht2_acte_details', acte: @acte %>
+      </div>
+    </div>
+  </div>
+</main>

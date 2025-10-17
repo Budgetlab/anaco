@@ -1,0 +1,143 @@
+<h2>Proposition de décision de contrôle</h2>
+<div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div data-controller="acte-form">
+  <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
+    <%= hidden_field_tag :etape, 4 %>
+    <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+    <% if @acte.etat == "en pré-instruction" %>
+      <div class="fr-notice fr-notice--info fr-mb-2w">
+        <div class="fr-container">
+          <div class="fr-notice__body">
+            <p>
+              <span class="fr-notice__title">L'acte est en phase de pré-instruction.</span>
+              <span class="fr-notice__desc">
+                Vous pouvez compléter et enregistrer les informations suivantes. Vous pourrez ultérieurement passer l'acte en cours d'instruction ou clôturer définitivement l'acte à ce stade de pré-instruction.
+                L'ajout de suspensions/interruptions n'est pas possible à ce stade et est possible uniquement pour les actes en cours d'instruction.</span>
+            </p>
+            <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
+              le message
+            </button>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <% if @acte.etat == 'suspendu' %>
+        <div class="fr-notice fr-notice--info fr-mb-2w">
+          <div class="fr-container">
+            <div class="fr-notice__body">
+              <p>
+                <span class="fr-notice__title">Cet acte est suspendu. Vous pouvez à ce stade reprendre ou clôturer définitivement l'acte. </span>
+                <span class="fr-notice__desc">Pour clôturer l'acte à ce stade choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture.</span>
+              </p>
+              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
+                le message
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+        <h3 class="fr-callout__title fr-capitalize fr-mb-2w"><%= type_suspension%></h3>
+        <template data-nested-form-target="template">
+          <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
+            <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+          <% end %>
+        </template>
+
+        <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
+          <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+        <% end %>
+
+        <!-- Inserted elements will be injected before that target. -->
+        <div data-nested-form-target="target"></div>
+        <button type="button" data-action="nested-form#add acte-form#toggleAddButton" data-acte-form-target="addButton" class="fr-btn fr-icon-add-line fr-btn--icon-left fr-mb-2w">
+          Ajouter une <%= type_suspension %></button>
+      </div>
+    <% end %>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-select-group">
+          <label for="proposition_decision" class="fr-label">
+            Proposition de décision de contrôle
+            <% unless @acte.etat == 'en pré-instruction' %>*
+            <% end %>
+          </label>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
+        <div class="fr-select-group">
+          <label for="date_cloture" class="fr-label">Date de clôture</label>
+          <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_cloture), flatpickr_min_date: format_date(@acte.date_chorus), action: "input->acte-form#clotureSkipValidation" }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "- sélectionner -" %>
+          <p class="fr-message fr-message--info fr-text--small">Renseigner une date pour clôturer l'acte directement à
+            cette étape sans soumettre à validation.</p>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-input-group">
+          <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de
+            décision de contrôle</label>
+          <%= f.text_area :commentaire_proposition_decision, class: 'fr-input', rows: 6 %>
+        </div>
+
+        <div class="fr-input-group">
+          <label for="observations" class="fr-label">Propositions d’observations à l’ordonnateur</label>
+          <%= f.text_area :observations, class: 'fr-input', rows: 6 %>
+        </div>
+        <div data-controller="multi-select">
+          <div class="fr-select-group">
+            <label for="type_observations" class="fr-label">Type d'observations
+              <span class="fr-hint-text">Plusieurs choix possibles</span></label>
+            <%= select_tag "type_observations", options_for_select([["- sélectionner -", ""]] + @liste_types_observations.map { |type| [type, type] }),
+                           id: "type_observations_select", class: "fr-select", data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+          </div>
+
+          <!-- Conteneur pour afficher les tags -->
+          <ul id="selected_observations" class="fr-tags-group" data-multi-select-target="container">
+            <% @acte.type_observations&.each do |observation| %>
+              <li data-action="click->multi-select#remove" data-value="<%= observation %>">
+                <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= observation %>">
+                  <%= observation %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+
+          <!-- Champ caché pour stocker les valeurs sélectionnées -->
+          <%= f.hidden_field :type_observations, value: @acte.type_observations&.join(","), id: "hidden_type_observations", data: { multi_select_target: "hidden" } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <%= hidden_field_tag :submit_action, "", data: { acte_form_target: "submitAction" } %>
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+
+          <% if @acte.etat == "en pré-instruction" %>
+            <li>
+              <%= f.submit "Enregistrer les modifications", class: 'fr-btn' %>
+            </li>
+          <% else %>
+            <li>
+              <%= f.submit "Enregistrer les modifications", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
+            </li>
+            <li id="cloture_button" class="fr-hidden">
+              <%= f.submit "Enregistrer et clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
+            </li>
+            <li id="validation_button">
+              <%= button_tag type: 'submit',
+                             class: 'fr-btn fr-icon-checkbox-line fr-btn--icon-left',
+                             data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton" } do %>
+                Enregister et soumettre à validation
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+  <% end %>
+</div>

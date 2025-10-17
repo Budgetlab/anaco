@@ -11,18 +11,20 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "dsfr", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "utility", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "actiontext", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag 'custom/dsfr.module.min', module: true %>
     <%= javascript_include_tag 'custom/dsfr.nomodule.min', nomodule: true %>
     <%= favicon_link_tag 'favicon/favicon.ico' %>
     <%= favicon_link_tag 'favicon/favicon.svg' %>
     <%= favicon_link_tag "favicon/apple-touch-icon.png", rel: "apple-touch-icon" %>
-    
+
+    <!-- tableur -->
     <link rel="stylesheet" href="https://ga.jspm.io/npm:flatpickr@4.6.13/dist/flatpickr.min.css">
-    <% if Rails.env.production? %>
-      <script async defer data-website-id="97878b97-16c9-4ee4-9d42-eb19a01864b2" src="https://s.abla.io/abla.js"></script>
-    <%end %>
-   </head>
+    <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v5/jspreadsheet.css" type="text/css" />
+    <link rel="stylesheet" href="https://jsuites.net/v5/jsuites.css" type="text/css" />
+
+  </head>
 
   <body>
     <%= render 'layouts/header'%>

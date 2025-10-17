@@ -22,7 +22,7 @@
                       </ul>
                     </div>
                     <div class="fr-col-lg-3 fr-col-4">
-                      <% if programme.last_schema(@annee_a_afficher).nil? || programme.gestion_schemas_empty? %>
+                      <% if programme.last_schema(@annee_a_afficher).nil? || programme.gestion_schemas.where(annee: @annee_a_afficher).empty? %>
                         <p class="fr-badge fr-badge--warning fr-badge--no-icon">
                           <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span> Schema fin de gestion
                         </p>

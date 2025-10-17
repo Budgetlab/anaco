@@ -29,3 +29,10 @@ pin "raf" # @3.4.1
 pin "rgbcolor" # @1.0.1
 pin "stackblur-canvas" # @2.7.0
 pin "svg-pathdata" # @6.0.3
+pin "trix"
+pin "@rails/actiontext", to: "actiontext.esm.js"
+
+pin "jspreadsheet-ce", to: "https://ga.jspm.io/npm:jspreadsheet-ce@5.0.3/dist/index.js" #"https://ga.jspm.io/npm:jspreadsheet-ce@4.15.0/dist/index.js"
+pin "@jspreadsheet/formula", to: "https://ga.jspm.io/npm:@jspreadsheet/formula@2.0.2/dist/index.js" # @2.0.2
+
+pin "jsuites", to: "https://ga.jspm.io/npm:jsuites@5.12.0/dist/jsuites.js" #"https://ga.jspm.io/npm:jsuites@4.17.7/dist/jsuites.js"# @5.12.0

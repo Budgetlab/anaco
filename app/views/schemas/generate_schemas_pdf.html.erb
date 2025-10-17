@@ -1,0 +1,15 @@
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <% Schema.where(statut: 'valide').each do |schema| %>
+        <% if !schema.document_pdf.attached? %>
+          <div>Schema <%= schema.id %> - <%= schema.user.nom %> - <%= schema.annee %> - <%= link_to programme_path(schema.programme) do %><%= schema.programme.numero %><% end %>
+          <%= link_to pdf_vision_schema_path(schema, format: :pdf), target: :_blank, class: "fr-link fr-link--download" do %>
+            Générer le schéma au format PDF <span class="fr-link__detail">Format .pdf</span>
+          <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

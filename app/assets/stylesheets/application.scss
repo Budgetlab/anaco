@@ -1,11 +1,11 @@
 @charset "UTF-8";
-
 html{
   height: 100%;
 }
 .fr-text-lg{
   font-size:1.125rem;
 }
+
 h1, h2{
   position:relative;
 }
@@ -13,6 +13,9 @@ h1, h2{
 	background-image: image-url("background.jpg");
 	background-repeat: no-repeat;
 	background-size: cover;
+}
+.flex-grow {
+  flex-grow: 1;
 }
 
 .titre{
@@ -33,6 +36,12 @@ h1, h2{
 }
 .cbleu-minor{
  color: var(--artwork-minor-blue-france);
+}
+.cgreen{
+  color: var(--green-emeraude-850-200);
+}
+.cblack{
+  color: var(--text-default-grey);
 }
 .notice--warning {
   color: var(--text-default-warning) !important;
@@ -95,6 +104,12 @@ h1, h2{
   --hover: var(--background-contrast-brown-cafe-creme-hover);
   --active: var(--background-contrast-brown-cafe-creme-active);
 }
+
+.fr-card-round--blue{
+  background-color: var(--background-alt-blue-france) !important;
+  padding: 8px 1rem;
+  border-radius: 20px;
+}
 .text_center{
   text-align:center
 }
@@ -150,6 +165,10 @@ h1, h2{
   margin: -0.25rem -1rem 0 !important;
 }
 
+.fr-table--col-restricted .fr-table__content th,.fr-table--col-restricted .fr-table__content td{
+  padding: 0.75rem !important;
+}
+
 .fr-table--vscroll table {
   max-height: 35rem;
   overflow: auto;
@@ -168,6 +187,10 @@ h1, h2{
   background-image: linear-gradient(0deg, var(--border-plain-grey), var(--border-plain-grey));
   min-width:8rem !important;
 }
+.fr-table th.fr-col-check{
+  min-width: 3rem !important;
+  max-width: 3rem !important;
+}
 .table-content-scroll{
   max-height:35rem;
   overflow-y: auto;
@@ -181,6 +204,9 @@ h1, h2{
 }
 .fr-input-group .fr-message--info{
   font-size: 1rem !important;
+}
+.fr-input-group .fr-text--small{
+  font-size: 0.75rem !important;
 }
 .filter-table-list{
   background-color: var(--background-overlap-grey);
@@ -261,7 +287,18 @@ h1, h2{
   justify-content: space-between;
   align-items: center;
 }
+.fr-btn--full {
+  display: block !important; /* Transforme le bouton en bloc pour qu'il occupe toute la largeur */
+  width: 100% !important; /* Étend la largeur sur 100% */
+  text-align: center !important; /* Centre le texte horizontalement */
+}
 
+.fr-align-center {
+  display: flex;
+  justify-content: center; /* Centrer les éléments horizontalement */
+  align-items: center;
+  gap: 0.5rem; /* Ajouter un espacement entre les boutons */
+}
 .fr-capitalize::first-letter{
   text-transform: uppercase;
 }
@@ -295,8 +332,96 @@ a.fr-tag[aria-pressed=true]::after{
   color: var(--text-action-high-blue-france);
 }
 
+.tag-selectable.is-selected {
+  background-color: transparent;
+  color: var(--text-inverted-blue-france) !important;
+  background-image: radial-gradient(
+                  circle at 100% 0.25rem,
+                  transparent 0.578125rem,
+                  var(--background-active-blue-france) 0.625rem
+  ) !important;
+  background-position: 50% !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% !important;
+  overflow: visible !important;
+  position: relative !important;
+  cursor: pointer !important;
+}
+.tag-selectable.is-selected::after {
+  color: var(--text-action-high-blue-france) !important;
+  --icon-size: 1rem;
+  background-color: var(--text-action-high-blue-france);
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  height: var(--icon-size);
+  margin: -.5rem;
+  -webkit-mask-image: url(icons/system/checkbox-circle-line.svg);
+  mask-image: url(icons/system/checkbox-circle-line.svg);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  position: absolute;
+  right: 0;
+  top: 4px;
+  vertical-align: calc((.75em - var(--icon-size)) * .5);
+  width: var(--icon-size);
+}
+
+.tag-selectable {
+  color: var(--text-action-high-blue-france) !important;
+  background-color: var(--background-action-low-blue-france) !important;
+
+  --idle: transparent !important;
+  --hover: var(--background-action-low-blue-france-hover) !important;
+  --active: var(--background-action-low-blue-france-active) !important;
+
+  cursor: pointer !important;
+}
+
 .fr-modal__body.fr-modal--body-search{
   max-height: 30vh !important;
+}
+
+/* Transforme le modal DSFR en panneau latéral gauche */
+.fr-modal--custom{
+  padding: 0 !important;
+  --modal-max-width: 34rem !important;
+
+}
+.fr-modal--custom::before, .fr-modal--custom::after{
+  height: 100% !important;
+  width: calc(100% - var(--modal-max-width)) !important;
+  flex: 1 0 0 !important;
+}
+.fr-modal-custom__row--left{
+  justify-content: flex-start !important;      /* aligne le contenu à gauche */
+  align-items: stretch;            /* prend toute la hauteur */
+  padding: 0;                      /* enlève le padding DSFR */
+  height: 100vh;                   /* plein écran */
+  max-height: 100vh;
+  max-width: 34rem !important;
+}
+
+.fr-modal-custom__body{
+  pointer-events: all;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  z-index: calc(var(--ground) + 2000);
+  background-color: var(--background-lifted-grey);
+
+  --idle: transparent;
+  --hover: var(--background-lifted-grey-hover);
+  --active: var(--background-lifted-grey-active);
+  --modal-max-height: 100vh !important;
+  max-height: 100vh !important;
+  height: 100vh !important;
+  filter: none;
+}
+.fr-modal-custom__body.fr-scroll-divider .fr-modal__footer {
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-image: linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
 }
 .shadow {
   filter: drop-shadow(var(--lifted-shadow)) !important;
@@ -306,4 +431,83 @@ a.fr-tag[aria-pressed=true]::after{
 }
 .hide-icons::after {
   display: none !important;
+}
+
+.image-icone{
+  max-height: 80px;
+  margin: 0 auto;
+  display: block;
+}
+.fr-nav--dropdown{
+  position: relative;
+  display: inline-block;
+ }
+.fr-menu--dropdown{
+  width: 100% !important;
+  margin: -4px 0 !important;
+  padding: 0 !important;
+}
+
+.pie-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.pie-wrapper .fr-pie {
+  max-width: 400px;
+  width: 100%;
+}
+
+/* app/assets/stylesheets/autocomplete.css */
+.autocomplete-results {
+  position: absolute;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  margin-top: 2px;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.flatpickr-calendar {
+  z-index: 99999 !important; /* ou plus, selon le z-index de ton modal */
+}
+
+.fr-follow .fr-tabs__panel, .fr-container-blue .fr-tabs__panel{
+  background-color: var(--background-default-grey);
+}
+
+/* Conteneur scrollable */
+.sheet-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;     /* optionnel */
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* iOS */
+}
+
+/* Laisse la grille dépasser en largeur pour que le scroll apparaisse */
+/* v5 */
+.sheet-scroll .jss,
+.sheet-scroll .jss_container {
+  min-width: max-content;
+}
+
+.fr-home-actes .fr-tile__title{
+  margin-bottom: 0 !important
+}
+
+.fr-home-follow, .fr-container-blue{
+  background-color: var(--background-alt-blue-france);
 }

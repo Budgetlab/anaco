@@ -20,7 +20,7 @@
           </div>
           <div class="fr-header__service">
             <%= link_to root_path, title: "Accueil - ANACO" do %>
-              <p class="fr-header__service-title">ANACO</p>
+              <p class="fr-header__service-title">ANACO <% if ENV["SERVICE_NAME"] == "anaco-test" %><span class="fr-badge fr-badge--sm fr-badge--warning fr-badge--no-icon fr-ml-1v">VERSION TEST</span><% end %></p>
             <% end %>
             <p class="fr-header__service-tagline">Analyses et avis du contrôle budgétaire</p>
           </div>
@@ -88,7 +88,9 @@
                     </li>
                   <% end %>
                   <% if current_user.statut != "admin" %>
-                    <%= active_link_to restitutions_perimetre_path, class: "fr-nav__link", target: "_self" do %>Restitutions périmètre<% end %>
+                    <%= active_link_to restitutions_perimetre_path, class: "fr-nav__link", target: "_self" do %>
+                      Restitutions périmètre
+                    <% end %>
                   <% end %>
                   <li>
                     <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Restitutions
@@ -129,6 +131,36 @@
                 </div>
               </li>
             <% end %>
+
+            <li class="fr-nav__item">
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) || current_page?(historique_ht2_path) || current_page?(synthese_ht2_actes_path) || current_page?(synthese_users_ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></button>
+              <div class="fr-collapse fr-menu" id="menu-actes">
+                <ul class="fr-menu__list">
+                  <% if ['CBR', 'DCB'].include?(current_user.statut) %>
+                    <li>
+                      <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Liste de travail - Actes HT2
+                      <% end %>
+                    </li>
+                  <% end %>
+                  <li>
+                    <%= active_link_to historique_ht2_path, class: "fr-nav__link", target: "_self" do %>Historique Actes HT2
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= active_link_to synthese_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Tableau de
+                      bord
+                    <% end %>
+                  </li>
+                  <% if current_user.statut == "admin" %>
+                    <li>
+                      <%= active_link_to synthese_users_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>
+                        Suivi du remplissage
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </li>
 
             <li class="fr-nav__item">
               <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-liste" <%= current_page?(programmes_path) || current_page?(bops_path) || current_page?(faq_path) ? 'aria-current="true"' : '' %>>Informations</button>

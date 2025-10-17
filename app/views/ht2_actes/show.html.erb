@@ -1,0 +1,86 @@
+<% content_for :title do %>Consultation de l'acte HT2 | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
+        Voir le fil d’Ariane
+      </button>
+      <div class="fr-collapse" id="breadcrumb-1">
+        <ol class="fr-breadcrumb__list">
+          <li>
+            <%= link_to root_path, class: "fr-breadcrumb__link" do %> Accueil
+            <% end %>
+          </li>
+          <li>
+            <% if current_user.statut == "admin" %>
+              <%= link_to historique_ht2_path, class: "fr-breadcrumb__link" do %> Historique Actes HT2
+              <% end %>
+            <% else %>
+              <%= link_to ht2_actes_path, class: "fr-breadcrumb__link" do %> Liste de travail - Actes HT2
+              <% end %>
+            <% end %>
+          </li>
+          <li>
+            <a class="fr-breadcrumb__link" aria-current="page">Consultation <%= @acte.type_acte %> HT2</a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <%= render 'ht2_actes/flash_message' %>
+    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :modal %>
+    </dialog>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="title-btn">
+          <span class="fr-capitalize"><%= @acte.type_acte %> HT2
+            <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+            <% else %>n°<%= @acte.numero_formate %>
+            <% end %>
+          </span>
+        </h1>
+        <% if current_user.statut == "admin" %>
+        <h2><%= @acte.user.nom %></h2>
+        <% end %>
+
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">
+            <% @actes_groupe.each_with_index do |acte, index| %>
+              <li role="presentation">
+                <button type="button" id="tabpanel-<%= acte.id %>" class="fr-tabs__tab" tabindex="<%= acte == @acte_courant ? 0 : -1 %>" role="tab" aria-selected="<%= acte == @acte_courant ? 'true' : 'false' %>" aria-controls="tabpanel-<%= acte.id %>-panel">
+                  Saisine <%= index +1 %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+          <% @actes_groupe.each do |acte| %>
+            <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
+              <div class="fr-mb-1w title-btn ">
+
+                <div class="fr-text--italic fr-mb-1w">
+                  Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
+                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction"%>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                  <% end %>
+                </div>
+                <div>
+                  <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
+                    Télécharger la fiche
+                  <% end %>
+                  <% if rich_text_has_images?(acte.commentaire_disponibilite_credits) %>
+                    <%= link_to download_attachments_ht2_acte_path(acte),
+                                class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line', data: { turbo: false } do %>
+                      Télécharger les PJ (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              <%= render 'ht2_acte_details', acte: acte %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

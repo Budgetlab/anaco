@@ -1,34 +1,19 @@
 <% content_for :title do %> Accueil | ANACO
 <% end %>
 <main>
-  <% if current_user.statut == "CBR" || current_user.statut == "DCB" %>
-    <%= render 'notice' %>
-  <% end %>
-  <div class="fr-container fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= @avis_repartition %>" data-highcharts-notes1="<%= @notes_crg1 %>" data-highcharts-notes2="<%= @notes_crg2 %>">
+  <div class="fr-home-follow">
+
+  <div class="fr-container">
+    <% if ENV["SERVICE_NAME"] == "anaco-test" %>
+      <div class="fr-pt-2w">
+        <%= render 'layouts/warning_test' %>
+      </div>
+    <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="fr-mt-6w fr-mb-2w"><%= current_user.nom %></h1>
-        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
       </div>
     </div>
-
-    <% if @phase == 'services votés' %>
-      <div class="fr-notice fr-notice--warning fr-mb-4w">
-        <div class="fr-container">
-          <div class="fr-notice__body">
-            <p>
-              <span class="fr-notice__title">Au regard du contexte actuel, les avis de début de gestion ne sont pas encore ouverts.</span>
-              <% if current_user.statut != 'admin' %>
-                <span class="fr-notice__desc">Vous pouvez cependant remplir un avis sur la prévision de dépenses au titre des services votés en cliquant sur le lien ci-dessous :</span>
-                <%= link_to remplissage_avis_path, target: "_self", class: "fr-notice__link" do %>Remplir un avis sur la
-                  prévision des dépenses
-                <% end %>
-              <% end %>
-            </p>
-          </div>
-        </div>
-      </div>
-    <% end %>
 
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
       <div class="fr-col-12 fr-col-lg-12">
@@ -61,33 +46,288 @@
       </div>
     </div>
 
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-card fr-card--shadow">
+          <div class="fr-card__body">
+            <div class="fr-card__content">
+              <h3 class="fr-card__title title-btn">Avis sur la programmation
+                <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v"><%= @bops_actifs %> BOP actifs</p>
+              </h3>
+              <div class="fr-card__desc">
+                <div>
+                  <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">Phase en cours : <%= @phase %></p>
+                  <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(@date_ouverture, format: "%e %B") %>
+                    au <%= I18n.localize(@date_fermeture, format: "%e %B %Y") %></p>
+                </div>
+                <% if @statut_user == "DCB" || @statut_user == "CBR" %>
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12">
+                      <ul class="fr-btns-group fr-btns-group--icon-left  fr-mt-2w">
+                        <li>
+                          <%= link_to remplissage_avis_path, class: "fr-btn fr-icon-add-line" do %>
+                            Donner un avis ou une note sur la programmation
+                          <% end %>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="fr-grid-row fr-grid-row--gutters ">
+                    <div class="fr-col-12">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to remplissage_avis_path do %>
+                                <%= pluralize(current_user.avis_a_remplir(Date.today.year, @phase), 'avis/note', plural: 'avis/notes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--pink-tuile">à rédiger</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="fr-tile__header">
+                          <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
 
-    <% if @statut_user == "DCB" %>
-      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-        <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/system/notification.svg", alt: "" %></div>
-        <div class="fr-col-lg-11 fr-col-10">
-          <div class="fr-text--lg fr-mt-1w">Vous avez <%= current_user.avis_a_lire %> avis/notes en attente de
-            lecture<br>
-            <%= link_to consultation_path, class: "fr-link fr-link--lg fr-icon-arrow-right-line fr-link--icon-right" do %>
-              Consulter les avis transmis par les CBR
-            <% end %>
+                <% if @statut_user == "DCB" %>
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to consultation_path do %>
+                                Consulter les avis transmis par les CBR
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--pink-tuile"><%= pluralize(current_user.avis_a_lire, 'avis/note', plural: 'avis/notes') %>
+                                en attente de lecture</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="fr-tile__header">
+                          <%= image_tag "artwork/pictograms/system/notification.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <%= link_to historique_path do %>
+                              Accéder à l'historique
+                            <% end %>
+                          </h3>
+                          <p class="fr-tile__detail">Tous exercices confondus</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <% if current_user.statut == "admin" %>
+                              <%= link_to restitutions_path do %>
+                                Accéder au tableau de bord
+                              <% end %>
+                            <% else %>
+                              <%= link_to restitutions_perimetre_path do %>
+                                Accéder au tableau de bord
+                              <% end %>
+                            <% end %>
+                          </h3>
+                          <p class="fr-tile__detail">Restitutions</p>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    <% end %>
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'début de gestion', date_ouverture: @date_debut, date_fermeture: @date_crg1.prev_day, total: @avis_total, avis_a_rediger: @avis_repartition[3], valeur2: avis_delai(@avis_remplis), valeur3: avis_crg1(@avis_remplis), nom_graphe: "canvasAvis" } %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'CRG1', date_ouverture: @date_crg1, date_fermeture: @date_crg2.prev_day, total: avis_crg1(@avis_remplis), avis_a_rediger: @notes_crg1[3], valeur2: @notes_crg1[1], valeur3: @notes_crg1[2], nom_graphe: "canvasNotes1" } %>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <%= render partial: "pages/card_index", locals: { phase: 'CRG2', date_ouverture: @date_crg2, date_fermeture: Date.new(@annee, 12, 31), total: @avis_total, avis_a_rediger: @notes_crg2[3], valeur2: @notes_crg2[1], valeur3: @notes_crg2[2], nom_graphe: "canvasNotes2" } %>
+      <div class="fr-col-12 fr-col-lg-6">
+        <div class="fr-card fr-card--shadow">
+          <div class="fr-card__body">
+            <div class="fr-card__content">
+              <h3 class="fr-card__title title-btn">Instruction des actes
+                <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></h3>
+              <div class="fr-card__desc">
+                <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">HT2</p>
+                <% if @statut_user == "DCB" || @statut_user == "CBR" %>
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12">
+                      <ul class="fr-btns-group fr-btns-group--icon-left  fr-mt-2w">
+                        <li>
+                          <a href="<%= new_modal_acte_path %>" data-turbo-frame="new_modal" class="fr-btn fr-icon-add-line" data-fr-opened="false" aria-controls="nouvel-acte-modal">
+                            Nouvel acte
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="fr-grid-row fr-grid-row--gutters fr-home-actes">
+                    <div class="fr-col-12">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to ht2_actes_path(tab: 'validation') do %>
+                                <%= pluralize(@ht2_en_attente_validation, 'Acte', plural: 'Actes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--pink-tuile">en attente de validation</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="fr-tile__header">
+                          <%= image_tag "artwork/pictograms/system/success.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to ht2_actes_path(tab: 'preinstruction') do %>
+                                <%= pluralize(@ht2_pre_instruction, 'Acte', plural: 'Actes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--new fr-badge--no-icon">en pré-instruction</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to ht2_actes_path(tab: 'instruction') do %>
+                                <%= pluralize(@ht2_en_cours, 'Acte', plural: 'Actes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--green-archipel">en cours d'instruction</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to ht2_actes_path(tab: 'suspendu') do %>
+                                <%= pluralize(@ht2_suspendu, 'Acte', plural: 'Actes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--error fr-badge--no-icon">suspendus/ interrompus</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-tile fr-tile--horizontal fr-enlarge-link">
+                        <div class="fr-tile__body">
+                          <div class="fr-tile__content">
+                            <h3 class="fr-tile__title">
+                              <%= link_to ht2_actes_path(tab: 'cloture') do %>
+                                <%= pluralize(@ht2_cloture, 'Acte', plural: 'Actes') %>
+                              <% end %>
+                            </h3>
+                            <p class="fr-tile__detail">
+                              <span class="fr-badge--sm fr-badge fr-badge--yellow-tournesol">à clôturer dans Chorus</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-text--center">
+                        <%= image_tag "artwork/pictograms/system/warning.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                          <div class="fr-cart__body">
+                            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= pluralize(@ht2_echeance_courte, 'Acte', plural: 'Actes') %> </p>
+                            <p class="fr-text--lg fr-mb-0 text_center">Échéance < 5 jours</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-text--center">
+                        <%= image_tag "artwork/pictograms/system/error.svg", class: "fr-responsive-img image-icone", alt: "" %>
+                        <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                          <div class="fr-cart__body">
+                            <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= pluralize(@ht2_long_delay, 'Acte', plural: 'Actes') %></p>
+                            <p class="fr-text--lg fr-mb-0 text_center">En cours hors délai</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <%= link_to historique_ht2_path do %>
+                              Accéder à l'historique
+                            <% end %>
+                          </h3>
+                          <p class="fr-tile__detail">Tous exercices confondus</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-6">
+                    <div class="fr-tile fr-enlarge-link">
+                      <div class="fr-tile__body">
+                        <div class="fr-tile__content">
+                          <h3 class="fr-tile__title">
+                            <%= link_to synthese_ht2_actes_path do %>
+                              Accéder au tableau de bord
+                            <% end %>
+                          </h3>
+                          <p class="fr-tile__detail">Restitutions</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
+  </div>
   <div class="fr-follow">
     <div class="fr-container">
       <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
@@ -107,4 +347,10 @@
       </div>
     </div>
   </div>
+
+  <% if @statut_user == "DCB" || @statut_user == "CBR" %>
+    <dialog id="nouvel-acte-modal" class="fr-modal" aria-labelledby="modal-nouvel-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :new_modal %>
+    </dialog>
+  <% end %>
 </main>

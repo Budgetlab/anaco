@@ -1,0 +1,60 @@
+<a class="fr-link" aria-describedby="<%= name %>" id="link-<%= name %>" href="#" data-controller="filter" data-action="filter#Dropdown">
+  <span class="fr-icon-question-line fr-icon--sm" aria-hidden="true"></span>
+</a>
+<span class="fr-tooltip fr-placement" id="<%= name %>" role="tooltip" aria-hidden="true">
+  <% if name == "date_chorus_info" %>
+  Date faisant foi juridiquement pour calculer le délai d’instruction de l’acte. Pour les actes transmis hors Chorus (transaction), indiquer la date de réception dans le service.
+  <% elsif name == 'numero_chorus_info' %>
+    Numéro Chorus ou à defaut un numéro de référence.
+  <% elsif name == "avis_montant_ae" %>
+    En cas de première saisine, il s’agit du montant estimatif global initial. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte. Si le montant est inconnu ou trop incertain, indiquer 0.
+  <% elsif name == "visa_montant_ae" %>
+    Il s’agit du montant total engagé une fois l’acte pris. En cas de première saisine, il s’agit du montant initial engagé. En cas de saisine ultérieure, il s’agit du montant initial tel qu’augmenté ou réduit en fonction de la modification de l’acte. Si le montant est inconnu ou trop incertain, indiquer 0.
+  <% elsif name == "tf_montant_ae" %>
+    En cas de première saisine, il s’agit du montant total initial. En cas de saisine ultérieure, il s’agit du montant total résultant de l'affectation complémentaire ou du retrait d’affectation. Si le montant est inconnu ou trop incertain, indiquer 0.
+  <% elsif name == "cf" %>
+    Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001. Si plusieurs centres financiers, indiquer le principal.
+  <% elsif name == "pre_instruction_info" %>
+    Cette information est utilisée pour le suivi statistique des actes.
+  <% elsif name == "disponibilite_credits" %>
+    Le système d’information Chorus permet d’apprécier en temps réel et de manière automatique la disponibilité des crédits en AE sur le centre financier permettant d’engager la dépense. <br>Le contrôle de la disponibilité des crédits opéré par le contrôleur doit cibler :<br><br>
+• une éventuelle concomitance de demandes d’achat en cours de traitement (non encore comptabilisées dans le SI)  et pouvant conduire à une indisponibilité de crédits;<br>
+• la prise en compte d’éléments de contexte externe concernant l’évolution de la ressource du programme (mouvement en cours ou à venir à l’instar de décret de virement/transfert, annulation, avance, LFR, LFG, perception de FDC, ADP, RDC). A cet égard, une attention particulière doit être portée pendant la période de fin de gestion où le schéma de fin de gestion peut avoir un impact direct sur le niveau de la ressource. Des échanges entre CBR/DCB, avec le RFFIM et le BS peuvent contribuer à apprécier ces éléments de contexte de la manière la plus juste et la plus à jour;<br>
+• le suivi des délégations de crédits fléchées (en particulier en BOP déconcentrés) par rapport aux dépenses à financer;<br>
+• la disponibilité des CP nécessaires au paiement lorsque le SF sera certifié dans l’année.
+  <%elsif name == "imputation_depense" %>
+    Le contrôle de l’imputation de la dépense nécessite notamment un examen des points suivants :<br><br>
+• vérification du respect du principe de spécialité du programme. Les éléments présentés dans le projet annuel de performance doivent permettre d’apprécier ce principe;<br>
+• vérification du choix du centre financier (BOP/UO);<br>
+• vérification de la bonne application des nomenclatures d’imputation, notamment la nomenclature par activité, action, sous-action (la charte de gestion du programme peut donner des indications), titre, catégorie le groupe marchandise, le compte PCE;<br>
+• vérification du code fonds en cas de dépenses sur crédits issus de fonds de concours;<br>
+• vérification de l’imputation sur le bon axe ministériel;<br>
+• vérification de la concordance avec les éléments des pièces justificatives transmises par l’ordonnateur;<br><br>
+Des échanges avec le comptable peuvent être utiles s’agissant du contrôle des imputations comptables.<br>
+                  Référence documentaire: RRCBE
+  <% elsif name == "imputation_depense_tf" %>
+    Le contrôle de l’imputation de la tranche fonctionnelle nécessite notamment un examen des points suivants :<br><br>
+• vérification du choix du centre financier : UO pour les affectations et retraits d’affectation de l’année courante ; BOP pour la restitution des AE issues de retraits d’affectation des années antérieures.<br>
+• à titre exceptionnel, les retraits d’affectation d’AE d’années antérieures peuvent être recyclées sur autorisation expresse du contrôleur budgétaire : lorsque le retrait a été effectué en vue de corriger une erreur d’imputation budgétaire lors de l’affectation ;<br><br>
+Référence documentaire : Guide pratique du budgétaire dans chorus
+  <% elsif name == "consommation_credits" %>
+    Le critère de l’évaluation de la consommation des crédits concerne à la fois le montant des AE à engager et le montant des CP qui seront décaissés, en particulier dans l’année. <br>
+                Il faut se référer au RRCBE pour vérifier le respect des règles et la doctrine applicables pour le décompte des AE et des CP.<br><br>
+Les points d’attention suivants peuvent être signalés s’agissant contrôle du montant des AE :<br><br>
+• la concordance entre le montant présenté à la l’engagement ou à l’affectation et la réalité du montant tel qu’il découle de la lecture des pièces transmises (acte d’engagement, convention, arrêté, etc.). Une attention particulière doit être portée à la bonne prise en compte des engagements pluriannuels.<br>
+• pour certains types de dépenses (marché de travaux), bien prendre en compte les montants correspondant à des provisions pour révisions de prix et aléas;<br><br>
+Si le respect de la qualité d’ordonnateur ne fait pas partie des critères du contrôle, le contrôleur peut attirer l’attention du service prescripteur s’il détecte une anomalie.
+  <% elsif name == "programmation" %>
+    La programmation est celle présentée par le RPROG ou le RBOP à l’occasion du début de la gestion, le cas échéant actualisée en cours d’année notamment à l’occasion des CRG. Elle porte sur l’année en cours et l’année suivante.<br>
+Elle est en principe effectuée à la maille de l’activité. En cas d’impossibilité de disposer de données suffisamment actualisées à cette maille, il est possible de l’apprécier à une maille un peu plus large (brique par exemple) à la condition que les données présentées restent cohérentes.<br>
+La liste des principaux actes de gestion permet de contrôler la cohérence de leur prise en compte dans la programmation des dépenses.<br>
+Le contrôleur est fondé à solliciter une actualisation de la programmation et de la liste des actes de gestion.<br>
+La pluriannualité s’apprécie à travers la communication d’une chronique d’AE et CP cohérente par l’ordonnateur compatible avec les informations fournies en programmation.
+  <% elsif name == "critere_sv" %>
+    Les dépenses éligibles sont celles strictement nécessaires pour assurer la continuité des services publics dans les conditions précisées par circulaire.
+  <% elsif name == "delai_moyen_traitement_info" %>
+    Délai réglementaire de traitement prenant en compte les interruptions et suspensions.
+  <% elsif name == "duree_moyenne_traitement_info" %>
+    Durée globale de traitement de la date initiale à la validation dans Chorus.
+  <% end %>
+</span>

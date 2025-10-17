@@ -1,5 +1,18 @@
 Rails.application.routes.draw do
   scope(:path => '/anaco') do
+    # 1. Routes Active Storage (montées manuellement ici) #Attention enlever match 404 si on eleve ces routes
+    #scope '/rails/active_storage' do
+    #  get '/blobs/redirect/:signed_id/*filename', to: 'active_storage/blobs/redirect#show', as: :rails_service_blob
+    #  get '/blobs/proxy/:signed_id/*filename', to: 'active_storage/blobs/proxy#show', as: :rails_service_blob_proxy
+    #  get '/blobs/:signed_id/*filename', to: 'active_storage/blobs/redirect#show'
+    #  get '/representations/redirect/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/redirect#show', as: :rails_blob_representation
+    #  get '/representations/proxy/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/proxy#show', as: :rails_blob_representation_proxy
+    #  get '/representations/:signed_blob_id/:variation_key/*filename', to: 'active_storage/representations/redirect#show'
+    #  get '/disk/:encoded_key/*filename', to: 'active_storage/disk#show', as: :rails_disk_service
+    #  put '/disk/:encoded_token', to: 'active_storage/disk#update', as: :update_rails_disk_service
+    #  post '/direct_uploads', to: 'active_storage/direct_uploads#create', as: :rails_direct_uploads
+    #end
+
     devise_for :admin_users, ActiveAdmin::Devise.config
     ActiveAdmin.routes(self)
     devise_for :users, :path => '',
@@ -32,6 +45,7 @@ Rails.application.routes.draw do
       end
     end
     get 'schemas_remplissage' => "schemas#schemas_remplissage"
+    get 'generate_schemas_pdf' => "schemas#generate_schemas_pdf"
 
     resources :programmes do
       resources :schemas, only: [:new, :create]
@@ -53,6 +67,34 @@ Rails.application.routes.draw do
     get 'ajout_avis', to: 'avis#ajout_avis'
     post 'import_avis', to: 'avis#import'
 
+    resources :ht2_actes do
+      collection do
+        post :bulk_cloture
+      end
+      member do
+        get :export
+        get :download_attachments
+      end
+    end
+    get 'new_modal_acte', to: 'ht2_actes#new_modal', as: 'new_modal_acte'
+    get 'show_modal_acte/:id', to: 'ht2_actes#show_modal', as: 'show_modal_acte'
+    get 'modal_delete_acte/:id', to: 'ht2_actes#modal_delete', as: 'modal_delete_acte'
+    get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
+    get 'modal_cloture_preinstruction_acte/:id', to: 'ht2_actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
+    get 'modal_renvoie_instruction/:id', to: 'ht2_actes#modal_renvoie_instruction', as: 'modal_renvoie_instruction'
+    get 'modal_renvoie_validation/:id', to: 'ht2_actes#modal_renvoie_validation', as: 'modal_renvoie_validation'
+    get 'modal_validate_acte/:id', to: 'ht2_actes#modal_validate_acte', as: 'modal_validate_acte'
+    post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
+    get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
+    get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
+    get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
+    get 'historique_ht2', to: 'ht2_actes#historique'
+    get 'ajout_actes', to: 'ht2_actes#ajout_actes'
+    post 'import_actes', to: 'ht2_actes#import'
+    resources :centre_financiers, only: [:new]
+    post 'import_cf', to: 'centre_financiers#import'
+    get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
+
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'
     get '/accessibilite', to: 'pages#accessibilite'
@@ -62,7 +104,7 @@ Rails.application.routes.draw do
     match '/500', via: :all, to: 'errors#error_500'
     match '/404', via: :all, to: 'errors#error_404'
     match '/503', via: :all, to: 'errors#error_503'
-    match '*path', to: 'errors#error_404', via: :all
+    #match '*path', to: 'errors#error_404', via: :all #commenté car sinon pb routes pour active storage loadé apres 404 et renvoie automatiquement vers 404
   end
   get '/', to: redirect('/anaco')
   # get '/500', to: redirect('/anaco/500')

@@ -1,6 +1,7 @@
 class SchemasController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:pdf_vision]
   before_action :authenticate_dcb_or_admin!, except: [:pdf_vision, :show]
+  before_action :authenticate_admin!, only: [:generate_schemas_pdf]
   before_action :set_schema, only: [:destroy, :show, :confirm_delete, :pdf_vision]
   before_action :set_programme, only: [:create]
   before_action :retrieve_last_schema_and_redirect_if_incomplete, only: [:create]
@@ -34,6 +35,10 @@ class SchemasController < ApplicationController
 
   def show
     @gestion_schemas = @schema.gestion_schemas.includes(transferts: :programme)
+    @vision_rprog_ht2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'HT2')
+    @vision_rprog_t2 = @schema.gestion_schemas.find_by(vision: 'RPROG', profil: 'T2')
+    @vision_cbcm_ht2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'HT2')
+    @vision_cbcm_t2 = @schema.gestion_schemas.find_by(vision: 'CBCM', profil: 'T2')
     filename = "Schema_fin_de_gestion_P#{@schema.programme.numero}.xlsx"
     respond_to do |format|
       format.html
@@ -82,6 +87,8 @@ class SchemasController < ApplicationController
       end
     end
   end
+
+  def generate_schemas_pdf; end
 
   private
 

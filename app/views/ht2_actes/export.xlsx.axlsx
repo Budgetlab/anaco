@@ -1,0 +1,443 @@
+wb = xlsx_package.workbook
+
+# Styles de base
+title_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 16,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  bg_color: 'dae1f2',
+  fg_color: '161616',
+)
+header_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  bg_color: 'dae1f2',
+  fg_color: '161616',
+  border: { style: :thin, color: '000000' }
+)
+
+section_header_style = wb.styles.add_style(
+                      font_name: 'Marianne',
+                      sz: 11,
+                      b: true,
+                      alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+                      bg_color: 'ededed',
+                      fg_color: '161616',
+                      border: { style: :thin, color: '000000' }
+                    )
+
+cell_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' }
+)
+
+currency_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  alignment: { horizontal: :center, vertical: :center },
+  border: { style: :thin, color: '000000' },
+  num_fmt: 4,
+
+)
+
+check_ok_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 14,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  fg_color: '008000',
+  border: { style: :thin, color: '000000' }
+)
+
+check_ko_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 14,
+  b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  fg_color: 'FF0000',
+  border: { style: :thin, color: '000000' },
+)
+
+wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
+
+  # TITRE PRINCIPAL
+  sheet.add_row ["FICHE DE CONTRÔLE ACTE #{@acte.type_acte.upcase} N° #{@acte.numero_formate}"],
+                style: [title_style]
+  sheet.merge_cells("A1:J1")
+  sheet.row_style(0, title_style)
+  sheet.add_row
+
+   # En-têtes des décisions
+   sheet.add_row [
+     "Statut",
+     "Proposition de décision",
+     "Décision finale",
+   ], style: header_style
+
+   sheet.add_row [
+         @acte.etat,
+         format_value(@acte.proposition_decision),
+         format_value(@acte.decision_finale),
+       ], style: cell_style
+   sheet.add_row
+
+
+   current_row = sheet.rows.length + 1
+   sheet.add_row ["Commentaire proposition","","","", ""], style: header_style
+   sheet.merge_cells "A#{current_row}:E#{current_row}"
+   sheet.row_style current_row, header_style
+   current_row = sheet.rows.length + 1
+   sheet.add_row [format_value(@acte.commentaire_proposition_decision), "", "","", ""], style: cell_style
+     sheet.merge_cells "A#{current_row}:E#{current_row}"
+     sheet.row_style current_row, cell_style
+    # Définir une hauteur minimale basée sur la longueur du texte
+      comment_length = (@acte.commentaire_proposition_decision || "").length
+      estimated_lines = (comment_length / 100.0).ceil
+      min_height = [30, (estimated_lines * 20)].max
+      sheet.rows[current_row - 1].height = min_height
+
+
+   sheet.add_row
+   type_obs = @acte.type_observations&.join(", ") if @acte.type_observations.present?
+   current_row = sheet.rows.length + 1
+   sheet.add_row ["Type d'observations","Observations à l'ordonnateur","","", ""], style: header_style
+   sheet.merge_cells "B#{current_row}:E#{current_row}"
+   sheet.row_style current_row, header_style
+
+   current_row = sheet.rows.length + 1
+   sheet.add_row [type_obs, format_value(@acte.observations),"", "", ""], style: cell_style
+   sheet.merge_cells "B#{current_row}:E#{current_row}"
+     sheet.row_style current_row, cell_style
+    # Définir une hauteur minimale basée sur la longueur du texte
+      comment_length = (@acte.observations || "").length
+      estimated_lines = (comment_length / 80.0).ceil
+      min_height = [30, (estimated_lines * 20)].max
+      sheet.rows[current_row - 1].height = min_height
+
+   sheet.add_row
+
+   # INFORMATIONS SUR L'ACTE
+   current_row = sheet.rows.length + 1
+   sheet.add_row ["INFORMATIONS SUR L'ACTE","","","","","","",""], style: section_header_style
+   sheet.merge_cells "A#{current_row}:H#{current_row}"
+   sheet.row_style current_row, section_header_style
+   sheet.rows[current_row-1].height = 30
+
+   # Première table d'informations
+   montant_label = case @acte.type_acte
+                  when 'avis' then 'Montant estimatif global (AE)'
+                  when 'visa' then 'Montant engagé'
+                  when 'TF' then 'Montant total affecté'
+                  end
+
+   type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
+   delai =
+     if ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat)
+       n = @acte.delai_traitement.to_i
+       "#{n} jour#{'s' if n != 1}"  # évite la dépendance à pluralize
+       # ou si tu préfères et que les helpers sont dispo :
+       # helpers.pluralize(@acte.delai_traitement.to_i, 'jour')
+     elsif @acte.etat == 'suspendu'
+       'suspendu'
+     else
+       'en cours'
+     end
+
+   sheet.add_row [
+     "Instructeur",
+     "Valideur",
+     "Nature de l'acte",
+     type_label,
+     montant_label,
+     "Montant de cet acte",
+     "Date de saisine",
+     "Délai de traitement"
+   ], style: header_style
+   sheet.add_row [
+         @acte.instructeur,
+         @acte.valideur,
+         @acte.nature,
+         @acte.type_engagement,
+         @acte.montant_global,
+         @acte.montant_ae,
+         @acte.date_chorus&.strftime('%d/%m/%Y'),
+         delai
+       ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
+   sheet.add_row
+
+   # Deuxième table d'informations
+   headers = ["Exercice","Centre financier","N°Chorus"]
+   headers << "Bénéficiaire" if @acte.type_acte != 'TF'
+   objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
+   headers += [objet_label,"Ordonnateur", "Pré-instruction"]
+
+   sheet.add_row headers, style: header_style
+
+   data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
+   data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
+   data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
+   sheet.add_row data_row, style: cell_style
+   sheet.add_row
+
+   # Précisions sur l'acte
+   if @acte.precisions_acte.present?
+     current_row = sheet.rows.length + 1
+     sheet.add_row ["PRÉCISIONS SUR L'ACTE","","","",""], style: header_style
+     sheet.merge_cells "A#{current_row}:E#{current_row}"
+     sheet.row_style current_row, header_style
+     current_row = sheet.rows.length + 1
+     sheet.add_row [@acte.precisions_acte || "","","","",""], style: cell_style
+     sheet.merge_cells "A#{current_row}:E#{current_row}"
+     sheet.row_style current_row, cell_style
+    # Définir une hauteur minimale basée sur la longueur du texte
+      comment_length = (@acte.precisions_acte || "").length
+      estimated_lines = (comment_length / 100.0).ceil
+      min_height = [30, (estimated_lines * 20)].max
+      sheet.rows[current_row - 1].height = min_height
+
+     sheet.add_row
+   end
+
+   # INFORMATIONS COMPLÉMENTAIRES
+   if @acte.categorie.present? || @acte.action.present? || @acte.activite.present? || @acte.numero_marche.present? || @acte.numero_tf.present? || @acte.groupe_marchandises.present?
+     current_row = sheet.rows.length + 1
+     current_row = sheet.rows.length + 1
+     sheet.add_row ["INFORMATIONS COMPLÉMENTAIRES","","","","","","","", ""], style: section_header_style
+     sheet.merge_cells "A#{current_row}:I#{current_row}"
+     sheet.row_style current_row, section_header_style
+     sheet.rows[current_row-1].height = 30
+
+     comp_headers = ["Catégorie","Action/Sous-action", "Activité"]
+     comp_headers << "Numéro de marché" if @acte.numero_marche.present?
+     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present?
+     comp_headers << "Groupe de marchandises" if @acte.groupe_marchandises.present?
+     comp_headers << "Services votés"
+     sheet.add_row comp_headers, style: header_style
+
+     comp_data = [@acte.categorie, @acte.action, @acte.activite]
+     comp_data << @acte.numero_marche if @acte.numero_marche.present?
+     comp_data << @acte.numero_tf if @acte.numero_tf.present?
+     comp_data << @acte.groupe_marchandises if @acte.groupe_marchandises.present?
+     comp_data << (@acte.services_votes? ? 'Oui' : 'Non')
+     sheet.add_row comp_data, style: cell_style
+     sheet.add_row
+   end
+   # LIGNES DE POSTE
+   if @acte.poste_lignes.present?
+         current_row = sheet.rows.length + 1
+         sheet.add_row ["LIGNES DE POSTE","","","","","","","","", ""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:J#{current_row}"
+         sheet.row_style current_row, section_header_style
+         sheet.rows[current_row-1].height = 30
+
+         sheet.add_row [
+           "Numéro",
+           "Centre financier",
+           "Montant (€)",
+           "Action/Sous-action",
+           "Fonds",
+           "Titre/Catégorie",
+           "Code activité",
+           "Axe ministériel",
+           "Flux",
+           "Groupe de marchandises"
+         ], style: header_style
+
+         @acte.poste_lignes.each do |ligne|
+           sheet.add_row [
+             ligne.numero,
+             ligne.centre_financier_code,
+             ligne.montant,
+             ligne.domaine_fonctionnel,
+             ligne.fonds,
+             ligne.compte_budgetaire,
+             ligne.code_activite,
+             ligne.axe_ministeriel,
+             ligne.flux,
+             ligne.groupe_marchandises
+           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+         end
+         sheet.add_row
+   end
+
+   # ÉCHÉANCIER
+   if @acte.echeanciers.present?
+     current_row = sheet.rows.length + 1
+     sheet.add_row ["ÉCHÉANCIER","",""], style: section_header_style
+     sheet.merge_cells "A#{current_row}:C#{current_row}"
+     sheet.row_style current_row, section_header_style
+     sheet.rows[current_row-1].height = 30
+     sheet.add_row ["Année", "Montant AE (€)", "Montant CP (€)"], style: header_style
+
+     @acte.echeanciers.order(annee: :asc).each do |echeancier|
+       sheet.add_row [
+         echeancier.annee,
+         echeancier.montant_ae,
+         echeancier.montant_cp
+       ], style: [cell_style, currency_style, currency_style]
+     end
+     sheet.add_row
+   end
+   # CRITÈRES
+   current_row = sheet.rows.length + 1
+   sheet.add_row ["CRITÈRES DE CONTRÔLE","","","", ""], style: section_header_style
+   sheet.merge_cells "A#{current_row}:E#{current_row}"
+   sheet.row_style current_row, section_header_style
+   sheet.rows[current_row-1].height = 30
+   critere4 = @acte.services_votes == true ? "Engagement éligible à la gestion des services votés" : "Compatibilité programmation"
+    sheet.add_row [
+      "Acte programmé",
+      "Disponibilité des crédits",
+      "Imputation de la dépense",
+      "Exactitude de l'évaluation",
+      critere4
+    ], style: header_style
+
+    sheet.add_row [
+      @acte.programmation_prevue? ? "✓" : "✗",
+      @acte.disponibilite_credits? ? "✓" : "✗",
+      @acte.imputation_depense? ? "✓" : "✗",
+      @acte.consommation_credits? ? "✓" : "✗",
+      @acte.programmation? ? "✓" : "✗"
+    ], style: [
+    @acte.programmation_prevue? ? check_ok_style : check_ko_style,
+      @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
+      @acte.imputation_depense? ? check_ok_style : check_ko_style,
+      @acte.consommation_credits? ? check_ok_style : check_ko_style,
+      @acte.programmation? ? check_ok_style : check_ko_style
+    ]
+
+   sheet.add_row
+   # Observations critères
+   if @acte.commentaire_disponibilite_credits.present?
+    current_row = sheet.rows.length + 1
+    sheet.add_row ["Observations sur les critères","","",""], style: header_style
+    sheet.merge_cells "A#{current_row}:D#{current_row}"
+    current_row = sheet.rows.length + 1
+    sheet.add_row [clean_action_text(@acte.commentaire_disponibilite_credits),"","",""], style: cell_style
+    sheet.merge_cells "A#{current_row}:D#{current_row}"
+    sheet.row_style current_row, cell_style
+     # Définir une hauteur minimale basée sur la longueur du texte
+       comment_length = (clean_action_text(@acte.commentaire_disponibilite_credits)||"").length
+       estimated_lines = (comment_length / 100.0).ceil
+       min_height = [30, (estimated_lines * 20)].max
+       sheet.rows[current_row - 1].height = min_height
+    sheet.add_row
+   end
+
+   # SUSPENSIONS/INTERRUPTIONS
+   if @acte.suspensions.present?
+         current_row = sheet.rows.length + 1
+         type_suspension = @acte.type_acte == 'avis' ? 'SUSPENSION' : 'INTERRUPTION'
+         sheet.add_row ["#{type_suspension}S", "","","",""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:E#{current_row}"
+         sheet.row_style current_row, section_header_style
+         sheet.rows[current_row-1].height = 30
+
+         sheet.add_row [
+           type_suspension.capitalize,
+           "Date #{type_suspension.downcase}",
+           "Date de reprise",
+           "Motif",
+           "Observations"
+         ], style: header_style
+
+         @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index|
+           sheet.add_row [
+             "n°#{index + 1}",
+             suspension.date_suspension&.strftime('%d/%m/%Y'),
+             suspension.date_reprise&.strftime('%d/%m/%Y'),
+             suspension.motif,
+             suspension.observations
+           ], style: cell_style
+         end
+   end
+
+   sheet.column_widths(*Array.new(8, 30))
+   # -- Réglages d’impression (feuille principale)
+   last_row_index = sheet.rows.size # nombre total de lignes ajoutées
+   sheet.page_setup.orientation   = :landscape
+   sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur
+   sheet.page_setup.fit_to_height = 0      # hauteur auto (plusieurs pages si besoin)
+
+   sheet.print_options.grid_lines = false
+   sheet.print_options.headings = false
+   sheet.print_options.horizontal_centered = true
+
+   sheet.page_margins do |m|
+     m.left   = 0.5
+     m.right  = 0.5
+     m.top    = 0.5
+     m.bottom = 0.5
+     m.header = 0.3
+     m.footer = 0.3
+   end
+
+   # Si tu sais que la feuille tient en 8 colonnes (A:H), fixe la zone d’impression :
+   #sheet.print_area = "A1:H#{last_row_index}"
+end
+
+# ===== Onglet(s) Tableur issu(s) du mini tableur ============================
+# @acte.sheet_data est du type:
+# - v4 : { "data": [ [..], [..], ... ] }
+# - v5 : { "worksheets": [ { "name": "Feuille 1", "data": [..] }, ... ] }
+raw = @acte.sheet_data
+
+# Parse robuste (gère double encodage JSON)
+begin
+  parsed = raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
+  parsed = JSON.parse(parsed) if parsed.is_a?(String)
+rescue JSON::ParserError
+  parsed = {}
+end
+
+# Helper: écriture d'une grille simple
+write_grid = lambda do |sheet, rows|
+  rows ||= []
+
+  rows.each do |row|
+    r = Array(row)
+    sheet.add_row r, style: Array.new(r.length, cell_style)
+  end
+
+  max_cols = rows.map { |r| Array(r).length }.max || 1
+  sheet.column_widths(*Array.new(max_cols, 20))
+  # -- Réglages d’impression (feuille principale)
+  last_row_index = sheet.rows.size # nombre total de lignes ajoutées
+  sheet.page_setup.orientation   = :landscape
+  sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur
+  sheet.page_setup.fit_to_height = 0      # hauteur auto (plusieurs pages si besoin)
+
+  sheet.print_options.grid_lines = false
+  sheet.print_options.headings = false
+  sheet.print_options.horizontal_centered = true
+
+  sheet.page_margins do |m|
+    m.left   = 0.5
+    m.right  = 0.5
+    m.top    = 0.5
+    m.bottom = 0.5
+    m.header = 0.3
+    m.footer = 0.3
+  end
+end
+
+if parsed.is_a?(Hash) && parsed['worksheets'].present?
+  # Multi-feuilles (v5)
+  parsed['worksheets'].each_with_index do |ws, idx|
+    name = ws['name'].presence || "Tableur #{idx + 1}"
+    wb.add_worksheet(name: name) do |sheet|
+      write_grid.call(sheet, ws['data'])
+    end
+  end
+elsif parsed.is_a?(Hash) && parsed['data'].present?
+  # Une seule grille (v4 / v5 simple)
+  wb.add_worksheet(name: "Tableur") do |sheet|
+    write_grid.call(sheet, parsed['data'])
+  end
+end

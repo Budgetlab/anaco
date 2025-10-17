@@ -1,0 +1,301 @@
+<h2>Informations sur l'acte</h2>
+<div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div data-controller="acte-form" data-acte-form-checkchorusurl="<%= check_chorus_number_path %>" data-acte-form-prefixes-value="<%= nature_chorus_prefixes.to_json %>">
+  <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form nested-form2', nested_form_wrapper_selector_value: '.nested-form-wrapper', action: "submit->acte-form#changeTextToFloat" }) do |f| %>
+    <% if params[:parent_id].present? %>
+      <%= hidden_field_tag :parent_id, params[:parent_id] %>
+    <% end %>
+    <%= hidden_field_tag :etape, 2 %>
+    <%= f.hidden_field :type_acte, value: @acte.type_acte %>
+    <%= f.hidden_field :etat, value: @acte.etat %>
+    <%= f.hidden_field :pre_instruction, value: @acte.pre_instruction %>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="instructeur" class="fr-label">Initiales de l'instructeur*</label>
+          <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", required: true %>
+        </div>
+      </div>
+      <% if @acte.type_acte != 'TF' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="nature" class="fr-label">
+              Nature de l'acte*
+            </label>
+            <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true, data: { action: 'change->acte-form#checkNumeroNatureChorus' } } %>
+          </div>
+        </div>
+      <% end %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="type_engagement" class="fr-label">
+            <% if @acte.type_acte == 'TF' %>Type d’affectation*
+            <% else %>Type d'engagement*
+            <% end %></label>
+          <%= f.select :type_engagement, options_for_select(@liste_engagements.map { |nature| [nature, nature] }, @acte.type_engagement), { prompt: "- sélectionner -" }, { id: "type_engagement", class: "fr-select", required: true, data: { acte_form_target: "typeEngagement", action: "change->acte-form#changeType" } } %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group" data-controller="autocomplete" data-autocomplete-url-value="<%= centre_financiers_autocomplete_path %>">
+          <label for="centre_financier_code" class="fr-label">Centre financier*
+            <%= render partial: "ht2_actes/tooltip", locals: { name: "cf" } %></label>
+          <%= f.text_field :centre_financier_code, value: @acte.centre_financier_code, id: "centre_financier_code", class: "fr-input", required: true,
+                           data: {
+                             action: "input->autocomplete#search",
+                             autocomplete_target: "input"
+                           } %>
+          <div class="autocomplete-results" data-autocomplete-target="results" hidden>
+            <!-- Les résultats seront insérés ici par JavaScript -->
+          </div>
+          <p class="fr-message fr-message--info fr-text--small" data-autocomplete-target="noResults">
+            Ce centre financier n'est pas enregistré dans notre base
+          </p>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="montant_ae" class="fr-label">
+            <% if @acte.type_acte == 'avis' %>Montant de l'acte (AE)*
+            <% elsif @acte.type_acte == 'visa' %>Montant engagé par l'acte*
+            <% else %>Montant de l'affectation*
+            <% end %></label>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { acte_form_target: "montantAe", action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="montant_global" class="fr-label">
+            <% if @acte.type_acte == 'avis' %>Montant estimatif global
+              (AE) <%= render partial: "ht2_actes/tooltip", locals: { name: "avis_montant_ae" } %>
+            <% elsif @acte.type_acte == 'visa' %>Montant total
+              engagé <%= render partial: "ht2_actes/tooltip", locals: { name: "visa_montant_ae" } %>
+            <% elsif @acte.type_acte == 'TF' %>Montant total
+              affecté <%= render partial: "ht2_actes/tooltip", locals: { name: "tf_montant_ae" } %>
+            <% end %></label>
+          <%= f.text_field :montant_global, value: @acte.montant_global, id: "montant_global", class: "fr-input", data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="annee" class="fr-label">Exercice*</label>
+          <%= f.select :annee,
+                       options_for_select((Date.today.year - 10..Date.today.year + 1).to_a.reverse.map { |year| [year, year] }, @acte.annee || Date.today.year),
+                       { prompt: "- séléctionner -" },
+                       { id: "annee", class: "fr-select", required: true, data: { action: 'change->acte-form#validateYears' } } %>
+        </div>
+      </div>
+      <% if @acte.etat != 'en pré-instruction' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="date_chorus" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+            <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
+            <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
+              différente de l'exercice sélectionné.</p>
+          </div>
+        </div>
+      <% end %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="numero_chorus" class="fr-label">N° Chorus
+            <% if @acte.type_acte == 'TF' %>de la TF
+            <% end %> <%= render partial: "ht2_actes/tooltip", locals: { name: "numero_chorus_info" } %></label>
+          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input", data: { action: "input->acte-form#checkChorusNumberExistence input->acte-form#checkNumeroNatureChorus", acte_id: @acte.id, type_acte: @acte.type_acte } %>
+          <p class="fr-message fr-message--info fr-text--small fr-hidden" id="message-chorus-number-existence">Un acte
+            avec ce numéro Chorus existe déjà</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-number">Le n°Chorus ne comporte pas
+            <%= @acte.type_acte == 'TF' ? '8' : '10' %> chiffres.</p>
+          <p class="fr-message cwarning fr-text--small fr-hidden" id="message-chorus-nature">Le numéro Chorus ne
+            correspond pas au format attendu pour cette nature d'acte.</p>
+        </div>
+      </div>
+      <% if @acte.type_acte != 'TF' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="beneficiaire" class="fr-label">Bénéficaire</label>
+            <%= f.text_field :beneficiaire, value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
+          </div>
+        </div>
+      <% end %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="objet" class="fr-label">
+            <% if @acte.type_acte == 'TF' %>Opération d’investissement
+            <% else %>Objet
+            <% end %></label>
+          <%= f.text_field :objet, value: @acte.objet, id: "objet", class: "fr-input" %>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="ordonnateur" class="fr-label">Ordonnateur</label>
+          <%= f.text_field :ordonnateur, value: @acte.ordonnateur, id: "ordonnateur", class: "fr-input" %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-input-group">
+          <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
+          <%= f.text_area :precisions_acte, class: 'fr-input' %>
+        </div>
+
+      </div>
+    </div>
+
+    <div data-controller="toggle">
+      <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+              data-action="click->toggle#toggleContent"
+              data-toggle-target="button"
+              data-toggle-text-show="Renseigner plus d'informations"
+              data-toggle-text-hide="Afficher moins">
+        Renseigner plus d'informations
+      </button>
+      <div class="fr-hidden" data-toggle-target="content">
+
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-select-group">
+              <label for="categorie" class="fr-label">Titre/Catégorie</label>
+              <%= f.select :categorie, options_for_select(@categories.map { |categorie| [categorie, categorie] }, @acte.categorie), { include_blank: "- sélectionner -" }, { id: "categorie", class: "fr-select" } %>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="action" class="fr-label">Action/Sous-action</label>
+              <%= f.text_field :action, value: @acte.action, id: "action", class: "fr-input" %>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="activite" class="fr-label">Activité</label>
+              <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
+            </div>
+          </div>
+          <% if @acte.type_acte != 'TF' %>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="numero_marche" class="fr-label">Numéro de marché</label>
+                <%= f.text_field :numero_marche, value: @acte.numero_marche, id: "numero_marche", class: "fr-input", data: { action: 'input->acte-form#checkNumeroMarcheLength' } %>
+                <p class="fr-message cwarning fr-text--small fr-hidden" id="message-marche-number">Le n° de marché ne
+                  comporte pas 10 chiffres.</p>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="numero_tf" class="fr-label">Numéro Chorus de la TF</label>
+                <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="groupe_marchandises" class="fr-label">Groupe de marchandises</label>
+                <%= f.text_field :groupe_marchandises, class: "fr-input", id: 'groupe_marchandises' %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :services_votes, id: "services_votes" %>
+          <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
+        </div>
+        <% if @acte.type_acte != 'TF' %>
+          <template data-nested-form2-target="template">
+            <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
+              <%= render "form_poste_ligne", f: poste_ligne_fields %>
+            <% end %>
+          </template>
+
+          <%= f.fields_for :poste_lignes, f.object.poste_lignes do |poste_ligne_fields| %>
+            <%= render "form_poste_ligne", f: poste_ligne_fields %>
+          <% end %>
+
+          <!-- Inserted elements will be injected before that target. -->
+          <div data-nested-form2-target="target"></div>
+          <button type="button" data-action="nested-form2#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+            Ajouter une ligne de poste
+          </button>
+
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border" id="total_postes_card">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">Montant total lignes de poste</p>
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                <span data-acte-form-target="totalMontant">0</span>
+                €</p>
+            </div>
+          </div>
+
+          <div class="fr-h6 fr-my-2w">Échéancier (facultatif)</div>
+
+          <template data-nested-form-target="template">
+            <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+              <%= render "form_echeancier", f: echeancier_fields %>
+            <% end %>
+          </template>
+
+          <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+            <%= render "form_echeancier", f: echeancier_fields %>
+          <% end %>
+
+          <!-- Inserted elements will be injected before that target. -->
+          <div data-nested-form-target="target"></div>
+          <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+            Ajouter une année
+          </button>
+
+          <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w" id="total_echeancier_card">
+            <div class="fr-col-12 fr-col-lg-4">
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total AE</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierAE">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total CP</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierCP">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @acte.type_acte == 'TF' %>
+      <div class="fr-h6 fr-my-2w">Échéancier</div>
+
+      <template data-nested-form-target="template">
+        <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+          <%= render "form_echeancier", f: echeancier_fields %>
+        <% end %>
+      </template>
+
+      <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+        <%= render "form_echeancier", f: echeancier_fields %>
+      <% end %>
+
+      <!-- Inserted elements will be injected before that target. -->
+      <div data-nested-form-target="target"></div>
+      <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+        Ajouter une année
+      </button>
+    <% end %>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li><%= f.submit "Enregistrer et continuer", class: 'fr-btn', data: { acte_form_target: 'submitButton' } %></li>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>

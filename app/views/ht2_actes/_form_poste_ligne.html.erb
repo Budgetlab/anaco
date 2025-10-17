@@ -1,0 +1,83 @@
+<div class="nested-form-wrapper fr-mb-3w" data-new-record="<%= f.object.new_record? %>">
+  <div class="fr-h6 fr-capitalize">Ligne de poste
+    <button type="button" data-action="acte-form#updateTotalDelete nested-form2#remove">
+      <span class="fr-icon-delete-bin-line fr-icon--sm cbleu"></span></button>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="numero" class="fr-label">N° ligne de poste Chorus</label>
+        <%= f.text_field :numero, id: "numero", class: "fr-input" %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group" data-controller="autocomplete" data-autocomplete-url-value="<%= centre_financiers_autocomplete_path %>">
+        <label for="cf_code" class="fr-label">Centre financier*</label>
+        <%= f.text_field :centre_financier_code, class: "fr-input", id: 'cf_code',
+                         data: {
+                           action: "input->autocomplete#search",
+                           autocomplete_target: "input"
+                         }, required: true%>
+        <div class="autocomplete-results" data-autocomplete-target="results" hidden>
+          <!-- Les résultats seront insérés ici par JavaScript -->
+        </div>
+        <p class="fr-message fr-message--info fr-text--small" data-autocomplete-target="noResults">
+          Ce centre financier n'est pas enregistré dans notre base
+        </p>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="montant" class="fr-label">Montant</label>
+        <%= f.text_field :montant, id: "montant", class: "fr-input", data: { action: "input->acte-form#changeNumber input->acte-form#updateTotalLignesPoste", acte_form_number_field: true } %>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="domaine_fonctionnel" class="fr-label">Action/Sous-action</label>
+        <%= f.text_field :domaine_fonctionnel, id: "domaine_fonctionnel", class: "fr-input" %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="fonds" class="fr-label">Fonds</label>
+        <%= f.text_field :fonds, class: "fr-input", id: 'fonds' %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="compte_budgetaire" class="fr-label">Titre/Catégorie</label>
+        <%= f.select :compte_budgetaire, @categories.map { |categorie| [categorie, categorie] }, { prompt: "- sélectionner -" }, { id: "compte_budgetaire", class: "fr-select" } %>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="code_activite" class="fr-label">Code activité</label>
+        <%= f.text_field :code_activite, class: "fr-input", id: 'code_activite' %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="axe_ministeriel" class="fr-label">Axe ministériel</label>
+        <%= f.text_field :axe_ministeriel, class: "fr-input", id: 'axe_ministeriel' %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="flux" class="fr-label">Flux</label>
+        <%= f.select :flux, [["1","1"], ["2","2"], ["3","3"],["4","4"]],{ prompt: "- sélectionner -" }, { id: 'axe_ministeriel', class: "fr-select" } %>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="groupe_marchandises_poste" class="fr-label">Groupe de marchandises</label>
+        <%= f.text_field :groupe_marchandises, class: "fr-input", id: 'groupe_marchandises_poste' %>
+      </div>
+    </div>
+  </div>
+  <%= f.hidden_field :_destroy %>
+</div>

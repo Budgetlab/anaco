@@ -9,7 +9,7 @@ local:
 google:
   service: GCS
   project: <%= ENV["GOOGLE_PROJECT_ID"] %>
-  # credentials: <%= Rails.root.join("keyfile.json") %>
+  #credentials: <%= Rails.root.join("config/anaco.json").to_s %>
   credentials:
     type: "service_account"
     project_id: <%= ENV["GOOGLE_PROJECT_ID"] %>
