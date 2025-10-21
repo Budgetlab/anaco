@@ -1,0 +1,87 @@
+<div class="fr-container--grey">
+  <div class="fr-container">
+    <div class="fr-grid-row">
+      <div class="fr-col-12 fr-col-lg-3">
+        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+          <div class="fr-sidemenu__inner">
+            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+              Dans cette rubrique
+            </button>
+            <div class="fr-collapse" id="fr-sidemenu-wrapper">
+              <div class="fr-sidemenu__title" id="fr-sidemenu-title">Synthèses Actes HT2</div>
+              <ul class="fr-sidemenu__list">
+                <li class="fr-sidemenu__item">
+                  <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
+                    Informations globales
+                  <% end %>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <button class="fr-sidemenu__btn" aria-current="true">
+                    Suivi mensuel
+                  </button>
+
+                </li>
+                <li class="fr-sidemenu__item">
+                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
+                    Anomalies
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="fr-col-12 fr-col-lg-9">
+        <h1 class="fr-mt-6w fr-mb-2w title-btn">Suivi mensuel des actes clôturés
+          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+            Filtrer les résultats
+          </button>
+        </h1>
+
+        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
+          <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.delai_moyen_traitement %> jours</p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "delai_moyen_traitement_info" } %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.duree_total_moyenne %> jours</p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "duree_moyenne_traitement_info" } %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count_with_long_delay %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Actes cloturés hors délai</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-12">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="column"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @actes_par_mois.to_json %>"
+                   data-highcharts-actes-title-value="Suivi mensuel des actes clôturés"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

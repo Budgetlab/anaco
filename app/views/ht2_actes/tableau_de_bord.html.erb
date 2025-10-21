@@ -1,0 +1,381 @@
+<% content_for :title do %>Tableau de bord Actes HT2 | ANACO
+<% end %>
+
+<div class="fr-container--grey">
+  <div class="fr-container">
+    <div class="fr-grid-row">
+      <div class="fr-col-12 fr-col-lg-3">
+        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+          <div class="fr-sidemenu__inner">
+            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+              Dans cette rubrique
+            </button>
+            <div class="fr-collapse" id="fr-sidemenu-wrapper">
+              <div class="fr-sidemenu__title" id="fr-sidemenu-title">Synthèses</div>
+              <ul class="fr-sidemenu__list">
+                <li class="fr-sidemenu__item">
+                  <button class="fr-sidemenu__btn" aria-current="true">
+                    Informations globales
+                  </button>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <%= link_to synthese_temporelle_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
+                    Suivi mensuel
+                  <% end %>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
+                    Anomalies
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="fr-col-12 fr-col-lg-9">
+        <h1 class="fr-mt-6w fr-mb-2w title-btn">Informations globales <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+          Filtrer les résultats
+        </button></h1>
+
+        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
+          <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-3">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Actes HT2</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-3">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count{|a| a.type_acte == 'avis'} %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Avis</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-3">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count{|a| a.type_acte == 'visa'} %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Visas</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-3">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count{|a| a.type_acte == 'TF'} %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">TF</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @decisions_data.to_json %>"
+                   data-highcharts-actes-title-value="Répartition des actes par Décision"></div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="bar"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @natures_data.to_json %>"
+                   data-highcharts-actes-title-value="Répartition des actes par Nature"></div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @preinstruction_data.to_json %>"
+                   data-highcharts-actes-title-value="Suivi de la pré-instruction"></div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="bar"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @ordonnateurs_data.to_json %>"
+                   data-highcharts-actes-title-value="Répartition des actes par Ordonnateur"></div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="bar"
+                   data-highcharts-actes-target="chart"
+                   data-highcharts-actes-data-value="<%= @programmes_data.to_json %>"
+                   data-highcharts-actes-title-value="Répartition des actes par Programme"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+  <div class="fr-container--fluid">
+    <div class="fr-modal-custom__row--left">
+      <div class="fr-col-12">
+        <div class="fr-modal-custom__body">
+          <div class="fr-modal__header">
+            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
+          </div>
+          <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+            <div class="fr-modal__content">
+              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                Filtrer les résultats
+              </h2>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                  <div>
+                    <span class="fr-label fr-text--bold">Type d’acte</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :type_acte_in)) %>
+                      <% ['avis', 'visa', 'TF'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[type_acte_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Exercice</span>
+                    <% selected_years = Array(params.dig(:q, :annee_in)).map(&:to_s) %>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% (2019..Date.today.year + 1).each do |y| %>
+                        <% y_str = y.to_s %>
+                        <% checked = selected_years.include?(y_str) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[annee_in][]',
+                                              y_str,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= y_str %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">État</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :etat_in)) %>
+                      <% ['en pré-instruction', "en cours d'instruction", 'suspendu', 'en attente de validation', 'en attente de validation Chorus', 'clôturé', 'clôturé après pré-instruction'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[etat_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Décision finale</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_types = Array(params.dig(:q, :decision_finale_in)) %>
+                      <% ['Visa accordé', "Visa accordé avec observations", 'Refus de visa', 'Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori'].each do |t| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[decision_finale_in][]',
+                                              t,
+                                              selected_types.include?(t),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= t %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <span class="fr-label fr-text--bold">Services votés</span>
+                    <% selected = Array(params.dig(:q, :services_votes_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                        <% checked = selected.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[services_votes_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Numéro d'acte ou Chorus</label>
+                  <%= f.search_field :numero_formate_or_numero_chorus_cont, class: "fr-input", placeholder: 'Rechercher un acte par n°acte, n°Chorus' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Nature</label>
+                  <%= f.select :nature_eq, options_for_select(@liste_natures, params.dig(:q, :nature_eq)), { include_blank: 'Toutes' }, class: "fr-select" %>
+                </div>
+                <% if @statut_user == 'admin' %>
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Contrôleur</label>
+                    <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
+                    <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
+                  </div>
+                <% end %>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Centre financier</label>
+                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Bénéficiaire</label>
+                  <%= f.search_field :beneficiaire_cont, class: "fr-input", placeholder: 'Rechercher un acte par bénéficiaire' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Activité</label>
+                  <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
+                </div>
+                <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Montant entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :montant_ae_gteq, 'Montant minimum (€)', class: 'fr-label' %>
+                      <%= f.number_field :montant_ae_gteq,
+                                         class: 'fr-input',
+                                         step: '0.01',
+                                         min: '0',
+                                         placeholder: '0.00',
+                                         value: params.dig(:q, :montant_ae_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :montant_ae_lteq, 'Montant maximum (€)', class: 'fr-label' %>
+                      <%= f.number_field :montant_ae_lteq,
+                                         class: 'fr-input',
+                                         step: '0.01',
+                                         min: '0',
+                                         placeholder: '0.00',
+                                         value: params.dig(:q, :montant_ae_lteq) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Clôture entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
+                      <%= f.date_field :date_cloture_gteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_cloture_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
+                      <%= f.date_field :date_cloture_lteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_cloture_lteq) %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <span class="fr-label fr-text--bold">Réception entre</span>
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_chorus_gteq, 'Du', class: 'fr-label' %>
+                      <%= f.date_field :date_chorus_gteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_chorus_gteq) %>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-6">
+                      <%= f.label :date_chorus_lteq, 'Au', class: 'fr-label' %>
+                      <%= f.date_field :date_chorus_lteq,
+                                       class: 'fr-input',
+                                       value: params.dig(:q, :date_chorus_lteq) %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Trier par</label>
+                  <%= f.select :s,
+                               options_for_select(
+                                 [
+                                   ['Par défaut (dernière modification)', 'updated_at desc'],
+                                   ['Date de clôture croissante', 'date_cloture asc'],
+                                   ['Date de clôture décroissante', 'date_cloture desc'],
+                                   ['Date de réception croissante', 'date_chorus asc'],
+                                   ['Date de réception décroissante', 'date_chorus desc']
+                                 ],
+                                 params.dig(:q, :s)
+                               ),
+                               { include_blank: false },
+                               class: "fr-select" %>
+                </div>
+              </div>
+            </div>
+            <div class="fr-modal__footer">
+              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                <li>
+                  <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                </li>
+                <li>
+                  <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                    Réinitialiser
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>

@@ -97,10 +97,13 @@ class AvisController < ApplicationController
     avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     @q = avis_all.ransack(params[:q])
     @avis_all = @q.result.includes(:bop, :user)
+    @avis_en_attente = @avis_all.where(etat: 'En attente de lecture')
+    @avis_lus = @avis_all.where(etat: 'Lu')
     @filtres_count = count_active_filters(params[:q])
     respond_to do |format|
       format.html do
-        @pagy, @avis_page = pagy(@avis_all, limit: 15)
+        @pagy_en_attente, @avis_en_attente_page = pagy(@avis_en_attente, page_param: :page_en_attente, limit: 15)
+        @pagy_lus, @avis_lus_page = pagy(@avis_lus,page_param: :page_lus, limit: 15)
       end
       format.xlsx do
         # @actes_all contient déjà tous les résultats filtrés

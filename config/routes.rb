@@ -70,6 +70,9 @@ Rails.application.routes.draw do
     resources :ht2_actes do
       collection do
         post :bulk_cloture
+        get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'
+        get 'synthese_temporelle', to: 'ht2_actes#synthese_temporelle'
+        get 'synthese_anomalies', to: 'ht2_actes#synthese_anomalies'
       end
       member do
         get :export
@@ -91,6 +94,7 @@ Rails.application.routes.draw do
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
     post 'import_actes', to: 'ht2_actes#import'
+
     resources :centre_financiers, only: [:new]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
