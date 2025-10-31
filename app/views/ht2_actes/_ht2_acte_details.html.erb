@@ -82,11 +82,10 @@
         </li>
       </ul>
     </div>
-  <% elsif acte.etat == "en attente de validation Chorus" %>
+  <% elsif acte.etat == "à clôturer" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
       <h3 class="fr-callout__title">Clôturer l'acte</h3>
-      <p class="fr-callout__text">Indiquer la date de validation dans Chorus pour marquer la fin du contrôle sur
-        l'acte.</p>
+      <p class="fr-callout__text">Indiquer la date marquant la fin du contrôle sur l'acte.</p>
 
       <%= form_with(model: acte) do |f| %>
         <%= hidden_field_tag :etape, 6 %>
@@ -94,7 +93,7 @@
         <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
           <div class="fr-col-12 fr-col-lg-6">
             <div class="fr-select-group">
-              <label for="date_cloture" class="fr-label">Date de validation dans Chorus*</label>
+              <label for="date_cloture" class="fr-label">Date de clôture*</label>
               <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(acte.date_chorus) }, value: format_date(acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
 
             </div>

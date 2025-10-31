@@ -20,7 +20,7 @@ class Ht2ActesController < ApplicationController
       "en cours d'instruction",
       'suspendu',
       'en attente de validation',
-      'en attente de validation Chorus'
+      'à clôturer'
     ]
     @actes = base_scope.where(etat: current_state)
     @q_current = @actes.ransack(params[:q_current], search_key: :q_current)
@@ -31,7 +31,7 @@ class Ht2ActesController < ApplicationController
     @actes_instruction_all          = @actes_filtered.where(etat: "en cours d'instruction")
     @actes_suspendu_all             = @actes_filtered.where(etat: 'suspendu')
     @actes_validation_all           = @actes_filtered.where(etat: 'en attente de validation')
-    @actes_validation_chorus_all    = @actes_filtered.where(etat: 'en attente de validation Chorus')
+    @actes_validation_chorus_all    = @actes_filtered.where(etat: 'à clôturer')
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
     @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
@@ -116,7 +116,7 @@ class Ht2ActesController < ApplicationController
   def update
     @etape = params[:etape].to_i || 1
     # États valides pour la transition
-    etats_valides = ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus',
+    etats_valides = ["en cours d'instruction", 'en attente de validation', 'à clôturer',
                      'clôturé après pré-instruction', 'clôturé']
     @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
     # maj décision finale si cloture retour sans decision
@@ -132,7 +132,7 @@ class Ht2ActesController < ApplicationController
           notice = "Acte clôturé avec succès."
         elsif @etape == 4
             notice = 'Update'
-        elsif @acte.etat == 'en attente de validation Chorus'
+        elsif @acte.etat == 'à clôturer'
           notice = "Validation"
         elsif @etape == 7
           notice = "Acte renvoyé en pré-instruction avec succès."
@@ -412,7 +412,10 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes; end
+  def ajout_actes
+    actes = Ht2Acte.where(etat: 'en attente de validation Chorus')
+    actes.update_all(etat: 'à clôturer')
+  end
 
   def import
     Ht2Acte.import(params[:file])

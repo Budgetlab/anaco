@@ -17,7 +17,7 @@
               obligatoirement.
             </div>
             <div data-controller="acte-form">
-              <%= form_with(model: @acte, data: { turbo_frame: "_top" }) do |f| %>
+              <%= form_with(model: @acte, data: { turbo_frame: "_top", turbo: false }) do |f| %>
                 <%= hidden_field_tag :etape, 5 %>
 
                 <div class="fr-grid-row fr-grid-row--gutters">
@@ -63,34 +63,50 @@
                     </div>
                   </div>
                 </div>
-                <% if @acte.nature == "Liste d'actes" || (@acte.type_acte == 'avis' && @acte.nature == 'Transaction') %>
-                  <%= f.hidden_field :etat, value: "clôturé" %>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-lg-12">
+                    <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="legend-cloture">
+                      <legend id="legend-cloture" class="fr-fieldset__legend--regular fr-fieldset__legend">
+                        Clôturer l'acte à cette étape ?
+                      </legend>
+
+                      <div class="fr-fieldset__element fr-fieldset__element--inline">
+                        <div class="fr-radio-group fr-radio-rich">
+                          <%= f.radio_button :etat, "à clôturer", id: "etat1", checked: true, data: { "acte-form-target": "etatClotureRadio", action: "change->acte-form#toggleCloture" } %>
+                          <label class="fr-label" for="etat1">Non<span class="fr-hint-text">L’instructeur clôturera l’acte ultérieurement.</span></label>
+                        </div>
+                      </div>
+
+                      <div class="fr-fieldset__element fr-fieldset__element--inline">
+                        <div class="fr-radio-group fr-radio-rich">
+                          <%= f.radio_button :etat, "clôturé", id: "etat2", data: { "acte-form-target": "etatClotureRadio", action: "change->acte-form#toggleCloture" } %>
+                          <label class="fr-label" for="etat2">Oui<span class="fr-hint-text">L’acte sera définitivement clôturé sans passer par l'instructeur.</span></label>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+                <div id="cloture-date-block" hidden>
                   <div class="fr-grid-row fr-grid-row--gutters">
                     <div class="fr-col-12 fr-col-lg-6">
                       <div class="fr-select-group">
-                        <label for="date_cloture" class="fr-label">Date de clôture*</label>
-                        <%= f.date_field :date_cloture, class: "fr-select", id: "date_cloture", placeholder: "jj/mm/aaaa", required: true, min: @acte.date_chorus&.strftime("%Y-%m-%d") %>
+                        <label for="date_cloture" class="fr-label">Date de clôture*<span class="fr-hint-text">Renseigner une date pour clôturer l'acte directement à cette étape.</span></label>
+                        <%= f.date_field :date_cloture, class: "fr-select", id: "date_cloture", placeholder: "jj/mm/aaaa", min: @acte.date_chorus&.strftime("%Y-%m-%d") %>
                       </div>
                     </div>
                   </div>
-                  <ul class="fr-btns-group fr-mt-4w">
-                    <li>
-                      <%= f.submit "Valider et clôturer", class: 'fr-btn' %>
-                    </li>
-                  </ul>
-                <% else %>
-                  <%= f.hidden_field :etat, value: "en attente de validation Chorus" %>
-                  <ul class="fr-btns-group">
-                    <li>
-                      <%= f.submit "Valider", class: 'fr-btn' %>
-                    </li>
-                  </ul>
-                <% end %>
+                </div>
+                <ul class="fr-btns-group fr-mt-4w">
+                  <li>
+                    <%= f.submit "Valider", class: 'fr-btn' %>
+                  </li>
+                </ul>
               <% end %>
               <ul class="fr-btns-group">
                 <li>
                   <button aria-controls="modal-acte" class="fr-btn fr-btn--secondary">
-                    Annuler</button>
+                    Annuler
+                  </button>
                 </li>
               </ul>
             </div>

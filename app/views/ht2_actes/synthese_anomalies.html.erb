@@ -155,7 +155,7 @@
                     <span class="fr-label fr-text--bold">État</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array(params.dig(:q, :etat_in)) %>
-                      <% ['en pré-instruction', "en cours d'instruction", 'suspendu', 'en attente de validation', 'en attente de validation Chorus', 'clôturé', 'clôturé après pré-instruction'].each do |t| %>
+                      <% ['en pré-instruction', "en cours d'instruction", 'suspendu', 'en attente de validation', 'à clôturer', 'clôturé', 'clôturé après pré-instruction'].each do |t| %>
                         <li>
                           <label class="fr-tag tag-selectable"
                                  data-controller="tag-select"

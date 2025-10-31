@@ -52,7 +52,7 @@ class Ht2Acte < ApplicationRecord
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus'])
+    where(etat: ["en cours d'instruction", 'en attente de validation', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite >= ?", Date.today)
       .where("date_limite <= ?", Date.today + 5.days)
@@ -61,7 +61,7 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour compter les actes en cours hors délai
   def self.count_current_with_long_delay
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus'])
+    where(etat: ["en cours d'instruction", 'en attente de validation', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite < ?", Date.today)
       .count

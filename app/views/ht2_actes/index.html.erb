@@ -81,7 +81,7 @@
             </li>
             <li role="presentation">
               <button type="button" id="storybook-tab-4" class="fr-tabs__tab" tabindex="<%= @selected_tab == 'cloture' ? '0' : '-1' %>" role="tab" aria-selected="<%= @selected_tab == 'cloture' ? 'true' : 'false' %>" aria-controls="storybook-tab-4-panel">A
-                clôturer dans Chorus [<%= @actes_validation_chorus_all.count %>]
+                clôturer [<%= @actes_validation_chorus_all.count %>]
               </button>
             </li>
           </ul>
@@ -379,7 +379,7 @@
                   <div class="fr-table__container">
                     <div class="fr-table__content">
                       <table>
-                        <caption>Actes en attente de validation Chorus</caption>
+                        <caption>Actes à clôturer</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
                           <th scope="col" class="fr-cell--fixed fr-col-check">

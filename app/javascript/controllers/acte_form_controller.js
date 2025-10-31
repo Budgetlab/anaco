@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio']
     static values = { prefixes: Object }
     connect() {
 
@@ -24,13 +24,12 @@ export default class extends Controller {
             // modal nouvel acte
             this.togglePreInstruction()
         }
+        if (this.hasEtatClotureRadioTarget){
+            this.toggleCloture()
+        }
     }
     setValidation(event) {
         this.submitActionTarget.value = "en attente de validation"
-    }
-
-    confirmValidation(event) {
-        this.submitActionTarget.value = "en attente de validation Chorus"
     }
 
     confirmCloture(event) {
@@ -365,6 +364,21 @@ export default class extends Controller {
             const non = this.preRadioTargets.find(r => r.id === 'pre_instruction_no' || r.value === 'false')
             if (non) non.checked = true
         }
+    }
+
+    toggleCloture(event){
+        const selected = this.etatClotureRadioTargets.find(r => r.checked)?.value
+        const show = selected === "clôturé"
+
+        // afficher/cacher le bloc
+        const bloc = document.getElementById('cloture-date-block')
+        bloc.hidden = !show
+        console.log(bloc.hidden)
+
+        const date_cloture = document.getElementById('date_cloture')
+        if (!show) date_cloture.value = null
+        if (!show) date_cloture.required = false
+        if (show) date_cloture.required = true
     }
 
     toggleAddButton() {
