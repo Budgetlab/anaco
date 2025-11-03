@@ -18,14 +18,12 @@
             </div>
             <div data-controller="acte-form">
               <%= form_with(model: @acte, data: { turbo_frame: "_top", turbo: false }) do |f| %>
-                <%= hidden_field_tag :etape, 5 %>
-
 
                   <div class="fr-grid-row fr-grid-row--gutters">
                     <div class="fr-col-12 fr-col-lg-6">
                       <div class="fr-select-group">
                         <label for="date_reprise" class="fr-label">Date fin de suspension*</label>
-                        <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @acte.date_chorus&.strftime("%Y-%m-%d") %>
+                        <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d") %>
                       </div>
                     </div>
                   </div>
