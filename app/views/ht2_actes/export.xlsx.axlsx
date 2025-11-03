@@ -173,6 +173,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # Deuxième table d'informations
    headers = ["Exercice","Centre financier","N°Chorus"]
    headers << "Bénéficiaire" if @acte.type_acte != 'TF'
+   headers << "N° d'affectation" if @acte.type_acte == 'TF'
    objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
    headers += [objet_label,"Ordonnateur", "Pré-instruction"]
 
@@ -180,6 +181,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
    data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
    data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
+   data_row << @acte.numero_tf if @acte.type_acte == 'TF'
    data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
    sheet.add_row data_row, style: cell_style
    sheet.add_row
@@ -212,16 +214,16 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.row_style current_row, section_header_style
      sheet.rows[current_row-1].height = 30
 
-     comp_headers = ["Catégorie","Action/Sous-action", "Activité"]
+     comp_headers = ["Catégorie","Action/Sous-action", "Code activité"]
      comp_headers << "Numéro de marché" if @acte.numero_marche.present?
-     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present?
+     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present? && @acte.type_acte != 'TF'
      comp_headers << "Groupe de marchandises" if @acte.groupe_marchandises.present?
      comp_headers << "Services votés"
      sheet.add_row comp_headers, style: header_style
 
      comp_data = [@acte.categorie, @acte.action, @acte.activite]
      comp_data << @acte.numero_marche if @acte.numero_marche.present?
-     comp_data << @acte.numero_tf if @acte.numero_tf.present?
+     comp_data << @acte.numero_tf if @acte.numero_tf.present? && @acte.type_acte != 'TF'
      comp_data << @acte.groupe_marchandises if @acte.groupe_marchandises.present?
      comp_data << (@acte.services_votes? ? 'Oui' : 'Non')
      sheet.add_row comp_data, style: cell_style

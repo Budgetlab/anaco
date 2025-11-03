@@ -88,7 +88,8 @@
       <% if @acte.etat != 'en pré-instruction' %>
         <div class="fr-col-12 fr-col-lg-4">
           <div class="fr-select-group">
-            <label for="date_chorus" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+            <label for="date_chorus" class="fr-label">Date de
+              saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
             <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
             <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
               différente de l'exercice sélectionné.</p>
@@ -114,6 +115,13 @@
           <div class="fr-input-group">
             <label for="beneficiaire" class="fr-label">Bénéficaire</label>
             <%= f.text_field :beneficiaire, value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
+          </div>
+        </div>
+      <% else %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="numero_tf" class="fr-label">N° d'affectation</label>
+            <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
           </div>
         </div>
       <% end %>
@@ -168,7 +176,7 @@
           </div>
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
-              <label for="activite" class="fr-label">Activité</label>
+              <label for="activite" class="fr-label">Code activité</label>
               <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
             </div>
           </div>

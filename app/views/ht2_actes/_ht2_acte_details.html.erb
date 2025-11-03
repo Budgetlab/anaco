@@ -266,6 +266,8 @@
               <th>N°Chorus</th>
               <% if acte.type_acte != 'TF' %>
                 <th>Bénéficiaire</th>
+              <% else %>
+                <th>N° d'affectation</th>
               <% end %>
               <th>
                 <% if acte.type_acte == 'TF' %>Opération d’investissement
@@ -282,6 +284,8 @@
               <td> <%= format_value(acte.numero_chorus) %></td>
               <% if acte.type_acte != 'TF' %>
                 <td> <%= format_value(acte.beneficiaire) %></td>
+              <% else %>
+                <td><%= format_value(acte.numero_tf) %></td>
               <% end %>
               <td> <%= format_value(acte.objet) %></td>
               <td> <%= format_value(acte.ordonnateur) %></td>
@@ -311,11 +315,11 @@
               <tr class="fr-cell--multiline">
                 <th> Catégorie</th>
                 <th> Action/Sous-action</th>
-                <th> Activité</th>
+                <th> Code activité</th>
                 <% if acte.numero_marche.present? %>
                   <th> Numéro de marché</th>
                 <% end %>
-                <% if acte.numero_tf.present? %>
+                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
                   <th> Numéro Chorus de la TF associée</th>
                 <% end %>
                 <% if acte.groupe_marchandises.present? %>
@@ -332,7 +336,7 @@
                 <% if acte.numero_marche.present? %>
                   <td> <%= format_value(acte.numero_marche) %> </td>
                 <% end %>
-                <% if acte.numero_tf.present? %>
+                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
                   <td> <%= format_value(acte.numero_tf) %> </td>
                 <% end %>
                 <% if acte.groupe_marchandises.present? %>
@@ -448,7 +452,10 @@
               <th> Disponibilité des crédits</th>
               <th> Imputation de la dépense</th>
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
-              <th><% if acte.services_votes == true %>Engagement éligible à la gestion des services votés<%else %> Compatibilité avec la programmation annuelle et pluriannuelle<%end %></th>
+              <th>
+                <% if acte.services_votes == true %>Engagement éligible à la gestion des services votés
+                <% else %> Compatibilité avec la programmation annuelle et pluriannuelle
+                <% end %></th>
             </tr>
             </thead>
             <tbody>

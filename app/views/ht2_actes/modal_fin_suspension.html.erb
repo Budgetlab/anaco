@@ -1,0 +1,52 @@
+<%= turbo_frame_tag :modal, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">Reprendre l'instruction de l'acte</h2>
+            <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
+              n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
+
+            <div class="cwarning fr-my-2w">Tous les champs comportant un astérisque (*) sont à remplir
+              obligatoirement.
+            </div>
+            <div data-controller="acte-form">
+              <%= form_with(model: @acte, data: { turbo_frame: "_top", turbo: false }) do |f| %>
+                <%= hidden_field_tag :etape, 5 %>
+
+
+                  <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-lg-6">
+                      <div class="fr-select-group">
+                        <label for="date_reprise" class="fr-label">Date fin de suspension*</label>
+                        <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @acte.date_chorus&.strftime("%Y-%m-%d") %>
+                      </div>
+                    </div>
+                  </div>
+
+                <ul class="fr-btns-group fr-mt-4w">
+                  <li>
+                    <%= f.submit "Valider", class: 'fr-btn' %>
+                  </li>
+                </ul>
+              <% end %>
+              <ul class="fr-btns-group">
+                <li>
+                  <button aria-controls="modal-acte" class="fr-btn fr-btn--secondary">
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

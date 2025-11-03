@@ -50,6 +50,16 @@ class Ht2Acte < ApplicationRecord
     ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
+  # États valides pour les transitions
+  VALID_ETATS = [
+    "en pré-instruction",
+    "en cours d'instruction",
+    "suspendu",
+    "en attente de validation",
+    "à clôturer",
+    "clôturé après pré-instruction",
+    "clôturé"
+  ].freeze
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
     where(etat: ["en cours d'instruction", 'en attente de validation', 'à clôturer'])
