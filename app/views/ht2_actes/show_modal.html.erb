@@ -48,15 +48,17 @@
                     <% end %>
                   </li>
                 <% end %>
-                <li>
-                  <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
-                    Supprimer l'acte
-                  <% end %>
-                </li>
                 <% if @acte.etat == 'en pré-instruction' %>
                   <li>
                     <%= link_to modal_cloture_preinstruction_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-lock-line" do %>
                       Clôturer l'acte
+                    <% end %>
+                  </li>
+                <% end %>
+                <% if @acte.etat != 'suspendu' %>
+                  <li>
+                    <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
+                      Supprimer l'acte|
                     <% end %>
                   </li>
                 <% end %>

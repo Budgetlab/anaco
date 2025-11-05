@@ -117,7 +117,7 @@ class Ht2ActesController < ApplicationController
     @etape = params[:etape].to_i || 1
     # États valides pour la transition
     etats_valides = ["en cours d'instruction", 'en attente de validation', 'à clôturer',
-                     'clôturé après pré-instruction', 'clôturé']
+                     'clôturé après pré-instruction', 'clôturé', "suspendu", "à suspendre"]
     @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
     # maj décision finale si cloture retour sans decision
     @acte.decision_finale = params[:ht2_acte][:proposition_decision] if params[:ht2_acte][:proposition_decision].present? && ['Retour sans décision (sans suite)','Saisine a posteriori'].include?(params[:ht2_acte][:proposition_decision]) && params[:submit_action] == 'clôturé'
@@ -130,16 +130,18 @@ class Ht2ActesController < ApplicationController
           notice = "Acte enregistré et en attente de validation."
         elsif @acte.etat == 'clôturé'
           notice = "Acte clôturé avec succès."
-        elsif @etape == 4
-            notice = 'Update'
         elsif @acte.etat == 'à clôturer'
-          notice = "Validation"
+          notice = "Acte validé."
+        elsif @acte.etat == 'suspendu'
+          notice = "Acte suspendu."
+        elsif @acte.etat == 'à suspendre'
+          notice = "Acte à suspendre par le valideur."
         elsif @etape == 7
           notice = "Acte renvoyé en pré-instruction avec succès."
         elsif @etape == 8
           notice = "Acte renvoyé en instruction avec succès."
         else
-          notice = "Acte mis à jour avec succès."
+          notice = "Acte enregistré et mis à jour avec succès."
         end
         redirect_to ht2_acte_path(@acte), notice: notice
       end
@@ -438,7 +440,7 @@ class Ht2ActesController < ApplicationController
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
                                      :groupe_marchandises, type_observations: [],
-                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
+                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises])
   end

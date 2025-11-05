@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get "suspensions/edit"
+  get "suspensions/update"
+  get "suspensions/destroy"
   scope(:path => '/anaco') do
     # 1. Routes Active Storage (montées manuellement ici) #Attention enlever match 404 si on eleve ces routes
     #scope '/rails/active_storage' do
@@ -68,6 +71,7 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
 
     resources :ht2_actes do
+      resources :suspensions
       collection do
         post :bulk_cloture
         get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'

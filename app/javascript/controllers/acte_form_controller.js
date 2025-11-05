@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton"]
     static values = { prefixes: Object }
     connect() {
 
@@ -13,9 +13,6 @@ export default class extends Controller {
         }
         if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
             this.updateTotalEcheancier()
-        }
-        if (this.hasAddButtonTarget){
-            this.toggleAddButton()
         }
         if (this.hasDecisionTarget){
             this.checkDecision()
@@ -381,29 +378,30 @@ export default class extends Controller {
         if (show) date_cloture.required = true
     }
 
-    toggleAddButton() {
-
-        // Récupérer la dernière .nested-form-wrapper
-        const wrappers = this.element.querySelectorAll(".nested-form-wrapper")
-        const lastWrapper = wrappers[wrappers.length - 1]
-        if (!lastWrapper) {
-            this.addButtonTarget.disabled = false
-            return
+    toggleSuspension(){
+        const panelSuspension = document.getElementById("panelSuspension")
+        const isHidden = panelSuspension.classList.toggle("fr-hidden")
+        const suspension_submit_wrapper = document.getElementById("suspension_submit_wrapper")
+        const otherButtons = document.getElementById("otherButtons")
+        suspension_submit_wrapper.classList.toggle("fr-hidden")
+        otherButtons.classList.toggle("fr-hidden")
+        // Change le texte et le style du bouton selon l'état
+        if (isHidden) {
+            this.toggleSuspensionButtonTarget.innerHTML = "Suspendre l'acte"
+            this.submitActionTarget.value = "en cours d'instruction"
+        } else {
+            this.toggleSuspensionButtonTarget.innerHTML = "Annuler"
+            this.submitActionTarget.value = "suspendu"
         }
 
-        const requiredInputs = lastWrapper.querySelectorAll(
-            'input[id*="date_suspension"], select[id*="motif"], input[id*="date_reprise"]'
-        )
-
-        const allFilled = Array.from(requiredInputs).every(el => el.value && el.value.trim() !== "")
-
-        this.addButtonTarget.disabled = !allFilled
+        //hidden date choture
+        this.checkDecision()
+    }
+    suspendSkipValidation(){
+        this.submitActionTarget.value = "à suspendre"
     }
 
-    removeDisable(){
-        this.addButtonTarget.disabled = false
-    }
-
+    // to delete
     checkRepriseVsSuspension(event) {
         const wrapper = event.target.closest('.nested-form-wrapper');
         if (!wrapper) return;
@@ -427,7 +425,9 @@ export default class extends Controller {
         const selectedValue = this.decisionTarget.value;
         const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
         const date_cloture = document.getElementById('date_cloture');
-        if (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori"){
+        const submitAction = this.submitActionTarget
+        const etat_conditions = submitAction.value === "en cours d'instruction"
+        if (etat_conditions && (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori")){
             date_cloture_wrapper.classList.remove('fr-hidden');
             date_cloture.value = null;
         }else{
@@ -440,13 +440,16 @@ export default class extends Controller {
     clotureSkipValidation(){
         const cloture_button = document.getElementById('cloture_button');
         const validation_button = document.getElementById('validation_button');
+        const save_button = document.getElementById('save_button');
         const date_cloture = document.getElementById('date_cloture');
         if (date_cloture.value){
             cloture_button.classList.remove('fr-hidden');
             validation_button.classList.add('fr-hidden');
+            save_button.classList.add('fr-hidden');
         }else{
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
+            save_button.classList.remove('fr-hidden');
         }
     }
 

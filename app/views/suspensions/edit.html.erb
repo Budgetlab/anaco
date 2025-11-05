@@ -1,7 +1,7 @@
 <%= turbo_frame_tag :modal, target: "_top" do %>
   <div class="fr-container fr-container--fluid fr-container-md">
     <div class="fr-grid-row fr-grid-row--center">
-      <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
         <div class="fr-modal__body">
           <div class="fr-modal__header">
             <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
@@ -17,16 +17,16 @@
               obligatoirement.
             </div>
             <div data-controller="acte-form">
-              <%= form_with(model: @acte, data: { turbo_frame: "_top", turbo: false }) do |f| %>
+              <%= form_with(model: [@acte, @suspension], data: { turbo_frame: "_top", turbo: false }) do |f| %>
 
-                  <div class="fr-grid-row fr-grid-row--gutters">
-                    <div class="fr-col-12 fr-col-lg-6">
-                      <div class="fr-select-group">
-                        <label for="date_reprise" class="fr-label">Date fin de suspension*</label>
-                        <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d") %>
-                      </div>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <div class="fr-select-group">
+                      <label for="date_reprise" class="fr-label">Date fin de suspension*</label>
+                      <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d") %>
                     </div>
                   </div>
+                </div>
 
                 <ul class="fr-btns-group fr-mt-4w">
                   <li>

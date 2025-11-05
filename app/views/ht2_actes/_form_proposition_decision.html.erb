@@ -21,37 +21,78 @@
         </div>
       </div>
     <% else %>
-      <% if @acte.etat == 'suspendu' %>
-        <div class="fr-notice fr-notice--info fr-mb-2w">
-          <div class="fr-container">
-            <div class="fr-notice__body">
-              <p>
-                <span class="fr-notice__title">Cet acte est suspendu. Vous pouvez à ce stade reprendre ou clôturer définitivement l'acte. </span>
-                <span class="fr-notice__desc">Pour clôturer l'acte à ce stade choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture.</span>
-              </p>
-              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
-                le message
-              </button>
+      <!-- Suspension -->
+      <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+        <h3 class="fr-callout__title fr-capitalize fr-mb-2w fr-hidden"><%= type_suspension %></h3>
+        <% if @acte.suspension_ouverte? %>
+          <div class="fr-notice fr-notice--info fr-mb-2w">
+            <div class="fr-container">
+              <div class="fr-notice__body">
+                <p>
+                  <span class="fr-notice__title"> Une suspension est en cours</span>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      <% end %>
-      <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-        <h3 class="fr-callout__title fr-capitalize fr-mb-2w"><%= type_suspension%></h3>
-        <template data-nested-form-target="template">
-          <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
-            <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
-          <% end %>
-        </template>
-
-        <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
-          <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+          <div id="panelSuspension" class="fr-mt-4w">
+            <%= f.fields_for :suspensions, @acte.suspension_ouverte do |sf| %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="fr-table fr-table--no-caption">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption> Suspensions/Interruptions</caption>
+                    <thead>
+                    <tr>
+                      <th class="fr-capitalize"> <%= type_suspension %> </th>
+                      <th> Date <%= type_suspension %></th>
+                      <th> Date de reprise</th>
+                      <th> Motif</th>
+                      <th> Observations</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+                      <tr>
+                        <td> n°<%= index + 1 %></td>
+                        <td> <%= format_date_text(suspension.date_suspension) %> </td>
+                        <td> <%= format_date_text(suspension.date_reprise) %></td>
+                        <td> <%= suspension.motif %> </td>
+                        <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button"
+                  class="fr-btn fr-btn--secondary fr-btn--icon-left"
+                  data-acte-form-target="toggleSuspensionButton"
+                  data-action="click->acte-form#toggleSuspension">
+            Suspendre l'acte
+          </button>
+          <div id="panelSuspension" class="fr-mt-4w fr-hidden">
+            <div class="fr-notice fr-notice--info fr-mb-2w">
+              <div class="fr-container">
+                <div class="fr-notice__body">
+                  <p>
+                    <span class="fr-notice__title">Vous êtes sur le point de suspendre l'acte.</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <%= f.fields_for :suspensions, @acte.suspensions.build do |sf| %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension %>
+            <% end %>
+          </div>
         <% end %>
 
-        <!-- Inserted elements will be injected before that target. -->
-        <div data-nested-form-target="target"></div>
-        <button type="button" data-action="nested-form#add acte-form#toggleAddButton" data-acte-form-target="addButton" class="fr-btn fr-icon-add-line fr-btn--icon-left fr-mb-2w">
-          Ajouter une <%= type_suspension %></button>
       </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
@@ -111,8 +152,31 @@
       </div>
     </div>
 
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <%= hidden_field_tag :submit_action, "", data: { acte_form_target: "submitAction" } %>
+    <%= hidden_field_tag :submit_action, @acte.etat, data: { acte_form_target: "submitAction" } %>
+
+    <%# --- Submit “Suspendre” visible seulement en mode suspension --- %>
+    <div class="fr-grid-row fr-grid-row--gutters <%= @acte.etat == "suspendu" ? "" : "fr-hidden" %>" id="suspension_submit_wrapper">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-checkbox-group fr-mb-2w">
+          <%= check_box_tag :submit_suspension, "à suspendre", id: "suspendre", data: {action: "change->acte-form#suspendSkipValidation"} %>
+          <label class="fr-label" for="suspendre">Soumettre la suspension à validation.</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li>
+        <%= button_tag type: 'submit',
+                       id: "suspension_submit",
+                       class: 'fr-btn' do %>
+          Suspendre l'acte
+        <% end %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <%# --- Autres boutons (doivent être masqués en mode suspension) --- %>
+    <div class="fr-grid-row fr-grid-row--gutters" id="otherButtons">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
 
@@ -120,12 +184,9 @@
             <li>
               <%= f.submit "Enregistrer les modifications", class: 'fr-btn' %>
             </li>
-          <% else %>
-            <li>
-              <%= f.submit "Enregistrer les modifications", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
-            </li>
-            <li id="cloture_button" class="fr-hidden">
-              <%= f.submit "Enregistrer et clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
+          <% elsif @acte.etat == "en cours d'instruction" %>
+            <li id="save_button">
+              <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
             </li>
             <li id="validation_button">
               <%= button_tag type: 'submit',
@@ -133,6 +194,9 @@
                              data: { action: "click->acte-form#setValidation", acte_form_target: "submitButton" } do %>
                 Enregister et soumettre à validation
               <% end %>
+            </li>
+            <li id="cloture_button" class="fr-hidden">
+              <%= f.submit "Clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
             </li>
           <% end %>
         </ul>

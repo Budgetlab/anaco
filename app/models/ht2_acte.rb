@@ -185,6 +185,15 @@ class Ht2Acte < ApplicationRecord
     calculate_delai_traitement
   end
 
+  # Une suspension est "ouverte" si date_reprise est nulle OU si un des champs obligatoires manque
+  def suspension_ouverte
+    suspensions.find { |s| s.date_reprise.nil? }
+  end
+
+  def suspension_ouverte?
+    suspension_ouverte.present?
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
@@ -254,7 +263,7 @@ class Ht2Acte < ApplicationRecord
   private
 
   def set_etat_acte
-    if self.suspensions.present? && self.suspensions.last&.date_reprise.nil?
+    if self.suspensions.present? && self.suspensions.last&.date_reprise.nil? && !["suspendu", "à suspendre"].include?(self.etat)
       update_column(:etat,"suspendu")
     elsif !etat.present?
       update_column(:etat, "en cours d'instruction")
