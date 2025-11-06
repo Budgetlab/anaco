@@ -30,7 +30,7 @@
           </div>
           <div id="panelSuspension" class="fr-mt-4w">
             <%= f.fields_for :suspensions, @acte.suspension_ouverte do |sf| %>
-              <%= render "form_suspension", f: sf, type_suspension: type_suspension %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension, required: true %>
             <% end %>
           </div>
         <% else %>
@@ -79,13 +79,12 @@
                   data-action="click->acte-form#toggleSuspension">
             Suspendre l'acte
           </button>
-          <div id="panelSuspension" class="fr-mt-4w fr-hidden">
+          <div id="panelSuspension" class="fr-mt-4w fr-hidden" >
             <%= f.fields_for :suspensions, @acte.suspensions.build do |sf| %>
-              <%= render "form_suspension", f: sf, type_suspension: type_suspension %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension, required: false %>
             <% end %>
           </div>
         <% end %>
-
       </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
@@ -145,7 +144,7 @@
       </div>
     </div>
 
-    <%= hidden_field_tag :submit_action, @acte.etat, data: { acte_form_target: "submitAction" } %>
+    <%= f.hidden_field :etat, value: @acte.etat, data: { acte_form_target: "submitAction" } %>
 
     <%# --- Submit “Suspendre” visible seulement en mode suspension --- %>
     <div class="fr-grid-row fr-grid-row--gutters <%= @acte.etat == "suspendu" ? "" : "fr-hidden" %>" id="suspension_submit_wrapper">

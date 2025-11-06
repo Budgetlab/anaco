@@ -60,4 +60,24 @@ module Ht2ActesHelper
       'cblack'
     end
   end
+
+  def update_acte_notice(etat, etape)
+    if etat == 'en attente de validation'
+      "Acte enregistré et en attente de validation."
+    elsif etat == 'clôturé'
+      "Acte clôturé avec succès."
+    elsif etat == 'à clôturer'
+      "Acte validé."
+    elsif etat == 'suspendu'
+      "Acte suspendu."
+    elsif etat == 'à suspendre'
+      "Acte à suspendre par le valideur."
+    elsif etape == 7
+      "Acte renvoyé en pré-instruction avec succès."
+    elsif etape == 8
+      "Acte renvoyé en instruction avec succès."
+    else
+      "Acte enregistré et mis à jour avec succès."
+    end
+  end
 end

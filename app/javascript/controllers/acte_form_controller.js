@@ -38,6 +38,7 @@ export default class extends Controller {
         this.element.querySelectorAll('[required]').forEach(field => {
             field.removeAttribute('required');
         });
+        this.submitActionTarget.value = "en cours d'instruction"
         //this.element.submit();
     }
 
@@ -390,12 +391,19 @@ export default class extends Controller {
         this.decisionTarget.removeAttribute('required');
         // Change le texte et le style du bouton selon l'état
         this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'acte" : "Annuler"
-        this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendre"
-
+        this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendu"
         // Si on referme le panneau → reset les champs
         if (isHidden) {
+            // 1) enlever tous les required du panel
+            panelSuspension.querySelectorAll('[required]').forEach(el => { el.required = false })
             this.resetSuspensionForm(panelSuspension)
-            this.decisionTarget.setAttribute('required');
+            this.decisionTarget.required = true;
+        }else{
+            // Le panel est visible → remettre les required sur les champs de suspension nécessaires
+            const dateSuspension = panelSuspension.querySelector('#date_suspension')
+            const motif          = panelSuspension.querySelector('#motif')
+            if (dateSuspension) dateSuspension.required = true
+            if (motif)          motif.required = true
         }
 
         //hidden date choture
@@ -451,6 +459,7 @@ export default class extends Controller {
             validation_button.classList.add('fr-hidden');
             save_button.classList.add('fr-hidden');
         }else{
+            this.submitActionTarget.value = "en cours d'instruction"
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
             save_button.classList.remove('fr-hidden');

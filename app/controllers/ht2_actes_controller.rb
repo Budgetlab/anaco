@@ -1,14 +1,15 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte, :modal_renvoie_validation]
-  before_action :set_variables_form, only: [:edit, :modal_validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte, :modal_renvoie_validation]
+  before_action :set_variables_form, only: [:edit, :modal_validate_acte]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
   before_action :set_parent_for_clone, only: :new
   before_action :check_edit_conditions, only: :edit
   require 'axlsx'
+  include Ht2ActesHelper
 
   def index
     @selected_tab = params[:tab] || 'validation'
@@ -101,34 +102,12 @@ class Ht2ActesController < ApplicationController
 
   def update
     @etape = params[:etape].to_i || 1
-    # États valides pour la transition
-    etats_valides = ["en cours d'instruction", 'en attente de validation', 'à clôturer',
-                     'clôturé après pré-instruction', 'clôturé', "suspendu", "à suspendre"]
-    @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
-    # maj décision finale si cloture retour sans decision
-    @acte.decision_finale = params[:ht2_acte][:proposition_decision] if params[:ht2_acte][:proposition_decision].present? && ['Retour sans décision (sans suite)','Saisine a posteriori'].include?(params[:ht2_acte][:proposition_decision]) && params[:submit_action] == 'clôturé'
     if @acte.update(ht2_acte_params)
       # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
-        if @acte.etat == 'en attente de validation'
-          notice = "Acte enregistré et en attente de validation."
-        elsif @acte.etat == 'clôturé'
-          notice = "Acte clôturé avec succès."
-        elsif @acte.etat == 'à clôturer'
-          notice = "Acte validé."
-        elsif @acte.etat == 'suspendu'
-          notice = "Acte suspendu."
-        elsif @acte.etat == 'à suspendre'
-          notice = "Acte à suspendre par le valideur."
-        elsif @etape == 7
-          notice = "Acte renvoyé en pré-instruction avec succès."
-        elsif @etape == 8
-          notice = "Acte renvoyé en instruction avec succès."
-        else
-          notice = "Acte enregistré et mis à jour avec succès."
-        end
+        notice = update_acte_notice(@acte.etat, @etape)
         redirect_to ht2_acte_path(@acte), notice: notice
       end
     else

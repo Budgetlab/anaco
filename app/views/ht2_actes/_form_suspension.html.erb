@@ -2,14 +2,14 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
-        <label for="date_suspension_#{unique_id}" class="fr-label">Date début <%= type_suspension %>*</label>
-        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr", acte_form_target: "fieldRequire"}, value: format_date(f.object.date_suspension), id: "date_suspension", placeholder: "- sélectionner -", required: true %>
+        <label for="date_suspension" class="fr-label">Date début <%= type_suspension %>*</label>
+        <%= f.text_field :date_suspension, class: "fr-select", data: { controller: "flatpickr"}, value: format_date(f.object.date_suspension), id: "date_suspension", placeholder: "- sélectionner -", required: required %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
-        <label for="motif_#{unique_id}" class="fr-label">Motif <%= type_suspension %>*</label>
-        <%= f.select :motif, options_for_select(@liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {prompt: "- sélectionner -" }, { id: "motif", class: "fr-select", required: true, data: {acte_form_target: "fieldRequire"}} %>
+        <label for="motif" class="fr-label">Motif <%= type_suspension %>*</label>
+        <%= f.select :motif, options_for_select(@liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {prompt: "- sélectionner -" }, { id: "motif", class: "fr-select", required: required } %>
       </div>
     </div>
   </div>

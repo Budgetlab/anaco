@@ -56,6 +56,7 @@ class Ht2Acte < ApplicationRecord
     "en pré-instruction",
     "en cours d'instruction",
     "suspendu",
+    "à suspendre",
     "en attente de validation",
     "à clôturer",
     "clôturé après pré-instruction",
@@ -266,12 +267,14 @@ class Ht2Acte < ApplicationRecord
   def set_etat_acte
     if self.suspensions.present? && self.suspensions.last&.date_reprise.nil? && !["suspendu", "à suspendre"].include?(self.etat)
       update_column(:etat,"suspendu")
-    elsif !etat.present?
+    elsif !etat.present? || !VALID_ETATS.include?(etat)
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "en pré-instruction"
       update_column(:pre_instruction , true)
     elsif self.etat == 'suspendu' && (self.suspensions.last&.date_reprise.present? || self.suspensions.empty?)
       update_column(:etat, "en cours d'instruction")
+    elsif self.etat == "clôturé" && self.decision_finale.nil?
+      update_column(:decision_finale, self.proposition_decision)
     end
   end
 
