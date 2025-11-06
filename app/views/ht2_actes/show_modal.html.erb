@@ -25,17 +25,17 @@
                 <% end %>
                 <% if @acte.etat == 'suspendu' %>
                   <li>
-                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--sm fr-icon-edit-line', data: { turbo_frame: "_top" } do %>
-                      Actualiser les informations
-                    <% end %>
-                  </li>
-                <% else %>
-                  <li>
-                    <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
-                      Actualiser les informations
+                    <%= link_to edit_ht2_acte_suspension_path(@acte, @acte.suspension_ouverte), class: "fr-btn" do %>
+                      Reprendre l'instruction
                     <% end %>
                   </li>
                 <% end %>
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+                    Actualiser les informations
+                  <% end %>
+                </li>
+
                 <li>
                   <%= link_to ht2_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-eye-line", data: { turbo_frame: "_top" } do %>
                     Consulter l'acte
