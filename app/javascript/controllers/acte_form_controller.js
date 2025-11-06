@@ -387,6 +387,7 @@ export default class extends Controller {
         otherButtons.classList.toggle("fr-hidden")
         const asterix_proposition = document.getElementById("asterix_proposition")
         asterix_proposition.classList.toggle("fr-hidden")
+        this.decisionTarget.removeAttribute('required');
         // Change le texte et le style du bouton selon l'état
         this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'acte" : "Annuler"
         this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendre"
@@ -394,6 +395,7 @@ export default class extends Controller {
         // Si on referme le panneau → reset les champs
         if (isHidden) {
             this.resetSuspensionForm(panelSuspension)
+            this.decisionTarget.setAttribute('required');
         }
 
         //hidden date choture

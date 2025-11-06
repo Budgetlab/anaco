@@ -6,6 +6,8 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
+  before_action :set_parent_for_clone, only: :new
+  before_action :check_edit_conditions, only: :edit
   require 'axlsx'
 
   def index
@@ -14,25 +16,16 @@ class Ht2ActesController < ApplicationController
     # actes année en cours
     base_scope = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
 
-    # système onglet
-    current_state = [
-      'en pré-instruction',
-      "en cours d'instruction",
-      'suspendu',
-      'en attente de validation',
-      'à suspendre',
-      'à clôturer'
-    ]
-    @actes = base_scope.where(etat: current_state)
+    # liste de travail en cours
+    @actes = base_scope.non_clotures
     @q_current = @actes.ransack(params[:q_current], search_key: :q_current)
     @actes_filtered = @q_current.result(distinct: true)
-
     # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
-    @actes_pre_instruction_all      = @actes_filtered.where(etat: 'en pré-instruction')
-    @actes_instruction_all          = @actes_filtered.where(etat: "en cours d'instruction")
-    @actes_suspendu_all             = @actes_filtered.where(etat: 'suspendu')
-    @actes_validation_all           = @actes_filtered.where(etat: ['en attente de validation', "à suspendre"])
-    @actes_validation_chorus_all    = @actes_filtered.where(etat: 'à clôturer')
+    @actes_pre_instruction_all      = @actes_filtered.en_pre_instruction
+    @actes_instruction_all          = @actes_filtered.en_cours_instruction
+    @actes_suspendu_all             = @actes_filtered.suspendus
+    @actes_validation_all           = @actes_filtered.en_attente_validation
+    @actes_validation_chorus_all    = @actes_filtered.a_cloturer
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
     @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
@@ -41,7 +34,7 @@ class Ht2ActesController < ApplicationController
     @pagy_validation_chorus,   @actes_validation_chorus   = pagy(@actes_validation_chorus_all,   page_param: :page_validation_chorus,   limit: 15)
 
     # actes clotures
-    @actes_closed = base_scope.where(etat: ['clôturé', 'clôturé après pré-instruction'])
+    @actes_closed = base_scope.clotures
     @q_cloture = @actes_closed.ransack(params[:q_cloture], search_key: :q_cloture)
     @actes_cloture_all = @q_cloture.result(distinct: true)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
@@ -74,24 +67,21 @@ class Ht2ActesController < ApplicationController
   end
 
   def new
-    if params[:type_acte].present? && params[:etat].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
-      type_engagement = params[:type_acte] == "TF" ? 'Affectation initiale' : 'Engagement initial'
-      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte], type_engagement: type_engagement, etat: params[:etat], pre_instruction: params[:pre_instruction])
-    elsif params[:id].present? # nouveau modèle
-      id = params[:id]
-      acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'annee'))
-      @acte.etat = acte_parent.etat == "en pré-instruction" ? acte_parent.etat : "en cours d'instruction"
+    if params[:id].present? # nouveau modèle
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'annee'))
+      @acte.etat = @acte_parent.etat == "en pré-instruction" ? @acte_parent.etat : "en cours d'instruction"
       @acte.annee = Date.today.year
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
-      id = params[:parent_id]
-      @acte_parent = Ht2Acte.find(id)
       @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee'))
       @acte.etat = "en cours d'instruction"
       @acte.annee = Date.today.year
       @saisine = true
     else
-      @acte = current_user.ht2_actes.new(type_acte: 'avis',etat: "en cours d'instruction")
+      type_acte = params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte]) ? params[:type_acte] : 'visa'
+      etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
+      type_engagement = type_acte == "TF" ? 'Affectation initiale' : 'Engagement initial'
+      pre_instruction = params[:pre_instruction] == 'true'
+      @acte = current_user.ht2_actes.new(type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction)
     end
     set_variables_form
   end
@@ -107,12 +97,7 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def edit
-    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
-
-    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
-    check_acte_conditions
-  end
+  def edit; end
 
   def update
     @etape = params[:etape].to_i || 1
@@ -509,11 +494,11 @@ class Ht2ActesController < ApplicationController
     @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
   end
 
-  def check_acte_conditions
-    # acte en cours d'instruction ou suspendu (si renseigne une date de fin) ou en pré-instruction
-    @conditions_met = (@acte.etat != 'en pré-instruction' && @acte.date_chorus.present? || @acte.etat == 'en pré-instruction') && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+  def check_edit_conditions
+    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
 
-    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @conditions_met == false && @etape == 3
+    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
+    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @acte.disponibilite_credits.nil? && @etape == 3
   end
 
   def calculate_suspensions_stats(actes)
@@ -776,5 +761,12 @@ class Ht2ActesController < ApplicationController
     count += 1 if q_params[:montant_ae_lteq].present?  # Ajout
 
     count
+  end
+
+  def set_parent_for_clone
+    key = params[:id].presence || params[:parent_id].presence
+    return unless key
+    # utilise find_by! si tu ne veux pas borner à l'utilisateur:
+    @acte_parent = current_user.ht2_actes.find(key)
   end
 end

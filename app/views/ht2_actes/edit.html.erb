@@ -12,7 +12,9 @@
             <h1>Formulaire <%= @acte.type_acte %> HT2</h1>
           <% end %>
 
-          <button aria-controls="modal-0" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter le formulaire</button>
+          <button aria-controls="modal-0" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter
+            le formulaire
+          </button>
         </div>
       </div>
     </div>
@@ -39,7 +41,7 @@
                     <% end %>
                   </li>
                   <li>
-                    <button class="fr-btn fr-btn--secondary" aria-controls="modal-0" >
+                    <button class="fr-btn fr-btn--secondary" aria-controls="modal-0">
                       Annuler
                     </button>
                   </li>
@@ -77,15 +79,15 @@
                   </button>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <% if @conditions_met == true %>
+                  <% if @acte.disponibilite_credits.nil? %>
+                    <a disabled class="fr-sidemenu__link">Étape 3 : Proposition de décision de contrôle</a>
+                  <% else %>
                     <button aria-controls="modal-etape3" data-fr-opened="false" aria-current="<%= @etape == 3 %>" type="button" class="fr-sidemenu__link">
                       Étape 3 : Proposition de décision de contrôle
                       <% if @acte.etat == "suspendu" %>
                         <span class="fr-icon-error-warning-fill fr-icon--sm cwarning" aria-hidden="true"></span>
                       <% end %>
                     </button>
-                  <% else %>
-                    <a disabled class="fr-sidemenu__link">Étape 3 : Proposition de décision de contrôle</a>
                   <% end %>
                 </li>
               </ul>
@@ -129,7 +131,7 @@
                   <% end %>
                 </li>
                 <li>
-                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape1" >
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape1">
                     Annuler
                   </button>
                 </li>
@@ -163,7 +165,7 @@
                   <% end %>
                 </li>
                 <li>
-                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape2" >
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape2">
                     Annuler
                   </button>
                 </li>
@@ -197,7 +199,7 @@
                   <% end %>
                 </li>
                 <li>
-                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape3" >
+                  <button class="fr-btn fr-btn--secondary" aria-controls="modal-etape3">
                     Annuler
                   </button>
                 </li>

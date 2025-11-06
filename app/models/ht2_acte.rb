@@ -28,14 +28,15 @@ class Ht2Acte < ApplicationRecord
 
   has_rich_text :commentaire_disponibilite_credits
 
-  scope :en_attente_validation, -> { where(etat: ["en attente de validation"]) }
+  scope :en_attente_validation, -> { where(etat: ["en attente de validation", "à suspendre"]) }
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
+  scope :a_cloturer, -> { where(etat: ["à cloturer"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
-  # Scope combiné pour éviter les requêtes multiples
+  # Ceux qui ne sont pas clos (année N , N-1 ..) + ceux qui sont clos sur l'annee N
   scope :actifs_annee_courante, -> {
     where(
       "(date_cloture IS NULL) OR (date_cloture IS NOT NULL AND annee = ?)",

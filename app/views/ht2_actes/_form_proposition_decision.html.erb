@@ -93,10 +93,10 @@
         <div class="fr-select-group">
           <label for="proposition_decision" class="fr-label">
             Proposition de décision de contrôle
-            <% unless @acte.etat == 'en pré-instruction' %><span id="asterix_proposition">*</span>
+            <% if @acte.etat == "en cours d'instruction" %><span id="asterix_proposition">*</span>
             <% end %>
           </label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat == "en cours d'instruction", data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
@@ -175,7 +175,7 @@
 
           <% if @acte.etat == "en pré-instruction" %>
             <li>
-              <%= f.submit "Enregistrer les modifications", class: 'fr-btn' %>
+              <%= f.submit "Enregistrer et quitter", class: 'fr-btn' %>
             </li>
           <% elsif @acte.etat == "en cours d'instruction" %>
             <li id="save_button">
