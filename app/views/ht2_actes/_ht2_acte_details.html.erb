@@ -95,14 +95,16 @@
       </div>
       <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
         <li>
-          <%= link_to ht2_acte_path(acte), class: 'fr-btn fr-btn--secondary', data: { turbo_method: :patch, turbo_frame: "_top" } do %>
-            Valider et suspendre
+          <%= form_with(model: acte, method: :patch) do |f| %>
+            <%= hidden_field_tag :etape, 8 %>
+            <%= f.hidden_field :etat, value: "suspendu" %>
+            <%= f.submit "Valider et suspendre", class: 'fr-btn', data: { turbo_confirm: 'Confirmer?' } %>
           <% end %>
         </li>
         <li>
-          <a href="<%= ht2_acte_suspension_path(acte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
+          <%= link_to ht2_acte_suspension_refus_suspension_path(acte, acte.suspension_ouverte), class: 'fr-btn fr-btn--secondary', data: { turbo_method: :post, turbo_confirm: "Confirmer?", turbo_frame: "_top" } do %>
             Rejeter et renvoyer en instruction
-          </a>
+          <% end %>
         </li>
       </ul>
     </div>

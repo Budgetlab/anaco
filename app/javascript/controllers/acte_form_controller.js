@@ -385,13 +385,15 @@ export default class extends Controller {
         const otherButtons = document.getElementById("otherButtons")
         suspension_submit_wrapper.classList.toggle("fr-hidden")
         otherButtons.classList.toggle("fr-hidden")
+        const asterix_proposition = document.getElementById("asterix_proposition")
+        asterix_proposition.classList.toggle("fr-hidden")
         // Change le texte et le style du bouton selon l'état
+        this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'acte" : "Annuler"
+        this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendre"
+
+        // Si on referme le panneau → reset les champs
         if (isHidden) {
-            this.toggleSuspensionButtonTarget.innerHTML = "Suspendre l'acte"
-            this.submitActionTarget.value = "en cours d'instruction"
-        } else {
-            this.toggleSuspensionButtonTarget.innerHTML = "Annuler"
-            this.submitActionTarget.value = "suspendu"
+            this.resetSuspensionForm(panelSuspension)
         }
 
         //hidden date choture
@@ -401,25 +403,25 @@ export default class extends Controller {
         this.submitActionTarget.value = "à suspendre"
     }
 
-    // to delete
-    checkRepriseVsSuspension(event) {
-        const wrapper = event.target.closest('.nested-form-wrapper');
-        if (!wrapper) return;
+    resetSuspensionForm(panel) {
+        // Sélectionne tous les champs input, select et textarea du panel
+        const fields = panel.querySelectorAll("input, select, textarea")
 
-        const dateSuspensionInput = wrapper.querySelector('[id^="date_suspension_"]');
-        const dateRepriseInput = wrapper.querySelector('[id^="date_reprise_"]');
-        const messageAlert = wrapper.querySelector('[id^="message-reprise-suspension-"]');
+        fields.forEach(field => {
+            // on ne touche pas aux boutons, hidden, ou éléments de contrôle flatpickr
+            if (field.type === "hidden" || field.type === "button" || field.readOnly) return
 
-        if (!dateSuspensionInput || !dateRepriseInput || !messageAlert) return;
+            if (field.tagName === "SELECT") {
+                field.selectedIndex = 0 // remet sur le prompt
+            } else {
+                field.value = ""
+            }
 
-        const dateSuspension = dateSuspensionInput.value ? new Date(dateSuspensionInput.value.split("/").reverse().join("-")) : null;
-        const dateReprise = dateRepriseInput.value ? new Date(dateRepriseInput.value.split("/").reverse().join("-")) : null;
-
-        if (dateSuspension && dateReprise && dateReprise < dateSuspension) {
-            messageAlert.classList.remove('fr-hidden');
-        } else {
-            messageAlert.classList.add('fr-hidden');
-        }
+            // Si c’est un flatpickr → on réinitialise le widget
+            if (field._flatpickr) {
+                field._flatpickr.clear()
+            }
+        })
     }
     checkDecision(){
         const selectedValue = this.decisionTarget.value;

@@ -326,7 +326,11 @@
                               <% end %>
                             </td>
                             <td class="fr-cell--multiline">
-                              <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+                              <% if acte.etat == "à suspendre" %>
+                                <p class="fr-badge--sm fr-badge fr-badge--error"><%= acte.etat %></p>
+                              <% else %>
+                                <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
+                              <% end %>
                             </td>
                             <td>
                               <%= link_to ht2_acte_path(acte), class: "fr-btn fr-btn--secondary fr-btn--sm", data: { turbo_frame: "_top" } do %>

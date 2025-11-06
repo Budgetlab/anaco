@@ -13,10 +13,32 @@
             <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
               n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
 
-            <div class="cwarning fr-my-2w">Tous les champs comportant un astérisque (*) sont à remplir
-              obligatoirement.
+            <div class="fr-table fr-table--no-caption fr-mb-1v">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption> Suspensions/Interruptions</caption>
+                      <thead>
+                      <tr>
+                        <th> Date</th>
+                        <th> Motif</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td> <%= format_date_text(@suspension.date_suspension) %> </td>
+                        <td> <%= @suspension.motif %> </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div data-controller="acte-form">
+            <div class="fr-mb-2w"><span class="fr-text--bold">Observations</span> : <%= format_value(@suspension.observations) %></div>
+
+            <div>
               <%= form_with(model: [@acte, @suspension], data: { turbo_frame: "_top", turbo: false }) do |f| %>
 
                 <div class="fr-grid-row fr-grid-row--gutters">

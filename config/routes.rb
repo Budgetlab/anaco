@@ -71,7 +71,10 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
 
     resources :ht2_actes do
-      resources :suspensions
+      resources :suspensions do
+        post :refus_suspension
+        get :modal_delete
+      end
       collection do
         post :bulk_cloture
         get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'

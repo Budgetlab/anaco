@@ -32,6 +32,7 @@ class PagesController < ApplicationController
     @ht2_echeance_courte = @ht2_actes.echeance_courte
     @ht2_long_delay = @ht2_actes.count_current_with_long_delay
     @ht2_en_attente_validation = counts["en attente de validation"] || 0
+    @ht2_en_attente_validation +=  counts["à suspendre"] || 0
     @ht2_cloture = counts["à clôturer"] || 0
     @ht2_en_cours = counts["en cours d'instruction"] || 0
     @ht2_pre_instruction = counts["en pré-instruction"] || 0

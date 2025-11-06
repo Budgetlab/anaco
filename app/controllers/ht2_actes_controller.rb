@@ -20,6 +20,7 @@ class Ht2ActesController < ApplicationController
       "en cours d'instruction",
       'suspendu',
       'en attente de validation',
+      'à suspendre',
       'à clôturer'
     ]
     @actes = base_scope.where(etat: current_state)
@@ -30,7 +31,7 @@ class Ht2ActesController < ApplicationController
     @actes_pre_instruction_all      = @actes_filtered.where(etat: 'en pré-instruction')
     @actes_instruction_all          = @actes_filtered.where(etat: "en cours d'instruction")
     @actes_suspendu_all             = @actes_filtered.where(etat: 'suspendu')
-    @actes_validation_all           = @actes_filtered.where(etat: 'en attente de validation')
+    @actes_validation_all           = @actes_filtered.where(etat: ['en attente de validation', "à suspendre"])
     @actes_validation_chorus_all    = @actes_filtered.where(etat: 'à clôturer')
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
