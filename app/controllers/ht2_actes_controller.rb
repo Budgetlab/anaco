@@ -381,8 +381,17 @@ class Ht2ActesController < ApplicationController
   end
 
   def ajout_actes
+    #TODO
     actes = Ht2Acte.where(etat: 'en attente de validation Chorus')
     actes.update_all(etat: 'à clôturer')
+    suspensions_motif = Suspension.where(motif: 'Conformité des pièces')
+    suspensions_motif.update_all(motif: "Non conformité des pièces")
+    suspensions_2 = Suspension.where(motif: "Demande de mise en cohérence EJ /PJ (pôle 2)")
+    suspensions_2.update_all(motif: "Demande de mise en cohérence EJ /PJ")
+    avis = Ht2Acte.where(type_engagement: 'Engagement initial')
+    avis.update_all(type_engagement: "Engagement initial prévisionnel")
+    avis_2 = Ht2Acte.where(type_engagement: 'Engagement complémentaire')
+    avis_2.update_all(type_engagement: "Engagement complémentaire prévisionnel")
   end
 
   def import
@@ -431,7 +440,7 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation',"Hors périmètre du CBR/DCB", 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
     end
-    @liste_motifs_suspension = ['Conformité des pièces','Défaut du circuit d’approbation Chorus', "Demande de mise en cohérence EJ /PJ (pôle 2)", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+    @liste_motifs_suspension = ['Défaut du circuit d’approbation Chorus', "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 
