@@ -144,7 +144,8 @@ class Ht2ActesController < ApplicationController
 
   def cloture_pre_instruction
     @acte.update(etat: "clôturé après pré-instruction")
-    redirect_to ht2_acte_path(@acte), notice: "clôturé après pré-instruction"
+    notice = update_acte_notice(@acte.etat, 0)
+    redirect_to ht2_acte_path(@acte), notice: notice
   end
 
   def modal_renvoie_instruction; end
@@ -416,10 +417,10 @@ class Ht2ActesController < ApplicationController
 
   def set_variables_form
     if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
-      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes", 'Transaction', 'Autre']
+      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes",'Marché subséquent à bons de commande', 'Transaction', 'Autre']
       @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur","Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
+      @liste_engagements = ['Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel']
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ['Autre contrat', 'Avenant', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']

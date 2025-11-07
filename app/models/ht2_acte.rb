@@ -32,7 +32,7 @@ class Ht2Acte < ApplicationRecord
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
-  scope :a_cloturer, -> { where(etat: ["à cloturer"]) }
+  scope :a_cloturer, -> { where(etat: ["à clôturer"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }

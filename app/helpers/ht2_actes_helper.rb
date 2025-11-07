@@ -67,11 +67,13 @@ module Ht2ActesHelper
     elsif etat == 'clôturé'
       "Acte clôturé avec succès."
     elsif etat == 'à clôturer'
-      "Acte validé."
+      "Acte validé avec succès. Il doit désormais être clôturé par l'instructeur."
     elsif etat == 'suspendu'
       "Acte suspendu."
     elsif etat == 'à suspendre'
       "Acte à suspendre par le valideur."
+    elsif etat == "clôturé après pré-instruction"
+      "Acte clôturé après pré-instruction avec succès."
     elsif etape == 7
       "Acte renvoyé en pré-instruction avec succès."
     elsif etape == 8

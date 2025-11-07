@@ -37,7 +37,7 @@
             <div class="fr-search-bar" role="search">
               <label class="fr-label" for="search-input"> Rechercher </label>
               <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont,
-                                 placeholder: "Rechercher un acte par n° acte, n°Chorus, centre financier, bénéficiaire, instructeur, valideur",
+                                 placeholder: "Rechercher un acte par n° acte, n° Chorus, centre financier, bénéficiaire, instructeur, valideur",
                                  class: "fr-input",
                                  id: "search-input", oninput: 'this.form.requestSubmit()' %>
               <button class="fr-btn" title="Rechercher">Rechercher</button>
@@ -366,6 +366,10 @@
             <% end %>
           </div>
           <div id="storybook-tab-4-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'cloture' %>" role="tabpanel" aria-labelledby="storybook-tab-4" tabindex="0">
+            <div class="fr-alert fr-alert--info fr-mb-2w">
+              <p>La décision de contrôle doit être tracée dans Chorus ou transmise à l'ordonnateur. Le renseignement de
+                cette rubrique indique que l'instruction de l'acte est définitivement terminée.</p>
+            </div>
             <% if @actes_validation_chorus.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__header">

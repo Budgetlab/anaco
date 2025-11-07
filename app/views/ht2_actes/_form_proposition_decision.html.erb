@@ -4,6 +4,7 @@
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
     <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+    <% action_suspension = @acte.type_acte == 'avis' ? "Suspendre l'acte" : "Interrompre l'acte" %>
     <% if @acte.etat == "en pré-instruction" %>
       <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">
@@ -87,7 +88,7 @@
                   class="fr-btn fr-btn--secondary fr-btn--icon-left"
                   data-acte-form-target="toggleSuspensionButton"
                   data-action="click->acte-form#toggleSuspension">
-            Suspendre l'acte
+            <%=action_suspension %>
           </button>
           <div id="panelSuspension" class="fr-mt-4w fr-hidden" >
             <%= f.fields_for :suspensions, @acte.suspensions.build do |sf| %>
@@ -161,7 +162,7 @@
       <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-checkbox-group fr-mb-2w">
           <%= check_box_tag :submit_suspension, "à suspendre", id: "suspendre", data: { action: "change->acte-form#suspendSkipValidation" } %>
-          <label class="fr-label" for="suspendre">Soumettre la suspension à validation.</label>
+          <label class="fr-label" for="suspendre">Soumettre cette<%= type_suspension %> à validation.</label>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
@@ -170,7 +171,7 @@
             <%= button_tag type: 'submit',
                            id: "suspension_submit",
                            class: 'fr-btn' do %>
-              Suspendre l'acte
+              <%=action_suspension %>
             <% end %>
           </li>
         </ul>
