@@ -26,7 +26,7 @@
         <h3 class="fr-callout__title fr-capitalize fr-mb-2w fr-hidden"><%= type_suspension %></h3>
         <% if @acte.suspension_ouverte? %>
           <div class="fr-alert fr-alert--info">
-            <p>Une suspension est en cours.</p>
+            <p>Une <%= type_suspension %> est en cours.</p>
           </div>
           <div id="panelSuspension" class="fr-mt-4w">
             <%= f.fields_for :suspensions, @acte.suspension_ouverte do |sf| %>
@@ -71,6 +71,16 @@
                   </div>
                 </div>
               </div>
+            </div>
+          <% else %>
+            <div class="fr-alert fr-alert--info">
+              <p>
+                <% if type_suspension == 'suspension' %>
+                  Lorsque le contrôleur budgétaire doit rendre un avis préalable, il peut demander des informations complémentaires dans le délai de quinze jours. Dans ce cas, cette demande a pour effet de suspendre le délai d'examen jusqu'à la production de ces informations ou documents.
+                  <% else %>
+                  Lorsque le contrôleur budgétaire doit rendre un visa préalable, il peut demander des informations complémentaires dans le délai de quinze jours. Dans ce cas, un nouveau délai de quinze jours court à compter de la production des informations ou documents sollicités.
+                <% end %>
+              </p>
             </div>
           <% end %>
           <button type="button"
