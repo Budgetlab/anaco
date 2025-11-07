@@ -11,7 +11,7 @@
           <div class="fr-modal__content">
             <h2 id="modal-acte-title" class="fr-modal__title">Reprendre l'instruction de l'acte</h2>
             <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-            <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
+            <p class="fr-badge fr-badge--sm <%= badge_class_for_type(@acte.type_acte) %> "><%= @acte.type_acte %>
               n°<%= @acte.numero_formate %></p>
 
             <div class="fr-table fr-table--no-caption fr-mb-1v">

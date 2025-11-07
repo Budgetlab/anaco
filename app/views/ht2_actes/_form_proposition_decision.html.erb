@@ -27,7 +27,8 @@
         <h3 class="fr-callout__title fr-capitalize fr-mb-2w fr-hidden"><%= type_suspension %></h3>
         <% if @acte.suspension_ouverte? %>
           <div class="fr-alert fr-alert--info">
-            <p>Une <%= type_suspension %> est en cours.</p>
+            <h3 class="fr-alert__title">Une <%= type_suspension %> est en cours.</h3>
+            <p> Vous pouvez actualiser ses informations ci-dessous ou retourner sur la <%= link_to ht2_acte_path(@acte) do%>page de l'acte<% end %> pour finaliser cette <%= type_suspension %> et reprendre l'instruction de l'acte.</p>
           </div>
           <div id="panelSuspension" class="fr-mt-4w">
             <%= f.fields_for :suspensions, @acte.suspension_ouverte do |sf| %>
