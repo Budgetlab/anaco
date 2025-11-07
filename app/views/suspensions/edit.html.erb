@@ -10,8 +10,9 @@
           </div>
           <div class="fr-modal__content">
             <h2 id="modal-acte-title" class="fr-modal__title">Reprendre l'instruction de l'acte</h2>
+            <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
             <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
-              n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
+              n°<%= @acte.numero_formate %></p>
 
             <div class="fr-table fr-table--no-caption fr-mb-1v">
               <div class="fr-table__wrapper">
@@ -21,7 +22,7 @@
                       <caption> Suspensions/Interruptions</caption>
                       <thead>
                       <tr>
-                        <th> Date</th>
+                        <th> Date <%= type_suspension %></th>
                         <th> Motif</th>
                       </tr>
                       </thead>
@@ -44,15 +45,15 @@
                 <div class="fr-grid-row fr-grid-row--gutters">
                   <div class="fr-col-12">
                     <div class="fr-select-group">
-                      <label for="date_reprise" class="fr-label">Date fin de suspension*</label>
-                      <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d") %>
+                      <label for="date_reprise" class="fr-label">Date fin <%= type_suspension %>*</label>
+                      <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d"), required: true %>
                     </div>
                   </div>
                 </div>
 
                 <ul class="fr-btns-group fr-mt-4w">
                   <li>
-                    <%= f.submit "Valider", class: 'fr-btn' %>
+                    <%= f.submit "Valider et reprendre l'instruction", class: 'fr-btn' %>
                   </li>
                 </ul>
               <% end %>
