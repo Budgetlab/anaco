@@ -52,7 +52,7 @@
     </div>
   <% elsif acte.etat == "suspendu" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte suspendu</h3>
+      <h3 class="fr-callout__title">Acte <%= acte.type_acte == 'avis' ? 'suspendu' : 'interrompu' %></h3>
       <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
         <li>
           <a href="<%= edit_ht2_acte_suspension_path(acte, acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
@@ -109,7 +109,7 @@
       </ul>
     </div>
 
-  <% elsif acte.etat == "en attente de validation" %>
+  <% elsif acte.etat == "à valider" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
       <h3 class="fr-callout__title">Acte en attente de validation</h3>
       <p class="fr-callout__text">Vous pouvez valider l’acte ou le renvoyer en instruction vers l'agent instructeur.</p>

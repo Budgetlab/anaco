@@ -28,7 +28,7 @@ class Ht2Acte < ApplicationRecord
 
   has_rich_text :commentaire_disponibilite_credits
 
-  scope :en_attente_validation, -> { where(etat: ["en attente de validation", "à suspendre"]) }
+  scope :en_attente_validation, -> { where(etat: ["à valider", "à suspendre"]) }
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
@@ -57,14 +57,14 @@ class Ht2Acte < ApplicationRecord
     "en cours d'instruction",
     "suspendu",
     "à suspendre",
-    "en attente de validation",
+    "à valider",
     "à clôturer",
     "clôturé après pré-instruction",
     "clôturé"
   ].freeze
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'à clôturer'])
+    where(etat: ["en cours d'instruction", 'à valider', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite >= ?", Date.today)
       .where("date_limite <= ?", Date.today + 5.days)
@@ -73,7 +73,7 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour compter les actes en cours hors délai
   def self.count_current_with_long_delay
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'à clôturer'])
+    where(etat: ["en cours d'instruction", 'à valider', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite < ?", Date.today)
       .count
@@ -296,7 +296,7 @@ class Ht2Acte < ApplicationRecord
 
   # Methode pour mettre à jour la date limite
   def calculate_date_limite_if_needed
-    return unless ['en cours d\'instruction', 'suspendu', 'en attente de validation'].include?(etat) && date_chorus.present?
+    return unless ['en cours d\'instruction', 'suspendu', 'à valider'].include?(etat) && date_chorus.present?
 
     new_date_limite = if etat == 'suspendu'
                         nil

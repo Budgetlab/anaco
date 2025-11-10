@@ -35,7 +35,7 @@ module Ht2ActesHelper
       'fr-badge fr-badge--green-archipel'
     when 'suspendu'
       'fr-badge fr-badge--error fr-badge--no-icon'
-    when 'en attente de validation'
+    when 'à valider'
       'fr-badge fr-badge--pink-tuile'
     when 'clôturé'
       'fr-badge fr-badge--success fr-badge--no-icon'
@@ -62,7 +62,7 @@ module Ht2ActesHelper
   end
 
   def update_acte_notice(etat, etape)
-    if etat == 'en attente de validation'
+    if etat == 'à valider'
       "Acte enregistré et en attente de validation."
     elsif etat == 'clôturé'
       "Acte clôturé avec succès."

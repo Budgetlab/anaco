@@ -296,7 +296,7 @@
                   <div class="fr-table__container">
                     <div class="fr-table__content">
                       <table>
-                        <caption>Actes en attente de validation</caption>
+                        <caption>Actes à valider</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
                           <th scope="col">Acte</th>
@@ -722,6 +722,10 @@
                 <div class="fr-col-12">
                   <label class="fr-label fr-text--bold">Centre financier</label>
                   <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
+                </div>
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold">Ordonnateur</label>
+                  <%= f.search_field :ordonnateur_cont, class: "fr-input", placeholder: 'Rechercher un acte par ordonnateur' %>
                 </div>
                 <div class="fr-col-12">
                   <label class="fr-label fr-text--bold">Bénéficiaire</label>

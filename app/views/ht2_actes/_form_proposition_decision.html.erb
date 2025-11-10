@@ -4,7 +4,7 @@
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
     <%= hidden_field_tag :etape, 4 %>
     <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-    <% action_suspension = @acte.type_acte == 'avis' ? "Suspendre l'acte" : "Interrompre l'acte" %>
+    <% action_suspension = @acte.type_acte == 'avis' ? "Suspendre l'instruction" : "Interrompre l'instruction" %>
     <% if @acte.etat == "en pré-instruction" %>
       <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">

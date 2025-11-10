@@ -26,7 +26,7 @@ export default class extends Controller {
         }
     }
     setValidation(event) {
-        this.submitActionTarget.value = "en attente de validation"
+        this.submitActionTarget.value = "à valider"
     }
 
     confirmCloture(event) {
@@ -390,7 +390,7 @@ export default class extends Controller {
         asterix_proposition.classList.toggle("fr-hidden")
         this.decisionTarget.removeAttribute('required');
         // Change le texte et le style du bouton selon l'état
-        this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'acte" : "Annuler"
+        this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'instruction" : "Annuler"
         this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendu"
         // Si on referme le panneau → reset les champs
         if (isHidden) {
