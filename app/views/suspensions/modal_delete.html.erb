@@ -9,11 +9,11 @@
             </button>
           </div>
           <div class="fr-modal__content">
-            <h2 id="modal-acte-title" class="fr-modal__title">Supprimer la suspension</h2>
+            <h2 id="modal-acte-title" class="fr-modal__title">Supprimer <%= @acte.type_acte == 'avis' ? 'la suspension' : "l'interruption" %></h2>
 
             <div class="fr-alert fr-alert--warning fr-my-2w">
-              <h3 class="fr-alert__title">Vous êtes sur le point de supprimer une suspension enregistrée</h3>
-              <p>Si vous cliquez sur valider, la suspension sera définitivement supprimée et n’apparaîtra pas dans les restitutions.</p>
+              <h3 class="fr-alert__title">Vous êtes sur le point de supprimer une <%= @acte.type_acte == 'avis' ? 'suspension' : "interruption" %> enregistrée</h3>
+              <p>Si vous cliquez sur valider, <%= @acte.type_acte == 'avis' ? 'la suspension' : "l'interruption" %> sera définitivement supprimée et n’apparaîtra pas dans les restitutions.</p>
             </div>
             <ul class="fr-btns-group fr-btns-group--inline">
               <li>

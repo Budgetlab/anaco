@@ -286,7 +286,7 @@
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
                 <% elsif acte.etat == 'suspendu' %>
-                  suspendu
+                  <%= acte.type_acte == 'avis' ? 'suspendu' : 'interrompu' %>
                 <% else %>en cours
                 <% end %></td>
             </tr>

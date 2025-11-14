@@ -59,7 +59,7 @@
                           <td> n°<%= index + 1 %></td>
                           <td> <%= format_date_text(suspension.date_suspension) %> </td>
                           <td> <%= format_date_text(suspension.date_reprise) %></td>
-                          <td> <%= suspension.motif %> </td>
+                          <td class="fr-cell--multiline"> <%= suspension.motif %> </td>
                           <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
                           <td>
                             <a href="<%= ht2_acte_suspension_modal_delete_path(@acte, suspension) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-delete-bin-line fr-m-0" data-fr-opened="false" aria-controls="modal-acte">

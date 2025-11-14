@@ -61,15 +61,17 @@ module Ht2ActesHelper
     end
   end
 
-  def update_acte_notice(etat, etape)
+  def update_acte_notice(etat, etape, type_acte)
     if etat == 'à valider'
       "Acte enregistré et en attente de validation."
     elsif etat == 'clôturé'
       "Acte clôturé avec succès."
     elsif etat == 'à clôturer'
       "Acte validé avec succès. Il doit désormais être clôturé par l'instructeur."
-    elsif etat == 'suspendu'
+    elsif etat == 'suspendu' && type_acte == 'avis'
       "Acte suspendu."
+    elsif etat == 'suspendu' && type_acte != 'avis'
+      "Acte interrompu."
     elsif etat == 'à suspendre'
       "Acte à suspendre par le valideur."
     elsif etat == "clôturé après pré-instruction"

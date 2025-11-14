@@ -107,7 +107,7 @@ class Ht2ActesController < ApplicationController
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
-        notice = update_acte_notice(@acte.etat, @etape)
+        notice = update_acte_notice(@acte.etat, @etape, @acte.type_acte)
         redirect_to ht2_acte_path(@acte), notice: notice
       end
     else
@@ -144,7 +144,7 @@ class Ht2ActesController < ApplicationController
 
   def cloture_pre_instruction
     @acte.update(etat: "clôturé après pré-instruction")
-    notice = update_acte_notice(@acte.etat, 0)
+    notice = update_acte_notice(@acte.etat, 0, @acte.type_acte)
     redirect_to ht2_acte_path(@acte), notice: notice
   end
 
