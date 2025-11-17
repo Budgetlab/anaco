@@ -210,6 +210,32 @@
                   </div>
 
                   <div>
+                    <div class="fr-col-12">
+                      <span class="fr-label fr-text--bold">Suspensions/Interruptions</span>
+                      <% selected_value = params.dig(:q, :has_suspensions_eq) %>
+
+                      <ul class="fr-tags-group fr-mt-1w">
+                        <% [['Oui', 'true'], ['Non', 'false']].each do |label, value| %>
+                          <% checked = selected_value == value %>
+                          <li>
+                            <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                   data-controller="tag-select"
+                                   data-action="change->tag-select#toggle"
+                                   role="button">
+                              <%= check_box_tag 'q[has_suspensions_eq]',
+                                                value,
+                                                checked,
+                                                class: "fr-sr-only",
+                                                data: { tag_select_target: "checkbox" } %>
+                              <span><%= label %></span>
+                            </label>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div>
                     <span class="fr-label fr-text--bold">Services votés</span>
                     <% selected = Array(params.dig(:q, :services_votes_in)).map(&:to_s) %>
 

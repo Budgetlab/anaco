@@ -736,6 +736,7 @@ class Ht2ActesController < ApplicationController
     count += Array(q_params[:etat_in]).reject(&:blank?).size
     count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
     count += Array(q_params[:services_votes_in]).reject(&:blank?).size
+    count += 1 if q_params[:has_suspensions_eq].present? # Nouveau
 
     # Filtres de type texte/select
     count += 1 if q_params[:numero_formate_or_numero_chorus_cont].present?
