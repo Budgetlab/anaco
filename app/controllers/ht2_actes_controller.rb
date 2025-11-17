@@ -390,10 +390,14 @@ class Ht2ActesController < ApplicationController
     suspensions_motif.update_all(motif: "Non conformité des pièces")
     suspensions_2 = Suspension.where(motif: "Demande de mise en cohérence EJ /PJ (pôle 2)")
     suspensions_2.update_all(motif: "Demande de mise en cohérence EJ /PJ")
-    avis = Ht2Acte.where(type_engagement: 'Engagement initial')
+    avis = Ht2Acte.where(type_acte: 'avis', type_engagement: 'Engagement initial')
     avis.update_all(type_engagement: "Engagement initial prévisionnel")
-    avis_2 = Ht2Acte.where(type_engagement: 'Engagement complémentaire')
+    avis_2 = Ht2Acte.where(type_acte: 'avis', type_engagement: 'Engagement complémentaire')
     avis_2.update_all(type_engagement: "Engagement complémentaire prévisionnel")
+    avis = Ht2Acte.where(type_acte: 'visa', type_engagement: 'Engagement initial prévisionnel')
+    avis.update_all(type_engagement: "Engagement initial")
+    avis_2 = Ht2Acte.where(type_acte: 'visa', type_engagement: 'Engagement complémentaire prévisionnel')
+    avis_2.update_all(type_engagement: "Engagement complémentaire")
   end
 
   def import
@@ -736,6 +740,7 @@ class Ht2ActesController < ApplicationController
     count += Array(q_params[:etat_in]).reject(&:blank?).size
     count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
     count += Array(q_params[:services_votes_in]).reject(&:blank?).size
+    count += Array(q_params[:type_engagement_in]).reject(&:blank?).size
     count += 1 if q_params[:has_suspensions_eq].present? # Nouveau
 
     # Filtres de type texte/select

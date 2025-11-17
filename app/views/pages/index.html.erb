@@ -335,12 +335,12 @@
           <div class="fr-follow__newsletter">
             <div>
               <h2 class="fr-h5">Une question concernant ANACO ?</h2>
-              <p class="fr-text--sm">Si vous rencontrez un problème dans l'utilisation de l'outil, vous pouvez nous
-                envoyer un mail à l'adresse 2rec.budget@finances.gouv.fr ou en cliquant sur le bouton ci-contre.</p>
+              <p class="fr-text--sm">Si vous rencontrez un problème dans l'utilisation de l'outil, vous pouvez nous contacter par mail ou sur la messagerie instantanée TCHAP en cliquant sur le bouton ci-contre.</p>
             </div>
             <div>
-              <a href="mailto:2rec.budget@finances.gouv.fr?subject=Contact-ANACO" class="fr-btn" rel="noopener" target="_blank" title="Nous contacter - nouvelle fenêtre">Nous
-                contacter</a>
+              <button class="fr-btn" aria-controls="contact-modal" data-fr-opened="false">
+                Nous contacter
+              </button>
             </div>
           </div>
         </div>
@@ -354,3 +354,30 @@
     </dialog>
   <% end %>
 </main>
+
+<dialog id="contact-modal" class="fr-modal" role="dialog" aria-labelledby="contact-modal-title">
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+        <div class="fr-modal__body fr-scroll-shadow">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="contact-modal">Fermer</button>
+          </div>
+          <div class="fr-modal__content">
+            <h1 id="contact-modal-title" class="fr-modal__title">
+              Nous contacter
+            </h1>
+            <div>
+              <a href="mailto:2rec.budget@finances.gouv.fr?subject=Contact-ANACO" class="fr-btn" rel="noopener" target="_blank" title="Nous contacter - nouvelle fenêtre">Nous
+                contacter par mail</a>
+            </div>
+            <div class="fr-mt-2w">
+              <a href="https://tchap.gouv.fr/#/room/#ANACOtechniquespPAQuH0VrbX:agent.finances.tchap.gouv.fr" class="fr-btn" rel="noopener" target="_blank" title="Rejoindre le salon TCHAP ANAC">Nous
+                contacter sur TCHAP</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
