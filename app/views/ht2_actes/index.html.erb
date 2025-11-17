@@ -327,7 +327,7 @@
                             </td>
                             <td class="fr-cell--multiline">
                               <% if acte.etat == "à suspendre" %>
-                                <p class="fr-badge--sm fr-badge fr-badge--error"><%= acte.etat %></p>
+                                <p class="fr-badge--sm fr-badge fr-badge--error"><%= etat_acte(acte) %></p>
                               <% else %>
                                 <p class="fr-badge--sm <%= badge_class_for_decision(acte.proposition_decision) %>"><%= acte.proposition_decision %></p>
                               <% end %>

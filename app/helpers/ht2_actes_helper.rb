@@ -33,7 +33,7 @@ module Ht2ActesHelper
       'fr-badge fr-badge--new fr-badge--no-icon'
     when "en cours d'instruction"
       'fr-badge fr-badge--green-archipel'
-    when 'suspendu'
+    when 'suspendu', 'à suspendre'
       'fr-badge fr-badge--error fr-badge--no-icon'
     when 'à valider'
       'fr-badge fr-badge--pink-tuile'
@@ -61,6 +61,24 @@ module Ht2ActesHelper
     end
   end
 
+  def etat_acte(acte)
+    if acte.etat == 'suspendu' && (acte.type_acte == 'visa' || acte.type_acte == 'TF')
+      'interrompu'
+    elsif acte.etat == 'à suspendre' && (acte.type_acte == 'visa') && (acte.type_acte == 'visa' || acte.type_acte == 'TF')
+      "à interrompre"
+    else
+      acte.etat
+    end
+  end
+
+  def type_suspension(acte)
+    acte.type_acte == 'avis' ? 'suspension' : 'interruption'
+  end
+
+  def verbe_suspension(acte)
+    acte.type_acte == 'avis' ? 'suspendre' : 'interrompre'
+  end
+
   def update_acte_notice(etat, etape, type_acte)
     if etat == 'à valider'
       "Acte enregistré et en attente de validation."
@@ -72,8 +90,10 @@ module Ht2ActesHelper
       "Acte suspendu."
     elsif etat == 'suspendu' && type_acte != 'avis'
       "Acte interrompu."
-    elsif etat == 'à suspendre'
+    elsif etat == 'à suspendre' && type_acte == 'avis'
       "Acte à suspendre par le valideur."
+    elsif etat == 'à suspendre' && type_acte != 'avis'
+      "Acte à interrompre par le valideur."
     elsif etat == "clôturé après pré-instruction"
       "Acte clôturé après pré-instruction avec succès."
     elsif etape == 7

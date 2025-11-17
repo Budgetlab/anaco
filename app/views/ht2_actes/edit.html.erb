@@ -63,7 +63,7 @@
 
               <ul class="fr-sidemenu__list">
                 <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
-                  n°<%= @acte.numero_formate %> <% if @acte.etat == 'suspendu'  %><%= @acte.type_acte == 'avis' ? 'suspendu' : 'interrompu' %><% else %><%= @acte.etat %><% end %></p>
+                  n°<%= @acte.numero_formate %> <%= etat_acte(@acte) %></p>
                 <li class="fr-sidemenu__item">
                   <button aria-controls="modal-etape1" data-fr-opened="false" aria-current="<%= @etape == 1 %>" type="button" class="fr-sidemenu__link">
                     Étape 1 : Informations sur l'acte

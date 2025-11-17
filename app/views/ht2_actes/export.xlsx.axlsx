@@ -79,8 +79,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      "Décision finale",
    ], style: header_style
 
+   @etat = @acte.etat == "clôturé" ? "clôturé le #{@acte.date_cloture.strftime('%d/%m/%Y')}" : etat_acte(@acte)
    sheet.add_row [
-         @acte.etat,
+         @etat,
          format_value(@acte.proposition_decision),
          format_value(@acte.decision_finale),
        ], style: cell_style
@@ -142,10 +143,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        "#{n} jour#{'s' if n != 1}"  # évite la dépendance à pluralize
        # ou si tu préfères et que les helpers sont dispo :
        # helpers.pluralize(@acte.delai_traitement.to_i, 'jour')
-     elsif @acte.etat == 'suspendu'
-       'suspendu'
      else
-       'en cours'
+       etat_acte(@acte)
      end
 
    sheet.add_row [

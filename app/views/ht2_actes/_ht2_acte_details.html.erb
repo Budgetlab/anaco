@@ -52,7 +52,7 @@
     </div>
   <% elsif acte.etat == "suspendu" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte <%= acte.type_acte == 'avis' ? 'suspendu' : 'interrompu' %></h3>
+      <h3 class="fr-callout__title">Acte <%= etat_acte(acte) %></h3>
       <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
         <li>
           <a href="<%= edit_ht2_acte_suspension_path(acte, acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
@@ -67,7 +67,7 @@
     </div>
   <% elsif acte.etat == "à suspendre" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte à suspendre</h3>
+      <h3 class="fr-callout__title">Acte à <%= verbe_suspension(acte) %></h3>
       <div class="fr-table fr-table--no-caption">
         <div class="fr-table__wrapper">
           <div class="fr-table__container">
@@ -98,7 +98,7 @@
           <%= form_with(model: acte, method: :patch) do |f| %>
             <%= hidden_field_tag :etape, 8 %>
             <%= f.hidden_field :etat, value: "suspendu" %>
-            <%= f.submit "Valider et suspendre", class: 'fr-btn', data: { turbo_confirm: 'Confirmer?' } %>
+            <%= f.submit "Valider et #{verbe_suspension(acte)}", class: 'fr-btn' %>
           <% end %>
         </li>
         <li>
@@ -285,10 +285,10 @@
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
-                <% elsif acte.etat == 'suspendu' %>
-                  <%= acte.type_acte == 'avis' ? 'suspendu' : 'interrompu' %>
-                <% else %>en cours
-                <% end %></td>
+                <% else%>
+                  <%= etat_acte(acte) %>
+                <% end %>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -581,14 +581,14 @@
   <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
 
   <% if acte.suspensions.present? %>
-    <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-    <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
+    <% type_suspension = type_suspension(acte) %>
+    <div class="fr-h6 fr-my-3w fr-capitalize"><%= type_suspension+'s' %></div>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
           <div class="fr-table__content">
             <table>
-              <caption> Suspensions/Interruptions</caption>
+              <caption></caption>
               <thead>
               <tr>
                 <th class="fr-capitalize"> <%= type_suspension %> </th>
@@ -604,7 +604,7 @@
                   <td> n°<%= index + 1 %></td>
                   <td> <%= format_date_text(suspension.date_suspension) %> </td>
                   <td> <%= format_date_text(suspension.date_reprise) %></td>
-                  <td> <%= suspension.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= suspension.motif %> </td>
                   <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
                 </tr>
               <% end %>
