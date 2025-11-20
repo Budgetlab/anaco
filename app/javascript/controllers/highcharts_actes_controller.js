@@ -13,18 +13,19 @@ nodata(Highcharts)
 more(Highcharts)
 
 export default class extends Controller {
-    static targets = ["chart","syntheseDecision", "syntheseNature", "syntheseOrdonnateur", "syntheseProgramme"]
+    static targets = ["chart"]
     static values = {
         title: String,
         type: { type: String, default: 'pie' },
-        data: Array  // Déclarez la value ici
+        data: Array,  // Déclarez la value ici
+        dataset: Object
     }
 
     static CHART_COLORS = [
         "var(--border-default-blue-france)",
+        "var(--background-flat-blue-france)",
         "var(--border-action-low-purple-glycine)",
         "var(--border-default-purple-glycine)",
-        "var(--background-flat-blue-france)",
         "var(--border-action-low-blue-ecume)",
         "var(--pink-macaron-sun-406-moon-833-hover)",
         "var(--background-alt-beige-gris-galet-hover)",
@@ -35,8 +36,12 @@ export default class extends Controller {
     connect() {
         if (this.typeValue === 'bar') {
             this.renderBarChart();
-        } else if (this.typeValue === 'column'){
-            this.renderColumnChart();
+        } else if (this.typeValue === 'multi-column'){
+            this.renderMultiSeriesColumnChart(false);  // multi-séries non empilé
+        } else if (this.typeValue === 'stacked-column') {
+            this.renderMultiSeriesColumnChart(true);   // empilé
+        } else if (this.typeValue === 'line') {
+            this.renderLineChart();
         } else {
             this.renderPieChart();
         }
@@ -91,25 +96,57 @@ export default class extends Controller {
         this.chart.reflow();
     }
 
-    renderColumnChart(){
-        const sortedData = [...this.dataValue].sort((a, b) => b.y - a.y);
+    renderMultiSeriesColumnChart(stacked = false) {
+        if (!this.datasetValue) return;
+        const { categories, series } = this.datasetValue
+        console.log(this.datasetValue)
+
+        const highchartsSeries = series.map(s => ({
+            name: s.name,
+            data: s.y
+        }))
         const options = {
             chart: this.getChartColumnConfig(),
             exporting: {
                 enabled: true
             },
             colors: this.getGradientColors(),
-            xAxis: this.getXAxisBarConfig(),
+            xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
             title: this.getTitleConfig(),
             legend: {enabled: false},
-            tooltip: this.getTooltipBarConfig(),
-            accessibility: { point: { valueSuffix: '%' } },
-            plotOptions: this.getPlotBarOptions(),
-            series: [{
-                name: 'Actes',
-                data: sortedData
-            }],
+            tooltip: this.getTooltipColumnConfig(),
+            plotOptions: this.getPlotColumnOptions(stacked),
+            series: highchartsSeries,
+        };
+
+        this.chart = Highcharts.chart(this.chartTarget, options);
+        this.chart.reflow();
+    }
+    renderLineChart() {
+        if (!this.hasDatasetValue) return;
+
+        const {categories, series} = this.datasetValue;
+
+        const highchartsSeries = series.map(s => ({
+            name: s.name,
+            data: s.y,
+            type: 'line',
+            marker: {enabled: true, radius: 4}
+        }));
+
+        const options = {
+            chart: this.getChartLineConfig(),
+            exporting: {
+                enabled: true
+            },
+            colors: this.getGradientColors(),
+            xAxis: this.getXAxisColumnConfig(categories),
+            yAxis: this.getYAxisBarConfig(),
+            title: this.getTitleConfig(),
+            legend: {enabled: false},
+            tooltip: this.getTooltipLineConfig(),
+            series: highchartsSeries,
         };
 
         this.chart = Highcharts.chart(this.chartTarget, options);
@@ -141,6 +178,17 @@ export default class extends Controller {
     getChartColumnConfig() {
         return {
             type: 'column',
+            height: 600,
+            style: { fontFamily: "Marianne" },
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+        }
+    }
+
+    getChartLineConfig() {
+        return {
+            type: 'line',
             height: 600,
             style: { fontFamily: "Marianne" },
             plotBackgroundColor: null,
@@ -200,6 +248,27 @@ export default class extends Controller {
         }
     }
 
+    getTooltipColumnConfig() {
+        return {
+            borderColor: 'transparent',
+            borderRadius: 16,
+            backgroundColor: "rgba(245, 245, 245, 1)",
+            formatter: function () {
+                return `<b>${this.x}</b><br/>${this.series.name} : <b>${this.y}</b>`;
+            }
+        }
+    }
+    getTooltipLineConfig(){
+        return {
+            borderColor: 'transparent',
+            borderRadius: 16,
+            backgroundColor: "rgba(245, 245, 245, 1)",
+            formatter() {
+                return `<b>${this.x}</b><br/>${this.series.name}: <b>${this.y} jours</b>`;
+            }
+        }
+    }
+
     getPlotPieOptions() {
         return {
             pie: {
@@ -228,6 +297,26 @@ export default class extends Controller {
         }
     }
 
+    getPlotColumnOptions(stacked) {
+        return {
+            column: {
+                stacking: stacked ? 'normal' : undefined,
+                pointPadding: 0.2,
+                borderWidth: 0,
+                dataLabels: {
+                    enabled: true,
+                    format: '{y}',
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: 'var(--text-title-grey)',
+                        textOutline: 'none'
+                    }
+                }
+            }
+        }
+    }
+
     getXAxisBarConfig(){
         return {
             type: 'category',
@@ -243,12 +332,24 @@ export default class extends Controller {
     getYAxisBarConfig(){
         return {
             title: {
-                text: null
+                text: 'Total'
             },
             labels: {
                 style: {
                     fontSize: '11px',
                     fontWeight: 'bold',
+                    color: 'var(--text-title-grey)',
+                }
+            }
+        }
+    }
+
+    getXAxisColumnConfig(categories){
+        return {
+            categories,
+            labels: {
+                style: {
+                    fontSize: '11px',
                     color: 'var(--text-title-grey)',
                 }
             }

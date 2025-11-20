@@ -31,6 +31,16 @@ module ApplicationHelper
       number_with_delimiter('%.12g' % ('%.1f' % nombre), locale: :fr)
     end
   end
+
+  def percentage_of(count, total, precision: 1)
+    return "0 %" if total.to_f.zero?
+
+    number_to_percentage(
+      (count.to_f / total.to_f) * 100,
+      precision: precision,
+      strip_insignificant_zeros: true
+    )
+  end
   def format_date_text(date, format = "%e/%m/%y", default = "Non renseigné")
     date.present? ? l(date, format: format) : default
   end
@@ -204,6 +214,26 @@ module ApplicationHelper
     return true if expected_prefix.nil? || numero_chorus.blank?
 
     numero_chorus.start_with?(expected_prefix)
+  end
+
+  def return_variable(type_variable)
+    case type_variable
+    when 'decision'
+      ['Visa accordé', "Visa accordé avec observations", 'Refus de visa', 'Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
+    when 'motif_suspensions'
+      ['Défaut du circuit d’approbation Chorus', "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
+    when 'motif_observations'
+      ["Acte déjà signé par l’ordonnateur","Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+    end
+  end
+
+  def count_for(counts, year, type)
+    counts[[year, type]] || 0
+  end
+
+  def evolution_percent(old_value, new_value)
+    return "-" if old_value.to_f == 0   # évite division par zéro
+    (((new_value - old_value) / old_value.to_f) * 100).round(1)
   end
 
 end

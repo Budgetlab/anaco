@@ -278,6 +278,30 @@
                       <% end %>
                     </ul>
                   </div>
+
+                  <div>
+                    <span class="fr-label fr-text--bold">Acte programmé</span>
+                    <% selected = Array(params.dig(:q, :programmation_prevue_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                        <% checked = selected.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[programmation_prevue_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
                 </div>
 
                 <div class="fr-col-12">
@@ -293,6 +317,11 @@
                     <label class="fr-label fr-text--bold">Contrôleur</label>
                     <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
                     <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
+                  </div>
+                <% else %>
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Instructeur</label>
+                    <%= f.search_field :instructeur_cont, class: "fr-input", placeholder: 'Rechercher un acte par instructeur' %>
                   </div>
                 <% end %>
                 <div class="fr-col-12">

@@ -273,12 +273,13 @@ class Ht2ActesController < ApplicationController
       search_params[:annee_in] = Date.today.year
     end
 
-    @q = @ht2_actes.where(etat: ['clôturé','clôturé après pré-instruction']).ransack(search_params)
+    @q = @ht2_actes.clotures.ransack(search_params)
     @actes_filtered = @q.result(distinct: true)
-
-    @actes_cloture = @actes_filtered.where(etat: 'clôturé')
+    @actes_cloture = @actes_filtered.clotures_seuls
+    @total_actes = @actes_cloture.count
 
     # Données pour le graphique pie
+    @type_actes = @actes_cloture.group_by(&:type_acte).transform_values(&:count).map { |type, count| { name: type || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @natures_data = @actes_cloture.group_by(&:nature).transform_values(&:count).map { |nature, count| { name: nature || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @ordonnateurs_data = @actes_cloture.group_by(&:ordonnateur).transform_values(&:count).map { |ordonnateur, count| { name: ordonnateur || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
@@ -286,14 +287,59 @@ class Ht2ActesController < ApplicationController
     @programmes_data = @actes_cloture.includes(centre_financier_principal: :programme)
                                       .group_by(&:programme_principal)
                                       .transform_values(&:count)
-                                      .map { |programme, count| { name: programme&.numero || 'Non renseigné', y: count } }
-    #.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
+                                      .map { |programme, count| { name: programme&.numero || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
     # Répartition état/pré-instruction (SIMPLE)
     @preinstruction_data = [
       { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
       { name: "Clôturé avec pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: true).count },
       { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
     ]
+
+    year = search_params[:annee_in].to_i
+    start_date = Date.new(year, 1, 1)
+    end_date   = start_date.end_of_year
+
+    # 1) Comptages bruts par mois
+    recus_raw = @actes_cloture
+                  .where(date_chorus: start_date..end_date)
+                  .group("EXTRACT(MONTH FROM date_chorus)")
+                  .count
+    recus_by_month = recus_raw.transform_keys(&:to_i)
+
+    clotures_raw = @actes_cloture
+                     .where(date_cloture: start_date..end_date)
+                     .group("EXTRACT(MONTH FROM date_cloture)")
+                     .count
+    clotures_by_month = clotures_raw.transform_keys(&:to_i)
+
+    # ---- 3. Construire les tableaux 12 valeurs (janvier..décembre)
+    recus_array = (1..12).map { |m| recus_by_month[m] || 0 }
+    clotures_array = (1..12).map { |m| clotures_by_month[m] || 0 }
+
+    @actes_par_mois = {
+      categories: I18n.t('date.month_names')[1..12], # ["janvier", ..., "décembre"]
+      series: [
+        { name: "Actes reçus",    y: recus_array },    # 12 valeurs
+        { name: "Actes clôturés", y: clotures_array }  # 12 valeurs
+      ]
+    }
+
+    # Regrouper par année et type_acte
+    @counts = @actes_cloture.group(:annee, :type_acte).count
+    # => { [2022, "avis"] => 813, [2023, "avis"] => 623, ... }
+
+    @years = (2024..Date.today.year).to_a
+    types = @counts.keys.map(&:last).uniq.sort
+
+    @evolution_par_annee = {
+      categories: @years,
+      series: types.map do |type|
+        {
+          name: type || 'Non renseigné',
+          y: @years.map { |year| @counts[[year, type]] || 0 }
+        }
+      end
+    }
   end
 
   def synthese_temporelle
@@ -304,9 +350,32 @@ class Ht2ActesController < ApplicationController
       search_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.where(etat: ['clôturé','clôturé après pré-instruction']).ransack(search_params)
+    @q = @ht2_actes.clotures_seuls.ransack(search_params)
     @actes_filtered = @q.result(distinct: true)
-    @actes_par_mois = @actes_filtered.group_by_month(:date_cloture).count.map { |mois, count| [mois.strftime('%B %Y'), count] }
+
+    year = search_params[:annee_eq].to_i || Date.today.year
+    # 12 mois basés sur la date_cloture
+    delais_par_mois = (1..12).map do |month|
+      actes_du_mois = @actes_filtered.where(
+        date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+      )
+
+      if actes_du_mois.any?
+        (actes_du_mois.average(:delai_traitement).to_f).round(1)
+      else
+        0  # ou 0 si tu préfères
+      end
+    end
+
+    @delais_dataset = {
+      categories: I18n.t("date.month_names")[1..12], # ["janvier", ..., "décembre"]
+      series: [
+        {
+          name: "Délai moyen de traitement (jours)",
+          y: delais_par_mois
+        }
+      ]
+    }
   end
 
   def synthese_anomalies
@@ -323,6 +392,7 @@ class Ht2ActesController < ApplicationController
     @interruptions = @actes_filtered.where(type_acte: 'avis').map(&:suspensions).flatten.uniq
     @suspensions = @actes_filtered.where(type_acte: ['visa','TF']).map(&:suspensions).flatten.uniq
     @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
+    @suspensions_all_count = @suspensions_all.count
     @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
 
     # Données pour les observations - Utilise unnest de PostgreSQL
@@ -380,25 +450,7 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes
-    #TODO
-    actes = Ht2Acte.where(etat: 'en attente de validation Chorus')
-    actes.update_all(etat: 'à clôturer')
-    actes_2 = Ht2Acte.where(etat: 'en attente de validation')
-    actes_2.update_all(etat: 'à valider')
-    suspensions_motif = Suspension.where(motif: 'Conformité des pièces')
-    suspensions_motif.update_all(motif: "Non conformité des pièces")
-    suspensions_2 = Suspension.where(motif: "Demande de mise en cohérence EJ /PJ (pôle 2)")
-    suspensions_2.update_all(motif: "Demande de mise en cohérence EJ /PJ")
-    avis = Ht2Acte.where(type_acte: 'avis', type_engagement: 'Engagement initial')
-    avis.update_all(type_engagement: "Engagement initial prévisionnel")
-    avis_2 = Ht2Acte.where(type_acte: 'avis', type_engagement: 'Engagement complémentaire')
-    avis_2.update_all(type_engagement: "Engagement complémentaire prévisionnel")
-    avis = Ht2Acte.where(type_acte: 'visa', type_engagement: 'Engagement initial prévisionnel')
-    avis.update_all(type_engagement: "Engagement initial")
-    avis_2 = Ht2Acte.where(type_acte: 'visa', type_engagement: 'Engagement complémentaire prévisionnel')
-    avis_2.update_all(type_engagement: "Engagement complémentaire")
-  end
+  def ajout_actes; end
 
   def import
     Ht2Acte.import(params[:file])

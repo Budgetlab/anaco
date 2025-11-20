@@ -12,12 +12,12 @@
               <ul class="fr-sidemenu__list">
                 <li class="fr-sidemenu__item">
                   <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Informations globales
+                    Activité globale
                   <% end %>
                 </li>
                 <li class="fr-sidemenu__item">
                   <button class="fr-sidemenu__btn" aria-current="true">
-                    Suivi mensuel
+                    Délais
                   </button>
 
                 </li>
@@ -32,7 +32,7 @@
         </nav>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
-        <h1 class="fr-mt-6w fr-mb-2w title-btn">Suivi mensuel des actes clôturés
+        <h1 class="fr-mt-6w fr-mb-2w title-btn">Suivi des délais
           <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
             Filtrer les résultats
           </button>
@@ -40,6 +40,16 @@
 
         <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
           <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-text--center fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div class="fr-cart__body">
+                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count_with_long_delay %></p>
+                    <p class="fr-text--lg fr-mb-0 text_center">Actes cloturés hors délai</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="fr-col-12 fr-col-lg-4">
               <div class="fr-text--center fr-p-2v">
                 <div class="fr-card fr-p-2w">
@@ -60,24 +70,18 @@
                 </div>
               </div>
             </div>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-text--center fr-p-2v">
-                <div class="fr-card fr-p-2w">
-                  <div class="fr-cart__body">
-                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count_with_long_delay %></p>
-                    <p class="fr-text--lg fr-mb-0 text_center">Actes cloturés hors délai</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="fr-grid-row">
             <div class="fr-col-12 fr-col-lg-12">
-              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
-                   data-highcharts-actes-type-value="column"
-                   data-highcharts-actes-target="chart"
-                   data-highcharts-actes-data-value="<%= @actes_par_mois.to_json %>"
-                   data-highcharts-actes-title-value="Suivi mensuel des actes clôturés"></div>
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-type-value="line"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-dataset-value="<%= @delais_dataset.to_json %>"
+                       data-highcharts-actes-title-value="Délai moyen de traitement par mois"></div>
+                </div>
+              </div>
             </div>
           </div>
         <% end %>

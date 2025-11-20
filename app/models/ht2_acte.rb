@@ -34,6 +34,7 @@ class Ht2Acte < ApplicationRecord
   scope :suspendus, -> { where(etat: ["suspendu"]) }
   scope :a_cloturer, -> { where(etat: ["à clôturer"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :clotures_seuls, -> { where(etat: 'clôturé') }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
   # Ceux qui ne sont pas clos (année N , N-1 ..) + ceux qui sont clos sur l'annee N

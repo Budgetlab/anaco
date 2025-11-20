@@ -12,12 +12,12 @@
               <ul class="fr-sidemenu__list">
                 <li class="fr-sidemenu__item">
                   <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Informations globales
+                    Activité globale
                   <% end %>
                 </li>
                 <li class="fr-sidemenu__item">
                   <%= link_to synthese_temporelle_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Suivi mensuel
+                    Délais
                   <% end %>
                 </li>
                 <li class="fr-sidemenu__item">
@@ -72,17 +72,91 @@
           </div>
           <div class="fr-grid-row">
             <div class="fr-col-12 fr-col-lg-6">
-              <div class='fr-p-2v chart-container' data-controller="highcharts-actes"
-                   data-highcharts-actes-target="chart"
-                   data-highcharts-actes-data-value="<%= @suspensions_data.to_json %>"
-                   data-highcharts-actes-title-value="Typologie des suspensions/interruptions"></div>
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-data-value="<%= @suspensions_data.to_json %>"
+                       data-highcharts-actes-title-value="Typologie des suspensions/interruptions"></div>
+                  <div class="fr-table">
+                    <div class="fr-table__wrapper">
+                      <div class="fr-table__container">
+                        <div class="fr-table__content">
+                          <table>
+                            <caption>Répartition des motifs</caption>
+                            <thead>
+                            <tr>
+                              <th> Nature</th>
+                              <th> Nombre</th>
+                              <th> Répartition</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% return_variable('motif_suspensions').each do |type| %>
+                              <% value = @suspensions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                              <tr>
+                                <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
+                                <td> <%= value %> </td>
+                                <td class="fr-cell--multiline"><%= percentage_of(value, @suspensions_all_count) %></td>
+                              </tr>
+                            <% end %>
+                            <tr class="fr-table--total">
+                              <td>Total</td>
+                              <td><%= @suspensions_all_count %></td>
+                              <td>100%</td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
             <div class="fr-col-12 fr-col-lg-6">
-              <div class='fr-p-2v chart-container'
-                   data-controller="highcharts-actes"
-                   data-highcharts-actes-target="chart"
-                   data-highcharts-actes-data-value="<%= @observations_data.to_json %>"
-                   data-highcharts-actes-title-value="Typologie des observations">
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-data-value="<%= @observations_data.to_json %>"
+                       data-highcharts-actes-title-value="Typologie des observations">
+                  </div>
+                  <div class="fr-table">
+                    <div class="fr-table__wrapper">
+                      <div class="fr-table__container">
+                        <div class="fr-table__content">
+                          <table>
+                            <caption>Répartition des observations</caption>
+                            <thead>
+                            <tr>
+                              <th> Nature</th>
+                              <th> Nombre</th>
+                              <th> Répartition</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% return_variable('motif_observations').each do |type| %>
+                              <% value = @observations_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                              <tr>
+                                <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
+                                <td> <%= value %> </td>
+                                <td class="fr-cell--multiline"><%= percentage_of(value, @total_observations) %></td>
+                              </tr>
+                            <% end %>
+                            <tr class="fr-table--total">
+                              <td>Total</td>
+                              <td><%= @total_observations %></td>
+                              <td>100%</td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
