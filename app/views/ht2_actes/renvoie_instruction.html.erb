@@ -1,0 +1,31 @@
+<%= turbo_frame_tag :bloc do %>
+  <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+    <h3 class="fr-callout__title">Renvoyer l'acte en instruction</h3>
+
+    <div class="fr-alert fr-alert--warning fr-my-2w">
+      <h3 class="fr-alert__title">Vous êtes sur le point de renvoyer cet acte en phase d’instruction.</h3>
+    </div>
+    <p>Si vous souhaitez ajouter un commentaire pour l’instructeur, rajoutez vos observations à la suite de
+      celles de l’agent via le champ ci-dessous :</p>
+
+    <%= form_with(model: @acte, data: { turbo_frame: "_top" }) do |f| %>
+      <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+      <%= hidden_field_tag :etape, 8 %>
+      <%= f.hidden_field :renvoie_instruction, value: true %>
+      <div class="fr-input-group">
+        <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de
+          décision de contrôle</label>
+        <%= f.text_area :commentaire_proposition_decision, rows: 6, class: 'fr-input' %>
+      </div>
+      <div>
+        <%= f.submit "Renvoyer l'acte en phase d'instruction", class: 'fr-btn' %>
+      </div>
+    <% end %>
+
+    <%= link_to acte_actions_path(@acte), data: { turbo_frame: "bloc" }, class: "fr-btn fr-btn--secondary" do %>
+      Annuler
+    <% end %>
+
+
+  </div>
+<% end %>

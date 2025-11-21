@@ -177,6 +177,7 @@
                             <td class="fr-cell--multiline">
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
+                              <% if acte.renvoie_instruction %><span class="fr-badge fr-badge--sm fr-badge--error fr-badge--no-icon">Renvoyé</span><% end %>
                             </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
                             <td><%= acte.centre_financier_code %></td>

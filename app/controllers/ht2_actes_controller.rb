@@ -1,9 +1,9 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
-  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte, :modal_renvoie_validation]
-  before_action :set_variables_form, only: [:edit, :modal_validate_acte]
+  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions]
+  before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
   before_action :set_parent_for_clone, only: :new
@@ -148,8 +148,10 @@ class Ht2ActesController < ApplicationController
     redirect_to ht2_acte_path(@acte), notice: notice
   end
 
-  def modal_renvoie_instruction; end
+  def renvoie_instruction; end
+  def validate_acte; end
   def modal_renvoie_validation; end
+  def acte_actions; end
 
   # export fiche excel d'un acte
   def export
@@ -190,8 +192,6 @@ class Ht2ActesController < ApplicationController
     @acte&.destroy
     redirect_to ht2_actes_path, notice: "Acte supprimé avec succès."
   end
-
-  def modal_validate_acte; end
 
   def check_chorus_number
     numero_chorus = params[:numero_chorus]
@@ -472,7 +472,7 @@ class Ht2ActesController < ApplicationController
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
-                                     :groupe_marchandises, type_observations: [],
+                                     :groupe_marchandises,:renvoie_instruction, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises])
