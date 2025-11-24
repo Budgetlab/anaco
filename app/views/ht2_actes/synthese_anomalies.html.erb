@@ -40,11 +40,11 @@
         </nav>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
-        <h1 class="fr-mt-6w fr-mb-2w title-btn">Anomalies
+        <h2 class="fr-mt-6w fr-mb-2w title-btn">Anomalies
           <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
             Filtrer les résultats
           </button>
-        </h1>
+        </h2>
 
         <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
           <div class="fr-grid-row">
