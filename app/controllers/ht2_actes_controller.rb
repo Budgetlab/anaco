@@ -267,14 +267,15 @@ class Ht2ActesController < ApplicationController
   end
   def tableau_de_bord
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    @all_actes_user = @ht2_actes.clotures
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
     if search_params[:annee_in].blank?
-      search_params[:annee_in] = Date.today.year
+      search_params[:annee_in] = [Date.today.year]
     end
 
-    @q = @ht2_actes.clotures.ransack(search_params)
-    @actes_filtered = @q.result(distinct: true)
+    @q = @all_actes_user.ransack(search_params)
+    @actes_filtered = @q.result(distinct: true) #pour graphes pre instruction
     @actes_cloture = @actes_filtered.clotures_seuls
     @total_actes = @actes_cloture.count
 
@@ -295,7 +296,7 @@ class Ht2ActesController < ApplicationController
       { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
     ]
 
-    year = search_params[:annee_in].to_i
+    year = search_params[:annee_in].first.to_i
     start_date = Date.new(year, 1, 1)
     end_date   = start_date.end_of_year
 
@@ -325,7 +326,7 @@ class Ht2ActesController < ApplicationController
     }
 
     # Regrouper par année et type_acte
-    @counts = @actes_cloture.group(:annee, :type_acte).count
+    @counts = @all_actes_user.group(:annee, :type_acte).count
     # => { [2022, "avis"] => 813, [2023, "avis"] => 623, ... }
 
     @years = (2024..Date.today.year).to_a
@@ -346,14 +347,14 @@ class Ht2ActesController < ApplicationController
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_eq].blank?
-      search_params[:annee_eq] = Date.today.year
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = [Date.today.year]
     end
 
     @q = @ht2_actes.clotures_seuls.ransack(search_params)
     @actes_filtered = @q.result(distinct: true)
 
-    year = search_params[:annee_eq].to_i || Date.today.year
+    year = search_params[:annee_in].first.to_i
     # 12 mois basés sur la date_cloture
     delais_par_mois = (1..12).map do |month|
       actes_du_mois = @actes_filtered.where(
