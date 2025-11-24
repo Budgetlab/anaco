@@ -50,7 +50,21 @@ class Ht2ActesController < ApplicationController
   end
 
   def historique
-    @q = @ht2_actes.ransack(params[:q])
+    # On duplique pour ne pas modifier params directement
+    search_params = (params[:q] || {}).dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values = Array(search_params.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values.include?('oui') && !hors_delai_values.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params[:delai_traitement_gt] = 15
+    elsif hors_delai_values.include?('non') && !hors_delai_values.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params[:delai_traitement_lteq] = 15
+    end
+    # si les deux ou aucun sont cochés → pas de condition particulière
+    @q = @ht2_actes.ransack(search_params)
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
     @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
@@ -785,30 +799,31 @@ class Ht2ActesController < ApplicationController
   def count_active_filters(q_params)
     return 0 if q_params.blank?
 
-    count = 0
+    # On récupère un vrai hash
+    q = q_params.respond_to?(:to_unsafe_h) ? q_params.to_unsafe_h : q_params
+    q = q.deep_dup
 
-    # Filtres de type tableau
-    count += Array(q_params[:type_acte_in]).reject(&:blank?).size
-    count += Array(q_params[:annee_in]).reject(&:blank?).size
-    count += Array(q_params[:etat_in]).reject(&:blank?).size
-    count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
-    count += Array(q_params[:services_votes_in]).reject(&:blank?).size
-    count += Array(q_params[:type_engagement_in]).reject(&:blank?).size
-    count += 1 if q_params[:has_suspensions_eq].present? # Nouveau
+    # On récupère les filtres "hors délai" puis on les retire du hash,
+    # pour ne pas les compter deux fois comme filtres "classiques"
+    delay_gt   = q.delete("delai_traitement_gt")   || q.delete(:delai_traitement_gt)
+    delay_lteq = q.delete("delai_traitement_lteq") || q.delete(:delai_traitement_lteq)
 
-    # Filtres de type texte/select
-    count += 1 if q_params[:numero_formate_or_numero_chorus_cont].present?
-    count += 1 if q_params[:nature_eq].present?
-    count += 1 if q_params[:user_nom_eq].present?
-    count += 1 if q_params[:centre_financier_code_cont].present?
-    count += 1 if q_params[:beneficiaire_cont].present?
-    count += 1 if q_params[:activite_cont].present?
-    count += 1 if q_params[:date_cloture_gteq].present?
-    count += 1 if q_params[:date_cloture_lteq].present?
-    count += 1 if q_params[:date_chorus_gteq].present?
-    count += 1 if q_params[:date_chorus_lteq].present?
-    count += 1 if q_params[:montant_ae_gteq].present?  # Ajout
-    count += 1 if q_params[:montant_ae_lteq].present?  # Ajout
+    # On ne considère pas le tri comme un filtre
+    q.delete("s")
+    q.delete(:s)
+
+    # Compte des filtres "classiques"
+    count = q.count do |_k, v|
+      case v
+      when Array
+        v.reject(&:blank?).any?
+      else
+        v.present?
+      end
+    end
+
+    # Ajout de 1 si le filtre "hors délai" est activé
+    count += 1 if delay_gt.present? || delay_lteq.present?
 
     count
   end

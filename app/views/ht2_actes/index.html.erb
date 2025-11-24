@@ -688,30 +688,6 @@
                   </div>
 
                   <div>
-                    <span class="fr-label fr-text--bold">Suspensions/Interruptions</span>
-                    <% selected_value = params.dig(:q_cloture, :has_suspensions_eq) %>
-
-                    <ul class="fr-tags-group fr-mt-1w">
-                      <% [['Oui', 'true'], ['Non', 'false']].each do |label, value| %>
-                        <% checked = selected_value == value %>
-                        <li>
-                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
-                                 data-controller="tag-select"
-                                 data-action="change->tag-select#toggle"
-                                 role="button">
-                            <%= check_box_tag 'q_cloture[has_suspensions_eq]',
-                                              value,
-                                              checked,
-                                              class: "fr-sr-only",
-                                              data: { tag_select_target: "checkbox" } %>
-                            <span><%= label %></span>
-                          </label>
-                        </li>
-                      <% end %>
-                    </ul>
-                  </div>
-
-                  <div>
                     <span class="fr-label fr-text--bold">Type d'engagement</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array(params.dig(:q_cloture, :type_engagement_in)) %>
