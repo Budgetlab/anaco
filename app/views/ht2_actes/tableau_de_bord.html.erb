@@ -1,17 +1,26 @@
 <% content_for :title do %>Tableau de bord Actes HT2 | ANACO
 <% end %>
+<div class="fr-container">
+  <div class="fr-grid-row">
+    <div class="fr-col-12">
+      <h1 class="fr-mt-6w title-btn">
+        Tableau de bord Actes HT2
+      </h1>
+    </div>
+  </div>
+</div>
 
 <div class="fr-container--grey">
   <div class="fr-container">
     <div class="fr-grid-row">
       <div class="fr-col-12 fr-col-lg-3">
         <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
-          <div class="fr-sidemenu__inner">
+          <div class="fr-sidemenu__inner fr-backgroud--grey">
             <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
               Dans cette rubrique
             </button>
             <div class="fr-collapse" id="fr-sidemenu-wrapper">
-              <div class="fr-sidemenu__title" id="fr-sidemenu-title">Synthèses Actes HT2</div>
+              <div class="fr-sidemenu__title fr-hidden" id="fr-sidemenu-title">Synthèses Actes HT2</div>
               <ul class="fr-sidemenu__list">
                 <li class="fr-sidemenu__item">
                   <button class="fr-sidemenu__btn" aria-current="true">
@@ -34,11 +43,11 @@
         </nav>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
-        <h1 class="fr-mt-6w fr-mb-2w title-btn">Activité globale
+        <h2 class="fr-mt-6w fr-mb-2w title-btn">Activité globale
           <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
             Filtrer les résultats
           </button>
-        </h1>
+        </h2>
 
         <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
 

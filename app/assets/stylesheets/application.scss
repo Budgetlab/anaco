@@ -515,4 +515,6 @@ a.fr-tag[aria-pressed=true]::after{
 .fr-container--grey{
   background-color: var(--background-contrast-raised-grey);
 }
-
+.fr-backgroud--grey{
+  background-color: var(--text-inverted-grey);
+}

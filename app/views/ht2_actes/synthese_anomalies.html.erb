@@ -1,14 +1,23 @@
+<div class="fr-container">
+  <div class="fr-grid-row">
+    <div class="fr-col-12">
+      <h1 class="fr-mt-6w title-btn">
+        Tableau de bord Actes HT2
+      </h1>
+    </div>
+  </div>
+</div>
+
 <div class="fr-container--grey">
   <div class="fr-container">
     <div class="fr-grid-row">
       <div class="fr-col-12 fr-col-lg-3">
         <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
-          <div class="fr-sidemenu__inner">
+          <div class="fr-sidemenu__inner fr-backgroud--grey">
             <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
               Dans cette rubrique
             </button>
             <div class="fr-collapse" id="fr-sidemenu-wrapper">
-              <div class="fr-sidemenu__title" id="fr-sidemenu-title">Synthèses Actes HT2</div>
               <ul class="fr-sidemenu__list">
                 <li class="fr-sidemenu__item">
                   <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
