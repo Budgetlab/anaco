@@ -278,7 +278,13 @@ export default class extends Controller {
                 cursor: 'pointer',
                 dataLabels: {
                     enabled: true,
-                    format: '<b>{point.y}</b>'
+                    format: '<b>{point.y}</b>',
+                    style: {
+                        textOutline: '1px #FFFFFF', // 👈 contour blanc épais
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: 'var(--text-title-grey)',
+                    }
                 },
                 showInLegend: true,
                 //center: ['50%', '40%']
@@ -292,6 +298,12 @@ export default class extends Controller {
                 dataLabels: {
                     enabled: true,
                     format: '{point.y}',
+                    style: {
+                        textOutline: '1px #FFFFFF', // 👈 contour blanc épais
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        color: 'var(--text-title-grey)',
+                    }
                 },
             }
         }
@@ -310,7 +322,7 @@ export default class extends Controller {
                         fontSize: '11px',
                         fontWeight: 'bold',
                         color: 'var(--text-title-grey)',
-                        textOutline: 'none'
+                        textOutline: '1px #FFFFFF',
                     }
                 }
             }

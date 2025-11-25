@@ -138,7 +138,7 @@
                 <ul class="fr-menu__list">
                   <% if ['CBR', 'DCB'].include?(current_user.statut) %>
                     <li>
-                      <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Liste de travail - Actes HT2
+                      <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self", active: :exact do %>Liste de travail - Actes HT2
                       <% end %>
                     </li>
                   <% end %>
