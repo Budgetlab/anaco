@@ -281,14 +281,14 @@ class Ht2ActesController < ApplicationController
   end
   def tableau_de_bord
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
-    @all_actes_user = @ht2_actes.clotures
+    @all_actes_user = @ht2_actes.clotures_seuls
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
     if search_params[:annee_in].blank?
       search_params[:annee_in] = [Date.today.year]
     end
 
-    @q = @all_actes_user.ransack(search_params)
+    @q = @ht2_actes.clotures.ransack(search_params)
     @actes_filtered = @q.result(distinct: true) #pour graphes pre instruction
     @actes_cloture = @actes_filtered.clotures_seuls
     @total_actes = @actes_cloture.count
@@ -513,7 +513,7 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation',"Hors périmètre du CBR/DCB", 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
     end
-    @liste_motifs_suspension = ['Défaut du circuit d’approbation Chorus', "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
+    @liste_motifs_suspension = ['Défaut du circuit d’approbation Chorus',"Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 
