@@ -1,4 +1,4 @@
-<%= turbo_frame_tag :bloc do %>
+<%= turbo_frame_tag @frame_id do %>
   <% if @acte.etat == "en pré-instruction" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
       <h3 class="fr-callout__title">Acte en pré-instruction</h3>
@@ -117,12 +117,12 @@
         instructeur.</p>
       <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-my-2w">
         <li>
-          <%= link_to validate_acte_path(@acte), data: { turbo_frame: "bloc" }, class: "fr-btn" do %>Valider l'acte
+          <%= link_to validate_acte_path(@acte), data: { turbo_frame: @frame_id }, class: "fr-btn" do %>Valider l'acte
           <% end %>
 
         </li>
         <li>
-          <%= link_to renvoie_instruction_path(@acte), data: { turbo_frame: "bloc" }, class: "fr-btn fr-btn--secondary fr-icon-arrow-go-back-line" do %>
+          <%= link_to renvoie_instruction_path(@acte), data: { turbo_frame: @frame_id }, class: "fr-btn fr-btn--secondary fr-icon-arrow-go-back-line" do %>
             Renvoyer l'acte en instruction
           <% end %>
         </li>

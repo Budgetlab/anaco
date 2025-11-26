@@ -162,10 +162,16 @@ class Ht2ActesController < ApplicationController
     redirect_to ht2_acte_path(@acte), notice: notice
   end
 
-  def renvoie_instruction; end
-  def validate_acte; end
+  def renvoie_instruction
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
+  def validate_acte
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
   def modal_renvoie_validation; end
-  def acte_actions; end
+  def acte_actions
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
 
   # export fiche excel d'un acte
   def export

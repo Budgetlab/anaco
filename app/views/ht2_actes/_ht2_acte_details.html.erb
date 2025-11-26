@@ -1,5 +1,8 @@
+<% frame_id = dom_id(acte, :bloc) %>
+
 <% if acte.user == current_user %>
-  <%= turbo_frame_tag :bloc, src: acte_actions_path(acte) %>
+  <%= turbo_frame_tag frame_id,
+                      src: acte_actions_path(acte, frame_id: frame_id) %>
 <% else %>
   <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
     <%= acte.etat %>

@@ -1,4 +1,4 @@
-<%= turbo_frame_tag :bloc do %>
+<%= turbo_frame_tag @frame_id do %>
   <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
     <h3 class="fr-callout__title">Renvoyer l'acte en instruction</h3>
 
@@ -22,7 +22,7 @@
       </div>
     <% end %>
 
-    <%= link_to acte_actions_path(@acte), data: { turbo_frame: "bloc" }, class: "fr-btn fr-btn--secondary" do %>
+    <%= link_to acte_actions_path(@acte), data: { turbo_frame: @frame_id }, class: "fr-btn fr-btn--secondary" do %>
       Annuler
     <% end %>
 
