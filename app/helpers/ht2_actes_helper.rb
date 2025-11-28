@@ -104,4 +104,24 @@ module Ht2ActesHelper
       "Acte enregistré et mis à jour avec succès."
     end
   end
+
+  def tous_types_observations
+    [
+      "Acte déjà signé par l'ordonnateur",
+      "Acte non soumis au contrôle",
+      'Compatibilité avec la programmation',
+      "Construction de l'EJ",
+      'Disponibilité des crédits',
+      'Évaluation de la consommation des crédits',
+      'Fondement juridique',
+      "Hors périmètre du CBR/DCB",
+      'Imputation',
+      'Pièce(s) manquante(s)',
+      "Problème dans la rédaction de l'acte",
+      'Risque au titre de la RGP',
+      'Saisine a posteriori',
+      'Saisine en dessous du seuil de soumission au contrôle',
+      'Autre'
+    ].sort
+  end
 end

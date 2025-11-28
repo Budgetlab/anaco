@@ -211,50 +211,36 @@
                     </ul>
                   </div>
 
-                  <div>
-                    <span class="fr-label fr-text--bold">Acte clôturé hors délai</span>
-                    <% selected = Array(params.dig(:q, :delai_traitement_hors_delai_in)).map(&:to_s) %>
+                  <div data-controller="multi-select-filter" data-multi-select-filter-param-name-value="q[type_engagement_in][]">
+                    <div class="fr-select-group">
+                      <label for="type_engagement_filter" class="fr-label fr-text--bold">Type d'engagement
+                        <span class="fr-hint-text">Plusieurs choix possibles</span>
+                      </label>
+                      <%= select_tag "type_engagement_filter",
+                                     options_for_select([["- sélectionner -", ""]] + ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement", 'Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel', 'Affectation initiale', 'Affectation complémentaire', 'Retrait'].map { |type| [type, type] }),
+                                     id: "type_engagement_filter",
+                                     class: "fr-select",
+                                     data: { action: "change->multi-select-filter#add", multi_select_filter_target: "select" } %>
+                    </div>
 
-                    <ul class="fr-tags-group fr-mt-1w">
-                      <% { 'Oui' => 'oui', 'Non' => 'non' }.each do |label, value| %>
-                        <% checked = selected.include?(value) %>
-                        <li>
-                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
-                                 data-controller="tag-select"
-                                 data-action="change->tag-select#toggle"
-                                 role="button">
-                            <%= check_box_tag 'q[delai_traitement_hors_delai_in][]',
-                                              value,
-                                              checked,
-                                              class: "fr-sr-only",
-                                              data: { tag_select_target: "checkbox" } %>
-                            <span><%= label %></span>
-                          </label>
-                        </li>
-                      <% end %>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <span class="fr-label fr-text--bold">Type d'engagement</span>
-                    <ul class="fr-tags-group fr-mt-1w">
+                    <!-- Conteneur pour afficher les tags sélectionnés -->
+                    <ul class="fr-tags-group fr-mt-1w" data-multi-select-filter-target="container">
                       <% selected_types = Array(params.dig(:q, :type_engagement_in)) %>
-                      <% ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement", 'Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel', 'Affectation initiale', 'Affectation complémentaire', 'Retrait'].each do |t| %>
-                        <li>
-                          <label class="fr-tag tag-selectable"
-                                 data-controller="tag-select"
-                                 data-action="change->tag-select#toggle"
-                                 role="button">
-                            <%= check_box_tag 'q[type_engagement_in][]',
-                                              t,
-                                              selected_types.include?(t),
-                                              class: "fr-sr-only",
-                                              data: { tag_select_target: "checkbox" } %>
-                            <span><%= t %></span>
-                          </label>
+                      <% selected_types.each do |type| %>
+                        <li data-action="click->multi-select-filter#remove" data-value="<%= type %>">
+                          <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= type %>">
+                            <%= type %>
+                          </button>
                         </li>
                       <% end %>
                     </ul>
+
+                    <!-- Conteneur pour les champs cachés -->
+                    <div data-multi-select-filter-target="hiddenContainer">
+                      <% selected_types.each do |type| %>
+                        <%= hidden_field_tag 'q[type_engagement_in][]', type %>
+                      <% end %>
+                    </div>
                   </div>
 
                   <div>
@@ -303,6 +289,63 @@
                         </li>
                       <% end %>
                     </ul>
+                  </div>
+
+                  <div>
+                    <span class="fr-label fr-text--bold">Acte clôturé hors délai</span>
+                    <% selected = Array(params.dig(:q, :delai_traitement_hors_delai_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'oui', 'Non' => 'non' }.each do |label, value| %>
+                        <% checked = selected.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[delai_traitement_hors_delai_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+                <div class="fr-col-12">
+                  <div data-controller="multi-select-filter" data-multi-select-filter-param-name-value="q[type_observations_array_in][]">
+                    <div class="fr-select-group fr-mb-0">
+                      <label for="type_observations_filter" class="fr-label fr-text--bold">Type d'observations
+                        <span class="fr-hint-text">Plusieurs choix possibles</span>
+                      </label>
+                      <%= select_tag "type_observations_filter",
+                                     options_for_select([["- sélectionner -", ""]] + tous_types_observations.map { |type| [type, type] }),
+                                     id: "type_observations_filter",
+                                     class: "fr-select",
+                                     data: { action: "change->multi-select-filter#add", multi_select_filter_target: "select" } %>
+                    </div>
+
+                    <!-- Conteneur pour afficher les tags sélectionnés -->
+                    <ul class="fr-tags-group fr-mt-1w" data-multi-select-filter-target="container">
+                      <% selected_types = Array(params.dig(:q, :type_observations_array_in)) %>
+                      <% selected_types.each do |type| %>
+                        <li data-action="click->multi-select-filter#remove" data-value="<%= type %>">
+                          <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= type %>">
+                            <%= type %>
+                          </button>
+                        </li>
+                      <% end %>
+                    </ul>
+
+                    <!-- Conteneur pour les champs cachés -->
+                    <div data-multi-select-filter-target="hiddenContainer">
+                      <% selected_types.each do |type| %>
+                        <%= hidden_field_tag 'q[type_observations_array_in][]', type %>
+                      <% end %>
+                    </div>
                   </div>
                 </div>
 

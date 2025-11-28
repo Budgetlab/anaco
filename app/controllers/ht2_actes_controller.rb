@@ -64,10 +64,20 @@ class Ht2ActesController < ApplicationController
       search_params[:delai_traitement_lteq] = 15
     end
     # si les deux ou aucun sont cochés → pas de condition particulière
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values = Array(search_params.delete(:type_observations_array_in))
+
     @q = @ht2_actes.ransack(search_params)
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
     @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
+
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values.present?
+      @actes_all = @actes_all.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
     @filtres_count = count_active_filters(params[:q])
 
     respond_to do |format|
@@ -814,6 +824,9 @@ class Ht2ActesController < ApplicationController
     delay_gt   = q.delete("delai_traitement_gt")   || q.delete(:delai_traitement_gt)
     delay_lteq = q.delete("delai_traitement_lteq") || q.delete(:delai_traitement_lteq)
 
+    # On récupère le filtre "type d'observation" puis on le retire du hash
+    type_observations = q.delete("type_observations_array_in") || q.delete(:type_observations_array_in)
+
     # On ne considère pas le tri comme un filtre
     q.delete("s")
     q.delete(:s)
@@ -830,6 +843,9 @@ class Ht2ActesController < ApplicationController
 
     # Ajout de 1 si le filtre "hors délai" est activé
     count += 1 if delay_gt.present? || delay_lteq.present?
+
+    # Ajout de 1 si le filtre "type d'observation" est activé
+    count += 1 if type_observations.is_a?(Array) && type_observations.reject(&:blank?).any?
 
     count
   end
