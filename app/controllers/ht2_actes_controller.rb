@@ -36,8 +36,68 @@ class Ht2ActesController < ApplicationController
 
     # actes clotures
     @actes_closed = base_scope.clotures
-    @q_cloture = @actes_closed.ransack(params[:q_cloture], search_key: :q_cloture)
-    @actes_cloture_all = @q_cloture.result(distinct: true)
+
+    # On duplique pour ne pas modifier params directement
+    search_params_cloture = (params[:q_cloture] || {}).dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values_cloture = Array(search_params_cloture.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values_cloture.include?('oui') && !hors_delai_values_cloture.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params_cloture[:delai_traitement_gt] = 15
+    elsif hors_delai_values_cloture.include?('non') && !hors_delai_values_cloture.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params_cloture[:delai_traitement_lteq] = 15
+    end
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values_cloture = Array(search_params_cloture.delete(:type_observations_array_in))
+
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values_cloture = Array(search_params_cloture.delete(:suspensions_count_in))
+
+    @q_cloture = @actes_closed.ransack(search_params_cloture, search_key: :q_cloture)
+    @actes_cloture_all = @q_cloture.result.includes(:user, :suspensions, centre_financier_principal: :programme)
+
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values_cloture.present?
+      @actes_cloture_all = @actes_cloture_all.where("type_observations && ARRAY[?]::varchar[]", type_observations_values_cloture)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values_cloture.present?
+      acte_ids_cloture = []
+
+      if suspensions_count_values_cloture.include?('aucune')
+        # Actes sans suspension
+        acte_ids_cloture += @actes_cloture_all.left_joins(:suspensions)
+                                              .where(suspensions: { id: nil })
+                                              .reorder('')
+                                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values_cloture.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids_cloture += @actes_cloture_all.joins(:suspensions)
+                                              .group('ht2_actes.id')
+                                              .having('COUNT(suspensions.id) = 1')
+                                              .reorder('')
+                                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values_cloture.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids_cloture += @actes_cloture_all.joins(:suspensions)
+                                              .group('ht2_actes.id')
+                                              .having('COUNT(suspensions.id) >= 2')
+                                              .reorder('')
+                                              .pluck('ht2_actes.id')
+      end
+
+      @actes_cloture_all = @actes_cloture_all.where(id: acte_ids_cloture.uniq)
+    end
+
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
     @filtres_count = count_active_filters(params[:q_cloture])
     respond_to do |format|
