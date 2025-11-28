@@ -314,6 +314,30 @@
                       <% end %>
                     </ul>
                   </div>
+
+                  <div>
+                    <span class="fr-label fr-text--bold">Suspensions/Interruptions</span>
+                    <% selected_suspensions = Array(params.dig(:q, :suspensions_count_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Aucune' => 'aucune', '1' => '1', '2 ou plus' => '2_ou_plus' }.each do |label, value| %>
+                        <% checked = selected_suspensions.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[suspensions_count_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
                 </div>
                 <div class="fr-col-12">
                   <div data-controller="multi-select-filter" data-multi-select-filter-param-name-value="q[type_observations_array_in][]">

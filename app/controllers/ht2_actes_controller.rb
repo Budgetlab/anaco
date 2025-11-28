@@ -68,6 +68,9 @@ class Ht2ActesController < ApplicationController
     # Gestion du filtre "Type d'observation"
     type_observations_values = Array(search_params.delete(:type_observations_array_in))
 
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values = Array(search_params.delete(:suspensions_count_in))
+
     @q = @ht2_actes.ransack(search_params)
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
@@ -76,6 +79,39 @@ class Ht2ActesController < ApplicationController
     # Appliquer le filtre type_observations si présent
     if type_observations_values.present?
       @actes_all = @actes_all.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values.present?
+      acte_ids = []
+
+      if suspensions_count_values.include?('aucune')
+        # Actes sans suspension
+        acte_ids += @actes_all.left_joins(:suspensions)
+                              .where(suspensions: { id: nil })
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('ht2_actes.id')
+                              .having('COUNT(suspensions.id) = 1')
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('ht2_actes.id')
+                              .having('COUNT(suspensions.id) >= 2')
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      @actes_all = @actes_all.where(id: acte_ids.uniq)
     end
 
     @filtres_count = count_active_filters(params[:q])
@@ -827,6 +863,9 @@ class Ht2ActesController < ApplicationController
     # On récupère le filtre "type d'observation" puis on le retire du hash
     type_observations = q.delete("type_observations_array_in") || q.delete(:type_observations_array_in)
 
+    # On récupère le filtre "suspensions" puis on le retire du hash
+    suspensions_count = q.delete("suspensions_count_in") || q.delete(:suspensions_count_in)
+
     # On ne considère pas le tri comme un filtre
     q.delete("s")
     q.delete(:s)
@@ -846,6 +885,9 @@ class Ht2ActesController < ApplicationController
 
     # Ajout de 1 si le filtre "type d'observation" est activé
     count += 1 if type_observations.is_a?(Array) && type_observations.reject(&:blank?).any?
+
+    # Ajout de 1 si le filtre "suspensions" est activé
+    count += 1 if suspensions_count.is_a?(Array) && suspensions_count.reject(&:blank?).any?
 
     count
   end
