@@ -516,7 +516,7 @@
             <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
               <li>
                 <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-                  Filtrer les résultats <%= " (#{@filtres_count})" if @filtres_count > 0 %>
+                  Filtrer les résultats <%= " (#{@filtres_count} #{'filtre'.pluralize(@filtres_count)})" if @filtres_count > 0 %>
                 </button>
               </li>
               <li>
