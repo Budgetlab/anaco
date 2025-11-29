@@ -151,15 +151,16 @@
       </div>
     </div>
 
+    <% has_nested_data = @acte.poste_lignes.any? || @acte.echeanciers.any? %>
     <div data-controller="toggle">
       <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
               data-action="click->toggle#toggleContent"
               data-toggle-target="button"
               data-toggle-text-show="Renseigner plus d'informations"
               data-toggle-text-hide="Afficher moins">
-        Renseigner plus d'informations
+        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations' %>
       </button>
-      <div class="fr-hidden" data-toggle-target="content">
+      <div class="<%= 'fr-hidden' unless has_nested_data %>" data-toggle-target="content">
 
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-4">

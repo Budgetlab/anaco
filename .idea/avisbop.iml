@@ -382,7 +382,7 @@
       <value>file://$MODULE_DIR$/public/stylesheets</value>
     </entry>
     <entry key="test/mailers/previews">
-      <value>file://$USER_HOME$/Documents/GitHub/db/rails7/avisbop/test/mailers/previews</value>
+      <value>file://$MODULE_DIR$/test/mailers/previews</value>
       <value>file://$MODULE_DIR$/test/mailers/previews</value>
     </entry>
     <entry key="tmp">

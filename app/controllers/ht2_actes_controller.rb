@@ -189,14 +189,33 @@ class Ht2ActesController < ApplicationController
 
   def new
     if params[:id].present? # nouveau modèle
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'annee'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'montant_ae', 'montant_global', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
       @acte.etat = @acte_parent.etat == "en pré-instruction" ? @acte_parent.etat : "en cours d'instruction"
-      @acte.annee = Date.today.year
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
       @acte.etat = "en cours d'instruction"
       @acte.annee = Date.today.year
       @saisine = true
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
     else
       type_acte = params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte]) ? params[:type_acte] : 'visa'
       etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
