@@ -223,6 +223,7 @@
                 <th> Axe ministériel</th>
                 <th> Flux</th>
                 <th> Groupe de marchandises</th>
+                <th> Numéro Chorus de la TF</th>
               </tr>
               </thead>
               <tbody>
@@ -238,12 +239,14 @@
                   <td> <%= ligne.axe_ministeriel %> </td>
                   <td> <%= ligne.flux %> </td>
                   <td> <%= ligne.groupe_marchandises %></td>
+                  <td> <%= ligne.numero_tf %></td>
                 </tr>
               <% end %>
               <tr class="fr-table--total">
                 <td>Total</td>
                 <td></td>
                 <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>

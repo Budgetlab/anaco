@@ -231,8 +231,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # LIGNES DE POSTE
    if @acte.poste_lignes.present?
          current_row = sheet.rows.length + 1
-         sheet.add_row ["LIGNES DE POSTE","","","","","","","","", ""], style: section_header_style
-         sheet.merge_cells "A#{current_row}:J#{current_row}"
+         sheet.add_row ["LIGNES DE POSTE","","","","","","","","", "", ""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:K#{current_row}"
          sheet.row_style current_row, section_header_style
          sheet.rows[current_row-1].height = 30
 
@@ -246,7 +246,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
            "Code activité",
            "Axe ministériel",
            "Flux",
-           "Groupe de marchandises"
+           "Groupe de marchandises",
+           "Numéro Chorus de la TF"
          ], style: header_style
 
          @acte.poste_lignes.each do |ligne|
@@ -260,8 +261,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              ligne.code_activite,
              ligne.axe_ministeriel,
              ligne.flux,
-             ligne.groupe_marchandises
-           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+             ligne.groupe_marchandises,
+             ligne.numero_tf
+           ], style: [cell_style, cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
          end
          sheet.add_row
    end

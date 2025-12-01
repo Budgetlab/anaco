@@ -756,7 +756,7 @@ class Ht2ActesController < ApplicationController
                                      :groupe_marchandises,:renvoie_instruction, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises])
+                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
   end
 
   def set_acte_ht2
