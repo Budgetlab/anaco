@@ -30,14 +30,14 @@
                   <% end %>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <%= link_to synthese_suspensions_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
+                  <button class="fr-sidemenu__btn" aria-current="true">
                     Suspensions & Interruptions
-                  <% end %>
+                  </button>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <button class="fr-sidemenu__btn" aria-current="true">
+                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
                     Anomalies
-                  </button>
+                  <% end %>
                 </li>
               </ul>
             </div>
@@ -45,7 +45,7 @@
         </nav>
       </div>
       <div class="fr-col-12 fr-col-lg-9">
-        <h2 class="fr-mt-6w fr-mb-2w title-btn">Anomalies
+        <h2 class="fr-mt-6w fr-mb-2w title-btn">Suspensions & interruptions
           <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
             Filtrer les résultats
           </button>
@@ -59,22 +59,21 @@
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @observations_data.to_json %>"
-                       data-highcharts-actes-title-value="Typologie des observations">
-                  </div>
+                       data-highcharts-actes-data-value="<%= @suspensions_data.to_json %>"
+                       data-highcharts-actes-title-value="Typologie des suspensions/interruptions"></div>
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-observations">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspensions">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-observations">
+                    <div class="fr-collapse" id="accordion-suspensions">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
                             <div class="fr-table__content">
                               <table>
-                                <caption>Répartition des observations</caption>
+                                <caption>Répartition des motifs</caption>
                                 <thead>
                                 <tr>
                                   <th> Nature</th>
@@ -83,17 +82,17 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% return_variable('motif_observations').each do |type| %>
-                                  <% value = @observations_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                                <% return_variable('motif_suspensions').each do |type| %>
+                                  <% value = @suspensions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
                                   <tr>
                                     <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
                                     <td> <%= value %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(value, @total_observations) %></td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(value, @suspensions_all_count) %></td>
                                   </tr>
                                 <% end %>
                                 <tr class="fr-table--total">
                                   <td>Total</td>
-                                  <td><%= @total_observations %></td>
+                                  <td><%= @suspensions_all_count %></td>
                                   <td>100%</td>
                                 </tr>
                                 </tbody>
@@ -107,22 +106,23 @@
                 </div>
               </div>
             </div>
+
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-p-2v">
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-type-value="multi-column"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @evolution_observations_dataset.to_json %>"
-                       data-highcharts-actes-title-value="Evolution pluriannuelle des observations"></div>
+                       data-highcharts-actes-dataset-value="<%= @evolution_suspensions_dataset.to_json %>"
+                       data-highcharts-actes-title-value="Evolution pluriannuelle des suspensions/interruptions"></div>
 
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-observations-pluriannuel">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspensions-pluriannuel">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-observations-pluriannuel">
+                    <div class="fr-collapse" id="accordion-suspensions-pluriannuel">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
@@ -132,7 +132,7 @@
                                 <thead>
                                 <tr>
                                   <th>Année</th>
-                                  <% @evolution_observations_dataset[:categories].each do |year| %>
+                                  <% @evolution_suspensions_dataset[:categories].each do |year| %>
                                     <th><%= year %></th>
                                   <% end %>
                                 </tr>
@@ -140,7 +140,7 @@
                                 <tbody>
                                 <tr>
                                   <td>Nombre</td>
-                                  <% @evolution_observations_dataset[:series].first[:y].each do |count| %>
+                                  <% @evolution_suspensions_dataset[:series].first[:y].each do |count| %>
                                     <td><%= count %></td>
                                   <% end %>
                                 </tr>
@@ -163,12 +163,13 @@
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-type-value="multi-column"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @observations_par_programme_dataset.to_json %>"
-                       data-highcharts-actes-title-value="Nombre d'observations par programme"></div>
+                       data-highcharts-actes-dataset-value="<%= @suspensions_par_programme_dataset.to_json %>"
+                       data-highcharts-actes-title-value="Nombre de suspensions/interruptions par programme"></div>
                 </div>
               </div>
             </div>
           </div>
+
         <% end %>
       </div>
     </div>
@@ -183,7 +184,7 @@
           <div class="fr-modal__header">
             <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
           </div>
-          <%= search_form_for @q, url: synthese_anomalies_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+          <%= search_form_for @q, url: synthese_suspensions_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
             <div class="fr-modal__content">
               <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
                 Filtrer les résultats
@@ -255,7 +256,7 @@
                   <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
                 </li>
                 <li>
-                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                  <%= link_to synthese_suspensions_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
                     Réinitialiser
                   <% end %>
                 </li>

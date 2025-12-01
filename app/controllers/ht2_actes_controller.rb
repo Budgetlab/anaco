@@ -4,8 +4,8 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions]
   before_action :set_variables_form, only: [:edit, :validate_acte]
-  before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
-  before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies]
+  before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
+  before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
   before_action :set_parent_for_clone, only: :new
   before_action :check_edit_conditions, only: :edit
   require 'axlsx'
@@ -544,6 +544,61 @@ class Ht2ActesController < ApplicationController
     }
   end
 
+  def synthese_suspensions
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    search_params = params[:q] || {}
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = Date.today.year
+    end
+
+    @q = @ht2_actes.ransack(search_params)
+    @actes_filtered = @q.result.includes(:suspensions)
+    @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
+    @suspensions_all_count = @suspensions_all.count
+    @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
+    # Calcul du nombre de suspensions par programme
+    suspensions_par_programme = @actes_filtered
+                                  .joins(:suspensions)
+                                  .joins(centre_financier_principal: :programme)
+                                  .group('programmes.numero')
+                                  .order('COUNT(suspensions.id) DESC')
+                                  .pluck('programmes.numero', 'COUNT(suspensions.id)')
+                                  .to_h
+
+    @suspensions_par_programme_dataset = {
+      categories: suspensions_par_programme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul de l'évolution pluriannuelle des suspensions
+    years = (2024..Date.today.year).to_a
+    suspensions_par_annee = @ht2_actes
+                              .joins(:suspensions)
+                              .where(annee: years)
+                              .group(:annee)
+                              .order(:annee)
+                              .count('suspensions.id')
+
+    # S'assurer que toutes les années sont présentes, même avec 0 suspension
+    suspensions_values = years.map { |year| suspensions_par_annee[year] || 0 }
+
+    @evolution_suspensions_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_values
+        }
+      ]
+    }
+  end
+
   def synthese_anomalies
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     search_params = params[:q] || {}
@@ -554,12 +609,6 @@ class Ht2ActesController < ApplicationController
 
     @q = @ht2_actes.ransack(search_params)
     @actes_filtered = @q.result.includes(:suspensions)
-
-    @interruptions = @actes_filtered.where(type_acte: 'avis').map(&:suspensions).flatten.uniq
-    @suspensions = @actes_filtered.where(type_acte: ['visa','TF']).map(&:suspensions).flatten.uniq
-    @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
-    @suspensions_all_count = @suspensions_all.count
-    @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
 
     # Données pour les observations - Utilise unnest de PostgreSQL
     all_observations =
@@ -577,21 +626,68 @@ class Ht2ActesController < ApplicationController
 
     @total_observations = all_observations.size
 
-    # Calcul du nombre de suspensions par programme
-    suspensions_par_programme = @actes_filtered
-      .joins(:suspensions)
-      .joins(centre_financier_principal: :programme)
-      .group('programmes.numero')
-      .order('COUNT(suspensions.id) DESC')
-      .pluck('programmes.numero', 'COUNT(suspensions.id)')
-      .to_h
+    # Calcul de l'évolution pluriannuelle des observations
+    years = (2024..Date.today.year).to_a
+    observations_par_annee = {}
 
-    @suspensions_par_programme_dataset = {
-      categories: suspensions_par_programme.keys,
+    years.each do |year|
+      actes_annee = @ht2_actes.where(annee: year)
+      observations_count = actes_annee
+        .pluck(:type_observations)
+        .compact
+        .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
+        .reject(&:blank?)
+        .size
+      observations_par_annee[year] = observations_count
+    end
+
+    # S'assurer que toutes les années sont présentes
+    observations_values = years.map { |year| observations_par_annee[year] || 0 }
+
+    @evolution_observations_dataset = {
+      categories: years,
       series: [
         {
-          name: "Nombre de suspensions",
-          y: suspensions_par_programme.values
+          name: "Nombre d'observations",
+          y: observations_values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'observations par programme
+    observations_par_programme = {}
+
+    @actes_filtered.includes(centre_financier_principal: :programme).each do |acte|
+      programme_numero = acte.centre_financier_principal&.programme&.numero
+      next unless programme_numero
+
+      # Compter les observations de cet acte
+      observations_count = if acte.type_observations.present?
+        obs = acte.type_observations
+        if obs.is_a?(String)
+          obs.strip.start_with?('[') ? JSON.parse(obs).size : 1
+        elsif obs.is_a?(Array)
+          obs.reject(&:blank?).size
+        else
+          0
+        end
+      else
+        0
+      end
+
+      observations_par_programme[programme_numero] ||= 0
+      observations_par_programme[programme_numero] += observations_count
+    end
+
+    # Retirer les programmes avec 0 observations et trier par nombre décroissant
+    observations_par_programme = observations_par_programme.reject { |_k, v| v == 0 }.sort_by { |_k, v| -v }.to_h
+
+    @observations_par_programme_dataset = {
+      categories: observations_par_programme.keys,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_par_programme.values
         }
       ]
     }

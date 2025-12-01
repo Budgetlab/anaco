@@ -80,6 +80,7 @@ Rails.application.routes.draw do
         get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'
         get 'synthese_temporelle', to: 'ht2_actes#synthese_temporelle'
         get 'synthese_anomalies', to: 'ht2_actes#synthese_anomalies'
+        get 'synthese_suspensions', to: 'ht2_actes#synthese_suspensions'
       end
       member do
         get :export
