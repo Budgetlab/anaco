@@ -576,6 +576,25 @@ class Ht2ActesController < ApplicationController
                                  .sort_by { |h| -h[:y] }
 
     @total_observations = all_observations.size
+
+    # Calcul du nombre de suspensions par programme
+    suspensions_par_programme = @actes_filtered
+      .joins(:suspensions)
+      .joins(centre_financier_principal: :programme)
+      .group('programmes.numero')
+      .order('COUNT(suspensions.id) DESC')
+      .pluck('programmes.numero', 'COUNT(suspensions.id)')
+      .to_h
+
+    @suspensions_par_programme_dataset = {
+      categories: suspensions_par_programme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_programme.values
+        }
+      ]
+    }
   end
   def synthese_utilisateurs
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
