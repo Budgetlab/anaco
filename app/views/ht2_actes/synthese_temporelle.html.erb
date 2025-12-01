@@ -93,6 +93,19 @@
               </div>
             </div>
           </div>
+          <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-lg-12">
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-type-value="line"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-dataset-value="<%= @delais_par_programme_dataset.to_json %>"
+                       data-highcharts-actes-title-value="Délai moyen de traitement par programme"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>

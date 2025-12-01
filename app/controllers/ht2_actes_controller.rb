@@ -522,6 +522,26 @@ class Ht2ActesController < ApplicationController
         }
       ]
     }
+
+    # Calcul du délai moyen de traitement par programme
+    delais_par_programme = @actes_filtered
+      .includes(centre_financier_principal: :programme)
+      .group('programmes.numero')
+      .average(:delai_traitement)
+      .reject { |k, v| k.nil? || v.nil? } # Filtrer les programmes null et valeurs null
+      .transform_values { |v| v.to_f.round(1) } # Convertir explicitement en float
+      .sort_by { |_k, v| -v }
+      .to_h
+
+    @delais_par_programme_dataset = {
+      categories: delais_par_programme.keys,
+      series: [
+        {
+          name: "Délai moyen (jours)",
+          y: delais_par_programme.values # Les valeurs sont maintenant des float
+        }
+      ]
+    }
   end
 
   def synthese_anomalies
