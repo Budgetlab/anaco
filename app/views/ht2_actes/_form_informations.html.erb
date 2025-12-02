@@ -219,7 +219,7 @@
           <% end %>
         </div>
         <div class="fr-checkbox-group fr-my-2w">
-          <%= f.check_box :services_votes, id: "services_votes" %>
+          <%= f.check_box :services_votes, { id: "services_votes", checked: (@acte.new_record? && @phase == "services votés") || @acte.services_votes }, checked_value: true, unchecked_value: false %>
           <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
         </div>
         <% if @acte.type_acte != 'TF' %>
