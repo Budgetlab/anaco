@@ -174,14 +174,18 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    headers << "Bénéficiaire" if @acte.type_acte != 'TF'
    headers << "N° d'affectation" if @acte.type_acte == 'TF'
    objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
-   headers += [objet_label,"Ordonnateur", "Pré-instruction"]
+   headers += [objet_label,"Ordonnateur"]
+  headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+  headers << "Pré-instruction"
 
    sheet.add_row headers, style: header_style
 
    data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
    data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
    data_row << @acte.numero_tf if @acte.type_acte == 'TF'
-   data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
+   data_row += [@acte.objet, @acte.ordonnateur]
+  data_row << @acte.nombre_actes if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+  data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
    sheet.add_row data_row, style: cell_style
    sheet.add_row
 

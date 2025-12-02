@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_01_162248) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_02_130611) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -245,6 +245,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_01_162248) do
     t.string "groupe_marchandises"
     t.boolean "renvoie_instruction", default: false
     t.boolean "liste_actes", default: false
+    t.integer "nombre_actes"
     t.index ["annee"], name: "index_ht2_actes_on_annee"
     t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
     t.index ["delai_traitement"], name: "index_ht2_actes_on_delai_traitement"

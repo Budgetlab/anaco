@@ -141,11 +141,17 @@
         </div>
       </div>
     </div>
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-12">
+    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+      <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-checkbox-group fr-my-2w">
-          <%= f.check_box :liste_actes, id: "liste_actes" %>
+          <%= f.check_box :liste_actes, id: "liste_actes", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
           <label class="fr-label" for="liste_actes">Cette instruction concerne une liste d'actes.</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless @acte.liste_actes %>" data-conditional-field-target="field">
+        <div class="fr-input-group">
+          <label for="nombre_actes" class="fr-label">Nombre d'actes</label>
+          <%= f.number_field :nombre_actes, id: "nombre_actes", class: "fr-input", min: 1, value: @acte.nombre_actes %>
         </div>
       </div>
     </div>

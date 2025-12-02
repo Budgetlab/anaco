@@ -126,6 +126,9 @@
                 <% else %>Objet
                 <% end %></th>
               <th>Ordonnateur</th>
+              <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
+                <th>Nombre d'actes</th>
+              <% end %>
               <th>Pré-instruction</th>
             </tr>
             </thead>
@@ -141,6 +144,9 @@
               <% end %>
               <td> <%= format_value(acte.objet) %></td>
               <td> <%= format_value(acte.ordonnateur) %></td>
+              <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
+                <td> <%= acte.nombre_actes %></td>
+              <% end %>
               <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
