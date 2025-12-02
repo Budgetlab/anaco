@@ -33,6 +33,19 @@ export default class extends Controller {
         "var(--yellow-tournesol-975-75-hover)",
         "var(--border-action-low-green-menthe)",
     ];
+
+    static EXPORT_CHART_COLORS = [
+        "#6a6af4",
+        "#000091",
+        "#fbb8f6",
+        "#a558a0",
+        "#bfccfb",
+        "#ca795c",
+        "#eadecd",
+        "#ffc4b7",
+        "#473e29",
+        "#73e0cf",
+    ]
     connect() {
         if (this.typeValue === 'bar') {
             this.renderBarChart();
@@ -55,9 +68,7 @@ export default class extends Controller {
     renderPieChart(){
         const options = {
             chart: this.getChartPieConfig(),
-            exporting: {
-                enabled: true
-            },
+            exporting: this.getExportingConfig(),
             colors: this.getGradientColors(),
             title: this.getTitleConfig(),
             legend: this.getLegendPieConfig(),
@@ -75,9 +86,7 @@ export default class extends Controller {
         const sortedData = [...this.dataValue].sort((a, b) => b.y - a.y);
         const options = {
             chart: this.getChartBarConfig(),
-            exporting: {
-                enabled: true
-            },
+            exporting: this.getExportingConfig(),
             colors: this.getGradientColors(),
             xAxis: this.getXAxisBarConfig(),
             yAxis: this.getYAxisBarConfig(),
@@ -107,9 +116,7 @@ export default class extends Controller {
         }))
         const options = {
             chart: this.getChartColumnConfig(),
-            exporting: {
-                enabled: true
-            },
+            exporting: this.getExportingConfig(),
             colors: this.getGradientColors(),
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
@@ -137,9 +144,7 @@ export default class extends Controller {
 
         const options = {
             chart: this.getChartLineConfig(),
-            exporting: {
-                enabled: true
-            },
+            exporting: this.getExportingConfig(),
             colors: this.getGradientColors(),
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
@@ -151,6 +156,37 @@ export default class extends Controller {
 
         this.chart = Highcharts.chart(this.chartTarget, options);
         this.chart.reflow();
+    }
+
+    getExportingConfig(){
+        return {
+            enabled: true,
+            allowHTML: true,
+            chartOptions: {
+                colors: this.constructor.EXPORT_CHART_COLORS,
+                chart: {
+                    style: {
+                        fontFamily: "Marianne"
+                    }
+                }
+            },
+            buttons: {
+                contextButton: {
+                    menuItems: ["downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "downloadCSV", "downloadXLS"],
+                    theme: {
+                        fill: 'transparent'
+                    }
+                }
+            },
+            menuItemDefinitions: {
+                downloadPNG: { text: 'Télécharger en PNG' },
+                downloadJPEG: { text: 'Télécharger en JPEG' },
+                downloadPDF: { text: 'Télécharger en PDF' },
+                downloadSVG: { text: 'Télécharger en SVG' },
+                downloadCSV: { text: 'Télécharger en CSV' },
+                downloadXLS: { text: 'Télécharger en XLS' }
+            }
+        }
     }
 
     getChartPieConfig() {

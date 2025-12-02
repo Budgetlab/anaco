@@ -143,6 +143,14 @@
     </div>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :liste_actes, id: "liste_actes" %>
+          <label class="fr-label" for="liste_actes">Cette instruction concerne une liste d'actes.</label>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-input-group">
           <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
           <%= f.text_area :precisions_acte, class: 'fr-input' %>

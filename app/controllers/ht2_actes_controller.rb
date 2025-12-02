@@ -752,7 +752,7 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
-                                     :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
+                                     :categorie, :numero_marche, :services_votes, :liste_actes, :type_engagement,:programmation_prevue,
                                      :groupe_marchandises,:renvoie_instruction, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
@@ -765,12 +765,12 @@ class Ht2ActesController < ApplicationController
 
   def set_variables_form
     if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
-      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Convention', "Liste d'actes",'Marché subséquent à bons de commande', 'Transaction', 'Autre']
+      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Convention', 'Marché subséquent à bons de commande', 'Transaction', 'Autre']
       @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur","Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel']
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ['Autre contrat', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
+      @liste_natures = ['Autre contrat', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle",'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
@@ -797,7 +797,6 @@ class Ht2ActesController < ApplicationController
       'Convention',
       'Décision diverse',
       'Dotation en fonds propres',
-      "Liste d'actes",
       'MAPA à bons de commande',
       'MAPA à tranches',
       'MAPA mixte',
