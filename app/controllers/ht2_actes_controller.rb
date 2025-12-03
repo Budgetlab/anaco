@@ -23,9 +23,17 @@ class Ht2ActesController < ApplicationController
     @actes_filtered = @q_current.result(distinct: true)
     # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
     @actes_pre_instruction_all      = @actes_filtered.en_pre_instruction
-    @actes_instruction_all          = @actes_filtered.en_cours_instruction
+
+    # Tri avec Ransack pour actes en cours d'instruction
+    @q_instruction = @actes_filtered.en_cours_instruction.ransack(params[:q_instruction], search_key: :q_instruction)
+    @actes_instruction_all          = @q_instruction.result(distinct: true)
+
     @actes_suspendu_all             = @actes_filtered.suspendus
-    @actes_validation_all           = @actes_filtered.en_attente_validation
+
+    # Tri avec Ransack pour actes à valider
+    @q_validation = @actes_filtered.en_attente_validation.ransack(params[:q_validation], search_key: :q_validation)
+    @actes_validation_all           = @q_validation.result(distinct: true)
+
     @actes_validation_chorus_all    = @actes_filtered.a_cloturer
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)

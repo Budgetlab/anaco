@@ -152,8 +152,9 @@
             <% end %>
           </div>
           <div id="storybook-tab-1-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'instruction' %>" role="tabpanel" aria-labelledby="storybook-tab-1" tabindex="0">
-            <% if @actes_instruction.present? %>
-              <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
+            <%= turbo_frame_tag "table_instruction", data: { turbo_action: 'advance' } do %>
+              <% if @actes_instruction.present? %>
+                <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
                   <div class="fr-table__container">
                     <div class="fr-table__content">
@@ -167,7 +168,22 @@
                           <th scope="col">Bénéficiaire</th>
                           <th scope="col">Montant</th>
                           <th scope="col">N°Chorus</th>
-                          <th scope="col">Date limite</th>
+                          <th scope="col">
+                            Date limite
+                            <% current_sort = params.dig(:q_instruction, :s) %>
+                            <% next_sort = current_sort == 'date_limite asc' ? 'date_limite desc' : 'date_limite asc' %>
+                            <% icon_class = case current_sort
+                                when 'date_limite asc' then 'fr-icon-arrow-down-line'
+                                when 'date_limite desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_instruction).merge(q_instruction: { s: next_sort }, tab: 'instruction')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class} ",
+                                        data: { turbo_frame: "table_instruction" },
+                                        title: "Trier par date limite",
+                                        "aria-label": "Trier par date limite" do %>
+                            <% end %>
+                          </th>
                           <th scope="col"></th>
                         </tr>
                         </thead>
@@ -216,10 +232,11 @@
                   </div>
                 </div>
               </div>
-            <% else %>
-              <div class="fr-highlight">
-                <p>Aucun acte en cours d'instruction à traiter</p>
-              </div>
+              <% else %>
+                <div class="fr-highlight">
+                  <p>Aucun acte en cours d'instruction à traiter</p>
+                </div>
+              <% end %>
             <% end %>
           </div>
           <div id="storybook-tab-2-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'suspendu' %>" role="tabpanel" aria-labelledby="storybook-tab-2" tabindex="0">
@@ -291,8 +308,9 @@
             <% end %>
           </div>
           <div id="storybook-tab-3-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'validation' %>" role="tabpanel" aria-labelledby="storybook-tab-3" tabindex="0">
-            <% if @actes_validation.present? %>
-              <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
+            <%= turbo_frame_tag "table_validation", data: { turbo_action: 'advance' } do %>
+              <% if @actes_validation.present? %>
+                <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
                   <div class="fr-table__container">
                     <div class="fr-table__content">
@@ -305,7 +323,22 @@
                           <th scope="col">Bénéficiaire</th>
                           <th scope="col">Montant</th>
                           <th scope="col">N°Chorus</th>
-                          <th scope="col">Date limite de réponse</th>
+                          <th scope="col">
+                            Date limite de réponse
+                            <% current_sort = params.dig(:q_validation, :s) %>
+                            <% next_sort = current_sort == 'date_limite asc' ? 'date_limite desc' : 'date_limite asc' %>
+                            <% icon_class = case current_sort
+                                when 'date_limite asc' then 'fr-icon-arrow-down-line'
+                                when 'date_limite desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_validation).merge(q_validation: { s: next_sort }, tab: 'validation')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class} ",
+                                        data: { turbo_frame: "table_validation" },
+                                        title: "Trier par date limite",
+                                        "aria-label": "Trier par date limite" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Proposition de décision</th>
                           <th scope="col"></th>
                         </tr>
@@ -360,10 +393,11 @@
                   </div>
                 </div>
               </div>
-            <% else %>
-              <div class="fr-highlight">
-                <p>Aucun acte à valider</p>
-              </div>
+              <% else %>
+                <div class="fr-highlight">
+                  <p>Aucun acte à valider</p>
+                </div>
+              <% end %>
             <% end %>
           </div>
           <div id="storybook-tab-4-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'cloture' %>" role="tabpanel" aria-labelledby="storybook-tab-4" tabindex="0">
