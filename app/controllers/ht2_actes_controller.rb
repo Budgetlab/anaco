@@ -109,7 +109,16 @@ class Ht2ActesController < ApplicationController
       format.html
       format.xlsx do
         scope = params[:scope].presence || 'current'
-        @actes = scope == 'closed' ? @actes_cloture_all : @actes_filtered
+        @actes = case scope
+                 when 'closed'
+                   @actes.clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 when 'non_closed'
+                   @actes.non_clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 when 'all'
+                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 else
+                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 end
       end
     end
   end
