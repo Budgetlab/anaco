@@ -102,7 +102,9 @@ class Ht2ActesController < ApplicationController
     @pagy_validation_chorus,   @actes_validation_chorus   = pagy(@actes_validation_chorus_all,   page_param: :page_validation_chorus,   limit: 15)
 
     # actes clotures (utilise maintenant @actes_filtered avec les mêmes filtres que les autres onglets)
-    @actes_cloture_all = @actes_filtered.clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+    # Tri avec Ransack pour actes clôturés
+    @q_cloture = @actes_filtered.clotures.ransack(params[:q_cloture], search_key: :q_cloture)
+    @actes_cloture_all = @q_cloture.result(distinct: true).includes(:user, :suspensions, centre_financier_principal: :programme)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
     @filtres_count = count_active_filters(params[:q_current])
     respond_to do |format|
@@ -277,7 +279,7 @@ class Ht2ActesController < ApplicationController
       acte.update(date_cloture: date, etat: "clôturé")
     end
 
-    redirect_to ht2_actes_path, notice: "Actes clôturés avec succès."
+    redirect_to ht2_actes_path(tab: 'clotures'), notice: "Actes clôturés avec succès."
   end
 
   def show
