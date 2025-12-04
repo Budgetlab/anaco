@@ -39,10 +39,22 @@ export default class extends Controller {
   }
 
   resetWithTab(event) {
+    event.preventDefault();
     const tabName = this.getActiveTabName();
     const link = event.currentTarget;
     const baseUrl = link.href.split('?')[0];
-    link.href = `${baseUrl}?tab=${tabName}`;
+    const url = `${baseUrl}?tab=${tabName}`;
+
+    // Naviguer avec Turbo Frame
+    const turboFrame = link.dataset.turboFrame;
+    if (turboFrame) {
+      const frame = document.getElementById(turboFrame);
+      if (frame) {
+        frame.src = url;
+      }
+    } else {
+      window.location.href = url;
+    }
   }
 
   submitFilter(){
