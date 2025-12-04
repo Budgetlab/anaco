@@ -532,7 +532,7 @@
                           <th scope="col">Bénéficiaire</th>
                           <th scope="col">Montant</th>
                           <th scope="col">N°Chorus</th>
-                          <th scope="col">
+                          <th scope="col" style="white-space: nowrap;">
                             Date clôture
                             <% current_sort = params.dig(:q_cloture, :s) %>
                             <% next_sort = current_sort == 'date_cloture asc' ? 'date_cloture desc' : 'date_cloture asc' %>
@@ -542,7 +542,7 @@
                                 else 'fr-icon-arrow-up-down-line'
                                 end %>
                             <%= link_to ht2_actes_path(params.permit!.except(:page_cloture).merge(q_cloture: { s: next_sort }, tab: 'clotures')),
-                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class} ",
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class}",
                                         data: { turbo_frame: "table_cloture" },
                                         title: "Trier par date clôture",
                                         "aria-label": "Trier par date clôture" do %>
