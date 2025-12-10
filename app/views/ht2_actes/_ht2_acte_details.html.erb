@@ -400,7 +400,7 @@
     <% type_suspension = type_suspension(acte) %>
     <div class="fr-h6 fr-my-3w fr-capitalize"><%= type_suspension + 's' %></div>
     <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-      <div class="fr-citation">
+      <div class="fr-citation fr-mb-2w">
         <h6><%= type_suspension %> n°<%= index + 1 %></h6>
         <p class="fr-tag">
           <% if suspension.date_reprise.nil? %>Suspendu depuis le <%= format_date_text(suspension.date_suspension) %>
