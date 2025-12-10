@@ -30,7 +30,7 @@ class SuspensionsController < ApplicationController
   private
 
   def suspension_params
-    params.require(:suspension).permit(:date_suspension, :motif, :observations, :date_reprise)
+    params.require(:suspension).permit(:date_suspension, :motif, :observations, :date_reprise, :commentaire_reprise)
   end
 
   def set_suspension

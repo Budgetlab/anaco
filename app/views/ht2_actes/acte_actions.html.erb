@@ -54,6 +54,31 @@
   <% elsif @acte.etat == "suspendu" %>
     <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
       <h3 class="fr-callout__title">Acte <%= etat_acte(@acte) %></h3>
+      <div class="fr-table fr-table--no-caption">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption> Suspensions/Interruptions</caption>
+                <thead>
+                <tr>
+                  <th> Date</th>
+                  <th> Motif</th>
+                  <th> Observations</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td> <%= format_date_text(@acte.suspension_ouverte.date_suspension) %> </td>
+                  <td> <%= @acte.suspension_ouverte.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= format_value(@acte.suspension_ouverte.observations) %></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
         <li>
           <a href="<%= edit_ht2_acte_suspension_path(@acte, @acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">

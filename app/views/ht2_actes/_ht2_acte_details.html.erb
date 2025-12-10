@@ -396,41 +396,26 @@
   <div class="fr-mt-2w">Observations</div>
 
   <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
-
   <% if acte.suspensions.present? %>
     <% type_suspension = type_suspension(acte) %>
     <div class="fr-h6 fr-my-3w fr-capitalize"><%= type_suspension + 's' %></div>
-    <div class="fr-table fr-table--no-caption">
-      <div class="fr-table__wrapper">
-        <div class="fr-table__container">
-          <div class="fr-table__content">
-            <table>
-              <caption></caption>
-              <thead>
-              <tr>
-                <th class="fr-capitalize"> <%= type_suspension %> </th>
-                <th> Date <%= type_suspension %></th>
-                <th> Date de reprise</th>
-                <th> Motif</th>
-                <th> Observations</th>
-              </tr>
-              </thead>
-              <tbody>
-              <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-                <tr>
-                  <td> n°<%= index + 1 %></td>
-                  <td> <%= format_date_text(suspension.date_suspension) %> </td>
-                  <td> <%= format_date_text(suspension.date_reprise) %></td>
-                  <td class="fr-cell--multiline"> <%= suspension.motif %> </td>
-                  <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
-                </tr>
-              <% end %>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+      <div class="fr-citation">
+        <h6><%= type_suspension %> n°<%= index + 1 %></h6>
+        <p class="fr-tag">
+          <% if suspension.date_reprise.nil? %>Suspendu depuis le <%= format_date_text(suspension.date_suspension) %>
+            <% else %>Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %>
+          <% end %></p>
+        <div class="fr-mt-2w"><span class="fr-text--bold">Motif : </span>
+          <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </p></div>
+        <div class="fr-text--bold fr-mt-3w">Observations</div>
+        <div><%= format_value(suspension.observations) %></div>
+        <% if suspension.date_reprise.present? %>
+          <div class="fr-text--bold fr-mt-3w">Commentaire sur la reprise</div>
+          <div><%= format_value(suspension.commentaire_reprise) %></div>
+        <% end %>
       </div>
-    </div>
+    <% end %>
   <% end %>
 </div>
 

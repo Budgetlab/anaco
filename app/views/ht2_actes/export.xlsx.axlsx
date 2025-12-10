@@ -341,8 +341,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    if @acte.suspensions.present?
          current_row = sheet.rows.length + 1
          type_suspension = @acte.type_acte == 'avis' ? 'SUSPENSION' : 'INTERRUPTION'
-         sheet.add_row ["#{type_suspension}S", "","","",""], style: section_header_style
-         sheet.merge_cells "A#{current_row}:E#{current_row}"
+         sheet.add_row ["#{type_suspension}S", "","","","",""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:F#{current_row}"
          sheet.row_style current_row, section_header_style
          sheet.rows[current_row-1].height = 30
 
@@ -351,7 +351,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
            "Date #{type_suspension.downcase}",
            "Date de reprise",
            "Motif",
-           "Observations"
+           "Observations",
+           "Commentaire reprise"
          ], style: header_style
 
          @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index|
@@ -360,7 +361,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              suspension.date_suspension&.strftime('%d/%m/%Y'),
              suspension.date_reprise&.strftime('%d/%m/%Y'),
              suspension.motif,
-             suspension.observations
+             suspension.observations,
+             suspension.commentaire_reprise
            ], style: cell_style
          end
    end

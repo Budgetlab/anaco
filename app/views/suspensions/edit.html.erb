@@ -51,6 +51,15 @@
                   </div>
                 </div>
 
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <div class="fr-input-group">
+                      <label for="commentaire_reprise" class="fr-label">Commentaire sur la reprise de suspension</label>
+                      <%= f.text_area :commentaire_reprise, class: "fr-input", id: "commentaire_reprise", rows: 3 %>
+                    </div>
+                  </div>
+                </div>
+
                 <ul class="fr-btns-group fr-mt-4w">
                   <li>
                     <%= f.submit "Valider et reprendre l'instruction", class: 'fr-btn' %>
