@@ -106,7 +106,17 @@
             </li>
           </ul>
           <div id="storybook-tab-0-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'preinstruction' %>" role="tabpanel" aria-labelledby="storybook-tab-0" tabindex="0">
-            <% if @actes_pre_instruction.present? %>
+            <%= turbo_frame_tag "table_pre_instruction", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_pre_instruction, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'preinstruction', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_pre_instruction" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <% if @actes_pre_instruction.present? %>
 
               <div class="fr-table--lg fr-table fr-table--no-caption fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -116,7 +126,22 @@
                         <caption>Actes en pré-instruction</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_pre_instruction, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_pre_instruction).merge(q_pre_instruction: { s: next_sort_acte }, tab: 'preinstruction')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_pre_instruction" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Date création</th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
@@ -170,9 +195,19 @@
                 <p>Aucun acte en pré-instruction à traiter</p>
               </div>
             <% end %>
+            <% end %>
           </div>
           <div id="storybook-tab-1-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'instruction' %>" role="tabpanel" aria-labelledby="storybook-tab-1" tabindex="0">
             <%= turbo_frame_tag "table_instruction", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_instruction, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'instruction', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_instruction" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
               <% if @actes_instruction.present? %>
                 <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -182,7 +217,22 @@
                         <caption>Actes en cours d'instruction</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_instruction, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_instruction).merge(q_instruction: { s: next_sort_acte }, tab: 'instruction')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_instruction" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Bénéficiaire</th>
@@ -260,7 +310,17 @@
             <% end %>
           </div>
           <div id="storybook-tab-2-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'suspendu' %>" role="tabpanel" aria-labelledby="storybook-tab-2" tabindex="0">
-            <% if @actes_suspendu.present? %>
+            <%= turbo_frame_tag "table_suspendu", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_suspendu, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'suspendu', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_suspendu" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <% if @actes_suspendu.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
                   <div class="fr-table__container">
@@ -269,7 +329,22 @@
                         <caption>Actes suspendus</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_suspendu, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_suspendu).merge(q_suspendu: { s: next_sort_acte }, tab: 'suspendu')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_suspendu" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Bénéficiaire</th>
@@ -326,9 +401,19 @@
                 <p>Aucun acte suspendu/interrompu à traiter</p>
               </div>
             <% end %>
+            <% end %>
           </div>
           <div id="storybook-tab-3-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'validation' %>" role="tabpanel" aria-labelledby="storybook-tab-3" tabindex="0">
             <%= turbo_frame_tag "table_validation", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_validation, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'validation', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_validation" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
               <% if @actes_validation.present? %>
                 <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__wrapper">
@@ -338,7 +423,22 @@
                         <caption>Actes à valider</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_validation, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_validation).merge(q_validation: { s: next_sort_acte }, tab: 'validation')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_validation" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Bénéficiaire</th>
                           <th scope="col">Montant</th>
@@ -425,7 +525,17 @@
               <p>La décision de contrôle doit être tracée dans Chorus ou transmise à l'ordonnateur. Le renseignement de
                 cette rubrique indique que l'instruction de l'acte est définitivement terminée.</p>
             </div>
-            <% if @actes_validation_chorus.present? %>
+            <%= turbo_frame_tag "table_validation_chorus", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_validation_chorus, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'cloture', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_validation_chorus" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <% if @actes_validation_chorus.present? %>
               <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
                 <div class="fr-table__header">
                   <p class="fr-table__detail"></p>
@@ -447,7 +557,22 @@
                         <tr class="fr-cell--multiline">
                           <th scope="col" class="fr-cell--fixed fr-col-check">
                             <span class="fr-sr-only">Sélectionner</span></th>
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_validation_chorus, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_validation_chorus).merge(q_validation_chorus: { s: next_sort_acte }, tab: 'cloture')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_validation_chorus" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Agent</th>
                           <th scope="col">Centre Financier</th>
                           <th scope="col">Bénéficiaire</th>
@@ -512,12 +637,22 @@
                 <p>Aucun acte à clôturer</p>
               </div>
             <% end %>
+            <% end %>
           </div>
           <div id="storybook-tab-5-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if @selected_tab == 'clotures' %>" role="tabpanel" aria-labelledby="storybook-tab-5" tabindex="0">
             <div class="fr-alert fr-alert--info fr-mb-2w">
               <p>Cet onglet liste tous les actes clôturés ainsi que ceux clôturés au stade de la pré-instruction.</p>
             </div>
             <%= turbo_frame_tag "table_cloture", data: { turbo_action: 'advance' } do %>
+              <% if params.dig(:q_cloture, :s).present? %>
+                <div class="fr-mb-2w">
+                  <div class="fr-tags-group">
+                    <%= link_to ht2_actes_path(tab: 'clotures', q_current: params[:q_current]&.to_unsafe_h), class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table_cloture" } do %>
+                      Réinitialiser le tri
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
             <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
 
                 <div class="fr-table__wrapper">
@@ -527,7 +662,22 @@
                         <caption>Actes clôturés</caption>
                         <thead>
                         <tr class="fr-cell--multiline">
-                          <th scope="col">Acte</th>
+                          <th scope="col" style="white-space: nowrap;">
+                            Acte
+                            <% current_sort_acte = params.dig(:q_cloture, :s) %>
+                            <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                            <% icon_class_acte = case current_sort_acte
+                                when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                                when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                                else 'fr-icon-arrow-up-down-line'
+                                end %>
+                            <%= link_to ht2_actes_path(params.permit!.except(:page_cloture).merge(q_cloture: { s: next_sort_acte }, tab: 'clotures')),
+                                        class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                        data: { turbo_frame: "table_cloture" },
+                                        title: "Trier par numéro d'acte",
+                                        "aria-label": "Trier par numéro d'acte" do %>
+                            <% end %>
+                          </th>
                           <th scope="col">Centre financier</th>
                           <th scope="col">Bénéficiaire</th>
                           <th scope="col">Montant</th>

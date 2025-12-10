@@ -81,19 +81,25 @@ class Ht2ActesController < ApplicationController
       @actes_filtered = @actes_filtered.where(id: acte_ids.uniq)
     end
     # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
-    @actes_pre_instruction_all      = @actes_filtered.en_pre_instruction
+    # Tri avec Ransack pour actes en pré-instruction
+    @q_pre_instruction = @actes_filtered.en_pre_instruction.ransack(params[:q_pre_instruction], search_key: :q_pre_instruction)
+    @actes_pre_instruction_all      = @q_pre_instruction.result(distinct: true)
 
     # Tri avec Ransack pour actes en cours d'instruction
     @q_instruction = @actes_filtered.en_cours_instruction.ransack(params[:q_instruction], search_key: :q_instruction)
     @actes_instruction_all          = @q_instruction.result(distinct: true)
 
-    @actes_suspendu_all             = @actes_filtered.suspendus
+    # Tri avec Ransack pour actes suspendus
+    @q_suspendu = @actes_filtered.suspendus.ransack(params[:q_suspendu], search_key: :q_suspendu)
+    @actes_suspendu_all             = @q_suspendu.result(distinct: true)
 
     # Tri avec Ransack pour actes à valider
     @q_validation = @actes_filtered.en_attente_validation.ransack(params[:q_validation], search_key: :q_validation)
     @actes_validation_all           = @q_validation.result(distinct: true)
 
-    @actes_validation_chorus_all    = @actes_filtered.a_cloturer
+    # Tri avec Ransack pour actes à clôturer
+    @q_validation_chorus = @actes_filtered.a_cloturer.ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
+    @actes_validation_chorus_all    = @q_validation_chorus.result(distinct: true)
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
     @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
