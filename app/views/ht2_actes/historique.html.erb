@@ -8,6 +8,15 @@
           Historique des actes HT2
         </h1>
         <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
+          <% if params.dig(:q, :s).present? %>
+            <div class="fr-mb-2w">
+              <div class="fr-tags-group">
+                <%= link_to historique_ht2_path, class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "table" } do %>
+                  Réinitialiser les résultats
+                <% end %>
+              </div>
+            </div>
+          <% end %>
           <div class="fr-table--lg fr-table fr-table--no-caption fr-mb-4w fr-table--col-restricted">
             <div class="fr-table__header">
               <p class="fr-table__detail"></p>
@@ -36,7 +45,22 @@
                       <% if @statut_user == 'admin' %>
                         <th class="fr-cell--fixed" scope="col">Contrôleur</th>
                       <% end %>
-                      <th scope="col">Acte</th>
+                      <th scope="col" style="white-space: nowrap;">
+                        Acte
+                        <% current_sort_acte = params.dig(:q, :s) %>
+                        <% next_sort_acte = current_sort_acte == 'numero_utilisateur asc' ? 'numero_utilisateur desc' : 'numero_utilisateur asc' %>
+                        <% icon_class_acte = case current_sort_acte
+                            when 'numero_utilisateur asc' then 'fr-icon-arrow-down-line'
+                            when 'numero_utilisateur desc' then 'fr-icon-arrow-up-line'
+                            else 'fr-icon-arrow-up-down-line'
+                            end %>
+                        <%= link_to historique_ht2_path(params.permit!.except(:page).merge(q: (params[:q]&.to_unsafe_h || {}).merge(s: next_sort_acte))),
+                                    class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm #{icon_class_acte}",
+                                    data: { turbo_frame: "table" },
+                                    title: "Trier par numéro d'acte",
+                                    "aria-label": "Trier par numéro d'acte" do %>
+                        <% end %>
+                      </th>
                       <th scope="col">Exercice
                       </th>
                       <th scope="col">Centre financier</th>
