@@ -37,43 +37,20 @@
           </div>
         <% else %>
           <% if @acte.suspensions.any? %>
-            <div class="fr-table fr-table--no-caption">
-              <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                  <div class="fr-table__content">
-                    <table>
-                      <caption> Suspensions/Interruptions</caption>
-                      <thead>
-                      <tr>
-                        <th class="fr-capitalize"> <%= type_suspension %> </th>
-                        <th> Date <%= type_suspension %></th>
-                        <th> Date de reprise</th>
-                        <th> Motif</th>
-                        <th> Observations</th>
-                        <th></th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-                        <tr>
-                          <td> n°<%= index + 1 %></td>
-                          <td> <%= format_date_text(suspension.date_suspension) %> </td>
-                          <td> <%= format_date_text(suspension.date_reprise) %></td>
-                          <td class="fr-cell--multiline"> <%= suspension.motif %> </td>
-                          <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
-                          <td>
-                            <a href="<%= ht2_acte_suspension_modal_delete_path(@acte, suspension) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-delete-bin-line fr-m-0" data-fr-opened="false" aria-controls="modal-acte">
-                              Supprimer
-                            </a>
-                          </td>
-                        </tr>
-                      <% end %>
-                      </tbody>
-                    </table>
-                  </div>
+            <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspension-<%= index %>"><%= type_suspension %> n°<%= index +1 %> <span class="fr-tag fr-mx-2v">Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %></span> <span class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </span></button>
+                </h3>
+                <div class="fr-collapse" id="accordion-suspension-<%= index %>">
+                  <p class="fr-mb-2w"><span class="fr-text--bold">Observations :</span> <%= format_value(suspension.observations) %></p>
+                  <p class="fr-mb-2w"><span class="fr-text--bold">Commentaire sur la reprise :</span> <%= format_value(suspension.commentaire_reprise) %></p>
+                  <div><a href="<%= ht2_acte_suspension_modal_delete_path(@acte, suspension) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-delete-bin-line fr-m-0" data-fr-opened="false" aria-controls="modal-acte">
+                    Supprimer
+                  </a></div>
                 </div>
-              </div>
-            </div>
+              </section>
+            <% end %>
           <% else %>
             <div class="fr-alert fr-alert--info">
               <p>

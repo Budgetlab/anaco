@@ -278,7 +278,7 @@ class Ht2Acte < ApplicationRecord
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "en pré-instruction"
       update_column(:pre_instruction , true)
-    elsif self.etat == 'suspendu' && (self.suspensions.last&.date_reprise.present? || self.suspensions.empty?)
+    elsif self.etat == 'suspendu' && self.suspensions.where(date_reprise: nil).empty?
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "clôturé" && self.decision_finale.nil?
       update_column(:decision_finale, self.proposition_decision)
