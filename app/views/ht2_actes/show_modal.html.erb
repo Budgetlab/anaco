@@ -12,7 +12,7 @@
             <h2 id="modal-acte-title" class="fr-modal__title">
               <span class="fr-icon-settings-5-line  fr-icon--lg" aria-hidden="true"></span>Actions sur l'acte</h2>
             <p class="<%= badge_class_for_etat_actes(@acte.etat) %> fr-badge--sm"><%= @acte.type_acte %>
-              n°<%= @acte.numero_formate %> <%= @acte.etat %></p>
+              n°<%= @acte.numero_formate %> <%= etat_acte(@acte) %></p>
 
             <div class="fr-mt-2w">
               <ul class="fr-btns-group fr-btns-group--icon-left">
@@ -25,17 +25,17 @@
                 <% end %>
                 <% if @acte.etat == 'suspendu' %>
                   <li>
-                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--sm fr-icon-edit-line', data: { turbo_frame: "_top" } do %>
-                      Actualiser les informations
-                    <% end %>
-                  </li>
-                <% else %>
-                  <li>
-                    <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
-                      Actualiser les informations
+                    <%= link_to edit_ht2_acte_suspension_path(@acte, @acte.suspension_ouverte), class: "fr-btn" do %>
+                      Reprendre l'instruction
                     <% end %>
                   </li>
                 <% end %>
+                <li>
+                  <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+                    Actualiser les informations
+                  <% end %>
+                </li>
+
                 <li>
                   <%= link_to ht2_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-eye-line", data: { turbo_frame: "_top" } do %>
                     Consulter l'acte
@@ -48,15 +48,17 @@
                     <% end %>
                   </li>
                 <% end %>
-                <li>
-                  <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
-                    Supprimer l'acte
-                  <% end %>
-                </li>
                 <% if @acte.etat == 'en pré-instruction' %>
                   <li>
                     <%= link_to modal_cloture_preinstruction_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-lock-line" do %>
                       Clôturer l'acte
+                    <% end %>
+                  </li>
+                <% end %>
+                <% if @acte.etat != 'suspendu' %>
+                  <li>
+                    <%= link_to modal_delete_acte_path(@acte), class: "fr-btn fr-btn--secondary fr-icon-delete-line" do %>
+                      Supprimer l'acte
                     <% end %>
                   </li>
                 <% end %>

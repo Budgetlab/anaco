@@ -1,0 +1,225 @@
+<%= turbo_frame_tag @frame_id do %>
+  <% if @acte.etat == "en pré-instruction" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Acte en pré-instruction</h3>
+      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+        <li>
+          <a href="<%= modal_pre_instruction_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-icon-arrow-go-forward-line " data-fr-opened="false" aria-controls="modal-acte">
+            Passer l'acte en instruction
+          </a>
+        </li>
+        <li>
+          <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" }  do %>
+            Actualiser les informations
+          <% end %>
+        </li>
+        <li>
+          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line", data: { turbo_frame: "_top" }  do %>
+            Dupliquer
+          <% end %>
+        </li>
+        <li>
+          <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
+            Supprimer
+          </a>
+        </li>
+        <li>
+          <a href="<%= modal_cloture_preinstruction_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-lock-line" data-fr-opened="false" aria-controls="modal-acte">
+            Clôturer l'acte
+          </a>
+        </li>
+      </ul>
+    </div>
+  <% elsif @acte.etat == "en cours d'instruction" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Acte en cours d'instruction</h3>
+      <% if @acte.renvoie_instruction %><p class="fr-badge fr-badge--sm fr-badge--error">Renvoyé en instruction par le valideur</p><% end %>
+      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+        <li><%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
+            Actualiser
+          <% end %>
+        </li>
+        <li>
+          <%= link_to new_ht2_acte_path(id: @acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line", data: { turbo_frame: "_top" }  do %>
+            Dupliquer
+          <% end %>
+        </li>
+        <li>
+          <a href="<%= modal_delete_acte_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
+            Supprimer
+          </a>
+        </li>
+      </ul>
+    </div>
+  <% elsif @acte.etat == "suspendu" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Acte <%= etat_acte(@acte) %></h3>
+      <div class="fr-table fr-table--no-caption">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption> Suspensions/Interruptions</caption>
+                <thead>
+                <tr>
+                  <th> Date</th>
+                  <th> Motif</th>
+                  <th> Observations</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td> <%= format_date_text(@acte.suspension_ouverte.date_suspension) %> </td>
+                  <td> <%= @acte.suspension_ouverte.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= format_value(@acte.suspension_ouverte.observations) %></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+        <li>
+          <a href="<%= edit_ht2_acte_suspension_path(@acte, @acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
+            Reprendre l'instruction
+          </a>
+        </li>
+        <li><%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+            Actualiser
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  <% elsif @acte.etat == "à suspendre" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Acte à <%= verbe_suspension(@acte) %></h3>
+      <div class="fr-table fr-table--no-caption">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption> Suspensions/Interruptions</caption>
+                <thead>
+                <tr>
+                  <th> Date</th>
+                  <th> Motif</th>
+                  <th> Observations</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td> <%= format_date_text(@acte.suspension_ouverte.date_suspension) %> </td>
+                  <td> <%= @acte.suspension_ouverte.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= format_value(@acte.suspension_ouverte.observations) %></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+        <li>
+          <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top"}) do |f| %>
+            <%= hidden_field_tag :etape, 8 %>
+            <%= f.hidden_field :etat, value: "suspendu" %>
+            <%= f.submit "Valider et #{verbe_suspension(@acte)}", class: 'fr-btn' %>
+          <% end %>
+        </li>
+        <li>
+          <%= link_to ht2_acte_suspension_refus_suspension_path(@acte, @acte.suspension_ouverte), class: 'fr-btn fr-btn--secondary', data: { turbo_method: :post, turbo_confirm: "Confirmer?", turbo_frame: "_top" } do %>
+            Rejeter et renvoyer en instruction
+          <% end %>
+        </li>
+      </ul>
+    </div>
+
+  <% elsif @acte.etat == "à valider" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Acte en attente de validation</h3>
+      <p class="fr-callout__text">Vous pouvez valider l’acte ou le renvoyer en instruction vers l'agent
+        instructeur.</p>
+      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-my-2w">
+        <li>
+          <%= link_to validate_acte_path(@acte), data: { turbo_frame: @frame_id }, class: "fr-btn" do %>Valider l'acte
+          <% end %>
+
+        </li>
+        <li>
+          <%= link_to renvoie_instruction_path(@acte), data: { turbo_frame: @frame_id }, class: "fr-btn fr-btn--secondary fr-icon-arrow-go-back-line" do %>
+            Renvoyer l'acte en instruction
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  <% elsif @acte.etat == "à clôturer" %>
+    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
+      <h3 class="fr-callout__title">Clôturer l'acte</h3>
+      <p class="fr-callout__text">Indiquer la date marquant la fin du contrôle sur l'acte.</p>
+
+      <%= form_with(model: @acte, data: { turbo_frame: "_top"}) do |f| %>
+        <%= hidden_field_tag :etape, 6 %>
+        <%= f.hidden_field :etat, value: 'clôturé' %>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-select-group">
+              <label for="date_cloture" class="fr-label">Date de clôture*</label>
+              <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
+
+            </div>
+          </div>
+        </div>
+        <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+          <li><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></li>
+          <li>
+            <a href="<%= modal_renvoie_validation_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
+              Renvoyer l'acte en validation
+            </a></li>
+        </ul>
+      <% end %>
+
+
+    </div>
+  <% elsif @acte.etat == "clôturé après pré-instruction" %>
+    <p class="<%= badge_class_for_etat_actes(@acte.etat) %>">
+      <%= @acte.etat %>
+    </p>
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
+        <li>
+          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn' do %>
+            Nouvelle saisine
+          <% end %>
+        </li>
+      <% end %>
+      <li>
+        <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
+          <%= hidden_field_tag :etape, 7 %>
+          <%= f.hidden_field :etat, value: "en pré-instruction" %>
+          <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+        <% end %>
+      </li>
+    </ul>
+  <% elsif @acte.etat == 'clôturé' %>
+    <p class="<%= badge_class_for_etat_actes(@acte.etat) %>">
+      <%= @acte.etat %>
+    </p>
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
+        <li>
+          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
+            Nouvelle saisine
+          <% end %>
+        </li>
+      <% end %>
+      <li class="fr-hidden">
+        <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
+          <%= hidden_field_tag :etape, 8 %>
+          <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+          <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
+        <% end %>
+      </li>
+    </ul>
+  <% end %>
+<% end %>

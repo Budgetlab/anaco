@@ -1,0 +1,82 @@
+<%= turbo_frame_tag :modal, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">Reprendre l'instruction de l'acte</h2>
+            <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+            <p class="fr-badge fr-badge--sm <%= badge_class_for_type(@acte.type_acte) %> "><%= @acte.type_acte %>
+              n°<%= @acte.numero_formate %></p>
+
+            <div class="fr-table fr-table--no-caption fr-mb-1v">
+              <div class="fr-table__wrapper">
+                <div class="fr-table__container">
+                  <div class="fr-table__content">
+                    <table>
+                      <caption> Suspensions/Interruptions</caption>
+                      <thead>
+                      <tr>
+                        <th> Date <%= type_suspension %></th>
+                        <th> Motif</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td> <%= format_date_text(@suspension.date_suspension) %> </td>
+                        <td> <%= @suspension.motif %> </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-mb-2w"><span class="fr-text--bold">Observations</span> : <%= format_value(@suspension.observations) %></div>
+
+            <div>
+              <%= form_with(model: [@acte, @suspension], data: { turbo_frame: "_top", turbo: false }) do |f| %>
+
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <div class="fr-select-group">
+                      <label for="date_reprise" class="fr-label">Date fin <%= type_suspension %>*</label>
+                      <%= f.date_field :date_reprise, class: "fr-select", id: "date_reprise", placeholder: "jj/mm/aaaa", min: @suspension.date_suspension&.strftime("%Y-%m-%d"), required: true %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <div class="fr-input-group">
+                      <label for="commentaire_reprise" class="fr-label">Commentaire sur la reprise de suspension</label>
+                      <%= f.text_area :commentaire_reprise, class: "fr-input", id: "commentaire_reprise", rows: 3 %>
+                    </div>
+                  </div>
+                </div>
+
+                <ul class="fr-btns-group fr-mt-4w">
+                  <li>
+                    <%= f.submit "Valider et reprendre l'instruction", class: 'fr-btn' %>
+                  </li>
+                </ul>
+              <% end %>
+              <ul class="fr-btns-group">
+                <li>
+                  <button aria-controls="modal-acte" class="fr-btn fr-btn--secondary">
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

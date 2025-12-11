@@ -1,157 +1,8 @@
+<% frame_id = dom_id(acte, :bloc) %>
+
 <% if acte.user == current_user %>
-  <% if acte.etat == "en pré-instruction" %>
-    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte en pré-instruction</h3>
-      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-        <li>
-          <a href="<%= modal_pre_instruction_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-icon-arrow-go-forward-line " data-fr-opened="false" aria-controls="modal-acte">
-            Passer l'acte en instruction
-          </a>
-        </li>
-        <li>
-          <%= link_to edit_ht2_acte_path(acte), class: 'fr-btn fr-icon-edit-line fr-btn--secondary' do %>
-            Actualiser les informations
-          <% end %>
-        </li>
-        <li>
-          <%= link_to new_ht2_acte_path(id: acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
-            Dupliquer
-          <% end %>
-        </li>
-        <li>
-          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
-            Supprimer
-          </a>
-        </li>
-        <li>
-          <a href="<%= modal_cloture_preinstruction_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-lock-line" data-fr-opened="false" aria-controls="modal-acte">
-            Clôturer l'acte
-          </a>
-        </li>
-      </ul>
-    </div>
-  <% elsif acte.etat == "en cours d'instruction" %>
-    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte en cours d'instruction</h3>
-      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-        <li><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
-            Actualiser
-          <% end %>
-        </li>
-        <li>
-          <%= link_to new_ht2_acte_path(id: acte.id), class: "fr-btn fr-btn--secondary  fr-icon-file-add-line" do %>
-            Dupliquer
-          <% end %>
-        </li>
-        <li>
-          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
-            Supprimer
-          </a>
-        </li>
-      </ul>
-    </div>
-  <% elsif acte.etat == "suspendu" %>
-    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte suspendu</h3>
-      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-        <li><%= link_to edit_ht2_acte_path(acte), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
-            Actualiser
-          <% end %>
-        </li>
-        <li>
-          <a href="<%= modal_delete_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-delete-line" data-fr-opened="false" aria-controls="modal-acte">
-            Supprimer l'acte
-          </a>
-        </li>
-      </ul>
-    </div>
-  <% elsif acte.etat == "en attente de validation" %>
-    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Acte en attente de validation</h3>
-      <p class="fr-callout__text">Vous pouvez valider l’acte ou le renvoyer en instruction vers l'agent instructeur.</p>
-      <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-my-2w">
-        <li>
-          <a href="<%= modal_validate_acte_path(acte) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-acte">
-            Valider
-          </a>
-        </li>
-        <li>
-          <a href="<%= modal_renvoie_instruction_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
-            Renvoyer l'acte en instruction
-          </a>
-        </li>
-      </ul>
-    </div>
-  <% elsif acte.etat == "en attente de validation Chorus" %>
-    <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-      <h3 class="fr-callout__title">Clôturer l'acte</h3>
-      <p class="fr-callout__text">Indiquer la date de validation dans Chorus pour marquer la fin du contrôle sur
-        l'acte.</p>
-
-      <%= form_with(model: acte) do |f| %>
-        <%= hidden_field_tag :etape, 6 %>
-        <%= f.hidden_field :etat, value: 'clôturé' %>
-        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
-          <div class="fr-col-12 fr-col-lg-6">
-            <div class="fr-select-group">
-              <label for="date_cloture" class="fr-label">Date de validation dans Chorus*</label>
-              <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(acte.date_chorus) }, value: format_date(acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
-
-            </div>
-          </div>
-        </div>
-        <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-          <li><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></li>
-          <li>
-            <a href="<%= modal_renvoie_validation_path(acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
-              Renvoyer l'acte en validation
-            </a></li>
-        </ul>
-      <% end %>
-
-
-    </div>
-  <% elsif acte.etat == "clôturé après pré-instruction" %>
-    <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
-      <%= acte.etat %>
-    </p>
-    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
-        <li>
-          <%= link_to new_ht2_acte_path(parent_id: acte.id), class: 'fr-btn' do %>
-            Nouvelle saisine
-          <% end %>
-        </li>
-      <% end %>
-      <li>
-        <%= form_with(model: acte, method: :patch) do |f| %>
-          <%= hidden_field_tag :etape, 7 %>
-          <%= f.hidden_field :etat, value: "en pré-instruction" %>
-          <%= f.submit "Renvoyer l'acte en phase de pré-instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
-        <% end %>
-      </li>
-    </ul>
-  <% elsif acte.etat == 'clôturé' %>
-    <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
-      <%= acte.etat %>
-    </p>
-    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
-        <li>
-          <%= link_to new_ht2_acte_path(parent_id: acte.id), class: 'fr-btn' do %>
-            Nouvelle saisine
-          <% end %>
-        </li>
-      <% end %>
-      <li class="fr-hidden">
-        <%= form_with(model: acte, method: :patch) do |f| %>
-          <%= hidden_field_tag :etape, 8 %>
-          <%= f.hidden_field :etat, value: "en cours d'instruction" %>
-          <%= f.submit "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary', data: { turbo_confirm: 'Confirmer?' } %>
-        <% end %>
-      </li>
-    </ul>
-  <% end %>
+  <%= turbo_frame_tag frame_id,
+                      src: acte_actions_path(acte, frame_id: frame_id) %>
 <% else %>
   <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
     <%= acte.etat %>
@@ -242,10 +93,10 @@
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
-                <% elsif acte.etat == 'suspendu' %>
-                  suspendu
-                <% else %>en cours
-                <% end %></td>
+                <% else %>
+                  <%= etat_acte(acte) %>
+                <% end %>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -267,12 +118,17 @@
               <th>N°Chorus</th>
               <% if acte.type_acte != 'TF' %>
                 <th>Bénéficiaire</th>
+              <% else %>
+                <th>N° d'affectation</th>
               <% end %>
               <th>
                 <% if acte.type_acte == 'TF' %>Opération d’investissement
                 <% else %>Objet
                 <% end %></th>
               <th>Ordonnateur</th>
+              <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
+                <th>Nombre d'actes</th>
+              <% end %>
               <th>Pré-instruction</th>
             </tr>
             </thead>
@@ -283,9 +139,14 @@
               <td> <%= format_value(acte.numero_chorus) %></td>
               <% if acte.type_acte != 'TF' %>
                 <td> <%= format_value(acte.beneficiaire) %></td>
+              <% else %>
+                <td><%= format_value(acte.numero_tf) %></td>
               <% end %>
               <td> <%= format_value(acte.objet) %></td>
               <td> <%= format_value(acte.ordonnateur) %></td>
+              <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
+                <td> <%= acte.nombre_actes %></td>
+              <% end %>
               <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
@@ -312,11 +173,11 @@
               <tr class="fr-cell--multiline">
                 <th> Catégorie</th>
                 <th> Action/Sous-action</th>
-                <th> Activité</th>
+                <th> Code activité</th>
                 <% if acte.numero_marche.present? %>
                   <th> Numéro de marché</th>
                 <% end %>
-                <% if acte.numero_tf.present? %>
+                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
                   <th> Numéro Chorus de la TF associée</th>
                 <% end %>
                 <% if acte.groupe_marchandises.present? %>
@@ -333,7 +194,7 @@
                 <% if acte.numero_marche.present? %>
                   <td> <%= format_value(acte.numero_marche) %> </td>
                 <% end %>
-                <% if acte.numero_tf.present? %>
+                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
                   <td> <%= format_value(acte.numero_tf) %> </td>
                 <% end %>
                 <% if acte.groupe_marchandises.present? %>
@@ -368,6 +229,7 @@
                 <th> Axe ministériel</th>
                 <th> Flux</th>
                 <th> Groupe de marchandises</th>
+                <th> Numéro Chorus de la TF</th>
               </tr>
               </thead>
               <tbody>
@@ -383,12 +245,14 @@
                   <td> <%= ligne.axe_ministeriel %> </td>
                   <td> <%= ligne.flux %> </td>
                   <td> <%= ligne.groupe_marchandises %></td>
+                  <td> <%= ligne.numero_tf %></td>
                 </tr>
               <% end %>
               <tr class="fr-table--total">
                 <td>Total</td>
                 <td></td>
                 <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -449,7 +313,10 @@
               <th> Disponibilité des crédits</th>
               <th> Imputation de la dépense</th>
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
-              <th><% if acte.services_votes == true %>Engagement éligible à la gestion des services votés<%else %> Compatibilité avec la programmation annuelle et pluriannuelle<%end %></th>
+              <th>
+                <% if acte.services_votes == true %>Engagement éligible à la gestion des services votés
+                <% else %> Compatibilité avec la programmation annuelle et pluriannuelle
+                <% end %></th>
             </tr>
             </thead>
             <tbody>
@@ -529,41 +396,26 @@
   <div class="fr-mt-2w">Observations</div>
 
   <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
-
   <% if acte.suspensions.present? %>
-    <% type_suspension = acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
-    <div class="fr-h6 fr-my-3w">Suspensions/Interruptions</div>
-    <div class="fr-table fr-table--no-caption">
-      <div class="fr-table__wrapper">
-        <div class="fr-table__container">
-          <div class="fr-table__content">
-            <table>
-              <caption> Suspensions/Interruptions</caption>
-              <thead>
-              <tr>
-                <th class="fr-capitalize"> <%= type_suspension %> </th>
-                <th> Date <%= type_suspension %></th>
-                <th> Date de reprise</th>
-                <th> Motif</th>
-                <th> Observations</th>
-              </tr>
-              </thead>
-              <tbody>
-              <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
-                <tr>
-                  <td> n°<%= index + 1 %></td>
-                  <td> <%= format_date_text(suspension.date_suspension) %> </td>
-                  <td> <%= format_date_text(suspension.date_reprise) %></td>
-                  <td> <%= suspension.motif %> </td>
-                  <td class="fr-cell--multiline"> <%= format_value(suspension.observations) %></td>
-                </tr>
-              <% end %>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <% type_suspension = type_suspension(acte) %>
+    <div class="fr-h6 fr-my-3w fr-capitalize"><%= type_suspension + 's' %></div>
+    <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+      <div class="fr-citation fr-mb-2w">
+        <h6><%= type_suspension %> n°<%= index + 1 %></h6>
+        <p class="fr-tag">
+          <% if suspension.date_reprise.nil? %>Suspendu depuis le <%= format_date_text(suspension.date_suspension) %>
+            <% else %>Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %>
+          <% end %></p>
+        <div class="fr-mt-2w"><span class="fr-text--bold">Motif : </span>
+          <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </p></div>
+        <div class="fr-text--bold fr-mt-3w">Observations</div>
+        <div><%= format_value(suspension.observations) %></div>
+        <% if suspension.date_reprise.present? %>
+          <div class="fr-text--bold fr-mt-3w">Commentaire sur la reprise</div>
+          <div><%= format_value(suspension.commentaire_reprise) %></div>
+        <% end %>
       </div>
-    </div>
+    <% end %>
   <% end %>
 </div>
 

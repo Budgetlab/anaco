@@ -511,3 +511,18 @@ a.fr-tag[aria-pressed=true]::after{
 .fr-home-follow, .fr-container-blue{
   background-color: var(--background-alt-blue-france);
 }
+
+.fr-container--grey{
+  background-color: var(--background-contrast-raised-grey);
+}
+.fr-backgroud--grey{
+  background-color: var(--text-inverted-grey);
+}
+
+.fr-citation{
+  padding: 0 0 0 2rem;
+  background-size: 1px 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
+}

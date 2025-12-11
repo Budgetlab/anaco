@@ -3,7 +3,8 @@
 <div data-controller="acte-form">
   <%= form_with model: @acte, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
     <%= hidden_field_tag :etape, 4 %>
-    <% type_suspension = @acte.type_acte == 'avis' ? 'suspension' : 'interruption' %>
+    <% type_suspension = type_suspension(@acte) %>
+    <% action_suspension = verbe_suspension(@acte) + " l'instruction" %>
     <% if @acte.etat == "en pré-instruction" %>
       <div class="fr-notice fr-notice--info fr-mb-2w">
         <div class="fr-container">
@@ -21,37 +22,58 @@
         </div>
       </div>
     <% else %>
-      <% if @acte.etat == 'suspendu' %>
-        <div class="fr-notice fr-notice--info fr-mb-2w">
-          <div class="fr-container">
-            <div class="fr-notice__body">
-              <p>
-                <span class="fr-notice__title">Cet acte est suspendu. Vous pouvez à ce stade reprendre ou clôturer définitivement l'acte. </span>
-                <span class="fr-notice__desc">Pour clôturer l'acte à ce stade choisissez Retour sans décision (sans suite) comme décision de contrôle et renseignez la date de clôture.</span>
-              </p>
-              <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer
-                le message
-              </button>
-            </div>
-          </div>
-        </div>
-      <% end %>
+      <!-- Suspension -->
       <div class="fr-callout fr-callout--brown-cafe-creme fr-mt-2w">
-        <h3 class="fr-callout__title fr-capitalize fr-mb-2w"><%= type_suspension%></h3>
-        <template data-nested-form-target="template">
-          <%= f.fields_for :suspensions, Suspension.new, child_index: 'NEW_RECORD' do |suspension_fields| %>
-            <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+        <h3 class="fr-callout__title fr-capitalize fr-mb-2w fr-hidden"><%= type_suspension %></h3>
+        <% if @acte.suspension_ouverte? %>
+          <div class="fr-alert fr-alert--info">
+            <h3 class="fr-alert__title">Une <%= type_suspension %> est en cours.</h3>
+            <p> Vous pouvez actualiser ses informations ci-dessous ou retourner sur la <%= link_to ht2_acte_path(@acte) do%>page de l'acte<% end %> pour finaliser cette <%= type_suspension %> et reprendre l'instruction de l'acte.</p>
+          </div>
+          <div id="panelSuspension" class="fr-mt-4w">
+            <%= f.fields_for :suspensions, @acte.suspension_ouverte do |sf| %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension, required: true %>
+            <% end %>
+          </div>
+        <% else %>
+          <% if @acte.suspensions.any? %>
+            <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+              <section class="fr-accordion">
+                <h3 class="fr-accordion__title">
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspension-<%= index %>"><%= type_suspension %> n°<%= index +1 %> <span class="fr-tag fr-mx-2v">Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %></span> <span class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </span></button>
+                </h3>
+                <div class="fr-collapse" id="accordion-suspension-<%= index %>">
+                  <p class="fr-mb-2w"><span class="fr-text--bold">Observations :</span> <%= format_value(suspension.observations) %></p>
+                  <p class="fr-mb-2w"><span class="fr-text--bold">Commentaire sur la reprise :</span> <%= format_value(suspension.commentaire_reprise) %></p>
+                  <div><a href="<%= ht2_acte_suspension_modal_delete_path(@acte, suspension) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-delete-bin-line fr-m-0" data-fr-opened="false" aria-controls="modal-acte">
+                    Supprimer
+                  </a></div>
+                </div>
+              </section>
+            <% end %>
+          <% else %>
+            <div class="fr-alert fr-alert--info">
+              <p>
+                <% if type_suspension == 'suspension' %>
+                  Lorsque le contrôleur budgétaire doit rendre un avis préalable, il peut demander des informations complémentaires dans le délai de quinze jours. Dans ce cas, cette demande a pour effet de suspendre le délai d'examen jusqu'à la production de ces informations ou documents.
+                  <% else %>
+                  Lorsque le contrôleur budgétaire doit rendre un visa préalable, il peut demander des informations complémentaires dans le délai de quinze jours. Dans ce cas, un nouveau délai de quinze jours court à compter de la production des informations ou documents sollicités.
+                <% end %>
+              </p>
+            </div>
           <% end %>
-        </template>
-
-        <%= f.fields_for :suspensions, f.object.suspensions do |suspension_fields| %>
-          <%= render "form_suspension", f: suspension_fields, type_suspension: type_suspension %>
+          <button type="button"
+                  class="fr-btn fr-btn--secondary fr-btn--icon-left fr-capitalize"
+                  data-acte-form-target="toggleSuspensionButton"
+                  data-action="click->acte-form#toggleSuspension">
+            <%=action_suspension %>
+          </button>
+          <div id="panelSuspension" class="fr-mt-4w fr-hidden" >
+            <%= f.fields_for :suspensions, @acte.suspensions.build do |sf| %>
+              <%= render "form_suspension", f: sf, type_suspension: type_suspension, required: false %>
+            <% end %>
+          </div>
         <% end %>
-
-        <!-- Inserted elements will be injected before that target. -->
-        <div data-nested-form-target="target"></div>
-        <button type="button" data-action="nested-form#add acte-form#toggleAddButton" data-acte-form-target="addButton" class="fr-btn fr-icon-add-line fr-btn--icon-left fr-mb-2w">
-          Ajouter une <%= type_suspension %></button>
       </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
@@ -59,10 +81,10 @@
         <div class="fr-select-group">
           <label for="proposition_decision" class="fr-label">
             Proposition de décision de contrôle
-            <% unless @acte.etat == 'en pré-instruction' %>*
+            <% if @acte.etat == "en cours d'instruction" %><span id="asterix_proposition">*</span>
             <% end %>
           </label>
-          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat != 'en pré-instruction', data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
+          <%= f.select :proposition_decision, options_for_select(@liste_decisions.map { |decision| [decision, decision] }, @acte.proposition_decision), { prompt: "- sélectionner -" }, { id: "proposition_decision", class: "fr-select", required: @acte.etat == "en cours d'instruction", data: (@acte.etat != 'en pré-instruction' ? { 'acte-form-target': 'decision', action: "change->acte-form#checkDecision" } : {}) } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6 fr-hidden" id="date_cloture_wrapper">
@@ -111,21 +133,41 @@
       </div>
     </div>
 
-    <div class="fr-grid-row fr-grid-row--gutters">
-      <%= hidden_field_tag :submit_action, "", data: { acte_form_target: "submitAction" } %>
+    <%= f.hidden_field :etat, value: @acte.etat, data: { acte_form_target: "submitAction" } %>
+
+    <%# --- Submit “Suspendre” visible seulement en mode suspension --- %>
+    <div class="fr-grid-row fr-grid-row--gutters <%= @acte.etat == "suspendu" ? "" : "fr-hidden" %>" id="suspension_submit_wrapper">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-checkbox-group fr-mb-2w">
+          <%= check_box_tag :submit_suspension, "à suspendre", id: "suspendre", data: { action: "change->acte-form#suspendSkipValidation" } %>
+          <label class="fr-label" for="suspendre">Soumettre cette <%= type_suspension %> à validation.</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li>
+            <%= button_tag type: 'submit',
+                           id: "suspension_submit",
+                           class: 'fr-btn fr-capitalize' do %>
+              <%=action_suspension %>
+            <% end %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <%# --- Autres boutons (doivent être masqués en mode suspension) --- %>
+    <div class="fr-grid-row fr-grid-row--gutters" id="otherButtons">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
 
           <% if @acte.etat == "en pré-instruction" %>
             <li>
-              <%= f.submit "Enregistrer les modifications", class: 'fr-btn' %>
+              <%= f.submit "Enregistrer et quitter", class: 'fr-btn' %>
             </li>
-          <% else %>
-            <li>
-              <%= f.submit "Enregistrer les modifications", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
-            </li>
-            <li id="cloture_button" class="fr-hidden">
-              <%= f.submit "Enregistrer et clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
+          <% elsif @acte.etat == "en cours d'instruction" %>
+            <li id="save_button">
+              <%= f.submit "Enregistrer et quitter", class: 'fr-btn fr-btn--secondary', data: { action: "click->acte-form#removeRequiredAndSubmit" } %>
             </li>
             <li id="validation_button">
               <%= button_tag type: 'submit',
@@ -134,6 +176,9 @@
                 Enregister et soumettre à validation
               <% end %>
             </li>
+            <li id="cloture_button" class="fr-hidden">
+              <%= f.submit "Clôturer l'acte", class: 'fr-btn', data: { action: "click->acte-form#confirmCloture" } %>
+            </li>
           <% end %>
         </ul>
       </div>
@@ -141,3 +186,7 @@
 
   <% end %>
 </div>
+
+<dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+  <%= turbo_frame_tag :modal %>
+</dialog>

@@ -33,9 +33,9 @@ module Ht2ActesHelper
       'fr-badge fr-badge--new fr-badge--no-icon'
     when "en cours d'instruction"
       'fr-badge fr-badge--green-archipel'
-    when 'suspendu'
+    when 'suspendu', 'à suspendre'
       'fr-badge fr-badge--error fr-badge--no-icon'
-    when 'en attente de validation'
+    when 'à valider'
       'fr-badge fr-badge--pink-tuile'
     when 'clôturé'
       'fr-badge fr-badge--success fr-badge--no-icon'
@@ -59,5 +59,69 @@ module Ht2ActesHelper
     else
       'cblack'
     end
+  end
+
+  def etat_acte(acte)
+    if acte.etat == 'suspendu' && (acte.type_acte == 'visa' || acte.type_acte == 'TF')
+      'interrompu'
+    elsif acte.etat == 'à suspendre' && (acte.type_acte == 'visa') && (acte.type_acte == 'visa' || acte.type_acte == 'TF')
+      "à interrompre"
+    else
+      acte.etat
+    end
+  end
+
+  def type_suspension(acte)
+    acte.type_acte == 'avis' ? 'suspension' : 'interruption'
+  end
+
+  def verbe_suspension(acte)
+    acte.type_acte == 'avis' ? 'suspendre' : 'interrompre'
+  end
+
+  def update_acte_notice(etat, etape, type_acte)
+    if etat == 'à valider'
+      "Acte enregistré et en attente de validation."
+    elsif etat == 'clôturé'
+      "Acte clôturé avec succès."
+    elsif etat == 'à clôturer'
+      "Acte validé avec succès. Il doit désormais être clôturé par l'instructeur."
+    elsif etat == 'suspendu' && type_acte == 'avis'
+      "Acte suspendu."
+    elsif etat == 'suspendu' && type_acte != 'avis'
+      "Acte interrompu."
+    elsif etat == 'à suspendre' && type_acte == 'avis'
+      "Acte à suspendre par le valideur."
+    elsif etat == 'à suspendre' && type_acte != 'avis'
+      "Acte à interrompre par le valideur."
+    elsif etat == "clôturé après pré-instruction"
+      "Acte clôturé après pré-instruction avec succès."
+    elsif etape == 7
+      "Acte renvoyé en pré-instruction avec succès."
+    elsif etape == 8
+      "Acte renvoyé en instruction avec succès."
+    else
+      "Acte enregistré et mis à jour avec succès."
+    end
+  end
+
+  def tous_types_observations
+    [
+      "Acte déjà signé par l'ordonnateur",
+      "Acte non soumis au contrôle",
+      'Compatibilité avec la programmation',
+      "Construction de l'EJ",
+      'Disponibilité des crédits',
+      'Évaluation de la consommation des crédits',
+      'Fondement juridique',
+      "Hors périmètre du CBR/DCB",
+      'Imputation',
+      'Pièce(s) manquante(s)',
+      "Problème dans la rédaction de l'acte",
+      'Risque au titre de la RGP',
+      'Saisine a posteriori',
+      'Saisine en dessous du seuil de soumission au contrôle',
+      'Autre'
+    ].sort
   end
 end

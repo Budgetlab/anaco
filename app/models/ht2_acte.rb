@@ -28,14 +28,16 @@ class Ht2Acte < ApplicationRecord
 
   has_rich_text :commentaire_disponibilite_credits
 
-  scope :en_attente_validation, -> { where(etat: ["en attente de validation"]) }
+  scope :en_attente_validation, -> { where(etat: ["à valider", "à suspendre"]) }
   scope :en_cours_instruction, -> { where(etat: ["en cours d'instruction"]) }
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
+  scope :a_cloturer, -> { where(etat: ["à clôturer"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :clotures_seuls, -> { where(etat: 'clôturé') }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
-  # Scope combiné pour éviter les requêtes multiples
+  # Ceux qui ne sont pas clos (année N , N-1 ..) + ceux qui sont clos sur l'annee N
   scope :actifs_annee_courante, -> {
     where(
       "(date_cloture IS NULL) OR (date_cloture IS NOT NULL AND annee = ?)",
@@ -43,16 +45,33 @@ class Ht2Acte < ApplicationRecord
     )
   }
 
+
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
+  # Custom ransacker pour filtrer par présence de suspensions
+  #ransacker :has_suspensions do
+  #Arel.sql("EXISTS(SELECT 1 FROM suspensions WHERE suspensions.ht2_acte_id = ht2_actes.id)")
+    #end
+
+  # États valides pour les transitions
+  VALID_ETATS = [
+    "en pré-instruction",
+    "en cours d'instruction",
+    "suspendu",
+    "à suspendre",
+    "à valider",
+    "à clôturer",
+    "clôturé après pré-instruction",
+    "clôturé"
+  ].freeze
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
   def self.echeance_courte
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus'])
+    where(etat: ["en cours d'instruction", 'à valider', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite >= ?", Date.today)
       .where("date_limite <= ?", Date.today + 5.days)
@@ -61,7 +80,7 @@ class Ht2Acte < ApplicationRecord
 
   # Méthode pour compter les actes en cours hors délai
   def self.count_current_with_long_delay
-    where(etat: ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus'])
+    where(etat: ["en cours d'instruction", 'à valider', 'à clôturer'])
       .where.not(date_limite: nil)
       .where("date_limite < ?", Date.today)
       .count
@@ -175,6 +194,15 @@ class Ht2Acte < ApplicationRecord
     calculate_delai_traitement
   end
 
+  # Une suspension est "ouverte" si date_reprise est nulle OU si un des champs obligatoires manque
+  def suspension_ouverte
+    suspensions.find { |s| s.date_reprise.nil? }
+  end
+
+  def suspension_ouverte?
+    suspension_ouverte.present?
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
@@ -244,14 +272,16 @@ class Ht2Acte < ApplicationRecord
   private
 
   def set_etat_acte
-    if self.suspensions.present? && self.suspensions.last&.date_reprise.nil?
+    if self.suspensions.present? && self.suspensions.last&.date_reprise.nil? && !["suspendu", "à suspendre"].include?(self.etat)
       update_column(:etat,"suspendu")
-    elsif !etat.present?
+    elsif !etat.present? || !VALID_ETATS.include?(etat)
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "en pré-instruction"
       update_column(:pre_instruction , true)
-    elsif self.etat == 'suspendu' && (self.suspensions.last&.date_reprise.present? || self.suspensions.empty?)
+    elsif self.etat == 'suspendu' && self.suspensions.where(date_reprise: nil).empty?
       update_column(:etat, "en cours d'instruction")
+    elsif self.etat == "clôturé" && self.decision_finale.nil?
+      update_column(:decision_finale, self.proposition_decision)
     end
   end
 
@@ -273,7 +303,7 @@ class Ht2Acte < ApplicationRecord
 
   # Methode pour mettre à jour la date limite
   def calculate_date_limite_if_needed
-    return unless ['en cours d\'instruction', 'suspendu', 'en attente de validation'].include?(etat) && date_chorus.present?
+    return unless ['en cours d\'instruction', 'suspendu', 'à valider'].include?(etat) && date_chorus.present?
 
     new_date_limite = if etat == 'suspendu'
                         nil

@@ -79,8 +79,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      "Décision finale",
    ], style: header_style
 
+   @etat = @acte.etat == "clôturé" ? "clôturé le #{@acte.date_cloture.strftime('%d/%m/%Y')}" : etat_acte(@acte)
    sheet.add_row [
-         @acte.etat,
+         @etat,
          format_value(@acte.proposition_decision),
          format_value(@acte.decision_finale),
        ], style: cell_style
@@ -142,10 +143,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        "#{n} jour#{'s' if n != 1}"  # évite la dépendance à pluralize
        # ou si tu préfères et que les helpers sont dispo :
        # helpers.pluralize(@acte.delai_traitement.to_i, 'jour')
-     elsif @acte.etat == 'suspendu'
-       'suspendu'
      else
-       'en cours'
+       etat_acte(@acte)
      end
 
    sheet.add_row [
@@ -173,14 +172,20 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # Deuxième table d'informations
    headers = ["Exercice","Centre financier","N°Chorus"]
    headers << "Bénéficiaire" if @acte.type_acte != 'TF'
+   headers << "N° d'affectation" if @acte.type_acte == 'TF'
    objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
-   headers += [objet_label,"Ordonnateur", "Pré-instruction"]
+   headers += [objet_label,"Ordonnateur"]
+  headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+  headers << "Pré-instruction"
 
    sheet.add_row headers, style: header_style
 
    data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
    data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
-   data_row += [@acte.objet, @acte.ordonnateur, @acte.pre_instruction? ? 'Oui' : 'Non']
+   data_row << @acte.numero_tf if @acte.type_acte == 'TF'
+   data_row += [@acte.objet, @acte.ordonnateur]
+  data_row << @acte.nombre_actes if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+  data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
    sheet.add_row data_row, style: cell_style
    sheet.add_row
 
@@ -212,16 +217,16 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.row_style current_row, section_header_style
      sheet.rows[current_row-1].height = 30
 
-     comp_headers = ["Catégorie","Action/Sous-action", "Activité"]
+     comp_headers = ["Catégorie","Action/Sous-action", "Code activité"]
      comp_headers << "Numéro de marché" if @acte.numero_marche.present?
-     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present?
+     comp_headers << "Numéro Chorus de la TF associée" if @acte.numero_tf.present? && @acte.type_acte != 'TF'
      comp_headers << "Groupe de marchandises" if @acte.groupe_marchandises.present?
      comp_headers << "Services votés"
      sheet.add_row comp_headers, style: header_style
 
      comp_data = [@acte.categorie, @acte.action, @acte.activite]
      comp_data << @acte.numero_marche if @acte.numero_marche.present?
-     comp_data << @acte.numero_tf if @acte.numero_tf.present?
+     comp_data << @acte.numero_tf if @acte.numero_tf.present? && @acte.type_acte != 'TF'
      comp_data << @acte.groupe_marchandises if @acte.groupe_marchandises.present?
      comp_data << (@acte.services_votes? ? 'Oui' : 'Non')
      sheet.add_row comp_data, style: cell_style
@@ -230,8 +235,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # LIGNES DE POSTE
    if @acte.poste_lignes.present?
          current_row = sheet.rows.length + 1
-         sheet.add_row ["LIGNES DE POSTE","","","","","","","","", ""], style: section_header_style
-         sheet.merge_cells "A#{current_row}:J#{current_row}"
+         sheet.add_row ["LIGNES DE POSTE","","","","","","","","", "", ""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:K#{current_row}"
          sheet.row_style current_row, section_header_style
          sheet.rows[current_row-1].height = 30
 
@@ -245,7 +250,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
            "Code activité",
            "Axe ministériel",
            "Flux",
-           "Groupe de marchandises"
+           "Groupe de marchandises",
+           "Numéro Chorus de la TF"
          ], style: header_style
 
          @acte.poste_lignes.each do |ligne|
@@ -259,8 +265,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              ligne.code_activite,
              ligne.axe_ministeriel,
              ligne.flux,
-             ligne.groupe_marchandises
-           ], style: [cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+             ligne.groupe_marchandises,
+             ligne.numero_tf
+           ], style: [cell_style, cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
          end
          sheet.add_row
    end
@@ -334,8 +341,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    if @acte.suspensions.present?
          current_row = sheet.rows.length + 1
          type_suspension = @acte.type_acte == 'avis' ? 'SUSPENSION' : 'INTERRUPTION'
-         sheet.add_row ["#{type_suspension}S", "","","",""], style: section_header_style
-         sheet.merge_cells "A#{current_row}:E#{current_row}"
+         sheet.add_row ["#{type_suspension}S", "","","","",""], style: section_header_style
+         sheet.merge_cells "A#{current_row}:F#{current_row}"
          sheet.row_style current_row, section_header_style
          sheet.rows[current_row-1].height = 30
 
@@ -344,7 +351,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
            "Date #{type_suspension.downcase}",
            "Date de reprise",
            "Motif",
-           "Observations"
+           "Observations",
+           "Commentaire reprise"
          ], style: header_style
 
          @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index|
@@ -353,7 +361,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              suspension.date_suspension&.strftime('%d/%m/%Y'),
              suspension.date_reprise&.strftime('%d/%m/%Y'),
              suspension.motif,
-             suspension.observations
+             suspension.observations,
+             suspension.commentaire_reprise
            ], style: cell_style
          end
    end

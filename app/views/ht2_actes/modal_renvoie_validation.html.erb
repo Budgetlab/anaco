@@ -18,7 +18,7 @@
             </div>
 
             <%= form_with(model: @acte, data: { turbo_frame: "_top"} ) do |f| %>
-              <%= f.hidden_field :etat, value: "en attente de validation" %>
+              <%= f.hidden_field :etat, value: "à valider" %>
               <ul class="fr-btns-group">
                 <li>
                   <%= f.submit "Renvoyer l'acte en phase de validation", class: 'fr-btn' %>

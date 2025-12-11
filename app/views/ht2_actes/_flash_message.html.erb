@@ -9,36 +9,6 @@
           le message
         </button>
       </div>
-    <% elsif msg == 'Update' %>
-      <div class="fr-alert fr-alert--success fr-mb-2w">
-        <h3 class="fr-alert__title">
-          Les modifications ont été enregistrées avec succès.
-        </h3>
-        <p>Vous pouvez consulter et éditer les informations de cet acte ci-dessous ou retourner sur votre liste de travail. <%= link_to ht2_actes_path do %>Retourner sur la liste de travail<% end %></p>
-        <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer
-          le message
-        </button>
-      </div>
-    <% elsif msg == 'Validation' %>
-      <div class="fr-alert fr-alert--success fr-mb-2w">
-        <h3 class="fr-alert__title">
-          L'acte a été validé avec succès.
-        </h3>
-        <p>Vous pouvez consulter les informations de cet acte ci-dessous ou retourner sur votre liste de travail. <%= link_to ht2_actes_path do %>Retourner sur la liste de travail<% end %></p>
-        <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer
-          le message
-        </button>
-      </div>
-    <% elsif msg == 'clôturé après pré-instruction' %>
-      <div class="fr-alert fr-alert--success fr-mb-2w">
-        <h3 class="fr-alert__title">
-          Acte clôturé après pré-instruction avec succès.
-        </h3>
-        <p>Vous pouvez consulter les informations de cet acte ci-dessous ou retourner sur votre liste de travail. <%= link_to ht2_actes_path do %>Retourner sur la liste de travail<% end %></p>
-        <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer
-          le message
-        </button>
-      </div>
     <% end %>
 
   <% end %>

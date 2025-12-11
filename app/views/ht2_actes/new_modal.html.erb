@@ -79,7 +79,7 @@
                     <%= f.radio_button :etat, "en pré-instruction", id: "etat_2", data: { "acte-form-target": "etatRadio", action: "change->acte-form#togglePreInstruction" } %>
                     <label class="fr-label" for="etat_2">
                       <p class="fr-badge fr-badge--new fr-badge--no-icon">En pré-instruction</p>
-                      <span class="fr-hint-text">Sollicitation avant saisine faisant courir les délais d’instruction</span></label>
+                      <span class="fr-hint-text">Sollicitation pour conseil avant saisine officielle. Cette sollicitation ne fait pas courir les délais d'instruction contrairement à la saisine en instruction.</span></label>
                   </div>
                 </div>
                 <div class="fr-messages-group" id="storybook-form-messages" aria-live="polite">

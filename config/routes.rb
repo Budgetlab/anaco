@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get "suspensions/edit"
+  get "suspensions/update"
+  get "suspensions/destroy"
   scope(:path => '/anaco') do
     # 1. Routes Active Storage (montées manuellement ici) #Attention enlever match 404 si on eleve ces routes
     #scope '/rails/active_storage' do
@@ -68,8 +71,16 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
 
     resources :ht2_actes do
+      resources :suspensions do
+        post :refus_suspension
+        get :modal_delete
+      end
       collection do
         post :bulk_cloture
+        get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'
+        get 'synthese_temporelle', to: 'ht2_actes#synthese_temporelle'
+        get 'synthese_anomalies', to: 'ht2_actes#synthese_anomalies'
+        get 'synthese_suspensions', to: 'ht2_actes#synthese_suspensions'
       end
       member do
         get :export
@@ -81,9 +92,10 @@ Rails.application.routes.draw do
     get 'modal_delete_acte/:id', to: 'ht2_actes#modal_delete', as: 'modal_delete_acte'
     get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
     get 'modal_cloture_preinstruction_acte/:id', to: 'ht2_actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
-    get 'modal_renvoie_instruction/:id', to: 'ht2_actes#modal_renvoie_instruction', as: 'modal_renvoie_instruction'
+    get 'renvoie_instruction/:id', to: 'ht2_actes#renvoie_instruction', as: 'renvoie_instruction'
     get 'modal_renvoie_validation/:id', to: 'ht2_actes#modal_renvoie_validation', as: 'modal_renvoie_validation'
-    get 'modal_validate_acte/:id', to: 'ht2_actes#modal_validate_acte', as: 'modal_validate_acte'
+    get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
+    get 'acte_actions/:id', to: 'ht2_actes#acte_actions', as: 'acte_actions'
     post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
     get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
@@ -91,6 +103,7 @@ Rails.application.routes.draw do
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
     post 'import_actes', to: 'ht2_actes#import'
+
     resources :centre_financiers, only: [:new]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'

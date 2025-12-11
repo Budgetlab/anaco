@@ -1,10 +1,15 @@
 class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :modal_renvoie_instruction, :modal_validate_acte, :modal_renvoie_validation]
-  before_action :set_variables_form, only: [:edit, :modal_validate_acte]
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
-  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy]
+  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions]
+  before_action :set_variables_form, only: [:edit, :validate_acte]
+  before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
+  before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
+  before_action :set_parent_for_clone, only: :new
+  before_action :check_edit_conditions, only: :edit
   require 'axlsx'
+  include Ht2ActesHelper
 
   def index
     @selected_tab = params[:tab] || 'validation'
@@ -12,24 +17,89 @@ class Ht2ActesController < ApplicationController
     # actes année en cours
     base_scope = current_user.ht2_actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
 
-    # système onglet
-    current_state = [
-      'en pré-instruction',
-      "en cours d'instruction",
-      'suspendu',
-      'en attente de validation',
-      'en attente de validation Chorus'
-    ]
-    @actes = base_scope.where(etat: current_state)
-    @q_current = @actes.ransack(params[:q_current], search_key: :q_current)
+    # Tous les actes avec filtres unifiés
+    @actes = base_scope
+
+    # On duplique pour ne pas modifier params directement
+    search_params_current = (params[:q_current] || {}).dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values = Array(search_params_current.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values.include?('oui') && !hors_delai_values.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params_current[:delai_traitement_gt] = 15
+    elsif hors_delai_values.include?('non') && !hors_delai_values.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params_current[:delai_traitement_lteq] = 15
+    end
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values = Array(search_params_current.delete(:type_observations_array_in))
+
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values = Array(search_params_current.delete(:suspensions_count_in))
+
+    @q_current = @actes.ransack(search_params_current, search_key: :q_current)
     @actes_filtered = @q_current.result(distinct: true)
 
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values.present?
+      @actes_filtered = @actes_filtered.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values.present?
+      acte_ids = []
+
+      if suspensions_count_values.include?('aucune')
+        # Actes sans suspension
+        acte_ids += @actes_filtered.left_joins(:suspensions)
+                                   .where(suspensions: { id: nil })
+                                   .reorder('')
+                                   .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids += @actes_filtered.joins(:suspensions)
+                                   .group('ht2_actes.id')
+                                   .having('COUNT(suspensions.id) = 1')
+                                   .reorder('')
+                                   .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids += @actes_filtered.joins(:suspensions)
+                                   .group('ht2_actes.id')
+                                   .having('COUNT(suspensions.id) >= 2')
+                                   .reorder('')
+                                   .pluck('ht2_actes.id')
+      end
+
+      @actes_filtered = @actes_filtered.where(id: acte_ids.uniq)
+    end
     # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
-    @actes_pre_instruction_all      = @actes_filtered.where(etat: 'en pré-instruction')
-    @actes_instruction_all          = @actes_filtered.where(etat: "en cours d'instruction")
-    @actes_suspendu_all             = @actes_filtered.where(etat: 'suspendu')
-    @actes_validation_all           = @actes_filtered.where(etat: 'en attente de validation')
-    @actes_validation_chorus_all    = @actes_filtered.where(etat: 'en attente de validation Chorus')
+    # Tri avec Ransack pour actes en pré-instruction
+    @q_pre_instruction = @actes_filtered.en_pre_instruction.ransack(params[:q_pre_instruction], search_key: :q_pre_instruction)
+    @actes_pre_instruction_all      = @q_pre_instruction.result(distinct: true)
+
+    # Tri avec Ransack pour actes en cours d'instruction
+    @q_instruction = @actes_filtered.en_cours_instruction.ransack(params[:q_instruction], search_key: :q_instruction)
+    @actes_instruction_all          = @q_instruction.result(distinct: true)
+
+    # Tri avec Ransack pour actes suspendus
+    @q_suspendu = @actes_filtered.suspendus.ransack(params[:q_suspendu], search_key: :q_suspendu)
+    @actes_suspendu_all             = @q_suspendu.result(distinct: true)
+
+    # Tri avec Ransack pour actes à valider
+    @q_validation = @actes_filtered.en_attente_validation.ransack(params[:q_validation], search_key: :q_validation)
+    @actes_validation_all           = @q_validation.result(distinct: true)
+
+    # Tri avec Ransack pour actes à clôturer
+    @q_validation_chorus = @actes_filtered.a_cloturer.ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
+    @actes_validation_chorus_all    = @q_validation_chorus.result(distinct: true)
 
     @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
     @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
@@ -37,110 +107,96 @@ class Ht2ActesController < ApplicationController
     @pagy_validation,          @actes_validation          = pagy(@actes_validation_all,          page_param: :page_validation,          limit: 10)
     @pagy_validation_chorus,   @actes_validation_chorus   = pagy(@actes_validation_chorus_all,   page_param: :page_validation_chorus,   limit: 15)
 
-    # actes clotures
-    @actes_closed = base_scope.where(etat: ['clôturé', 'clôturé après pré-instruction'])
-    @q_cloture = @actes_closed.ransack(params[:q_cloture], search_key: :q_cloture)
-    @actes_cloture_all = @q_cloture.result(distinct: true)
+    # actes clotures (utilise maintenant @actes_filtered avec les mêmes filtres que les autres onglets)
+    # Tri avec Ransack pour actes clôturés
+    @q_cloture = @actes_filtered.clotures.ransack(params[:q_cloture], search_key: :q_cloture)
+    @actes_cloture_all = @q_cloture.result(distinct: true).includes(:user, :suspensions, centre_financier_principal: :programme)
     @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
-    @filtres_count = count_active_filters(params[:q_cloture])
-
-    #@q = @actes.ransack(params[:q], search_key: :q)
-    #filtered_actes = @q.result(distinct: true)
-    #@q_instruction = filtered_actes.where(etat: "en cours d'instruction").ransack(params[:q_instruction], search_key: :q_instruction)
-    #@q_validation = filtered_actes.where(etat: 'en attente de validation').ransack(params[:q_validation], search_key: :q_validation)
-    #@q_validation_chorus = filtered_actes.where(etat: 'en attente de validation Chorus').ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
-    #@q_cloture = filtered_actes.where(etat: ['clôturé', 'clôturé après pré-instruction']).ransack(params[:q_cloture], search_key: :q_cloture)
-#
-    #@actes_pre_instruction_all = filtered_actes.where(etat: 'en pré-instruction')
-    #@actes_instruction_all = @q_instruction.result(distinct: true)
-    #@actes_validation_all = @q_validation.result(distinct: true)
-    #@actes_validation_chorus_all = @q_validation_chorus.result(distinct: true)
-    #@actes_suspendu_all = filtered_actes.where(etat: 'suspendu')
-    #@actes_cloture_all = @q_cloture.result(distinct: true)
-#
-    #@pagy_pre_instruction, @actes_pre_instruction = pagy(@actes_pre_instruction_all, page_param: :page_pre_instruction, limit: 15)
-    #@pagy_instruction, @actes_instruction = pagy(@actes_instruction_all, page_param: :page_instruction, limit: 15)
-    #@pagy_validation, @actes_validation = pagy(@actes_validation_all, page_param: :page_validation, limit: 10)
-    #@pagy_validation_chorus, @actes_validation_chorus = pagy(@actes_validation_chorus_all, page_param: :page_validation_chorus, limit: 15)
-    #@pagy_suspendu, @actes_suspendu = pagy(@actes_suspendu_all, page_param: :page_suspendu, limit: 15)
-    #@pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
-    @liste_natures = [
-      'Accord cadre à bons de commande',
-      'Accord cadre à marchés subséquents',
-      'Affectation complémentaire',
-      'Affectation initiale',
-      'Autre',
-      'Autre contrat',
-      'Avenant',
-      'Bail',
-      'Bon de commande',
-      'Convention',
-      'Décision diverse',
-      'Dotation en fonds propres',
-      "Liste d'actes",
-      'MAPA à bons de commande',
-      'MAPA à tranches',
-      'MAPA mixte',
-      'MAPA unique',
-      'Marché à tranches',
-      'Marché mixte',
-      'Marché unique',
-      'Prêt ou avance',
-      'Remboursement de mise à disposition T3',
-      'Retrait',
-      'Subvention',
-      "Subvention pour charges d'investissement",
-      'Subvention pour charges de service public',
-      'Transaction',
-      'Transfert'
-    ]
+    @filtres_count = count_active_filters(params[:q_current])
     respond_to do |format|
       format.html
       format.xlsx do
         scope = params[:scope].presence || 'current'
-        @actes = scope == 'closed' ? @actes_cloture_all : @actes_filtered
+        @actes = case scope
+                 when 'closed'
+                   @actes.clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 when 'non_closed'
+                   @actes.non_clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 when 'all'
+                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 else
+                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                 end
       end
     end
   end
 
   def historique
-    @statut_user = current_user.statut
-    actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
-    @q = actes.ransack(params[:q])
+    # On duplique pour ne pas modifier params directement
+    search_params = (params[:q] || {}).dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values = Array(search_params.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values.include?('oui') && !hors_delai_values.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params[:delai_traitement_gt] = 15
+    elsif hors_delai_values.include?('non') && !hors_delai_values.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params[:delai_traitement_lteq] = 15
+    end
+    # si les deux ou aucun sont cochés → pas de condition particulière
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values = Array(search_params.delete(:type_observations_array_in))
+
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values = Array(search_params.delete(:suspensions_count_in))
+
+    @q = @ht2_actes.ransack(search_params)
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
     @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
+
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values.present?
+      @actes_all = @actes_all.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values.present?
+      acte_ids = []
+
+      if suspensions_count_values.include?('aucune')
+        # Actes sans suspension
+        acte_ids += @actes_all.left_joins(:suspensions)
+                              .where(suspensions: { id: nil })
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('ht2_actes.id')
+                              .having('COUNT(suspensions.id) = 1')
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      if suspensions_count_values.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('ht2_actes.id')
+                              .having('COUNT(suspensions.id) >= 2')
+                              .reorder('')
+                              .pluck('ht2_actes.id')
+      end
+
+      @actes_all = @actes_all.where(id: acte_ids.uniq)
+    end
+
     @filtres_count = count_active_filters(params[:q])
-    @liste_natures = [
-      'Accord cadre à bons de commande',
-      'Accord cadre à marchés subséquents',
-      'Affectation complémentaire',
-      'Affectation initiale',
-      'Autre',
-      'Autre contrat',
-      'Avenant',
-      'Bail',
-      'Bon de commande',
-      'Convention',
-      'Décision diverse',
-      'Dotation en fonds propres',
-      "Liste d'actes",
-      'MAPA à bons de commande',
-      'MAPA à tranches',
-      'MAPA mixte',
-      'MAPA unique',
-      'Marché à tranches',
-      'Marché mixte',
-      'Marché unique',
-      'Prêt ou avance',
-      'Remboursement de mise à disposition T3',
-      'Retrait',
-      'Subvention',
-      "Subvention pour charges d'investissement",
-      'Subvention pour charges de service public',
-      'Transaction',
-      'Transfert'
-    ]
 
     respond_to do |format|
       format.html do
@@ -154,24 +210,40 @@ class Ht2ActesController < ApplicationController
   end
 
   def new
-    if params[:type_acte].present? && params[:etat].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte])
-      type_engagement = params[:type_acte] == "TF" ? 'Affectation initiale' : 'Engagement initial'
-      @acte = current_user.ht2_actes.new(type_acte: params[:type_acte], type_engagement: type_engagement, etat: params[:etat], pre_instruction: params[:pre_instruction])
-    elsif params[:id].present? # nouveau modèle
-      id = params[:id]
-      acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'annee'))
-      @acte.etat = acte_parent.etat == "en pré-instruction" ? acte_parent.etat : "en cours d'instruction"
-      @acte.annee = Date.today.year
+    if params[:id].present? # nouveau modèle
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'montant_ae', 'montant_global', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
+      @acte.etat = @acte_parent.etat == "en pré-instruction" ? @acte_parent.etat : "en cours d'instruction"
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
-      id = params[:parent_id]
-      @acte_parent = Ht2Acte.find(id)
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
       @acte.etat = "en cours d'instruction"
       @acte.annee = Date.today.year
       @saisine = true
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+      end
     else
-      @acte = current_user.ht2_actes.new(type_acte: 'avis',etat: "en cours d'instruction")
+      type_acte = params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte]) ? params[:type_acte] : 'visa'
+      etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
+      type_engagement = type_acte == "TF" ? 'Affectation initiale' : 'Engagement initial'
+      pre_instruction = params[:pre_instruction] == 'true'
+      @acte = current_user.ht2_actes.new(type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction)
     end
     set_variables_form
   end
@@ -187,41 +259,16 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def edit
-    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
-
-    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
-    check_acte_conditions
-  end
+  def edit; end
 
   def update
     @etape = params[:etape].to_i || 1
-    # États valides pour la transition
-    etats_valides = ["en cours d'instruction", 'en attente de validation', 'en attente de validation Chorus',
-                     'clôturé après pré-instruction', 'clôturé']
-    @acte.etat = params[:submit_action] if etats_valides.include?(params[:submit_action])
-    # maj décision finale si cloture retour sans decision
-    @acte.decision_finale = params[:ht2_acte][:proposition_decision] if params[:ht2_acte][:proposition_decision].present? && ['Retour sans décision (sans suite)','Saisine a posteriori'].include?(params[:ht2_acte][:proposition_decision]) && params[:submit_action] == 'clôturé'
     if @acte.update(ht2_acte_params)
       # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
-        if @acte.etat == 'en attente de validation'
-          notice = "Acte enregistré et en attente de validation."
-        elsif @acte.etat == 'clôturé'
-          notice = "Acte clôturé avec succès."
-        elsif @etape == 4
-            notice = 'Update'
-        elsif @acte.etat == 'en attente de validation Chorus'
-          notice = "Validation"
-        elsif @etape == 7
-          notice = "Acte renvoyé en pré-instruction avec succès."
-        elsif @etape == 8
-          notice = "Acte renvoyé en instruction avec succès."
-        else
-          notice = "Acte mis à jour avec succès."
-        end
+        notice = update_acte_notice(@acte.etat, @etape, @acte.type_acte)
         redirect_to ht2_acte_path(@acte), notice: notice
       end
     else
@@ -238,7 +285,7 @@ class Ht2ActesController < ApplicationController
       acte.update(date_cloture: date, etat: "clôturé")
     end
 
-    redirect_to ht2_actes_path, notice: "Actes clôturés avec succès."
+    redirect_to ht2_actes_path(tab: 'clotures'), notice: "Actes clôturés avec succès."
   end
 
   def show
@@ -258,11 +305,20 @@ class Ht2ActesController < ApplicationController
 
   def cloture_pre_instruction
     @acte.update(etat: "clôturé après pré-instruction")
-    redirect_to ht2_acte_path(@acte), notice: "clôturé après pré-instruction"
+    notice = update_acte_notice(@acte.etat, 0, @acte.type_acte)
+    redirect_to ht2_acte_path(@acte), notice: notice
   end
 
-  def modal_renvoie_instruction; end
+  def renvoie_instruction
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
+  def validate_acte
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
   def modal_renvoie_validation; end
+  def acte_actions
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
 
   # export fiche excel d'un acte
   def export
@@ -303,8 +359,6 @@ class Ht2ActesController < ApplicationController
     @acte&.destroy
     redirect_to ht2_actes_path, notice: "Acte supprimé avec succès."
   end
-
-  def modal_validate_acte; end
 
   def check_chorus_number
     numero_chorus = params[:numero_chorus]
@@ -378,7 +432,288 @@ class Ht2ActesController < ApplicationController
       @repartition_acte = @ht2_actes_clotures.group(:type_acte).count.map { |type_acte, count| { name: type_acte, y: count } }
     end
   end
+  def tableau_de_bord
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    @all_actes_user = @ht2_actes.clotures_seuls
+    search_params = params[:q] || {}
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = [Date.today.year]
+    end
 
+    @q = @ht2_actes.clotures.ransack(search_params)
+    @actes_filtered = @q.result(distinct: true) #pour graphes pre instruction
+    @actes_cloture = @actes_filtered.clotures_seuls
+    @total_actes = @actes_cloture.count
+
+    # Données pour le graphique pie
+    @type_actes = @actes_cloture.group_by(&:type_acte).transform_values(&:count).map { |type, count| { name: type || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
+    @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    @natures_data = @actes_cloture.group_by(&:nature).transform_values(&:count).map { |nature, count| { name: nature || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    @ordonnateurs_data = @actes_cloture.group_by(&:ordonnateur).transform_values(&:count).map { |ordonnateur, count| { name: ordonnateur || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    # Données pour le graphique des programmes
+    @programmes_data = @actes_cloture.includes(centre_financier_principal: :programme)
+                                      .group_by(&:programme_principal)
+                                      .transform_values(&:count)
+                                      .map { |programme, count| { name: programme&.numero || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
+    # Répartition état/pré-instruction (SIMPLE)
+    @preinstruction_data = [
+      { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
+      { name: "Clôturé avec pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: true).count },
+      { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
+    ]
+
+    year = search_params[:annee_in].first.to_i
+    start_date = Date.new(year, 1, 1)
+    end_date   = start_date.end_of_year
+
+    # 1) Comptages bruts par mois
+    recus_raw = @actes_cloture
+                  .where(date_chorus: start_date..end_date)
+                  .group("EXTRACT(MONTH FROM date_chorus)")
+                  .count
+    recus_by_month = recus_raw.transform_keys(&:to_i)
+
+    clotures_raw = @actes_cloture
+                     .where(date_cloture: start_date..end_date)
+                     .group("EXTRACT(MONTH FROM date_cloture)")
+                     .count
+    clotures_by_month = clotures_raw.transform_keys(&:to_i)
+
+    # ---- 3. Construire les tableaux 12 valeurs (janvier..décembre)
+    recus_array = (1..12).map { |m| recus_by_month[m] || 0 }
+    clotures_array = (1..12).map { |m| clotures_by_month[m] || 0 }
+
+    @actes_par_mois = {
+      categories: I18n.t('date.month_names')[1..12], # ["janvier", ..., "décembre"]
+      series: [
+        { name: "Actes reçus",    y: recus_array },    # 12 valeurs
+        { name: "Actes clôturés", y: clotures_array }  # 12 valeurs
+      ]
+    }
+
+    # Regrouper par année et type_acte
+    @counts = @all_actes_user.group(:annee, :type_acte).count
+    # => { [2022, "avis"] => 813, [2023, "avis"] => 623, ... }
+
+    @years = (2024..Date.today.year).to_a
+    types = @counts.keys.map(&:last).uniq.sort
+
+    @evolution_par_annee = {
+      categories: @years,
+      series: types.map do |type|
+        {
+          name: type || 'Non renseigné',
+          y: @years.map { |year| @counts[[year, type]] || 0 }
+        }
+      end
+    }
+  end
+
+  def synthese_temporelle
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    search_params = params[:q] || {}
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = [Date.today.year]
+    end
+
+    @q = @ht2_actes.clotures_seuls.ransack(search_params)
+    @actes_filtered = @q.result(distinct: true)
+
+    year = search_params[:annee_in].first.to_i
+    # 12 mois basés sur la date_cloture
+    delais_par_mois = (1..12).map do |month|
+      actes_du_mois = @actes_filtered.where(
+        date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+      )
+
+      if actes_du_mois.any?
+        (actes_du_mois.average(:delai_traitement).to_f).round(1)
+      else
+        0  # ou 0 si tu préfères
+      end
+    end
+
+    @delais_dataset = {
+      categories: I18n.t("date.month_names")[1..12], # ["janvier", ..., "décembre"]
+      series: [
+        {
+          name: "Délai moyen de traitement (jours)",
+          y: delais_par_mois
+        }
+      ]
+    }
+
+    # Calcul du délai moyen de traitement par programme
+    delais_par_programme = @actes_filtered
+      .includes(centre_financier_principal: :programme)
+      .group('programmes.numero')
+      .average(:delai_traitement)
+      .reject { |k, v| k.nil? || v.nil? } # Filtrer les programmes null et valeurs null
+      .transform_values { |v| v.to_f.round(1) } # Convertir explicitement en float
+      .sort_by { |_k, v| -v }
+      .to_h
+
+    @delais_par_programme_dataset = {
+      categories: delais_par_programme.keys,
+      series: [
+        {
+          name: "Délai moyen (jours)",
+          y: delais_par_programme.values # Les valeurs sont maintenant des float
+        }
+      ]
+    }
+  end
+
+  def synthese_suspensions
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    search_params = params[:q] || {}
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = Date.today.year
+    end
+
+    @q = @ht2_actes.ransack(search_params)
+    @actes_filtered = @q.result.includes(:suspensions)
+    @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
+    @suspensions_all_count = @suspensions_all.count
+    @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
+    # Calcul du nombre de suspensions par programme
+    suspensions_par_programme = @actes_filtered
+                                  .joins(:suspensions)
+                                  .joins(centre_financier_principal: :programme)
+                                  .group('programmes.numero')
+                                  .order('COUNT(suspensions.id) DESC')
+                                  .pluck('programmes.numero', 'COUNT(suspensions.id)')
+                                  .to_h
+
+    @suspensions_par_programme_dataset = {
+      categories: suspensions_par_programme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul de l'évolution pluriannuelle des suspensions
+    years = (2024..Date.today.year).to_a
+    suspensions_par_annee = @ht2_actes
+                              .joins(:suspensions)
+                              .where(annee: years)
+                              .group(:annee)
+                              .order(:annee)
+                              .count('suspensions.id')
+
+    # S'assurer que toutes les années sont présentes, même avec 0 suspension
+    suspensions_values = years.map { |year| suspensions_par_annee[year] || 0 }
+
+    @evolution_suspensions_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_values
+        }
+      ]
+    }
+  end
+
+  def synthese_anomalies
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    search_params = params[:q] || {}
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if search_params[:annee_in].blank?
+      search_params[:annee_in] = Date.today.year
+    end
+
+    @q = @ht2_actes.ransack(search_params)
+    @actes_filtered = @q.result.includes(:suspensions)
+
+    # Données pour les observations - Utilise unnest de PostgreSQL
+    all_observations =
+      @actes_filtered
+        .pluck(:type_observations)
+        .compact
+        .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
+        .map { |s| s.to_s.strip }
+        .reject(&:blank?)
+
+    @observations_data = all_observations
+                                 .tally
+                                 .map { |name, count| { name: name, y: count } }
+                                 .sort_by { |h| -h[:y] }
+
+    @total_observations = all_observations.size
+
+    # Calcul de l'évolution pluriannuelle des observations
+    years = (2024..Date.today.year).to_a
+    observations_par_annee = {}
+
+    years.each do |year|
+      actes_annee = @ht2_actes.where(annee: year)
+      observations_count = actes_annee
+        .pluck(:type_observations)
+        .compact
+        .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
+        .reject(&:blank?)
+        .size
+      observations_par_annee[year] = observations_count
+    end
+
+    # S'assurer que toutes les années sont présentes
+    observations_values = years.map { |year| observations_par_annee[year] || 0 }
+
+    @evolution_observations_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'observations par programme
+    observations_par_programme = {}
+
+    @actes_filtered.includes(centre_financier_principal: :programme).each do |acte|
+      programme_numero = acte.centre_financier_principal&.programme&.numero
+      next unless programme_numero
+
+      # Compter les observations de cet acte
+      observations_count = if acte.type_observations.present?
+        obs = acte.type_observations
+        if obs.is_a?(String)
+          obs.strip.start_with?('[') ? JSON.parse(obs).size : 1
+        elsif obs.is_a?(Array)
+          obs.reject(&:blank?).size
+        else
+          0
+        end
+      else
+        0
+      end
+
+      observations_par_programme[programme_numero] ||= 0
+      observations_par_programme[programme_numero] += observations_count
+    end
+
+    # Retirer les programmes avec 0 observations et trier par nombre décroissant
+    observations_par_programme = observations_par_programme.reject { |_k, v| v == 0 }.sort_by { |_k, v| -v }.to_h
+
+    @observations_par_programme_dataset = {
+      categories: observations_par_programme.keys,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_par_programme.values
+        }
+      ]
+    }
+  end
   def synthese_utilisateurs
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
     @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
@@ -439,11 +774,11 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
-                                     :categorie, :numero_marche, :services_votes,:type_engagement,:programmation_prevue,
-                                     :groupe_marchandises, type_observations: [],
-                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations, :date_reprise],
+                                     :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement,:programmation_prevue,
+                                     :groupe_marchandises,:renvoie_instruction, type_observations: [],
+                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises])
+                                     poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
   end
 
   def set_acte_ht2
@@ -452,12 +787,12 @@ class Ht2ActesController < ApplicationController
 
   def set_variables_form
     if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
-      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Avenant', 'Convention', "Liste d'actes", 'Transaction', 'Autre']
+      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Convention', 'Marché subséquent à bons de commande', 'Transaction', 'Autre']
       @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur","Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
+      @liste_engagements = ['Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel']
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ['Autre contrat', 'Avenant', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', "Liste d'actes", 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
+      @liste_natures = ['Autre contrat', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA à bons de commande', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
       @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle",'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
@@ -466,15 +801,53 @@ class Ht2ActesController < ApplicationController
       @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation',"Hors périmètre du CBR/DCB", 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
       @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
     end
-    @liste_motifs_suspension = ['Conformité des pièces','Défaut du circuit d’approbation Chorus', "Demande de mise en cohérence EJ /PJ (pôle 2)", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
+    @liste_motifs_suspension = ['Défaut du circuit d’approbation Chorus',"Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 
-  def check_acte_conditions
-    # acte en cours d'instruction ou suspendu (si renseigne une date de fin) ou en pré-instruction
-    @conditions_met = (@acte.etat != 'en pré-instruction' && @acte.date_chorus.present? || @acte.etat == 'en pré-instruction') && @acte.instructeur.present? && @acte.nature.present? && @acte.montant_ae.present? && !@acte.disponibilite_credits.nil? && !@acte.imputation_depense.nil? && !@acte.consommation_credits.nil? && !@acte.programmation.nil?
+  def set_variables_filtres
+    @liste_natures = [
+      'Accord cadre à bons de commande',
+      'Accord cadre à marchés subséquents',
+      'Affectation complémentaire',
+      'Affectation initiale',
+      'Autre',
+      'Autre contrat',
+      'Avenant',
+      'Bail',
+      'Bon de commande',
+      'Convention',
+      'Décision diverse',
+      'Dotation en fonds propres',
+      'MAPA à bons de commande',
+      'MAPA à tranches',
+      'MAPA mixte',
+      'MAPA unique',
+      'Marché à tranches',
+      'Marché mixte',
+      'Marché unique',
+      'Prêt ou avance',
+      'Remboursement de mise à disposition T3',
+      'Retrait',
+      'Subvention',
+      "Subvention pour charges d'investissement",
+      'Subvention pour charges de service public',
+      'Transaction',
+      'Transfert'
+    ]
+  end
 
-    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @conditions_met == false && @etape == 3
+  def set_actes_user
+    @statut_user = current_user.statut
+    # chargement des actes en fonction du profil
+    @ht2_actes = @statut_user == 'admin' ? Ht2Acte : current_user.ht2_actes
+  end
+
+  def check_edit_conditions
+    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
+
+    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
+    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @acte.disponibilite_credits.nil? && @etape == 3
   end
 
   def calculate_suspensions_stats(actes)
@@ -713,29 +1086,51 @@ class Ht2ActesController < ApplicationController
   def count_active_filters(q_params)
     return 0 if q_params.blank?
 
-    count = 0
+    # On récupère un vrai hash
+    q = q_params.respond_to?(:to_unsafe_h) ? q_params.to_unsafe_h : q_params
+    q = q.deep_dup
 
-    # Filtres de type tableau
-    count += Array(q_params[:type_acte_in]).reject(&:blank?).size
-    count += Array(q_params[:annee_in]).reject(&:blank?).size
-    count += Array(q_params[:etat_in]).reject(&:blank?).size
-    count += Array(q_params[:decision_finale_in]).reject(&:blank?).size
-    count += Array(q_params[:services_votes_in]).reject(&:blank?).size
+    # On récupère les filtres "hors délai" puis on les retire du hash,
+    # pour ne pas les compter deux fois comme filtres "classiques"
+    delay_gt   = q.delete("delai_traitement_gt")   || q.delete(:delai_traitement_gt)
+    delay_lteq = q.delete("delai_traitement_lteq") || q.delete(:delai_traitement_lteq)
 
-    # Filtres de type texte/select
-    count += 1 if q_params[:numero_formate_or_numero_chorus_cont].present?
-    count += 1 if q_params[:nature_eq].present?
-    count += 1 if q_params[:user_nom_eq].present?
-    count += 1 if q_params[:centre_financier_code_cont].present?
-    count += 1 if q_params[:beneficiaire_cont].present?
-    count += 1 if q_params[:activite_cont].present?
-    count += 1 if q_params[:date_cloture_gteq].present?
-    count += 1 if q_params[:date_cloture_lteq].present?
-    count += 1 if q_params[:date_chorus_gteq].present?
-    count += 1 if q_params[:date_chorus_lteq].present?
-    count += 1 if q_params[:montant_ae_gteq].present?  # Ajout
-    count += 1 if q_params[:montant_ae_lteq].present?  # Ajout
+    # On récupère le filtre "type d'observation" puis on le retire du hash
+    type_observations = q.delete("type_observations_array_in") || q.delete(:type_observations_array_in)
+
+    # On récupère le filtre "suspensions" puis on le retire du hash
+    suspensions_count = q.delete("suspensions_count_in") || q.delete(:suspensions_count_in)
+
+    # On ne considère pas le tri comme un filtre
+    q.delete("s")
+    q.delete(:s)
+
+    # Compte des filtres "classiques"
+    count = q.count do |_k, v|
+      case v
+      when Array
+        v.reject(&:blank?).any?
+      else
+        v.present?
+      end
+    end
+
+    # Ajout de 1 si le filtre "hors délai" est activé
+    count += 1 if delay_gt.present? || delay_lteq.present?
+
+    # Ajout de 1 si le filtre "type d'observation" est activé
+    count += 1 if type_observations.is_a?(Array) && type_observations.reject(&:blank?).any?
+
+    # Ajout de 1 si le filtre "suspensions" est activé
+    count += 1 if suspensions_count.is_a?(Array) && suspensions_count.reject(&:blank?).any?
 
     count
+  end
+
+  def set_parent_for_clone
+    key = params[:id].presence || params[:parent_id].presence
+    return unless key
+    # utilise find_by! si tu ne veux pas borner à l'utilisateur:
+    @acte_parent = current_user.ht2_actes.find(key)
   end
 end

@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'addButton', 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe']
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton"]
     static values = { prefixes: Object }
     connect() {
 
@@ -14,9 +14,6 @@ export default class extends Controller {
         if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
             this.updateTotalEcheancier()
         }
-        if (this.hasAddButtonTarget){
-            this.toggleAddButton()
-        }
         if (this.hasDecisionTarget){
             this.checkDecision()
         }
@@ -24,13 +21,12 @@ export default class extends Controller {
             // modal nouvel acte
             this.togglePreInstruction()
         }
+        if (this.hasEtatClotureRadioTarget){
+            this.toggleCloture()
+        }
     }
     setValidation(event) {
-        this.submitActionTarget.value = "en attente de validation"
-    }
-
-    confirmValidation(event) {
-        this.submitActionTarget.value = "en attente de validation Chorus"
+        this.submitActionTarget.value = "à valider"
     }
 
     confirmCloture(event) {
@@ -42,6 +38,7 @@ export default class extends Controller {
         this.element.querySelectorAll('[required]').forEach(field => {
             field.removeAttribute('required');
         });
+        this.submitActionTarget.value = "en cours d'instruction"
         //this.element.submit();
     }
 
@@ -367,53 +364,82 @@ export default class extends Controller {
         }
     }
 
-    toggleAddButton() {
+    toggleCloture(event){
+        const selected = this.etatClotureRadioTargets.find(r => r.checked)?.value
+        const show = selected === "clôturé"
 
-        // Récupérer la dernière .nested-form-wrapper
-        const wrappers = this.element.querySelectorAll(".nested-form-wrapper")
-        const lastWrapper = wrappers[wrappers.length - 1]
-        if (!lastWrapper) {
-            this.addButtonTarget.disabled = false
-            return
-        }
+        // afficher/cacher le bloc
+        const bloc = document.getElementById('cloture-date-block')
+        bloc.hidden = !show
+        console.log(bloc.hidden)
 
-        const requiredInputs = lastWrapper.querySelectorAll(
-            'input[id*="date_suspension"], select[id*="motif"], input[id*="date_reprise"]'
-        )
-
-        const allFilled = Array.from(requiredInputs).every(el => el.value && el.value.trim() !== "")
-
-        this.addButtonTarget.disabled = !allFilled
+        const date_cloture = document.getElementById('date_cloture')
+        if (!show) date_cloture.value = null
+        if (!show) date_cloture.required = false
+        if (show) date_cloture.required = true
     }
 
-    removeDisable(){
-        this.addButtonTarget.disabled = false
+    toggleSuspension(){
+        const panelSuspension = document.getElementById("panelSuspension")
+        const isHidden = panelSuspension.classList.toggle("fr-hidden")
+        const suspension_submit_wrapper = document.getElementById("suspension_submit_wrapper")
+        const otherButtons = document.getElementById("otherButtons")
+        suspension_submit_wrapper.classList.toggle("fr-hidden")
+        otherButtons.classList.toggle("fr-hidden")
+        const asterix_proposition = document.getElementById("asterix_proposition")
+        asterix_proposition.classList.toggle("fr-hidden")
+        this.decisionTarget.removeAttribute('required');
+        // Change le texte et le style du bouton selon l'état
+        this.toggleSuspensionButtonTarget.innerHTML = isHidden ? "Suspendre l'instruction" : "Annuler"
+        this.submitActionTarget.value = isHidden ? "en cours d'instruction" : "suspendu"
+        // Si on referme le panneau → reset les champs
+        if (isHidden) {
+            // 1) enlever tous les required du panel
+            panelSuspension.querySelectorAll('[required]').forEach(el => { el.required = false })
+            this.resetSuspensionForm(panelSuspension)
+            this.decisionTarget.required = true;
+        }else{
+            // Le panel est visible → remettre les required sur les champs de suspension nécessaires
+            const dateSuspension = panelSuspension.querySelector('#date_suspension')
+            const motif          = panelSuspension.querySelector('#motif')
+            if (dateSuspension) dateSuspension.required = true
+            if (motif)          motif.required = true
+        }
+
+        //hidden date choture
+        this.checkDecision()
+    }
+    suspendSkipValidation(){
+        this.submitActionTarget.value = "à suspendre"
     }
 
-    checkRepriseVsSuspension(event) {
-        const wrapper = event.target.closest('.nested-form-wrapper');
-        if (!wrapper) return;
+    resetSuspensionForm(panel) {
+        // Sélectionne tous les champs input, select et textarea du panel
+        const fields = panel.querySelectorAll("input, select, textarea")
 
-        const dateSuspensionInput = wrapper.querySelector('[id^="date_suspension_"]');
-        const dateRepriseInput = wrapper.querySelector('[id^="date_reprise_"]');
-        const messageAlert = wrapper.querySelector('[id^="message-reprise-suspension-"]');
+        fields.forEach(field => {
+            // on ne touche pas aux boutons, hidden, ou éléments de contrôle flatpickr
+            if (field.type === "hidden" || field.type === "button" || field.readOnly) return
 
-        if (!dateSuspensionInput || !dateRepriseInput || !messageAlert) return;
+            if (field.tagName === "SELECT") {
+                field.selectedIndex = 0 // remet sur le prompt
+            } else {
+                field.value = ""
+            }
 
-        const dateSuspension = dateSuspensionInput.value ? new Date(dateSuspensionInput.value.split("/").reverse().join("-")) : null;
-        const dateReprise = dateRepriseInput.value ? new Date(dateRepriseInput.value.split("/").reverse().join("-")) : null;
-
-        if (dateSuspension && dateReprise && dateReprise < dateSuspension) {
-            messageAlert.classList.remove('fr-hidden');
-        } else {
-            messageAlert.classList.add('fr-hidden');
-        }
+            // Si c’est un flatpickr → on réinitialise le widget
+            if (field._flatpickr) {
+                field._flatpickr.clear()
+            }
+        })
     }
     checkDecision(){
         const selectedValue = this.decisionTarget.value;
         const date_cloture_wrapper = document.getElementById('date_cloture_wrapper');
         const date_cloture = document.getElementById('date_cloture');
-        if (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori"){
+        const submitAction = this.submitActionTarget
+        const etat_conditions = submitAction.value === "en cours d'instruction"
+        if (etat_conditions && (selectedValue === "Retour sans décision (sans suite)" || selectedValue === "Saisine a posteriori")){
             date_cloture_wrapper.classList.remove('fr-hidden');
             date_cloture.value = null;
         }else{
@@ -426,13 +452,17 @@ export default class extends Controller {
     clotureSkipValidation(){
         const cloture_button = document.getElementById('cloture_button');
         const validation_button = document.getElementById('validation_button');
+        const save_button = document.getElementById('save_button');
         const date_cloture = document.getElementById('date_cloture');
         if (date_cloture.value){
             cloture_button.classList.remove('fr-hidden');
             validation_button.classList.add('fr-hidden');
+            save_button.classList.add('fr-hidden');
         }else{
+            this.submitActionTarget.value = "en cours d'instruction"
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
+            save_button.classList.remove('fr-hidden');
         }
     }
 

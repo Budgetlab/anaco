@@ -48,10 +48,14 @@ wb.add_worksheet(name: "Visas") do |sheet|
     'Programme',
     'Centre financier',
     'Titre/Catégorie',
+    'Action/Sous-action',
+    'Code activité',
     'Numéro Marché',
     'Numéro TF',
+    'Groupe de marchandises',
     'Numéro Chorus',
     'Nature',
+    "Nombre d'actes",
     "Type d'engagement",
     'Objet',
     'Bénéficiaire',
@@ -96,16 +100,20 @@ wb.add_worksheet(name: "Visas") do |sheet|
       acte.type_acte,
       acte.annee,
       acte.numero_formate,
-      acte.etat,
+      etat_acte(acte),
       acte.instructeur,
       acte.ordonnateur,
       acte.programme_principal&.numero,
       acte.centre_financier_code,
       acte.categorie,
+      acte.action,
+      acte.activite,
       acte.numero_marche,
       acte.numero_tf,
+      acte.groupe_marchandises,
       acte.numero_chorus,
       acte.nature,
+      acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
       acte.type_engagement,
       acte.objet,
       acte.beneficiaire,
@@ -138,14 +146,14 @@ wb.add_worksheet(name: "Visas") do |sheet|
 
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
-    styles[16] = number_style  # Montant AE
-    styles[17] = number_style  # Montant global
-    styles[21] = date_style  # Date creation Chorus
-    styles[22] = date_style  # Date réception Chorus
-    styles[24] = date_style
-    styles[25] = date_style
-    styles[26] = date_style
+    styles[20] = number_style  # Montant AE
+    styles[21] = number_style  # Montant global
+    styles[25] = date_style  # Date creation Chorus
+    styles[26] = date_style  # Date réception Chorus
+    styles[28] = date_style
+    styles[29] = date_style
     styles[30] = date_style
+    styles[34] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -172,10 +180,14 @@ wb.add_worksheet(name: "Avis") do |sheet|
     'Programme',
     'Centre financier',
     'Titre/Catégorie',
+    'Action/Sous-action',
+    'Code activité',
     'Numéro Marché',
     'Numéro TF',
+    'Groupe de marchandises',
     'Numéro Chorus',
     'Nature',
+    "Nombre d'actes",
     "Type d'engagement",
     'Objet',
     'Bénéficiaire',
@@ -220,16 +232,20 @@ wb.add_worksheet(name: "Avis") do |sheet|
       acte.type_acte,
       acte.annee,
       acte.numero_formate,
-      acte.etat,
+      etat_acte(acte),
       acte.instructeur,
       acte.ordonnateur,
       acte.programme_principal&.numero,
       acte.centre_financier_code,
       acte.categorie,
+      acte.action,
+      acte.activite,
       acte.numero_marche,
       acte.numero_tf,
+      acte.groupe_marchandises,
       acte.numero_chorus,
       acte.nature,
+      acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
       acte.type_engagement,
       acte.objet,
       acte.beneficiaire,
@@ -260,14 +276,14 @@ wb.add_worksheet(name: "Avis") do |sheet|
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[16] = number_style  # Montant AE
-    styles[17] = number_style  # Montant global
-    styles[21] = date_style  # Date creation Chorus
-    styles[22] = date_style  # Date réception Chorus
-    styles[24] = date_style
-    styles[25] = date_style
-    styles[26] = date_style
+    styles[20] = number_style  # Montant AE
+    styles[21] = number_style  # Montant global
+    styles[25] = date_style  # Date creation Chorus
+    styles[26] = date_style  # Date réception Chorus
+    styles[28] = date_style
+    styles[29] = date_style
     styles[30] = date_style
+    styles[34] = date_style
 
     sheet.add_row row_data, style: styles
   end
@@ -293,8 +309,11 @@ wb.add_worksheet(name: "TF") do |sheet|
     'Programme',
     'Centre financier',
     'Titre/Catégorie',
+    'Action/Sous-action',
+    'Code activité',
     'Numéro TF',
     'Numéro Chorus',
+    "Nombre d'actes",
     "Type d'affectation",
     "Opération d'investissement",
     "Montant affectation",
@@ -338,14 +357,17 @@ wb.add_worksheet(name: "TF") do |sheet|
       acte.type_acte,
       acte.annee,
       acte.numero_formate,
-      acte.etat,
+      etat_acte(acte),
       acte.instructeur,
       acte.ordonnateur,
       acte.programme_principal&.numero,
       acte.centre_financier_code,
       acte.categorie,
+      acte.action,
+      acte.activite,
       acte.numero_tf,
       acte.numero_chorus,
+      acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
       acte.type_engagement,
       acte.objet,
       acte.montant_ae,
@@ -375,14 +397,14 @@ wb.add_worksheet(name: "TF") do |sheet|
     ]
 
     styles = Array.new(headers.count, cell_style)
-    styles[13] = number_style   # Montant affectation
-    styles[14] = number_style   # Montant total affecté
-    styles[18] = date_style     # Date création
-    styles[19] = date_style     # Date de saisine (date_chorus)
-    styles[21] = date_style     # Date de suspension (dernière)
-    styles[22] = date_style     # Date fin de suspension (dernière)
-    styles[23] = date_style     # Date limite de réponse
-    styles[27] = date_style     # Date clôture
+    styles[16] = number_style   # Montant affectation
+    styles[17] = number_style   # Montant total affecté
+    styles[21] = date_style     # Date création
+    styles[22] = date_style     # Date de saisine (date_chorus)
+    styles[24] = date_style     # Date de suspension (dernière)
+    styles[25] = date_style     # Date fin de suspension (dernière)
+    styles[26] = date_style     # Date limite de réponse
+    styles[30] = date_style     # Date clôture
 
     sheet.add_row row_data, style: styles
   end

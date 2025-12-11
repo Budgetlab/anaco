@@ -88,7 +88,8 @@
       <% if @acte.etat != 'en pré-instruction' %>
         <div class="fr-col-12 fr-col-lg-4">
           <div class="fr-select-group">
-            <label for="date_chorus" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
+            <label for="date_chorus" class="fr-label">Date de
+              saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
             <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus), action: 'change->acte-form#validateYears' }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
             <p class="fr-message cwarning fr-text--small fr-hidden" id="alert-date-chorus">L'année de la date Chorus est
               différente de l'exercice sélectionné.</p>
@@ -116,6 +117,13 @@
             <%= f.text_field :beneficiaire, value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
           </div>
         </div>
+      <% else %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="numero_tf" class="fr-label">N° d'affectation</label>
+            <%= f.text_field :numero_tf, value: @acte.numero_tf, id: "numero_tf", class: "fr-input" %>
+          </div>
+        </div>
       <% end %>
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-input-group">
@@ -133,6 +141,20 @@
         </div>
       </div>
     </div>
+    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :liste_actes, id: "liste_actes", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+          <label class="fr-label" for="liste_actes">Cette instruction concerne une liste d'actes.</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless @acte.liste_actes %>" data-conditional-field-target="field">
+        <div class="fr-input-group">
+          <label for="nombre_actes" class="fr-label">Nombre d'actes</label>
+          <%= f.number_field :nombre_actes, id: "nombre_actes", class: "fr-input", min: 1, value: @acte.nombre_actes %>
+        </div>
+      </div>
+    </div>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-input-group">
@@ -143,15 +165,16 @@
       </div>
     </div>
 
+    <% has_nested_data = @acte.poste_lignes.any? || @acte.echeanciers.any? %>
     <div data-controller="toggle">
       <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
               data-action="click->toggle#toggleContent"
               data-toggle-target="button"
               data-toggle-text-show="Renseigner plus d'informations"
               data-toggle-text-hide="Afficher moins">
-        Renseigner plus d'informations
+        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations' %>
       </button>
-      <div class="fr-hidden" data-toggle-target="content">
+      <div class="<%= 'fr-hidden' unless has_nested_data %>" data-toggle-target="content">
 
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-4">
@@ -168,7 +191,7 @@
           </div>
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
-              <label for="activite" class="fr-label">Activité</label>
+              <label for="activite" class="fr-label">Code activité</label>
               <%= f.text_field :activite, value: @acte.activite, id: "activite", class: "fr-input" %>
             </div>
           </div>
@@ -196,7 +219,7 @@
           <% end %>
         </div>
         <div class="fr-checkbox-group fr-my-2w">
-          <%= f.check_box :services_votes, id: "services_votes" %>
+          <%= f.check_box :services_votes, { id: "services_votes", checked: (@acte.new_record? && @phase == "services votés") || @acte.services_votes }, checked_value: true, unchecked_value: false %>
           <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
         </div>
         <% if @acte.type_acte != 'TF' %>
@@ -289,6 +312,31 @@
       <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
         Ajouter une année
       </button>
+
+      <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w" id="total_echeancier_card">
+        <div class="fr-col-12 fr-col-lg-4">
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">Montant total AE</p>
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                <span data-acte-form-target="totalMontantEcheancierAE">0</span>
+                €</p>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+            <div class="fr-cart__body">
+              <p class="fr-text--lg fr-mb-0 text_center">Montant total CP</p>
+              <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                <span data-acte-form-target="totalMontantEcheancierCP">0</span>
+                €</p>
+            </div>
+          </div>
+        </div>
+      </div>
     <% end %>
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12 fr-my-2w">

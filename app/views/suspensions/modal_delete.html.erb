@@ -1,0 +1,40 @@
+<%= turbo_frame_tag :modal, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">Supprimer <%= @acte.type_acte == 'avis' ? 'la suspension' : "l'interruption" %></h2>
+
+            <div class="fr-alert fr-alert--warning fr-my-2w">
+              <h3 class="fr-alert__title">Vous êtes sur le point de supprimer une <%= @acte.type_acte == 'avis' ? 'suspension' : "interruption" %> enregistrée</h3>
+              <p>Si vous cliquez sur valider, <%= @acte.type_acte == 'avis' ? 'la suspension' : "l'interruption" %> sera définitivement supprimée et n’apparaîtra pas dans les restitutions.</p>
+            </div>
+            <ul class="fr-btns-group fr-btns-group--inline">
+              <li>
+                <%= link_to ht2_acte_suspension_path(@acte, @suspension),
+                            data: {
+                              turbo_frame: "_top",
+                              'turbo-method': :delete
+                            },
+                            class: 'fr-btn' do %>
+                  Supprimer
+                <% end %>
+              </li>
+              <li>
+                <button aria-controls="modal-acte" class="fr-btn fr-btn--secondary">
+                  Annuler
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
