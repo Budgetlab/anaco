@@ -249,6 +249,8 @@ class Ht2Acte < ApplicationRecord
         programmation_prevue: row_data["programmation_prevue"] == "OUI" ? true : false,
         observations: row_data["observations"],
         commentaire_proposition_decision: row_data["commentaire_proposition_decision"],
+        nombre_actes: row_data["nombre_actes"].to_i,
+        liste_actes: row_data["nombre_actes"].to_i > 1 ? true : false,
         type_observations: row_data["type_observations"].present? ? [row_data["type_observations"]] : []
       )
 
