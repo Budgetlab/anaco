@@ -1,0 +1,43 @@
+<%= turbo_frame_tag :modal, target: "_top" do %>
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-acte" title="Fermer">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h2 id="modal-acte-title" class="fr-modal__title">Rejeter et renvoyer en instruction</h2>
+
+            <div class="fr-alert fr-alert--warning fr-my-2w">
+              <h3 class="fr-alert__title">Vous êtes sur le point de rejeter <%= @acte.type_acte == 'avis' ? 'la suspension' : "l'interruption" %>.</h3>
+              <p>Si vous cliquez sur valider, l’acte ne sera pas <%= @acte.type_acte == 'avis' ? 'suspendu' : 'interrompu'%>. <%= @acte.type_acte == 'avis' ? 'La suspension' : "L'interruption"%> proposée par l'instructeur sera supprimée et l'acte retournera dans l’onglet <span class="fr-text--bold">En instruction</span> de la liste de travail. </p>
+            </div>
+
+
+
+            <%= form_with(url: ht2_acte_suspension_refus_suspension_path(@acte, @suspension), method: :post, data: { turbo_frame: "_top" }) do |f| %>
+              <div class="fr-input-group">
+                <label for="commentaire_proposition_decision" class="fr-label">Commentaire interne sur la proposition de décision de contrôle</label>
+                <%= text_area_tag 'ht2_acte[commentaire_proposition_decision]', @acte.commentaire_proposition_decision, class: "fr-input", id: "commentaire_proposition_decision", rows: 5 %>
+              </div>
+
+              <ul class="fr-btns-group fr-btns-group--inline fr-mt-2w">
+                <li>
+                  <%= f.submit "Valider", class: 'fr-btn' %>
+                </li>
+                <li>
+                  <button type="button" aria-controls="modal-acte" class="fr-btn fr-btn--secondary">
+                    Annuler
+                  </button>
+                </li>
+              </ul>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

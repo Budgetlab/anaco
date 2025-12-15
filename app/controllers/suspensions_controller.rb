@@ -1,7 +1,7 @@
 class SuspensionsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_suspension, only: [:edit, :update, :destroy, :refus_suspension, :modal_delete]
-  before_action :set_acte, only: [:edit, :update, :destroy, :refus_suspension, :modal_delete]
+  before_action :set_suspension, only: [:edit, :update, :destroy, :refus_suspension, :modal_delete, :modal_refus_suspension]
+  before_action :set_acte, only: [:edit, :update, :destroy, :refus_suspension, :modal_delete, :modal_refus_suspension]
 
   def edit; end
 
@@ -21,11 +21,17 @@ class SuspensionsController < ApplicationController
 
   def refus_suspension
     @suspension.destroy
-    @acte.update!(etat: "en cours d'instruction")
+    @acte.update!(
+      etat: "en cours d'instruction",
+      renvoie_instruction: true,
+      commentaire_proposition_decision: params[:ht2_acte][:commentaire_proposition_decision]
+    )
     redirect_to ht2_acte_path(@acte), notice: "Acte renvoyé en instruction."
   end
 
   def modal_delete; end
+
+  def modal_refus_suspension; end
 
   private
 

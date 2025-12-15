@@ -128,9 +128,9 @@
           <% end %>
         </li>
         <li>
-          <%= link_to ht2_acte_suspension_refus_suspension_path(@acte, @acte.suspension_ouverte), class: 'fr-btn fr-btn--secondary', data: { turbo_method: :post, turbo_confirm: "Confirmer?", turbo_frame: "_top" } do %>
+          <a href="<%= ht2_acte_suspension_modal_refus_suspension_path(@acte, @acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
             Rejeter et renvoyer en instruction
-          <% end %>
+          </a>
         </li>
       </ul>
     </div>

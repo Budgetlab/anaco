@@ -74,6 +74,7 @@ Rails.application.routes.draw do
       resources :suspensions do
         post :refus_suspension
         get :modal_delete
+        get :modal_refus_suspension
       end
       collection do
         post :bulk_cloture
