@@ -182,17 +182,7 @@
 
     </div>
   <% elsif @acte.etat == "clôturé après pré-instruction" %>
-    <p class="<%= badge_class_for_etat_actes(@acte.etat) %>">
-      <%= @acte.etat %>
-    </p>
     <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
-        <li>
-          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn' do %>
-            Nouvelle saisine
-          <% end %>
-        </li>
-      <% end %>
       <li>
         <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
           <%= hidden_field_tag :etape, 7 %>
@@ -202,17 +192,7 @@
       </li>
     </ul>
   <% elsif @acte.etat == 'clôturé' %>
-    <p class="<%= badge_class_for_etat_actes(@acte.etat) %>">
-      <%= @acte.etat %>
-    </p>
     <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-      <% if ['DCB', 'CBR'].include?(current_user.statut) %>
-        <li>
-          <%= link_to new_ht2_acte_path(parent_id: @acte.id), class: 'fr-btn', data: { turbo_frame: "_top" } do %>
-            Nouvelle saisine
-          <% end %>
-        </li>
-      <% end %>
       <li class="fr-hidden">
         <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
           <%= hidden_field_tag :etape, 8 %>

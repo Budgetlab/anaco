@@ -4,7 +4,7 @@
   <%= turbo_frame_tag frame_id,
                       src: acte_actions_path(acte, frame_id: frame_id) %>
 <% else %>
-  <p class="<%= badge_class_for_etat_actes(acte.etat) %>">
+  <p class="<%= badge_class_for_etat_actes(acte.etat) %> fr-mb-2w">
     <%= acte.etat %>
   </p>
 <% end %>
@@ -12,37 +12,41 @@
 
 <div id="containPDF">
 
-  <div class="fr-grid-row fr-grid-row--gutters fr-my-3w">
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
     <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-h6">Proposition décision de contrôle</div>
+      <div class="fr-p-2v" style="height: 100%;">
+        <div class='fr-card fr-p-2w' style="height: 100%;">
+          <div class="fr-h6">Décision de contrôle</div>
+          <div class="fr-h6 fr-mb-1w">Instructeur</div>
+          <div>
+            <span class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></span>
+            <span class="fr-tag"><%= acte.instructeur %></span>
+          </div>
+          <div class="fr-h6 fr-my-1w">Valideur</div>
+          <div>
+            <span class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></span>
+            <span class="fr-tag"><%= format_value(acte.valideur) %></span>
+          </div>
 
-      <div>Proposition de décision de contrôle</div>
-      <div>
-        <p class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></p>
+          <div class="fr-text--bold fr-mt-2w">Commentaire interne sur la décision de contrôle</div>
+          <div class=""><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
+        </div>
       </div>
-
-      <div class="fr-mt-2w">Commentaire interne sur la proposition de décision de contrôle</div>
-      <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-card-round--blue">
-        <div class="fr-h6">Validation finale</div>
-
-        <div>Décision finale</div>
-        <div>
-          <p class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></p>
-        </div>
+      <div class="fr-p-2v" style="height: 100%;">
+      <div class="fr-card fr-card--blue fr-p-2w" style="height: 100%;">
+        <div class="fr-h6">Observations à l’ordonnateur</div>
+        <div><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
 
         <% if acte.type_observations.present? %>
-          <div class="fr-mt-2w">Type d'observations</div>
+          <div class="fr-h6 fr-my-1w">Type d'observations</div>
 
           <% acte.type_observations&.each do |observation| %>
             <p class="fr-tag fr-my-1v"><%= observation %></p>
           <% end %>
         <% end %>
-
-        <div class="fr-mt-2w">Propositions d’observations à l’ordonnateur</div>
-        <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
+      </div>
       </div>
     </div>
   </div>
@@ -56,8 +60,6 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
-              <th>Instructeur</th>
-              <th>Valideur</th>
               <% if acte.type_acte != 'TF' %>
                 <th>Nature de l'acte</th>
               <% end %>
@@ -82,8 +84,6 @@
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
-              <td> <%= acte.instructeur %> </td>
-              <td> <%= format_value(acte.valideur) %></td>
               <% if acte.type_acte != 'TF' %>
                 <td> <%= acte.nature %></td>
               <% end %>

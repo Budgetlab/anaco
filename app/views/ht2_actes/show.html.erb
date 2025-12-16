@@ -61,10 +61,15 @@
 
                 <div class="fr-text--italic fr-mb-1w">
                   Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction"%>, clôturé le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction"%>, <%= acte.etat %> le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
                   <% end %>
                 </div>
                 <div>
+                  <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) && ['DCB', 'CBR'].include?(current_user.statut) %>
+                    <%= link_to new_ht2_acte_path(parent_id: acte.id), class: 'fr-btn fr-btn--icon-left fr-icon-file-add-line' do %>
+                      Nouvelle saisine
+                    <% end %>
+                  <% end %>
                   <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
                     Télécharger la fiche
                   <% end %>
