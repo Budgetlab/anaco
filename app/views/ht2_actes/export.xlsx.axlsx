@@ -89,7 +89,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
 
    current_row = sheet.rows.length + 1
-   sheet.add_row ["Commentaire proposition","","","", ""], style: header_style
+   sheet.add_row ["Commentaire décision","","","", ""], style: header_style
    sheet.merge_cells "A#{current_row}:E#{current_row}"
    sheet.row_style current_row, header_style
    current_row = sheet.rows.length + 1
