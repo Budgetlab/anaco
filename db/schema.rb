@@ -10,29 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_17_094533) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
-    t.string "name", null: false
     t.text "body"
-    t.string "record_type", null: false
-    t.bigint "record_id", null: false
     t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
     t.datetime "updated_at", null: false
     t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
   end
 
   create_table "active_admin_comments", force: :cascade do |t|
-    t.string "namespace"
-    t.text "body"
-    t.string "resource_type"
-    t.bigint "resource_id"
-    t.string "author_type"
     t.bigint "author_id"
+    t.string "author_type"
+    t.text "body"
     t.datetime "created_at", null: false
+    t.string "namespace"
+    t.bigint "resource_id"
+    t.string "resource_type"
     t.datetime "updated_at", null: false
     t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author"
     t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
@@ -40,24 +40,24 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum"
+    t.string "content_type"
     t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -68,56 +68,56 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
   end
 
   create_table "admin_users", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.datetime "created_at", null: false
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
   create_table "avis", force: :cascade do |t|
-    t.string "phase"
-    t.date "date_reception"
-    t.date "date_envoi"
-    t.boolean "is_delai"
-    t.boolean "is_crg1"
-    t.float "ae_i"
-    t.float "cp_i"
-    t.float "t2_i"
-    t.float "etpt_i"
     t.float "ae_f"
-    t.float "cp_f"
-    t.float "t2_f"
-    t.float "etpt_f"
-    t.string "statut"
-    t.string "etat"
-    t.string "commentaire"
+    t.float "ae_i"
+    t.integer "annee"
     t.bigint "bop_id", null: false
+    t.string "commentaire"
+    t.float "cp_f"
+    t.float "cp_i"
     t.datetime "created_at", null: false
+    t.date "date_envoi"
+    t.date "date_reception"
+    t.integer "duree_prevision", default: 12
+    t.string "etat"
+    t.float "etpt_f"
+    t.float "etpt_i"
+    t.boolean "is_crg1"
+    t.boolean "is_delai"
+    t.string "phase"
+    t.string "statut"
+    t.float "t2_f"
+    t.float "t2_i"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.integer "annee"
-    t.integer "duree_prevision", default: 12
     t.index ["bop_id"], name: "index_avis_on_bop_id"
     t.index ["user_id"], name: "index_avis_on_user_id"
   end
 
   create_table "bops", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "ministere"
-    t.integer "numero_programme"
-    t.string "nom_programme"
     t.string "code"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "dotation"
-    t.bigint "programme_id"
     t.bigint "dcb_id"
     t.boolean "deconcentre", default: false, null: false
+    t.string "dotation"
+    t.string "ministere"
+    t.string "nom_programme"
+    t.integer "numero_programme"
+    t.bigint "programme_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["dcb_id"], name: "index_bops_on_dcb_id"
     t.index ["deconcentre"], name: "index_bops_on_deconcentre"
     t.index ["programme_id"], name: "index_bops_on_programme_id"
@@ -128,10 +128,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
     t.bigint "bop_id"
     t.string "code"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.boolean "deconcentre", default: false, null: false
     t.bigint "programme_id"
     t.string "statut", default: "Actif", null: false
-    t.boolean "deconcentre", default: false, null: false
+    t.datetime "updated_at", null: false
     t.index ["bop_id"], name: "index_centre_financiers_on_bop_id"
     t.index ["deconcentre"], name: "index_centre_financiers_on_deconcentre"
     t.index ["programme_id"], name: "index_centre_financiers_on_programme_id"
@@ -139,113 +139,113 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
   end
 
   create_table "centre_financiers_ht2_actes", id: false, force: :cascade do |t|
-    t.bigint "ht2_acte_id", null: false
     t.bigint "centre_financier_id", null: false
+    t.bigint "ht2_acte_id", null: false
     t.index ["centre_financier_id", "ht2_acte_id"], name: "idx_on_centre_financier_id_ht2_acte_id_434d7f4a17"
     t.index ["ht2_acte_id", "centre_financier_id"], name: "idx_on_ht2_acte_id_centre_financier_id_ab5984b1f7"
   end
 
   create_table "echeanciers", force: :cascade do |t|
-    t.bigint "ht2_acte_id", null: false
     t.integer "annee"
+    t.datetime "created_at", null: false
+    t.bigint "ht2_acte_id", null: false
     t.float "montant_ae"
     t.float "montant_cp"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["ht2_acte_id"], name: "index_echeanciers_on_ht2_acte_id"
   end
 
   create_table "gestion_schemas", force: :cascade do |t|
-    t.bigint "programme_id", null: false
-    t.bigint "user_id", null: false
-    t.bigint "schema_id", null: false
-    t.string "vision"
-    t.string "profil"
     t.integer "annee"
-    t.float "ressources_ae"
-    t.float "ressources_cp"
+    t.float "charges_a_payer_ae"
+    t.float "charges_a_payer_cp"
+    t.text "commentaire"
+    t.datetime "created_at", null: false
+    t.float "credits_lfg_ae"
+    t.float "credits_lfg_cp"
+    t.float "credits_reports_ae"
+    t.float "credits_reports_cp"
+    t.float "decret_ae"
+    t.float "decret_cp"
     t.float "depenses_ae"
     t.float "depenses_cp"
+    t.float "fongibilite_ae"
+    t.float "fongibilite_cas"
+    t.float "fongibilite_cp"
+    t.float "fongibilite_hcas"
     t.float "mer_ae"
     t.float "mer_cp"
-    t.float "surgel_ae"
-    t.float "surgel_cp"
     t.float "mobilisation_mer_ae"
     t.float "mobilisation_mer_cp"
     t.float "mobilisation_surgel_ae"
     t.float "mobilisation_surgel_cp"
-    t.float "fongibilite_ae"
-    t.float "fongibilite_cp"
-    t.float "decret_ae"
-    t.float "decret_cp"
-    t.float "credits_lfg_ae"
-    t.float "credits_lfg_cp"
+    t.string "profil"
+    t.bigint "programme_id", null: false
     t.float "reports_ae"
-    t.float "reports_cp"
-    t.float "charges_a_payer_ae"
-    t.float "charges_a_payer_cp"
     t.float "reports_autre_ae"
     t.float "reports_autre_cp"
-    t.float "credits_reports_ae"
-    t.float "credits_reports_cp"
-    t.text "commentaire"
-    t.datetime "created_at", null: false
+    t.float "reports_cp"
+    t.float "ressources_ae"
+    t.float "ressources_cp"
+    t.bigint "schema_id", null: false
+    t.float "surgel_ae"
+    t.float "surgel_cp"
     t.datetime "updated_at", null: false
-    t.float "fongibilite_hcas"
-    t.float "fongibilite_cas"
+    t.bigint "user_id", null: false
+    t.string "vision"
     t.index ["programme_id"], name: "index_gestion_schemas_on_programme_id"
     t.index ["schema_id"], name: "index_gestion_schemas_on_schema_id"
     t.index ["user_id"], name: "index_gestion_schemas_on_user_id"
   end
 
   create_table "ht2_actes", force: :cascade do |t|
-    t.string "type_acte", null: false
-    t.string "etat"
-    t.string "instructeur"
-    t.string "nature"
-    t.float "montant_ae"
-    t.float "montant_global"
-    t.string "centre_financier_code"
-    t.date "date_chorus"
-    t.string "numero_chorus"
-    t.string "beneficiaire"
-    t.string "objet"
-    t.string "ordonnateur"
-    t.text "precisions_acte"
-    t.boolean "pre_instruction"
     t.string "action"
-    t.string "sous_action"
     t.string "activite"
-    t.string "numero_tf"
-    t.boolean "disponibilite_credits"
-    t.boolean "imputation_depense"
-    t.boolean "consommation_credits"
-    t.boolean "programmation"
-    t.string "proposition_decision"
+    t.integer "annee"
+    t.string "beneficiaire"
+    t.string "categorie"
+    t.string "centre_financier_code"
     t.text "commentaire_proposition_decision"
-    t.text "observations"
-    t.string "type_observations", default: [], array: true
-    t.bigint "user_id", null: false
-    t.string "valideur"
-    t.string "decision_finale"
+    t.boolean "consommation_credits"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.date "date_chorus"
     t.date "date_cloture"
     t.date "date_limite"
-    t.integer "numero_utilisateur"
+    t.string "decision_finale"
     t.integer "delai_traitement"
-    t.string "numero_formate"
-    t.integer "annee"
-    t.string "categorie"
-    t.string "numero_marche"
-    t.boolean "services_votes", default: false
-    t.string "type_engagement"
-    t.jsonb "sheet_data", default: {"data" => []}
-    t.boolean "programmation_prevue", default: false
+    t.boolean "disponibilite_credits"
+    t.string "etat"
     t.string "groupe_marchandises"
-    t.boolean "renvoie_instruction", default: false
+    t.boolean "imputation_depense"
+    t.string "instructeur"
     t.boolean "liste_actes", default: false
+    t.float "montant_ae"
+    t.float "montant_global"
+    t.string "nature"
     t.integer "nombre_actes"
+    t.string "numero_chorus"
+    t.string "numero_formate"
+    t.string "numero_marche"
+    t.string "numero_tf"
+    t.integer "numero_utilisateur"
+    t.string "objet"
+    t.text "observations"
+    t.string "ordonnateur"
+    t.boolean "pre_instruction"
+    t.text "precisions_acte"
+    t.boolean "programmation"
+    t.boolean "programmation_prevue", default: false
+    t.string "proposition_decision"
+    t.boolean "renvoie_instruction", default: false
+    t.boolean "services_votes", default: false
+    t.jsonb "sheet_data", default: {"data" => []}
+    t.string "sous_action"
+    t.string "type_acte", null: false
+    t.string "type_engagement"
+    t.string "type_observations", default: [], array: true
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "valideur"
     t.index ["annee"], name: "index_ht2_actes_on_annee"
     t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
     t.index ["delai_traitement"], name: "index_ht2_actes_on_delai_traitement"
@@ -258,97 +258,97 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_10_130238) do
   end
 
   create_table "ministeres", force: :cascade do |t|
-    t.string "nom"
     t.datetime "created_at", null: false
+    t.string "nom"
     t.datetime "updated_at", null: false
   end
 
   create_table "missions", force: :cascade do |t|
-    t.string "nom"
     t.datetime "created_at", null: false
+    t.string "nom"
     t.datetime "updated_at", null: false
   end
 
   create_table "poste_lignes", force: :cascade do |t|
-    t.bigint "ht2_acte_id", null: false
-    t.string "centre_financier_code"
-    t.float "montant"
-    t.string "domaine_fonctionnel"
-    t.string "fonds"
-    t.string "compte_budgetaire"
-    t.string "code_activite"
     t.string "axe_ministeriel"
+    t.string "centre_financier_code"
+    t.string "code_activite"
+    t.string "compte_budgetaire"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "numero"
+    t.string "domaine_fonctionnel"
     t.string "flux"
+    t.string "fonds"
     t.string "groupe_marchandises"
+    t.bigint "ht2_acte_id", null: false
+    t.float "montant"
+    t.string "numero"
     t.string "numero_tf"
+    t.datetime "updated_at", null: false
     t.index ["ht2_acte_id"], name: "index_poste_lignes_on_ht2_acte_id"
   end
 
   create_table "programmes", force: :cascade do |t|
-    t.string "numero"
-    t.string "nom"
-    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "mission_id"
-    t.bigint "ministere_id"
+    t.date "date_inactivite"
     t.boolean "deconcentre"
     t.string "dotation"
+    t.bigint "ministere_id"
+    t.bigint "mission_id"
+    t.string "nom"
+    t.string "numero"
     t.string "statut", default: "Actif"
-    t.date "date_inactivite"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["ministere_id"], name: "index_programmes_on_ministere_id"
     t.index ["mission_id"], name: "index_programmes_on_mission_id"
     t.index ["user_id"], name: "index_programmes_on_user_id"
   end
 
   create_table "schemas", force: :cascade do |t|
-    t.bigint "programme_id", null: false
-    t.bigint "user_id", null: false
-    t.string "statut"
     t.integer "annee"
     t.datetime "created_at", null: false
+    t.bigint "programme_id", null: false
+    t.string "statut"
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["programme_id"], name: "index_schemas_on_programme_id"
     t.index ["user_id"], name: "index_schemas_on_user_id"
   end
 
   create_table "suspensions", force: :cascade do |t|
+    t.string "commentaire_reprise"
+    t.datetime "created_at", null: false
+    t.date "date_reprise"
     t.date "date_suspension"
+    t.bigint "ht2_acte_id", null: false
     t.string "motif"
     t.text "observations"
-    t.date "date_reprise"
-    t.bigint "ht2_acte_id", null: false
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "commentaire_reprise"
     t.index ["ht2_acte_id"], name: "index_suspensions_on_ht2_acte_id"
   end
 
   create_table "transferts", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.bigint "gestion_schema_id", null: false
-    t.string "nature"
     t.float "montant_ae"
     t.float "montant_cp"
+    t.string "nature"
     t.bigint "programme_id", null: false
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["gestion_schema_id"], name: "index_transferts_on_gestion_schema_id"
     t.index ["programme_id"], name: "index_transferts_on_programme_id"
   end
 
   create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "statut"
     t.string "nom"
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.string "statut"
+    t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

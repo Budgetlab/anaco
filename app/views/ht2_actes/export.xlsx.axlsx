@@ -36,6 +36,14 @@ cell_style = wb.styles.add_style(
   border: { style: :thin, color: '000000' }
 )
 
+text_style = wb.styles.add_style(
+  font_name: 'Marianne',
+  sz: 10,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' },
+  format_code: '@'
+)
+
 currency_style = wb.styles.add_style(
   font_name: 'Marianne',
   sz: 10,
@@ -89,7 +97,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
 
    current_row = sheet.rows.length + 1
-   sheet.add_row ["Commentaire proposition","","","", ""], style: header_style
+   sheet.add_row ["Commentaire décision","","","", ""], style: header_style
    sheet.merge_cells "A#{current_row}:E#{current_row}"
    sheet.row_style current_row, header_style
    current_row = sheet.rows.length + 1
@@ -180,13 +188,37 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
    sheet.add_row headers, style: header_style
 
-   data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus]
-   data_row << @acte.beneficiaire if @acte.type_acte != 'TF'
-   data_row << @acte.numero_tf if @acte.type_acte == 'TF'
+   data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus.to_s]
+   data_styles = [cell_style, cell_style, text_style]
+   data_types = [:string, :string, :string]
+
+   if @acte.type_acte != 'TF'
+     data_row << @acte.beneficiaire
+     data_styles << cell_style
+     data_types << :string
+   end
+
+   if @acte.type_acte == 'TF'
+     data_row << @acte.numero_tf.to_s
+     data_styles << text_style
+     data_types << :string
+   end
+
    data_row += [@acte.objet, @acte.ordonnateur]
-  data_row << @acte.nombre_actes if @acte.nombre_actes.present? && @acte.nombre_actes > 1
-  data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
-   sheet.add_row data_row, style: cell_style
+   data_styles += [cell_style, cell_style]
+   data_types += [:string, :string]
+
+   if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+     data_row << @acte.nombre_actes
+     data_styles << cell_style
+     data_types << :integer
+   end
+
+   data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
+   data_styles << cell_style
+   data_types << :string
+
+   sheet.add_row data_row, style: data_styles, types: data_types
    sheet.add_row
 
    # Précisions sur l'acte
@@ -225,11 +257,32 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.add_row comp_headers, style: header_style
 
      comp_data = [@acte.categorie, @acte.action, @acte.activite]
-     comp_data << @acte.numero_marche if @acte.numero_marche.present?
-     comp_data << @acte.numero_tf if @acte.numero_tf.present? && @acte.type_acte != 'TF'
-     comp_data << @acte.groupe_marchandises if @acte.groupe_marchandises.present?
+     comp_styles = [cell_style, cell_style, cell_style]
+     comp_types = [:string, :string, :string]
+
+     if @acte.numero_marche.present?
+       comp_data << @acte.numero_marche.to_s
+       comp_styles << text_style
+       comp_types << :string
+     end
+
+     if @acte.numero_tf.present? && @acte.type_acte != 'TF'
+       comp_data << @acte.numero_tf.to_s
+       comp_styles << text_style
+       comp_types << :string
+     end
+
+     if @acte.groupe_marchandises.present?
+       comp_data << @acte.groupe_marchandises
+       comp_styles << cell_style
+       comp_types << :string
+     end
+
      comp_data << (@acte.services_votes? ? 'Oui' : 'Non')
-     sheet.add_row comp_data, style: cell_style
+     comp_styles << cell_style
+     comp_types << :string
+
+     sheet.add_row comp_data, style: comp_styles, types: comp_types
      sheet.add_row
    end
    # LIGNES DE POSTE
@@ -266,8 +319,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              ligne.axe_ministeriel,
              ligne.flux,
              ligne.groupe_marchandises,
-             ligne.numero_tf
-           ], style: [cell_style, cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+             ligne.numero_tf.to_s
+           ], style: [cell_style, cell_style, currency_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, text_style],
+              types: [:integer, :string, :float, :string, :string, :string, :string, :string, :string, :string, :string]
          end
          sheet.add_row
    end
