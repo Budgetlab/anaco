@@ -30,6 +30,13 @@ cell_style = wb.styles.add_style(
   font_name: 'Calibri',
 )
 
+text_style = wb.styles.add_style(
+  border: { style: :thin, color: "000000" },
+  fg_color: "161616",
+  font_name: 'Calibri',
+  format_code: '@'
+)
+
 
 
 # Onglet 1 : Actes HT2 ETAT
@@ -105,9 +112,9 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
       acte.categorie,
       acte.action,
       acte.activite,
-      acte.numero_chorus,
-      acte.numero_marche,
-      acte.numero_tf,
+      acte.numero_chorus.to_s,
+      acte.numero_marche.to_s,
+      acte.numero_tf.to_s,
       acte.groupe_marchandises,
       acte.nature,
       acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
@@ -143,16 +150,35 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
 
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
+    styles[11] = text_style  # Numéro Chorus
+    styles[12] = text_style  # Numéro Marché
+    styles[13] = text_style  # Numéro TF
     styles[20] = number_style  # Montant AE
     styles[21] = number_style  # Montant global
-    styles[25] = date_style  # Date creation Chorus
-    styles[26] = date_style  # Date réception Chorus
-    styles[28] = date_style
-    styles[29] = date_style
-    styles[30] = date_style
-    styles[34] = date_style
+    styles[25] = date_style  # Date creation
+    styles[26] = date_style  # Date saisine
+    styles[28] = date_style  # Date suspension
+    styles[29] = date_style  # Date fin suspension
+    styles[30] = date_style  # Date limite
+    styles[34] = date_style  # Date clôture
 
-    sheet.add_row row_data, style: styles
+    # Types pour forcer le format texte sur les numéros
+    types = Array.new(headers.count, :string)
+    types[1] = :integer  # Exercice
+    types[6] = :integer  # Numéro programme
+    types[8] = :integer  # Categorie
+    types[16] = :integer  # Nombre d'actes
+    types[20] = :float    # Montant AE
+    types[21] = :float    # Montant global
+    types[25] = :time     # Date creation
+    types[26] = :time     # Date saisine
+    types[28] = :time     # Date suspension
+    types[29] = :time     # Date fin suspension
+    types[30] = :time     # Date limite
+    types[34] = :time     # Date clôture
+    types[36] = :integer  # Délai traitement
+
+    sheet.add_row row_data, style: styles, types: types
   end
 
   # Définir une largeur fixe de 15 pour toutes les colonnes
