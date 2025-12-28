@@ -32,8 +32,9 @@
 
     <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-mb-4w">
       <div class="fr-col-12 title-btn">
-        <div class="flex-grow fr-mr-2w" data-controller="request">
-          <%= search_form_for @q_current,as: :q_current, data: { 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+        <div class="flex-grow fr-mr-2w">
+          <%= search_form_for @q_current,as: :q_current, data: { controller: 'filter', action: 'submit->filter#updateActiveTab', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+            <%= hidden_field_tag :tab, @selected_tab, data: { filter_target: 'tabField' } %>
             <div class="fr-search-bar" role="search">
               <label class="fr-label" for="search-input"> Rechercher </label>
               <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont,
@@ -816,7 +817,7 @@
           <div class="fr-modal__header">
             <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
           </div>
-          <%= search_form_for @q_current,as: :q_current, url: ht2_actes_path, data: { controller: 'filter', action: 'submit->filter#updateActiveTab', 'request-target': 'form', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+          <%= search_form_for @q_current,as: :q_current, url: ht2_actes_path, data: { controller: 'filter', action: 'submit->filter#updateActiveTab', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
             <%= hidden_field_tag :tab, @selected_tab, data: { filter_target: 'tabField' } %>
             <div class="fr-modal__content">
               <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
