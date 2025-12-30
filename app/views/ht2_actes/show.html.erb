@@ -70,15 +70,9 @@
                       Nouvelle saisine
                     <% end %>
                   <% end %>
-                  <%= link_to export_ht2_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line' do %>
-                    Télécharger la fiche
-                  <% end %>
-                  <% if rich_text_has_images?(acte.commentaire_disponibilite_credits) %>
-                    <%= link_to download_attachments_ht2_acte_path(acte),
-                                class: 'fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line', data: { turbo: false } do %>
-                      Télécharger les PJ (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
-                    <% end %>
-                  <% end %>
+                  <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left" aria-controls="modal-telecharger-acte" data-fr-opened="false" type="button">
+                    Télécharger
+                  </button>
                 </div>
               </div>
               <%= render 'ht2_acte_details', acte: acte %>
@@ -88,4 +82,54 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de téléchargement -->
+  <dialog id="modal-telecharger-acte" class="fr-modal" aria-labelledby="modal-telecharger-acte-title">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button class="fr-btn--close fr-btn" title="Fermer" aria-controls="modal-telecharger-acte" type="button">
+                Fermer
+              </button>
+            </div>
+            <div class="fr-modal__content">
+              <h1 id="modal-telecharger-acte-title" class="fr-modal__title">
+                Télécharger
+              </h1>
+              <div class="fr-btns-group fr-btns-group--icon-left">
+                <%= link_to export_ht2_acte_path(@acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-icon-download-line' do %>
+                  Télécharger la fiche (Excel)
+                <% end %>
+
+                <% if @acte.pdf_attached? %>
+                  <%= link_to url_for(@acte.pdf_files.last),
+                              class: "fr-btn fr-btn--secondary fr-icon-download-line",
+                              target: "_blank" do %>
+                    Télécharger le PDF
+                  <% end %>
+                <% elsif current_user.statut == "admin" %>
+                  <%= link_to generate_pdf_ht2_acte_path(@acte),
+                              method: :post,
+                              data: { turbo_method: :post, turbo_confirm: "Générer le PDF de cet acte ?" },
+                              class: "fr-btn fr-btn--secondary fr-icon-download-line" do %>
+                    Générer le PDF
+                  <% end %>
+                <% end %>
+
+                <% if rich_text_has_images?(@acte.commentaire_disponibilite_credits) %>
+                  <%= link_to download_attachments_ht2_acte_path(@acte),
+                              class: 'fr-btn fr-btn--secondary fr-icon-download-line',
+                              data: { turbo: false } do %>
+                    Télécharger les PJ (<%= count_images_in_rich_text(@acte.commentaire_disponibilite_credits) %>)
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </main>

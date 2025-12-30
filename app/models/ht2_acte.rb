@@ -45,6 +45,15 @@ class Ht2Acte < ApplicationRecord
     )
   }
 
+  has_many_attached :pdf_files
+  def pdf_attached?
+    pdf_files.attached? && pdf_files.any?
+  end
+
+  def pdf_filename
+    timestamp = Time.current.strftime('%Y%m%d_%H%M%S')
+    "acte_#{numero_formate}_#{timestamp}.pdf"
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]

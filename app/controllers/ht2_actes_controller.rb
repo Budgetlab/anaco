@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
@@ -760,6 +760,14 @@ class Ht2ActesController < ApplicationController
     respond_to do |format|
       format.turbo_stream { redirect_to ajout_actes_path }
     end
+  end
+
+  def generate_pdf
+    # Lancer la génération du PDF avec notification au centre une fois terminé
+    GenerateActePdfJob.perform_later(@acte.id)
+
+    redirect_to ht2_acte_path(@acte),
+                notice: 'Le PDF est en cours de génération. Vous recevrez un email une fois la génération terminée.'
   end
 
   private

@@ -7,6 +7,10 @@
 # Ignore bundler config.
 /.bundle
 
+# Ignore all environment files (except templates).
+/.env*
+!/.env*.erb
+
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -30,3 +34,9 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 /config/anaco.json
+#Node js dependency en local
+/node_modules
+package.json
+package-lock.json
+# Kamal secrets
+.kamal/secrets
