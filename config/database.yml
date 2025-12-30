@@ -97,4 +97,5 @@ production:
     database: <%= ENV["PRODUCTION_DB_NAME"] %>
     username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
     password: <%= ENV["PRODUCTION_DB_PASSWORD"] %>
-    host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
+    host: cloud-sql-proxy  # ✅ Change ici pour les workers Docker
+    port: 5432
