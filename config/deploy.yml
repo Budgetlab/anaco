@@ -95,3 +95,12 @@ volumes:
 
 # Retention des anciennes images (économiser l'espace)
 retain_containers: 1
+
+accessories:
+  cloud-sql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+    hosts:  # Pluriel pour Kamal 2
+      - 34.155.46.127
+    cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
+    options:
+      network: "private"
