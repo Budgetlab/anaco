@@ -62,7 +62,6 @@ env:
     PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
     # GCP (ajoute tes variables depuis .env)
-    SERVICE_NAME: anaco
     GOOGLE_PROJECT_ID: apps-354210
     STORAGE_BUCKET_NAME: anaco-bucket
   secret:
