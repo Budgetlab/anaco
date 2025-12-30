@@ -204,6 +204,8 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.import(file)
+    user = User.find_by(nom: "DCB Économie Finances")
+    user.ht2_actes.where(annee: 2025).destroy_all
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
     headers = data.row(1).map(&:to_s).map(&:strip)
@@ -211,7 +213,6 @@ class Ht2Acte < ApplicationRecord
       next if idx == 0 || idx == 1 # skip header
 
       row_data = Hash[[headers, row].transpose]
-
       user = User.find_by(nom: row_data["user"].to_s.strip)
       next unless user && row_data["montant_ae"].present? && row_data["date_cloture"].present?
 
@@ -240,13 +241,13 @@ class Ht2Acte < ApplicationRecord
         precisions_acte: row_data["precisions_acte"],
         valideur: row_data["valideur"].present? ? row_data["valideur"] : row_data["instructeur"],
         categorie: row_data["categorie"].to_s,
-        pre_instruction: row_data["pre_instruction"] == "OUI" ? true : false,
-        disponibilite_credits: row_data["disponibilite_credits"] == "NON" ? false : true,
-        imputation_depense: row_data["imputation_depense"] == "NON" ? false : true,
-        consommation_credits: row_data["consommation_credits"] == "NON" ? false : true,
-        programmation: row_data["programmation"] == "NON" ? false : true,
+        pre_instruction: ["OUI", "Oui"].include?(row_data["pre_instruction"]) ? true : false,
+        disponibilite_credits: ["NON", "Non"].include?(row_data["disponibilite_credits"]) ? false : true,
+        imputation_depense: ["NON", "Non"].include?(row_data["imputation_depense"]) ? false : true,
+        consommation_credits: ["NON", "Non"].include?(row_data["consommation_credits"]) ? false : true,
+        programmation: ["NON", "Non"].include?(row_data["programmation"]) ? false : true,
         type_engagement: row_data["type_engagement"],
-        programmation_prevue: row_data["programmation_prevue"] == "NON" ? false : true,
+        programmation_prevue: ["NON", "Non"].include?(row_data["programmation_prevue"]) ? false : true,
         observations: row_data["observations"],
         commentaire_proposition_decision: row_data["commentaire_proposition_decision"],
         nombre_actes: row_data["nombre_actes"].to_i,
