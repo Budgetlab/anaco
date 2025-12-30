@@ -36,7 +36,7 @@
 /config/anaco.json
 #Node js dependency en local
 /node_modules
-package.json
-package-lock.json
+#package.json
+#package-lock.json
 # Kamal secrets
 .kamal/secrets
