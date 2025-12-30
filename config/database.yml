@@ -87,7 +87,7 @@ production:
     #password: <%= ENV["AVISBOP_DATABASE_PASSWORD"] %>
     database: <%= ENV["PRODUCTION_DB_NAME"] %>
     username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
-    password: <%= Rails.application.credentials.gcp[:db_password] %>
+    password: <%= ENV["PRODUCTION_DB_PASSWORD"] %>
     host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
   queue:
     <<: *default
@@ -96,5 +96,5 @@ production:
     #password: <%= ENV["AVISBOP_DATABASE_PASSWORD"] %>
     database: <%= ENV["PRODUCTION_DB_NAME"] %>
     username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
-    password: <%= Rails.application.credentials.gcp[:db_password] %>
+    password: <%= ENV["PRODUCTION_DB_PASSWORD"] %>
     host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
