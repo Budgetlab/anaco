@@ -84,7 +84,7 @@ production:
     <<: *default
     database: anaco-test
     username: postgres
-    password: <%= ENV.fetch("PRODUCTION_DB_PASSWORD") { Rails.application.credentials.gcp[:db_password] } %>
+    password: <%= ENV.fetch("PRODUCTION_DB_PASSWORD") { Rails.application.credentials.dig(:gcp, :db_password) } %>
     # 👇 LA CORRECTION MAGIQUE
     # 1. On applique la logique conditionnelle (Kamal vs Cloud Run)
     # 2. On ajoute une valeur par défaut au Cloud SQL Connection Name pour que le build ne plante pas
