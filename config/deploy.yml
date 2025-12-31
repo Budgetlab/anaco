@@ -51,6 +51,7 @@ env:
   clear:
     # Rails
     RAILS_ENV: production
+    USE_CLOUD_SQL_PROXY: "true"
     RAILS_LOG_TO_STDOUT: "true"
     RAILS_SERVE_STATIC_FILES: "false"  # Pas besoin pour workers
     # App URL pour Grover (chargement assets CSS/JS)
