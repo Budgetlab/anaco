@@ -1,0 +1,13 @@
+# Configuration moved to config/queue.yml
+# SolidQueue uses queue.yml for recurring_tasks configuration
+
+# examples:
+#   periodic_cleanup:
+#     class: CleanSoftDeletedRecordsJob
+#     queue: background
+#     args: [ 1000, { batch_size: 500 } ]
+#     schedule: every hour
+#   periodic_cleanup_with_command:
+#     command: "SoftDeletedRecord.due.delete_all"
+#     priority: 2
+  #     schedule: at 5am every day
