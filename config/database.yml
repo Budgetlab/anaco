@@ -88,7 +88,9 @@ production:
     database: <%= ENV["PRODUCTION_DB_NAME"] %>
     username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
     password: <%= ENV["PRODUCTION_DB_PASSWORD"] %>
-    host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
+    # Si on est sur le serveur Kamal (variable ENV présente) => On utilise le réseau Docker (Proxy)
+    # Sinon (Cloud Run) => On reste sur le socket Google (Performance max)
+    host: <%= ENV["USE_CLOUD_SQL_PROXY"] == "true" ? "anaco-workers-cloud-sql-proxy" : "/cloudsql/#{ENV["CLOUD_SQL_CONNECTION_NAME"]}" %>
   queue:
     <<: *default
     #database: avisbop_production
@@ -97,5 +99,5 @@ production:
     database: <%= ENV["PRODUCTION_DB_NAME"] %>
     username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
     password: <%= ENV["PRODUCTION_DB_PASSWORD"] %>
-    host: cloud-sql-proxy  # ✅ Change ici pour les workers Docker
+    host: anaco-workers-cloud-sql-proxy  # ✅ Change ici pour les workers Docker
     port: 5432
