@@ -82,8 +82,8 @@ test:
 production:
   primary: &production_connection  # <--- On crée une ancre ici pour éviter de répéter le code
     <<: *default
-    database: <%= ENV["PRODUCTION_DB_NAME"] %>
-    username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
+    database: anaco-test
+    username: postgres
     password: <%= ENV.fetch("PRODUCTION_DB_PASSWORD") { Rails.application.credentials.gcp[:db_password] } %>
     # 👇 LA CORRECTION MAGIQUE
     # 1. On applique la logique conditionnelle (Kamal vs Cloud Run)
