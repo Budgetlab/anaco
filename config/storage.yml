@@ -8,11 +8,11 @@ local:
 
 google:
   service: GCS
-  project: <%= ENV["GOOGLE_PROJECT_ID"] %>
+  project: apps-354210
   #credentials: <%= Rails.root.join("config/anaco.json").to_s %>
   credentials:
     type: "service_account"
-    project_id: <%= ENV["GOOGLE_PROJECT_ID"] %>
+    project_id: apps-354210
     private_key_id: <%= Rails.application.credentials.dig(:gcp, :private_key_id) %>
     private_key: <%= Rails.application.credentials.dig(:gcp, :private_key).dump %>
     client_email: "anacoservice@apps-354210.iam.gserviceaccount.com"
@@ -22,7 +22,7 @@ google:
     auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
     client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/anacoservice%40apps-354210.iam.gserviceaccount.com"
     universe_domain: "googleapis.com"
-  bucket: <%= ENV["STORAGE_BUCKET_NAME"] %>
+  bucket: anaco-bucket
 
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:

@@ -104,7 +104,7 @@
                 <% end %>
 
                 <% if @acte.pdf_attached? %>
-                  <%= link_to @acte.pdf_files.last.url(disposition: "attachment"),
+                  <%= link_to rails_storage_redirect_path(@acte.pdf_files.last, disposition: "attachment"),
                               class: "fr-btn fr-btn--secondary fr-icon-download-line",
                               target: "_blank" do %>
                     Télécharger le PDF
