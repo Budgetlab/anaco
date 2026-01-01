@@ -25,6 +25,7 @@ class Ht2Acte < ApplicationRecord
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
   after_save :calculate_delai_traitement_if_needed
+  after_save :generate_pdf_if_cloture
 
   has_rich_text :commentaire_disponibilite_credits
 
@@ -444,5 +445,14 @@ class Ht2Acte < ApplicationRecord
       date_cloture: Date.today,
       delai_traitement: (Date.today - created_at.to_date).to_i,
     )
+  end
+
+  def generate_pdf_if_cloture
+    # Vérifier si l'état vient de passer à 'clôturé' ou 'clôturé après pré-instruction'
+    return unless saved_change_to_etat?
+    return unless ['clôturé', 'clôturé après pré-instruction'].include?(etat)
+
+    # Lancer la génération du PDF en arrière-plan
+    GenerateActePdfJob.perform_later(id)
   end
 end
