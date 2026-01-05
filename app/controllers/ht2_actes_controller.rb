@@ -763,11 +763,14 @@ class Ht2ActesController < ApplicationController
   end
 
   def generate_pdf
+    # Définir le statut comme "en cours de génération"
+    @acte.update(pdf_generation_status: 'generating')
+
     # Lancer la génération du PDF avec notification au centre une fois terminé
     GenerateActePdfJob.perform_later(@acte.id)
 
     redirect_to ht2_acte_path(@acte),
-                notice: 'Le PDF est en cours de génération. Vous recevrez un email une fois la génération terminée.'
+                notice: 'Le PDF est en cours de création. Réactualisez la page dans quelques instants pour pouvoir télécharger le document.'
   end
 
   private
@@ -783,7 +786,7 @@ class Ht2ActesController < ApplicationController
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement,:programmation_prevue,
-                                     :groupe_marchandises,:renvoie_instruction, type_observations: [],
+                                     :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])

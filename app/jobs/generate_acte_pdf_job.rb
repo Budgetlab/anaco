@@ -19,18 +19,24 @@ class GenerateActePdfJob < ApplicationJob
     # 2. Attachement du PDF à l'acte via ActiveStorage
     attach_pdf_to_acte(acte, pdf_content)
 
+    # 3. Mettre à jour le statut à "completed"
+    acte.update(pdf_generation_status: 'completed')
+
     Rails.logger.info "PDF généré et attaché pour Acte ##{acte_id}"
 
   rescue Grover::Error => e
     Rails.logger.error "Erreur Grover pour Acte ##{acte_id}: #{e.message}"
+    acte.update(pdf_generation_status: 'failed')
     raise e # Will trigger retry
 
   rescue ActiveStorage::Error => e
     Rails.logger.error "Erreur ActiveStorage pour Acte ##{acte_id}: #{e.message}"
+    acte.update(pdf_generation_status: 'failed')
     raise e
 
   rescue => e
     Rails.logger.error "Erreur inattendue pour Acte ##{acte_id}: #{e.class} - #{e.message}"
+    acte.update(pdf_generation_status: 'failed')
     raise e
   end
 

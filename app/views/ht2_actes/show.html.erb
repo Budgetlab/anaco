@@ -103,18 +103,22 @@
                   Télécharger la fiche (Excel)
                 <% end %>
 
-                <% if @acte.pdf_attached? %>
+                <% if @acte.pdf_attached? && @acte.pdf_generation_status == 'completed' %>
                   <%= link_to rails_storage_redirect_path(@acte.pdf_files.last, disposition: "attachment"),
                               class: "fr-btn fr-btn--secondary fr-icon-download-line",
                               target: "_blank" do %>
                     Télécharger le PDF
                   <% end %>
-                <% elsif current_user.statut == "admin" %>
+                <% elsif @acte.pdf_generation_status == 'generating' %>
+                  <button class="fr-btn fr-btn--secondary fr-icon-refresh-line" disabled>
+                    Création du PDF en cours...Réactualisez dans quelques instants
+                  </button>
+                <% else%>
                   <%= link_to generate_pdf_ht2_acte_path(@acte),
                               method: :post,
-                              data: { turbo_method: :post, turbo_confirm: "Générer le PDF de cet acte ?" },
+                              data: { turbo_method: :post },
                               class: "fr-btn fr-btn--secondary fr-icon-download-line" do %>
-                    Générer le PDF
+                    Créer le PDF
                   <% end %>
                 <% end %>
 

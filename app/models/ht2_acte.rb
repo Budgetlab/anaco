@@ -25,7 +25,7 @@ class Ht2Acte < ApplicationRecord
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
   after_save :calculate_delai_traitement_if_needed
-  after_save :generate_pdf_if_cloture
+  after_save :purge_pdf_files_on_update
 
   has_rich_text :commentaire_disponibilite_credits
 
@@ -447,12 +447,28 @@ class Ht2Acte < ApplicationRecord
     )
   end
 
-  def generate_pdf_if_cloture
-    # Vérifier si l'état vient de passer à 'clôturé' ou 'clôturé après pré-instruction'
-    return unless saved_change_to_etat?
-    return unless ['clôturé', 'clôturé après pré-instruction'].include?(etat)
+  def purge_pdf_files_on_update
+    # Supprimer les PDF existants si l'acte a été modifié (sauf si c'est une création)
+    return if new_record? || !saved_changes?
 
-    # Lancer la génération du PDF en arrière-plan
-    GenerateActePdfJob.perform_later(id)
+    # Ne pas supprimer si c'est juste le statut de génération qui change
+    # ou si c'est juste updated_at (arrive lors de l'attachement d'un PDF)
+    # (cela arrive quand on lance la génération ou quand le job met à jour le statut)
+    changed_keys = saved_changes.keys.sort
+    return if changed_keys == ['pdf_generation_status', 'updated_at'].sort
+    return if changed_keys == ['pdf_generation_status']
+    return if changed_keys == ['updated_at']
+
+    # Supprimer tous les PDF attachés si présents
+    if pdf_attached?
+      pdf_files.purge
+      Rails.logger.info "PDFs supprimés pour l'acte #{numero_formate} suite à une modification"
+    end
+
+    # Réinitialiser le statut de génération si ce n'est pas 'none'
+    # (car l'acte a été modifié, le PDF n'est plus à jour)
+    if pdf_generation_status != 'none'
+      update_column(:pdf_generation_status, 'none')
+    end
   end
 end

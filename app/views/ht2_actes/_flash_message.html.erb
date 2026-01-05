@@ -1,6 +1,6 @@
 <% if flash.any? %>
   <% flash.each do |type, msg| %>
-    <% if msg[0..3] == 'Acte' %>
+    <% if msg[0..3] == 'Acte' || msg[0..5] == 'Le PDF' %>
       <div class="fr-alert fr-alert--success fr-mb-2w">
         <h3 class="fr-alert__title">
           <%= msg %>
