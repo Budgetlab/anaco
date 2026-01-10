@@ -3,7 +3,7 @@
     <% if msg[0..3] == 'Acte' || msg[0..5] == 'Le PDF' %>
       <div class="fr-alert fr-alert--success fr-mb-2w">
         <h3 class="fr-alert__title">
-          <%= msg %>
+          <%= msg.html_safe %>
         </h3>
         <button class="fr-btn--close fr-btn" title="Masquer le message" onclick="const alert = this.parentNode; alert.parentNode.removeChild(alert)">Masquer
           le message

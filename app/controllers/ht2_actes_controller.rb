@@ -770,7 +770,7 @@ class Ht2ActesController < ApplicationController
     GenerateActePdfJob.perform_later(@acte.id)
 
     redirect_to ht2_acte_path(@acte),
-                notice: 'Le PDF est en cours de création. Réactualisez la page dans quelques instants pour pouvoir télécharger le document.'
+                notice: "Le PDF est en cours de création. #{view_context.link_to('Réactualisez la page', ht2_acte_path(@acte))} dans quelques instants pour pouvoir télécharger le document.".html_safe
   end
 
   private
