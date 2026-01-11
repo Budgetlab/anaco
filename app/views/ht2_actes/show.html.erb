@@ -109,7 +109,7 @@
                                 <p>Veuillez recharger la page régulièrement en cliquant sur Actualiser jusqu'à ce que le document soit accessible.</p>
                                 <div class="fr-mt-2v"><%= link_to ht2_acte_path(acte), class: "fr-m-0 fr-btn fr-icon-refresh-line" do %>Actualiser<%end %></div>
                               </div>
-                            <% else%>
+                            <% elsif ENV["SERVICE_NAME"] == "anaco" %>
                               <%= link_to generate_pdf_ht2_acte_path(acte),
                                           method: :post,
                                           data: { turbo_method: :post },
