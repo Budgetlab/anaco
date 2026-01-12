@@ -3,7 +3,7 @@ steps:
   - id: "build image"
     name: "gcr.io/cloud-builders/docker"
     entrypoint: 'bash'
-    args: ["-c", "docker build --build-arg MASTER_KEY=$$RAILS_KEY -t gcr.io/${PROJECT_ID}/${_SERVICE_NAME} . "]
+    args: ["-c", "docker build --build-arg MASTER_KEY=$$RAILS_KEY --build-arg PRODUCTION_DB_NAME=${_PRODUCTION_DB_NAME} --build-arg PRODUCTION_DB_USERNAME=${_PRODUCTION_DB_USERNAME} --build-arg CLOUD_SQL_CONNECTION_NAME=${_CLOUD_SQL_CONNECTION_NAME} --build-arg SERVICE_NAME=${_SERVICE_NAME} -t gcr.io/${PROJECT_ID}/${_SERVICE_NAME} . "]
     secretEnv: ["RAILS_KEY"]
 
   - id: "push image"
@@ -22,10 +22,13 @@ steps:
 
 substitutions:
   _REGION: europe-west1
-  _SERVICE_NAME: anaco-test
+  _SERVICE_NAME: anaco
   _INSTANCE_NAME: budgetlab
   _SECRET_NAME: anaco-secret
-  
+  _PRODUCTION_DB_NAME: anaco
+  _PRODUCTION_DB_USERNAME: postgres
+  _CLOUD_SQL_CONNECTION_NAME: apps-354210:europe-west1:budgetlab
+
 
 availableSecrets:
   secretManager:

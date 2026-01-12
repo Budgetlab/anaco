@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
-  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions]
+  before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
@@ -762,6 +762,17 @@ class Ht2ActesController < ApplicationController
     end
   end
 
+  def generate_pdf
+    # Définir le statut comme "en cours de génération"
+    @acte.update(pdf_generation_status: 'generating')
+
+    # Lancer la génération du PDF avec notification au centre une fois terminé
+    GenerateActePdfJob.perform_later(@acte.id)
+
+    redirect_to ht2_acte_path(@acte),
+                notice: "Le PDF est en cours de création. #{view_context.link_to('Réactualisez la page', ht2_acte_path(@acte))} dans quelques instants pour pouvoir télécharger le document.".html_safe
+  end
+
   private
 
   def ht2_acte_params
@@ -775,7 +786,7 @@ class Ht2ActesController < ApplicationController
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement,:programmation_prevue,
-                                     :groupe_marchandises,:renvoie_instruction, type_observations: [],
+                                     :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])

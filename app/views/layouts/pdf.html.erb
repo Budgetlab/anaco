@@ -2,48 +2,50 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Acte HT2 PDF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit=no">
+  <title><%= content_for?(:title) ? yield(:title) : 'ANACO - PDF' %></title>
 
-  <!-- Styles intégrés pour PDF -->
-  <%= wicked_pdf_stylesheet_link_tag 'application' %>
-  <%= wicked_pdf_stylesheet_link_tag 'utility' %>
-  <%= wicked_pdf_stylesheet_link_tag 'actiontext' %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "dsfr", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "utility", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "actiontext", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  <%= javascript_include_tag 'custom/dsfr.module.min', module: true %>
+  <%= javascript_include_tag 'custom/dsfr.nomodule.min', nomodule: true %>
 
-  <!-- Inclusion du CSS spécifique pour PDF -->
-  <%= wicked_pdf_stylesheet_link_tag 'pdf' %>
+  <style>
+      /* Règle pour la section paysage */
+      @page landscape {
+          size: A4 landscape;
+          margin: 15mm;
+      }
 
-  <!-- JavaScript pour Highcharts -->
-  <%= wicked_pdf_javascript_include_tag 'application' %>
-  <%#= wicked_pdf_javascript_include_tag "https://code.highcharts.com/highcharts.js" %>
-  <%#= wicked_pdf_javascript_include_tag "https://code.highcharts.com/modules/exporting.js" %>
+      /* Règle pour les sections portrait (par défaut) */
+      @page portrait {
+          size: A4 portrait;
+          margin: 20mm;
+      }
 
-  <!-- Inclusion des fichiers JavaScript du dossier custom -->
-  <%= wicked_pdf_javascript_include_tag 'custom/dsfr.module.min', module: true %>
-  <%= wicked_pdf_javascript_include_tag 'custom/dsfr.nomodule.min', nomodule: true %>
+      /* Application des règles aux sections */
+      .landscape-section {
+          page: landscape;
+      }
 
-  <script>
-    // Ensure all resources are loaded before setting ready status
-    function setReadyStatus() {
-      // Set a timeout to ensure all JavaScript has executed
-      setTimeout(function() {
-        window.status = 'ready';
-        console.log('PDF ready for rendering');
-      }, 1000);
-    }
+      .portrait-section {
+          page: portrait;
+      }
 
-    // Use both load events for better compatibility
-    if (window.addEventListener) {
-      window.addEventListener('load', setReadyStatus, false);
-    } else if (window.attachEvent) {
-      window.attachEvent('onload', setReadyStatus);
-    } else {
-      window.onload = setReadyStatus;
-    }
-  </script>
+      /* Force les sauts de page */
+      .page-break-before {
+          page-break-before: always;
+          break-before: page;
+      }
 
-  <!-- Les styles sont maintenant dans le fichier pdf.scss -->
+  </style>
 </head>
 <body>
-<%= yield %>
+<div>
+  <%= yield %>
+</div>
 </body>
 </html>

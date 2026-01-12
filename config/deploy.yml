@@ -1,0 +1,104 @@
+# Configuration Kamal pour workers Solid Queue sur GCP
+# Documentation: https://kamal-deploy.org
+
+# Nom du service
+service: anaco-workers
+
+# Image Docker
+image: alexandraleschi/anaco-workers
+
+# Rôle principal (requis par Kamal)
+primary_role: workers
+
+# Serveurs de déploiement - VM GCP
+servers:
+  # PAS de serveur web - on déploie uniquement les workers
+  # L'app web reste sur Cloud Run
+  workers:
+    hosts:
+      - 34.163.126.114  # IP externe VM GCP anaco-workers
+    cmd: bin/jobs  # Commande pour lancer Solid Queue workers
+    proxy: false
+    labels:
+      worker-type: solid-queue
+      application: anaco
+      environment: production
+    options:
+      health-cmd: "pgrep -f 'bin/jobs' || exit 1"
+      health-interval: "10s"
+      health-timeout: "5s"
+      health-retries: 10
+      health-start-period: "90s"
+      dns:
+        - "8.8.8.8"
+        - "8.8.4.4"
+# Registry Docker Hub
+registry:
+  username: alexandraleschi
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Configuration du builder
+builder:
+  arch: amd64
+  # Build remote directement sur le serveur GCP
+  #remote: ssh://alexandra@34.155.46.127
+  # Utiliser Dockerfile.workers au lieu de Dockerfile
+  dockerfile: Dockerfile.workers
+
+# Variables d'environnement
+env:
+  clear:
+    # Rails
+    RAILS_ENV: production
+    USE_CLOUD_SQL_PROXY: "true"
+    RAILS_LOG_TO_STDOUT: "true"
+    RAILS_SERVE_STATIC_FILES: "false"  # Pas besoin pour workers
+    # App URL pour Grover (chargement assets CSS/JS)
+    APP_URL: https://budgetlab.finances.gouv.fr/anaco
+    # Solid Queue
+    JOB_CONCURRENCY: "4"
+    SOLID_QUEUE_SKIP_RECURRING: "false"
+    # Puppeteer
+    PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+    # GCP (ajoute tes variables depuis .env)
+    GOOGLE_PROJECT_ID: apps-354210
+    STORAGE_BUCKET_NAME: anaco-bucket
+  secret:
+    # Secrets depuis .kamal/secrets (utilisez `kamal envify` ou créez .kamal/secrets)
+    - SECRET_KEY_BASE
+    - RAILS_MASTER_KEY
+    - PRODUCTION_DB_PASSWORD
+    - PRODUCTION_DB_NAME
+    - PRODUCTION_DB_USERNAME
+    - CLOUD_SQL_CONNECTION_NAME
+
+# SSH configuration
+ssh:
+  user: alexandra  # Ou 'deploy' si vous avez créé cet utilisateur
+  keys:
+    - ~/.ssh/google_compute_engine  # Clé générée par gcloud
+
+# Volumes persistants (logs, tmp)
+volumes:
+  - "anaco-storage:/rails/storage"
+  - "anaco-logs:/rails/log"
+
+# Configuration du déploiement progressif
+# boot:
+#   limit: 1
+#   wait: 10
+
+# Pas d'accessories (DB est sur Render, pas de Redis local nécessaire)
+# accessories: {}
+
+# Retention des anciennes images (économiser l'espace)
+retain_containers: 1
+
+accessories:
+  cloud-sql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+    hosts:  # Pluriel pour Kamal 2
+      - 34.163.126.114
+    cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab

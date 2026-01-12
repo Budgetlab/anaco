@@ -62,8 +62,9 @@ gem 'roo', '~> 2.8.0'
 gem 'ferrum'
 gem 'google-cloud-storage'
 gem 'groupdate'
-gem 'wicked_pdf'
-gem 'wkhtmltopdf-binary'
+gem 'grover'
+gem 'solid_queue'
+gem 'kamal', require: false
 gem 'rubyzip'
 
 group :development, :test do

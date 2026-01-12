@@ -25,6 +25,7 @@ class Ht2Acte < ApplicationRecord
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
   after_save :calculate_delai_traitement_if_needed
+  after_save :purge_pdf_files_on_update
 
   has_rich_text :commentaire_disponibilite_credits
 
@@ -45,9 +46,18 @@ class Ht2Acte < ApplicationRecord
     )
   }
 
+  has_many_attached :pdf_files
+  def pdf_attached?
+    pdf_files.attached? && pdf_files.any?
+  end
+
+  def pdf_filename
+    timestamp = Time.current.strftime('%Y%m%d_%H%M%S')
+    "acte_#{numero_formate}_#{timestamp}.pdf"
+  end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "montant_ae", "montant_global", "nature", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nombre_actes", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pdf_generation_status", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
@@ -435,5 +445,30 @@ class Ht2Acte < ApplicationRecord
       date_cloture: Date.today,
       delai_traitement: (Date.today - created_at.to_date).to_i,
     )
+  end
+
+  def purge_pdf_files_on_update
+    # Supprimer les PDF existants si l'acte a été modifié (sauf si c'est une création)
+    return if new_record? || !saved_changes?
+
+    # Ne pas supprimer si c'est juste le statut de génération qui change
+    # ou si c'est juste updated_at (arrive lors de l'attachement d'un PDF)
+    # (cela arrive quand on lance la génération ou quand le job met à jour le statut)
+    changed_keys = saved_changes.keys.sort
+    return if changed_keys == ['pdf_generation_status', 'updated_at'].sort
+    return if changed_keys == ['pdf_generation_status']
+    return if changed_keys == ['updated_at']
+
+    # Supprimer tous les PDF attachés si présents
+    if pdf_attached?
+      pdf_files.purge
+      Rails.logger.info "PDFs supprimés pour l'acte #{numero_formate} suite à une modification"
+    end
+
+    # Réinitialiser le statut de génération si ce n'est pas 'none'
+    # (car l'acte a été modifié, le PDF n'est plus à jour)
+    if pdf_generation_status != 'none'
+      update_column(:pdf_generation_status, 'none')
+    end
   end
 end

@@ -80,11 +80,17 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  #database: avisbop_production
-  #username: avisbop
-  #password: <%= ENV["AVISBOP_DATABASE_PASSWORD"] %>
-  database: <%= ENV["PRODUCTION_DB_NAME"] %>
-  username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
-  password: <%= Rails.application.credentials.gcp[:db_password] %>
-  host: "/cloudsql/<%= ENV["CLOUD_SQL_CONNECTION_NAME"] %>"
+  primary: &production_connection  # <--- On crée une ancre ici pour éviter de répéter le code
+    <<: *default
+    database: <%= ENV["PRODUCTION_DB_NAME"] %>
+    username: <%= ENV["PRODUCTION_DB_USERNAME"] %>
+    password: <%= ENV.fetch("PRODUCTION_DB_PASSWORD") { Rails.application.credentials.dig(:gcp, :db_password) } %>
+    # 👇 LA CORRECTION MAGIQUE
+    # 1. On applique la logique conditionnelle (Kamal vs Cloud Run)
+    # 2. On ajoute une valeur par défaut au Cloud SQL Connection Name pour que le build ne plante pas
+    host: <%= ENV["USE_CLOUD_SQL_PROXY"] == "true" ? "anaco-workers-cloud-sql-proxy" : "/cloudsql/#{ENV.fetch("CLOUD_SQL_CONNECTION_NAME", "apps-354210:europe-west1:budgetlab")}" %>
+    port: 5432
+
+  queue:
+    # 👇 On réutilise exactement la même config que primary
+    <<: *production_connection

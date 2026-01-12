@@ -84,6 +84,7 @@ Rails.application.routes.draw do
         get 'synthese_suspensions', to: 'ht2_actes#synthese_suspensions'
       end
       member do
+        post :generate_pdf
         get :export
         get :download_attachments
       end

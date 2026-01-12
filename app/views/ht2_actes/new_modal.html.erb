@@ -10,6 +10,11 @@
           </div>
           <div class="fr-modal__content" data-controller="acte-form">
             <h2 id="modal-nouvel-acte-title" class="fr-modal__title">Ajouter un acte</h2>
+            <% if ENV["SERVICE_NAME"] == "anaco-test" %>
+              <div class="fr-py-2w">
+                <%= render 'layouts/warning_test' %>
+              </div>
+            <% end %>
             <%= form_with url: new_ht2_acte_path, method: :get, data: { turbo_frame: "_top", turbo: false } do |f| %>
               <fieldset class="fr-fieldset" id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
                 <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend">
