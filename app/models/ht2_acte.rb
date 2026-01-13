@@ -214,8 +214,6 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.import(file)
-    user = User.find_by(nom: "DCB Économie Finances")
-    user.ht2_actes.where(annee: 2025).destroy_all
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
     headers = data.row(1).map(&:to_s).map(&:strip)
