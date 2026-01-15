@@ -169,6 +169,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def duree_total
+    return nil if date_cloture.nil? || date_chorus.nil?
     (date_cloture - date_chorus).to_i
   end
 

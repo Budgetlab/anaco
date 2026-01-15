@@ -437,8 +437,8 @@ class Ht2ActesController < ApplicationController
     @all_actes_user = @ht2_actes.clotures_seuls
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_in].blank?
-      search_params[:annee_in] = [Date.today.year]
+    if search_params[:annee_eq].blank?
+      search_params[:annee_eq] = Date.today.year
     end
 
     @q = @ht2_actes.clotures.ransack(search_params)
@@ -463,7 +463,7 @@ class Ht2ActesController < ApplicationController
       { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
     ]
 
-    year = search_params[:annee_in].first.to_i
+    year = search_params[:annee_eq].to_i
     start_date = Date.new(year, 1, 1)
     end_date   = start_date.end_of_year
 
@@ -514,14 +514,14 @@ class Ht2ActesController < ApplicationController
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_in].blank?
-      search_params[:annee_in] = [Date.today.year]
+    if search_params[:annee_eq].blank?
+      search_params[:annee_eq] = Date.today.year
     end
 
     @q = @ht2_actes.clotures_seuls.ransack(search_params)
     @actes_filtered = @q.result(distinct: true)
 
-    year = search_params[:annee_in].first.to_i
+    year = search_params[:annee_eq].to_i
     # 12 mois basés sur la date_cloture
     delais_par_mois = (1..12).map do |month|
       actes_du_mois = @actes_filtered.where(
@@ -570,8 +570,8 @@ class Ht2ActesController < ApplicationController
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_in].blank?
-      search_params[:annee_in] = Date.today.year
+    if search_params[:annee_eq].blank?
+      search_params[:annee_eq] = Date.today.year
     end
 
     @q = @ht2_actes.ransack(search_params)
@@ -625,8 +625,8 @@ class Ht2ActesController < ApplicationController
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     search_params = params[:q] || {}
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_in].blank?
-      search_params[:annee_in] = Date.today.year
+    if search_params[:annee_eq].blank?
+      search_params[:annee_eq] = Date.today.year
     end
 
     @q = @ht2_actes.ransack(search_params)
