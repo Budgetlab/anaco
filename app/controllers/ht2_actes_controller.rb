@@ -824,7 +824,6 @@ class Ht2ActesController < ApplicationController
       'Affectation initiale',
       'Autre',
       'Autre contrat',
-      'Avenant',
       'Bail',
       'Bon de commande',
       'Convention',
