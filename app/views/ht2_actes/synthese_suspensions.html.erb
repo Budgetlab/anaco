@@ -52,7 +52,7 @@
         </h2>
 
         <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
-
+          <p class="fr-badge fr-badge--no-icon fr-badge--info fr-mb-2w"><%= params.dig(:q, :annee_eq) || Date.today.year %></p>
           <div class="fr-grid-row">
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-p-2v">
@@ -191,30 +191,12 @@
               </h2>
               <div class="fr-grid-row fr-grid-row--gutters">
                 <div class="fr-col-12">
-                  <div>
-                    <span class="fr-label fr-text--bold">Exercice</span>
-                    <% selected_years = Array(params.dig(:q, :annee_in)).map(&:to_s) %>
-                    <ul class="fr-tags-group fr-mt-1w">
-                      <% (2019..Date.today.year + 1).each do |y| %>
-                        <% y_str = y.to_s %>
-                        <% checked = selected_years.include?(y_str) %>
-                        <li>
-                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
-                                 data-controller="tag-select"
-                                 data-action="change->tag-select#toggle"
-                                 role="button">
-                            <%= check_box_tag 'q[annee_in][]',
-                                              y_str,
-                                              checked,
-                                              class: "fr-sr-only",
-                                              data: { tag_select_target: "checkbox" } %>
-                            <span><%= y_str %></span>
-                          </label>
-                        </li>
-                      <% end %>
-                    </ul>
-                  </div>
-
+                  <label class="fr-label fr-text--bold">Exercice</label>
+                  <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
+                  <%= f.select :annee_eq,
+                               options_for_select(years_options, params.dig(:q, :annee_eq) || Date.today.year),
+                               {},
+                               class: "fr-select" %>
                 </div>
 
                 <% if @statut_user == 'admin' %>
