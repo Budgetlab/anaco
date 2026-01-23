@@ -35,7 +35,7 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">
-          <span class="fr-capitalize"><%= @acte.type_acte %> HT2
+          <span class="fr-capitalize">Acte HT2
             <% if @acte.perimetre == 'organisme' %>
               <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
               <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
@@ -66,11 +66,16 @@
             <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
               <div class="fr-mb-1w title-btn ">
 
-                <div class="fr-text--italic fr-mb-1w">
-                  Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
+                <div class="fr-mb-1w">
+                  <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
+                    n°<%= acte.numero_formate %></p>
+                  <% if acte.perimetre == 'organisme' %><%= badge_categorie_organisme(acte) %><%end %>
+                  <span class="fr-text--italic">créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
                   <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction" %>
                     , <%= acte.etat %> le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
-                  <% end %>
+                    <% end %>
+                  </span>
+
                 </div>
                 <div>
                   <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) && ['DCB', 'CBR'].include?(current_user.statut) %>

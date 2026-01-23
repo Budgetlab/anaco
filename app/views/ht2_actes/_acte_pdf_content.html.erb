@@ -60,6 +60,9 @@
   </div>
 
   <div class="fr-h6">Informations sur l'acte</div>
+  <% if acte.pre_instruction == true %>
+    <p class="fr-badge fr-badge--blue-ecume">Préinstruction : Oui</p>
+  <% end %>
   <div class="fr-table fr-table--no-caption fr-table--no-scroll">
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
@@ -137,7 +140,6 @@
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <th>Nombre d'actes</th>
               <% end %>
-              <th>Pré-instruction</th>
             </tr>
             </thead>
             <tbody>
@@ -155,7 +157,6 @@
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <td> <%= acte.nombre_actes %></td>
               <% end %>
-              <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
           </table>
