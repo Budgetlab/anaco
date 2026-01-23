@@ -138,87 +138,182 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    sheet.rows[current_row-1].height = 30
 
    # Première table d'informations
-   montant_label = case @acte.type_acte
-                  when 'avis' then 'Montant estimatif global (AE)'
-                  when 'visa' then 'Montant engagé'
-                  when 'TF' then 'Montant total affecté'
-                  end
+   if @acte.perimetre == 'organisme'
+     # Pour organisme
+     montant_headers = ["Montant de l'acte", "Type de montant"]
+     montant_headers << "Montant total" if @acte.categorie_organisme == 'depense'
 
-   type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
-   delai =
-     if ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat)
-       n = @acte.delai_traitement.to_i
-       "#{n} jour#{'s' if n != 1}"  # évite la dépendance à pluralize
-       # ou si tu préfères et que les helpers sont dispo :
-       # helpers.pluralize(@acte.delai_traitement.to_i, 'jour')
-     else
-       etat_acte(@acte)
+     sheet.add_row [
+       "Instructeur",
+       "Valideur",
+       "Nature de l'acte",
+       (@acte.categorie_organisme == 'depense' ? "Type d'engagement" : ""),
+       *montant_headers,
+       "Exercice",
+       "Date de saisine",
+       "Délai de traitement"
+     ].reject(&:blank?), style: header_style
+
+     delai = ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat) ?
+             "#{@acte.delai_traitement.to_i} jour#{'s' if @acte.delai_traitement.to_i != 1}" :
+             etat_acte(@acte)
+
+     row_data = [
+       @acte.instructeur,
+       @acte.valideur,
+       @acte.nature,
+     ]
+     row_styles = [cell_style, cell_style, cell_style]
+
+     if @acte.categorie_organisme == 'depense'
+       row_data << @acte.type_engagement
+       row_styles << cell_style
      end
 
-   sheet.add_row [
-     "Instructeur",
-     "Valideur",
-     "Nature de l'acte",
-     type_label,
-     montant_label,
-     "Montant de cet acte",
-     "Date de saisine",
-     "Délai de traitement"
-   ], style: header_style
-   sheet.add_row [
-         @acte.instructeur,
-         @acte.valideur,
-         @acte.nature,
-         @acte.type_engagement,
-         @acte.montant_global,
-         @acte.montant_ae,
-         @acte.date_chorus&.strftime('%d/%m/%Y'),
-         delai
-       ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
+     row_data += [@acte.montant_ae, @acte.type_montant]
+     row_styles += [currency_style, cell_style]
+
+     if @acte.categorie_organisme == 'depense'
+       row_data << @acte.montant_global
+       row_styles << currency_style
+     end
+
+     row_data += [@acte.annee, @acte.date_chorus&.strftime('%d/%m/%Y'), delai]
+     row_styles += [cell_style, cell_style, cell_style]
+
+     sheet.add_row row_data, style: row_styles
+   else
+     # Pour état (code original)
+     montant_label = case @acte.type_acte
+                    when 'avis' then 'Montant estimatif global (AE)'
+                    when 'visa' then 'Montant engagé'
+                    when 'TF' then 'Montant total affecté'
+                    end
+
+     type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
+     delai =
+       if ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat)
+         n = @acte.delai_traitement.to_i
+         "#{n} jour#{'s' if n != 1}"
+       else
+         etat_acte(@acte)
+       end
+
+     sheet.add_row [
+       "Instructeur",
+       "Valideur",
+       "Nature de l'acte",
+       type_label,
+       montant_label,
+       "Montant de cet acte",
+       "Date de saisine",
+       "Délai de traitement"
+     ], style: header_style
+     sheet.add_row [
+           @acte.instructeur,
+           @acte.valideur,
+           @acte.nature,
+           @acte.type_engagement,
+           @acte.montant_global,
+           @acte.montant_ae,
+           @acte.date_chorus&.strftime('%d/%m/%Y'),
+           delai
+         ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
+   end
    sheet.add_row
 
    # Deuxième table d'informations
-   headers = ["Exercice","Centre financier","N°Chorus"]
-   headers << "Bénéficiaire" if @acte.type_acte != 'TF'
-   headers << "N° d'affectation" if @acte.type_acte == 'TF'
-   objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
-   headers += [objet_label,"Ordonnateur"]
-  headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
-  headers << "Pré-instruction"
+   if @acte.perimetre == 'organisme'
+     # Pour organisme
+     headers = ["Opération compte tiers"]
+     headers << "Opération budgétaire" if @acte.operation_compte_tiers == false
 
-   sheet.add_row headers, style: header_style
+     nature_label = @acte.categorie_organisme == 'depense' ? "Nature de dépense" : "Destination recette"
+     headers << nature_label if @acte.operation_compte_tiers == false && @acte.operation_budgetaire == "Fléchée"
 
-   data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus.to_s]
-   data_styles = [cell_style, cell_style, text_style]
-   data_types = [:string, :string, :string]
+     headers += ["Budget exécutoire", "N°interne"]
+     headers << (@acte.categorie_organisme == 'depense' ? "Bénéficiaire" : "Partie versante")
+     headers << "Objet #{@acte.categorie_organisme == 'depense' ? 'de la dépense' : 'de la recette'}"
+     headers << "Service ordonnateur" if @acte.categorie_organisme == 'depense'
+     headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+     headers << "Pré-instruction"
 
-   if @acte.type_acte != 'TF'
-     data_row << @acte.beneficiaire
+     sheet.add_row headers, style: header_style
+
+     data_row = [@acte.operation_compte_tiers ? 'Oui' : 'Non']
+     data_styles = [cell_style]
+
+     if @acte.operation_compte_tiers == false
+       data_row << @acte.operation_budgetaire
+       data_styles << cell_style
+     end
+
+     if @acte.operation_compte_tiers == false && @acte.operation_budgetaire == "Fléchée"
+       data_row << @acte.nature_categorie_organisme
+       data_styles << cell_style
+     end
+
+     data_row += [@acte.budget_executoire ? 'Oui' : 'Non', @acte.numero_chorus.to_s, @acte.beneficiaire, @acte.objet]
+     data_styles += [cell_style, text_style, cell_style, cell_style]
+
+     if @acte.categorie_organisme == 'depense'
+       data_row << @acte.ordonnateur
+       data_styles << cell_style
+     end
+
+     if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+       data_row << @acte.nombre_actes
+       data_styles << cell_style
+     end
+
+     data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
+     data_styles << cell_style
+
+     sheet.add_row data_row, style: data_styles
+   else
+     # Pour état (code original)
+     headers = ["Exercice","Centre financier","N°Chorus"]
+     headers << "Bénéficiaire" if @acte.type_acte != 'TF'
+     headers << "N° d'affectation" if @acte.type_acte == 'TF'
+     objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
+     headers += [objet_label,"Ordonnateur"]
+    headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+    headers << "Pré-instruction"
+
+     sheet.add_row headers, style: header_style
+
+     data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus.to_s]
+     data_styles = [cell_style, cell_style, text_style]
+     data_types = [:string, :string, :string]
+
+     if @acte.type_acte != 'TF'
+       data_row << @acte.beneficiaire
+       data_styles << cell_style
+       data_types << :string
+     end
+
+     if @acte.type_acte == 'TF'
+       data_row << @acte.numero_tf.to_s
+       data_styles << text_style
+       data_types << :string
+     end
+
+     data_row += [@acte.objet, @acte.ordonnateur]
+     data_styles += [cell_style, cell_style]
+     data_types += [:string, :string]
+
+     if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+       data_row << @acte.nombre_actes
+       data_styles << cell_style
+       data_types << :integer
+     end
+
+     data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
      data_styles << cell_style
      data_types << :string
+
+     sheet.add_row data_row, style: data_styles, types: data_types
    end
-
-   if @acte.type_acte == 'TF'
-     data_row << @acte.numero_tf.to_s
-     data_styles << text_style
-     data_types << :string
-   end
-
-   data_row += [@acte.objet, @acte.ordonnateur]
-   data_styles += [cell_style, cell_style]
-   data_types += [:string, :string]
-
-   if @acte.nombre_actes.present? && @acte.nombre_actes > 1
-     data_row << @acte.nombre_actes
-     data_styles << cell_style
-     data_types << :integer
-   end
-
-   data_row << (@acte.pre_instruction? ? 'Oui' : 'Non')
-   data_styles << cell_style
-   data_types << :string
-
-   sheet.add_row data_row, style: data_styles, types: data_types
    sheet.add_row
 
    # Précisions sur l'acte
@@ -241,7 +336,67 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    end
 
    # INFORMATIONS COMPLÉMENTAIRES
-   if @acte.categorie.present? || @acte.action.present? || @acte.activite.present? || @acte.numero_marche.present? || @acte.numero_tf.present? || @acte.groupe_marchandises.present?
+   if @acte.perimetre == 'organisme'
+     # Pour organisme : délibération CA, destination, nomenclature, flux, services votés
+     if @acte.deliberation_ca.present? || @acte.destination.present? || @acte.nomenclature.present? || @acte.flux.present? || @acte.services_votes.present?
+       current_row = sheet.rows.length + 1
+       sheet.add_row ["INFORMATIONS COMPLÉMENTAIRES","","","","","","","", ""], style: section_header_style
+       sheet.merge_cells "A#{current_row}:I#{current_row}"
+       sheet.row_style current_row, section_header_style
+       sheet.rows[current_row-1].height = 30
+
+       comp_headers = ["Délibération du CA"]
+       comp_headers << "N° délibération" if @acte.deliberation_ca == true && @acte.numero_deliberation_ca.present?
+       comp_headers << "Date délibération" if @acte.deliberation_ca == true && @acte.date_deliberation_ca.present?
+       comp_headers << "Observations délibération" if @acte.deliberation_ca == true && @acte.observations_deliberation_ca.present?
+       comp_headers << "Destination" if @acte.categorie_organisme == 'depense' && @acte.destination.present?
+       comp_headers << "Nomenclature #{@acte.categorie_organisme == 'depense' ? 'achat' : 'recette'}" if @acte.nomenclature.present?
+       comp_headers << "Flux" if @acte.categorie_organisme == 'depense' && @acte.flux.present?
+       comp_headers << "Services votés"
+
+       sheet.add_row comp_headers, style: header_style
+
+       comp_data = [@acte.deliberation_ca ? 'Oui' : 'Non']
+       comp_styles = [cell_style]
+
+       if @acte.deliberation_ca == true && @acte.numero_deliberation_ca.present?
+         comp_data << @acte.numero_deliberation_ca
+         comp_styles << cell_style
+       end
+
+       if @acte.deliberation_ca == true && @acte.date_deliberation_ca.present?
+         comp_data << @acte.date_deliberation_ca.strftime('%d/%m/%Y')
+         comp_styles << cell_style
+       end
+
+       if @acte.deliberation_ca == true && @acte.observations_deliberation_ca.present?
+         comp_data << @acte.observations_deliberation_ca
+         comp_styles << cell_style
+       end
+
+       if @acte.categorie_organisme == 'depense' && @acte.destination.present?
+         comp_data << @acte.destination
+         comp_styles << cell_style
+       end
+
+       if @acte.nomenclature.present?
+         comp_data << @acte.nomenclature
+         comp_styles << cell_style
+       end
+
+       if @acte.categorie_organisme == 'depense' && @acte.flux.present?
+         comp_data << @acte.flux
+         comp_styles << cell_style
+       end
+
+       comp_data << (@acte.services_votes? ? 'Oui' : 'Non')
+       comp_styles << cell_style
+
+       sheet.add_row comp_data, style: comp_styles
+       sheet.add_row
+     end
+   elsif @acte.categorie.present? || @acte.action.present? || @acte.activite.present? || @acte.numero_marche.present? || @acte.numero_tf.present? || @acte.groupe_marchandises.present?
+     # Pour état (code original)
      current_row = sheet.rows.length + 1
      current_row = sheet.rows.length + 1
      sheet.add_row ["INFORMATIONS COMPLÉMENTAIRES","","","","","","","", ""], style: section_header_style
@@ -285,8 +440,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.add_row comp_data, style: comp_styles, types: comp_types
      sheet.add_row
    end
-   # LIGNES DE POSTE
-   if @acte.poste_lignes.present?
+
+   # LIGNES DE POSTE (uniquement pour état)
+   if @acte.perimetre != 'organisme' && @acte.poste_lignes.present?
          current_row = sheet.rows.length + 1
          sheet.add_row ["LIGNES DE POSTE","","","","","","","","", "", ""], style: section_header_style
          sheet.merge_cells "A#{current_row}:K#{current_row}"
@@ -329,51 +485,131 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # ÉCHÉANCIER
    if @acte.echeanciers.present?
      current_row = sheet.rows.length + 1
-     sheet.add_row ["ÉCHÉANCIER","",""], style: section_header_style
-     sheet.merge_cells "A#{current_row}:C#{current_row}"
-     sheet.row_style current_row, section_header_style
-     sheet.rows[current_row-1].height = 30
-     sheet.add_row ["Année", "Montant AE (€)", "Montant CP (€)"], style: header_style
 
-     @acte.echeanciers.order(annee: :asc).each do |echeancier|
-       sheet.add_row [
-         echeancier.annee,
-         echeancier.montant_ae,
-         echeancier.montant_cp
-       ], style: [cell_style, currency_style, currency_style]
+     if @acte.perimetre == 'organisme' && @acte.categorie_organisme == 'recette'
+       # Pour les recettes organisme : seulement 2 colonnes (Année, Montant)
+       sheet.add_row ["ÉCHÉANCIER",""], style: section_header_style
+       sheet.merge_cells "A#{current_row}:B#{current_row}"
+       sheet.row_style current_row, section_header_style
+       sheet.rows[current_row-1].height = 30
+       sheet.add_row ["Année", "Montant (€)"], style: header_style
+
+       @acte.echeanciers.order(annee: :asc).each do |echeancier|
+         sheet.add_row [
+           echeancier.annee,
+           echeancier.montant_ae
+         ], style: [cell_style, currency_style]
+       end
+     else
+       # Pour les autres cas : 3 colonnes (Année, Montant AE, Montant CP)
+       sheet.add_row ["ÉCHÉANCIER","",""], style: section_header_style
+       sheet.merge_cells "A#{current_row}:C#{current_row}"
+       sheet.row_style current_row, section_header_style
+       sheet.rows[current_row-1].height = 30
+       sheet.add_row ["Année", "Montant AE (€)", "Montant CP (€)"], style: header_style
+
+       @acte.echeanciers.order(annee: :asc).each do |echeancier|
+         sheet.add_row [
+           echeancier.annee,
+           echeancier.montant_ae,
+           echeancier.montant_cp
+         ], style: [cell_style, currency_style, currency_style]
+       end
      end
+
      sheet.add_row
    end
+
    # CRITÈRES
    current_row = sheet.rows.length + 1
    sheet.add_row ["CRITÈRES DE CONTRÔLE","","","", ""], style: section_header_style
    sheet.merge_cells "A#{current_row}:E#{current_row}"
    sheet.row_style current_row, section_header_style
    sheet.rows[current_row-1].height = 30
-   critere4 = @acte.services_votes == true ? "Engagement éligible à la gestion des services votés" : "Compatibilité programmation"
-    sheet.add_row [
-      "Acte programmé",
-      "Disponibilité des crédits",
-      "Imputation de la dépense",
-      "Exactitude de l'évaluation",
-      critere4
-    ], style: header_style
 
-    sheet.add_row [
-      @acte.programmation_prevue? ? "✓" : "✗",
-      @acte.disponibilite_credits? ? "✓" : "✗",
-      @acte.imputation_depense? ? "✓" : "✗",
-      @acte.consommation_credits? ? "✓" : "✗",
-      @acte.programmation? ? "✓" : "✗"
-    ], style: [
-    @acte.programmation_prevue? ? check_ok_style : check_ko_style,
-      @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
-      @acte.imputation_depense? ? check_ok_style : check_ko_style,
-      @acte.consommation_credits? ? check_ok_style : check_ko_style,
-      @acte.programmation? ? check_ok_style : check_ko_style
-    ]
+   if @acte.perimetre == 'organisme'
+     # Critères pour organisme
+     if @acte.categorie_organisme == 'recette' && @acte.operation_compte_tiers == true
+       # Cas spécial : recette + operation_compte_tiers
+       sheet.add_row [
+         "Conformité au seuil de contrôle",
+         "Concordance recettes/reversements"
+       ], style: header_style
+
+       sheet.add_row [
+         @acte.conformite? ? "✓" : "✗",
+         @acte.concordance_recettes_tiers? ? "✓" : "✗"
+       ], style: [
+         @acte.conformite? ? check_ok_style : check_ko_style,
+         @acte.concordance_recettes_tiers? ? check_ok_style : check_ko_style
+       ]
+     else
+       # Cas normal
+       headers = ["Acte programmé"]
+       row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
+       row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
+
+       if @acte.categorie_organisme == 'depense'
+         headers << "Disponibilité des crédits"
+         row_data << (@acte.disponibilite_credits? ? "✓" : "✗")
+         row_styles << (@acte.disponibilite_credits? ? check_ok_style : check_ko_style)
+       end
+
+       headers << "Imputation de la #{@acte.categorie_organisme == 'depense' ? 'dépense' : 'recette'}"
+       row_data << (@acte.imputation_depense? ? "✓" : "✗")
+       row_styles << (@acte.imputation_depense? ? check_ok_style : check_ko_style)
+
+       if @acte.categorie_organisme == 'depense'
+         headers << "Exactitude de l'évaluation"
+         row_data << (@acte.consommation_credits? ? "✓" : "✗")
+         row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
+       end
+
+       headers << "Compatibilité soutenabilité"
+       row_data << (@acte.soutenabilite? ? "✓" : "✗")
+       row_styles << (@acte.soutenabilite? ? check_ok_style : check_ko_style)
+
+       headers << "Conformité seuil contrôle"
+       row_data << (@acte.conformite? ? "✓" : "✗")
+       row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
+
+       if @acte.services_votes == true && @acte.categorie_organisme == 'depense'
+         headers << "Services votés"
+         row_data << (@acte.programmation? ? "✓" : "✗")
+         row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
+       end
+
+       sheet.add_row headers, style: header_style
+       sheet.add_row row_data, style: row_styles
+     end
+   else
+     # Critères pour état (code original)
+     critere4 = @acte.services_votes == true ? "Engagement éligible à la gestion des services votés" : "Compatibilité programmation"
+     sheet.add_row [
+       "Acte programmé",
+       "Disponibilité des crédits",
+       "Imputation de la dépense",
+       "Exactitude de l'évaluation",
+       critere4
+     ], style: header_style
+
+     sheet.add_row [
+       @acte.programmation_prevue? ? "✓" : "✗",
+       @acte.disponibilite_credits? ? "✓" : "✗",
+       @acte.imputation_depense? ? "✓" : "✗",
+       @acte.consommation_credits? ? "✓" : "✗",
+       @acte.programmation? ? "✓" : "✗"
+     ], style: [
+     @acte.programmation_prevue? ? check_ok_style : check_ko_style,
+       @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
+       @acte.imputation_depense? ? check_ok_style : check_ko_style,
+       @acte.consommation_credits? ? check_ok_style : check_ko_style,
+       @acte.programmation? ? check_ok_style : check_ko_style
+     ]
+   end
 
    sheet.add_row
+
    # Observations critères
    if @acte.commentaire_disponibilite_credits.present?
     current_row = sheet.rows.length + 1
@@ -422,7 +658,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    end
 
    sheet.column_widths(*Array.new(8, 30))
-   # -- Réglages d’impression (feuille principale)
+   # -- Réglages d'impression (feuille principale)
    last_row_index = sheet.rows.size # nombre total de lignes ajoutées
    sheet.page_setup.orientation   = :landscape
    sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur
@@ -441,7 +677,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      m.footer = 0.3
    end
 
-   # Si tu sais que la feuille tient en 8 colonnes (A:H), fixe la zone d’impression :
+   # Si tu sais que la feuille tient en 8 colonnes (A:H), fixe la zone d'impression :
    #sheet.print_area = "A1:H#{last_row_index}"
 end
 
@@ -470,7 +706,7 @@ write_grid = lambda do |sheet, rows|
 
   max_cols = rows.map { |r| Array(r).length }.max || 1
   sheet.column_widths(*Array.new(max_cols, 20))
-  # -- Réglages d’impression (feuille principale)
+  # -- Réglages d'impression (feuille principale)
   last_row_index = sheet.rows.size # nombre total de lignes ajoutées
   sheet.page_setup.orientation   = :landscape
   sheet.page_setup.fit_to_width  = 1      # tenir sur 1 page en largeur

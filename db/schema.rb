@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_21_143950) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -203,18 +203,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
     t.string "activite"
     t.integer "annee"
     t.string "beneficiaire"
+    t.boolean "budget_executoire", default: true
     t.string "categorie"
+    t.string "categorie_organisme"
     t.string "centre_financier_code"
     t.text "commentaire_proposition_decision"
+    t.boolean "concordance_recettes_tiers", default: true
+    t.boolean "conformite", default: true
     t.boolean "consommation_credits"
     t.datetime "created_at", null: false
     t.date "date_chorus"
     t.date "date_cloture"
+    t.date "date_deliberation_ca"
     t.date "date_limite"
     t.string "decision_finale"
     t.integer "delai_traitement"
+    t.boolean "deliberation_ca", default: false
+    t.string "destination"
     t.boolean "disponibilite_credits"
     t.string "etat"
+    t.string "flux"
     t.string "groupe_marchandises"
     t.boolean "imputation_depense"
     t.string "instructeur"
@@ -222,16 +230,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
     t.float "montant_ae"
     t.float "montant_global"
     t.string "nature"
+    t.string "nature_categorie_organisme"
+    t.string "nom_organisme"
     t.integer "nombre_actes"
+    t.string "nomenclature"
     t.string "numero_chorus"
+    t.string "numero_deliberation_ca"
     t.string "numero_formate"
     t.string "numero_marche"
     t.string "numero_tf"
     t.integer "numero_utilisateur"
     t.string "objet"
     t.text "observations"
+    t.text "observations_deliberation_ca"
+    t.string "operation_budgetaire"
+    t.boolean "operation_compte_tiers", default: false
     t.string "ordonnateur"
     t.string "pdf_generation_status", default: "none"
+    t.string "perimetre", default: "etat", null: false
     t.boolean "pre_instruction"
     t.text "precisions_acte"
     t.boolean "programmation"
@@ -241,8 +257,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
     t.boolean "services_votes", default: false
     t.jsonb "sheet_data", default: {"data" => []}
     t.string "sous_action"
+    t.boolean "soutenabilite", default: true
     t.string "type_acte", null: false
     t.string "type_engagement"
+    t.string "type_montant", default: "TTC"
     t.string "type_observations", default: [], array: true
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -252,10 +270,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
     t.index ["delai_traitement"], name: "index_ht2_actes_on_delai_traitement"
     t.index ["numero_formate"], name: "index_ht2_actes_on_numero_formate"
     t.index ["numero_utilisateur"], name: "index_ht2_actes_on_numero_utilisateur"
+    t.index ["perimetre"], name: "index_ht2_actes_on_perimetre"
     t.index ["user_id", "date_cloture", "annee"], name: "index_ht2_actes_on_user_cloture_annee"
     t.index ["user_id", "etat"], name: "index_ht2_actes_on_user_etat"
     t.index ["user_id", "updated_at"], name: "index_ht2_actes_on_user_updated_at"
     t.index ["user_id"], name: "index_ht2_actes_on_user_id"
+  end
+
+  create_table "ht2_actes_organismes", id: false, force: :cascade do |t|
+    t.bigint "ht2_acte_id", null: false
+    t.bigint "organisme_id", null: false
+    t.index ["ht2_acte_id", "organisme_id"], name: "index_ht2_actes_organismes_on_ht2_acte_id_and_organisme_id"
+    t.index ["organisme_id", "ht2_acte_id"], name: "index_ht2_actes_organismes_on_organisme_id_and_ht2_acte_id"
   end
 
   create_table "ministeres", force: :cascade do |t|
@@ -268,6 +294,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
     t.datetime "created_at", null: false
     t.string "nom"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "organismes", force: :cascade do |t|
+    t.string "acronyme"
+    t.datetime "created_at", null: false
+    t.integer "id_opera"
+    t.string "nom", null: false
+    t.string "statut"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["id_opera"], name: "index_organismes_on_id_opera"
+    t.index ["nom"], name: "index_organismes_on_nom"
+    t.index ["user_id"], name: "index_organismes_on_user_id"
   end
 
   create_table "poste_lignes", force: :cascade do |t|
@@ -489,6 +528,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_172239) do
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
   add_foreign_key "ht2_actes", "users"
+  add_foreign_key "organismes", "users"
   add_foreign_key "poste_lignes", "ht2_actes"
   add_foreign_key "programmes", "ministeres"
   add_foreign_key "programmes", "missions"

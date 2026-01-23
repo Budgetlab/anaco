@@ -1,0 +1,79 @@
+<% content_for :title do %>Import liste des Organismes | ANACO <% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container fr-mt-7w">
+    <div class="fr-col-lg-10 fr-col-offset-lg-1">
+      <h1>Importer une liste d'organismes</h1>
+
+      <% if notice.present? %>
+        <div class="fr-alert fr-alert--success fr-mb-4w">
+          <p><%= notice %></p>
+        </div>
+      <% end %>
+
+      <% if alert.present? %>
+        <div class="fr-alert fr-alert--error fr-mb-4w">
+          <p><%= alert %></p>
+        </div>
+      <% end %>
+
+      <div class="fr-mb-6w">
+        <h2 class="fr-h6">Format du fichier Excel attendu</h2>
+        <p class="fr-text--sm">Le fichier doit contenir les colonnes suivantes :</p>
+        <ul class="fr-text--sm">
+          <li><strong>Nom</strong> : Nom de l'organisme (obligatoire)</li>
+          <li><strong>Acronyme</strong> : Acronyme de l'organisme</li>
+          <li><strong>Statut</strong> : Statut de l'organisme (ex: actif, inactif)</li>
+          <li><strong>Nom user</strong> : Nom de l'utilisateur associé</li>
+          <li><strong>Id opera</strong> : Identifiant Opera (numéro)</li>
+        </ul>
+      </div>
+
+      <div>
+        <%= form_tag import_organismes_path, multipart: true do %>
+          <div class="fr-upload-group">
+            <label class="fr-label" for="file-upload">Ajouter un fichier
+              <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : xlsx</span>
+            </label>
+            <%= file_field_tag :file, accept: '.xlsx', class: "fr-upload", id: "file-upload", required: true %>
+          </div>
+          <div class="fr-my-4w">
+            <%= submit_tag "Importer", class: "fr-btn" %>
+            <%= link_to "Annuler", root_path, class: "fr-btn fr-btn--secondary fr-ml-2w" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="fr-my-6w">
+        <h2 class="fr-h5">Liste des organismes (<%= Organisme.count %>)</h2>
+        <% if @organismes.any? %>
+          <div class="fr-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Acronyme</th>
+                  <th>Statut</th>
+                  <th>Utilisateur</th>
+                  <th>ID Opera</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @organismes.each do |organisme| %>
+                  <tr>
+                    <td><%= organisme.nom %></td>
+                    <td><%= organisme.acronyme %></td>
+                    <td><%= organisme.statut %></td>
+                    <td><%= organisme.user.nom if organisme.user %></td>
+                    <td><%= organisme.id_opera %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p class="fr-text--sm">Aucun organisme enregistré pour le moment.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</main>

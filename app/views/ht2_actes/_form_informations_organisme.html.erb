@@ -1,0 +1,384 @@
+<h2>Informations sur l'acte</h2>
+<div class="cwarning fr-mb-2w">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
+<div data-controller="acte-form">
+  <%= form_with(model: @acte, data: { 'acte-form-target': "form", controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', action: "submit->acte-form#changeTextToFloat" }) do |f| %>
+    <% if params[:parent_id].present? %>
+      <%= hidden_field_tag :parent_id, params[:parent_id] %>
+    <% end %>
+    <%= hidden_field_tag :etape, 2 %>
+    <%= f.hidden_field :type_acte, value: @acte.type_acte %>
+    <%= f.hidden_field :etat, value: @acte.etat %>
+    <%= f.hidden_field :pre_instruction, value: @acte.pre_instruction %>
+    <%= f.hidden_field :perimetre, value: @acte.perimetre %>
+    <%= f.hidden_field :categorie_organisme, value: @acte.categorie_organisme %>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="instructeur" class="fr-label">Initiales de l'instructeur*</label>
+          <%= f.text_field :instructeur, value: @acte.instructeur, id: "instructeur", class: "fr-input", required: true %>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="nature" class="fr-label">
+            Nature de l'acte*
+          </label>
+          <%= f.select :nature, options_for_select(@liste_natures.map { |nature| [nature, nature] }, @acte.nature), { prompt: "- sélectionner -" }, { id: "nature", class: "fr-select", required: true } %>
+        </div>
+      </div>
+      <% if @acte.categorie_organisme == "depense" %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="type_engagement" class="fr-label">
+              Type d'engagement*
+            </label>
+            <%= f.select :type_engagement, options_for_select(@liste_engagements.map { |nature| [nature, nature] }, @acte.type_engagement), { prompt: "- sélectionner -" }, { id: "type_engagement", class: "fr-select", required: true, data: { acte_form_target: "typeEngagement" } } %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group" data-controller="autocomplete-organisme" data-autocomplete-organisme-url-value="<%= organismes_autocomplete_path %>">
+          <label for="nom_organisme" class="fr-label">Nom de l'organisme*</label>
+          <%= f.text_field :nom_organisme, value: @acte.nom_organisme, id: "nom_organisme", class: "fr-input", required: true,
+                           data: {
+                             action: "input->autocomplete-organisme#search",
+                             autocomplete_organisme_target: "input"
+                           } %>
+          <div class="autocomplete-results" data-autocomplete-organisme-target="results" hidden>
+            <!-- Les résultats seront insérés ici par JavaScript -->
+          </div>
+          <p class="fr-message fr-message--info fr-text--small" data-autocomplete-organisme-target="noResults">
+            Cet organisme n'est pas enregistré dans notre base
+          </p>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="annee" class="fr-label">Exercice*</label>
+          <%= f.select :annee,
+                       options_for_select((Date.today.year - 10..Date.today.year + 1).to_a.reverse.map { |year| [year, year] }, @acte.annee || Date.today.year),
+                       { prompt: "- séléctionner -" },
+                       { id: "annee", class: "fr-select", required: true } %>
+        </div>
+      </div>
+
+      <% if @acte.etat != 'en pré-instruction' %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-select-group">
+            <label for="date_chorus" class="fr-label">Date de saisine*</label>
+            <%= f.text_field :date_chorus, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_chorus), id: "date_chorus", placeholder: "- sélectionner -", required: true %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="montant_ae" class="fr-label">
+            Montant de l'acte*
+          </label>
+          <%= f.text_field :montant_ae, value: @acte.montant_ae, id: "montant_ae", class: "fr-input", required: true, data: { acte_form_target: "montantAe", action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="type-montant-legend">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="type-montant-legend">
+            Type de montant*
+          </legend>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :type_montant, "TTC", id: "type_montant_ttc", checked: @acte.type_montant == "TTC" || @acte.type_montant.nil? %>
+              <label class="fr-label" for="type_montant_ttc">TTC</label>
+            </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :type_montant, "HT", id: "type_montant_ht" %>
+              <label class="fr-label" for="type_montant_ht">HT</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <% if @acte.categorie_organisme == "depense" %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="montant_global" class="fr-label">
+              Montant total
+            </label>
+            <%= f.text_field :montant_global, value: @acte.montant_global, id: "montant_global", class: "fr-input", data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field operation-budgetaire" data-conditional-field-inverse-value="true">
+      <div class="fr-col-12 fr-col-lg-4">
+        <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="operation-compte-tiers-legend">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="operation-compte-tiers-legend">
+            Opération pour compte de tiers*
+          </legend>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :operation_compte_tiers, true, id: "operation_compte_tiers_oui", data: { action: "change->conditional-field#toggle change->operation-budgetaire#toggle", conditional_field_target: "checkbox" } %>
+              <label class="fr-label" for="operation_compte_tiers_oui">Oui</label>
+            </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :operation_compte_tiers, false, id: "operation_compte_tiers_non", checked: @acte.operation_compte_tiers == false || @acte.operation_compte_tiers.nil?, data: { action: "change->conditional-field#toggle change->operation-budgetaire#toggle", conditional_field_target: "checkbox" } %>
+              <label class="fr-label" for="operation_compte_tiers_non">Non</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true %>" data-conditional-field-target="field">
+        <div class="fr-select-group">
+          <label for="operation_budgetaire" class="fr-label">
+            Opération budgétaire*
+          </label>
+          <%= f.select :operation_budgetaire, options_for_select([['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']], @acte.operation_budgetaire), { prompt: "- sélectionner -" }, { id: "operation_budgetaire", class: "fr-select", required: true, data: { action: "change->operation-budgetaire#toggle" } } %>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true || @acte.operation_budgetaire == 'Globalisée' %>" data-conditional-field-target="field" data-operation-budgetaire-target="natureField">
+        <div class="fr-select-group">
+          <label for="nature_categorie_organisme" class="fr-label">
+            <%= @acte.categorie_organisme == 'depense' ? 'Nature de la dépense*' : 'Destination de la recette*' %>
+          </label>
+          <%= f.select :nature_categorie_organisme, options_for_select([['Investissement', 'Investissement'], ['Fonctionnement', 'Fonctionnement'], ['Intervention', 'Intervention']], @acte.nature_categorie_organisme), { prompt: "- sélectionner -" }, { id: "nature_categorie_organisme", class: "fr-select", required: true } %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="budget-executoire-legend">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="budget-executoire-legend">
+            Budget exécutoire*
+          </legend>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :budget_executoire, true, id: "budget_executoire_oui", checked: @acte.budget_executoire == true || @acte.budget_executoire.nil? %>
+              <label class="fr-label" for="budget_executoire_oui">Oui</label>
+            </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= f.radio_button :budget_executoire, false, id: "budget_executoire_non" %>
+              <label class="fr-label" for="budget_executoire_non">Non</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="numero_chorus" class="fr-label">N° de l'acte interne à l'organisme</label>
+          <%= f.text_field :numero_chorus, value: @acte.numero_chorus, id: "numero_chorus", class: "fr-input" %>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="beneficiaire" class="fr-label"><%= @acte.categorie_organisme == 'depense' ? 'Bénéficiaire' : 'Partie versante' %></label>
+          <%= f.text_field :beneficiaire, value: @acte.beneficiaire, id: "beneficiaire", class: "fr-input" %>
+        </div>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="objet" class="fr-label">
+            Objet de la <%= @acte.categorie_organisme == 'depense' ? 'dépense' : 'recette' %>
+          </label>
+          <%= f.text_field :objet, value: @acte.objet, id: "objet", class: "fr-input" %>
+        </div>
+      </div>
+      <% if @acte.categorie_organisme == "depense" %>
+        <div class="fr-col-12 fr-col-lg-4">
+          <div class="fr-input-group">
+            <label for="ordonnateur" class="fr-label">Service ordonnateur</label>
+            <%= f.text_field :ordonnateur, value: @acte.ordonnateur, id: "ordonnateur", class: "fr-input" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :liste_actes, id: "liste_actes", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+          <label class="fr-label" for="liste_actes">Cette instruction concerne une liste d'actes.</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless @acte.liste_actes %>" data-conditional-field-target="field">
+        <div class="fr-input-group">
+          <label for="nombre_actes" class="fr-label">Nombre d'actes</label>
+          <%= f.number_field :nombre_actes, id: "nombre_actes", class: "fr-input", min: 1, value: @acte.nombre_actes %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-input-group">
+          <label for="precisions_acte" class="fr-label">Précisions sur l'acte</label>
+          <%= f.text_area :precisions_acte, class: 'fr-input' %>
+        </div>
+
+      </div>
+    </div>
+
+    <% has_nested_data = @acte.deliberation_ca || @acte.destination.present? || @acte.nomenclature.present? || @acte.flux.present? || @acte.echeanciers.any? %>
+    <div data-controller="toggle">
+      <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+              data-action="click->toggle#toggleContent"
+              data-toggle-target="button"
+              data-toggle-text-show="Renseigner plus d'informations"
+              data-toggle-text-hide="Afficher moins">
+        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations' %>
+      </button>
+      <div class="<%= 'fr-hidden' unless has_nested_data %>" data-toggle-target="content">
+
+        <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+          <div class="fr-col-12 fr-col-lg-4">
+            <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="deliberation-ca-legend">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="deliberation-ca-legend">
+                Délibération en CA nécessaire
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group">
+                  <%= f.radio_button :deliberation_ca, true, id: "deliberation_ca_oui", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+                  <label class="fr-label" for="deliberation_ca_oui">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group">
+                  <%= f.radio_button :deliberation_ca, false, id: "deliberation_ca_non", checked: @acte.deliberation_ca == false || @acte.deliberation_ca.nil?, data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+                  <label class="fr-label" for="deliberation_ca_non">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless @acte.deliberation_ca %>" data-conditional-field-target="field">
+            <div class="fr-input-group">
+              <label for="numero_deliberation_ca" class="fr-label">N° délibération</label>
+              <%= f.text_field :numero_deliberation_ca, id: "numero_deliberation_ca", class: "fr-input", value: @acte.numero_deliberation_ca %>
+            </div>
+          </div>
+
+          <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless @acte.deliberation_ca %>" data-conditional-field-target="field">
+            <div class="fr-select-group">
+              <label for="date_deliberation_ca" class="fr-label">Date délibération</label>
+              <%= f.text_field :date_deliberation_ca, class: "fr-select", data: { controller: "flatpickr", flatpickr_default_date: format_date(@acte.date_deliberation_ca) }, value: format_date(@acte.date_deliberation_ca), id: "date_deliberation_ca", placeholder: "- sélectionner -" %>
+            </div>
+          </div>
+
+          <div class="fr-col-12 fr-col-lg-12 <%= 'fr-hidden' unless @acte.deliberation_ca %>" data-conditional-field-target="field">
+            <div class="fr-input-group">
+              <label for="observations_deliberation_ca" class="fr-label">Observations sur la délibération</label>
+              <%= f.text_area :observations_deliberation_ca, id: "observations_deliberation_ca", class: "fr-input" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <% if @acte.categorie_organisme == "depense" %>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-input-group">
+                <label for="destination" class="fr-label">Destination</label>
+                <%= f.text_field :destination, id: "destination", class: "fr-input", value: @acte.destination %>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="fr-col-12 fr-col-lg-4">
+            <div class="fr-input-group">
+              <label for="nomenclature" class="fr-label">Nomenclature <%= @acte.categorie_organisme == 'depense' ? 'achat' : 'recette' %></label>
+              <%= f.text_field :nomenclature, id: "nomenclature", class: "fr-input", value: @acte.nomenclature %>
+            </div>
+          </div>
+          <% if @acte.categorie_organisme == "depense" %>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-select-group">
+                <label for="flux" class="fr-label">Flux</label>
+                <%= f.select :flux, options_for_select([['1', '1'], ['2', '2'], ['3', '3'], ['4', '4']], @acte.flux), { include_blank: "- sélectionner -" }, { id: "flux", class: "fr-select" } %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :services_votes, { id: "services_votes", checked: (@acte.new_record? && @phase == "services votés") || @acte.services_votes }, checked_value: true, unchecked_value: false %>
+          <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
+        </div>
+
+        <div class="fr-h6 fr-my-2w">Échéancier (facultatif)</div>
+
+        <template data-nested-form-target="template">
+          <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>
+            <%= render "form_echeancier", f: echeancier_fields, acte: @acte %>
+          <% end %>
+        </template>
+
+        <%= f.fields_for :echeanciers, f.object.echeanciers do |echeancier_fields| %>
+          <%= render "form_echeancier", f: echeancier_fields, acte: @acte %>
+        <% end %>
+
+        <!-- Inserted elements will be injected before that target. -->
+        <div data-nested-form-target="target"></div>
+        <button type="button" data-action="nested-form#add" class="fr-link fr-icon-add-line fr-link--icon-left fr-mb-2w">
+          Ajouter une année
+        </button>
+
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w" id="total_echeancier_card">
+          <% if @acte.categorie_organisme == 'recette' %>
+            <div class="fr-col-12 fr-col-lg-4">
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierAE">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+            </div>
+          <% else %>
+            <div class="fr-col-12 fr-col-lg-4">
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total AE</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierAE">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center">Montant total CP</p>
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold">
+                    <span data-acte-form-target="totalMontantEcheancierCP">0</span>
+                    €</p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-mt-2w">
+      <%= f.submit "Continuer", class: "fr-btn", name: nil %>
+    </div>
+  <% end %>
+</div>

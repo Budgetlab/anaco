@@ -1,5 +1,9 @@
 <div class="nested-form-wrapper fr-mb-3w" data-new-record="<%= f.object.new_record? %>">
   <div class="fr-grid-row fr-grid-row--gutters">
+    <%
+      # Déterminer si on affiche le champ CP
+      show_cp = local_assigns[:acte].blank? || local_assigns[:acte].categorie_organisme != 'recette'
+    %>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group" data-controller="year-validation">
         <label for="annee" class="fr-label">Année</label>
@@ -9,16 +13,18 @@
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="echeancier_ae" class="fr-label">Montant en AE</label>
+        <label for="echeancier_ae" class="fr-label">Montant <%= show_cp ? 'en AE' : '' %></label>
         <%= f.text_field :montant_ae, id: "echeancier_ae", class: "fr-input", required: true , data: {action: "input->acte-form#changeNumber input->acte-form#updateTotalEcheancier", acte_form_number_field: true } %>
       </div>
     </div>
-    <div class="fr-col-12 fr-col-lg-4">
-      <div class="fr-input-group">
-        <label for="echeancier_cp" class="fr-label">Montant en CP</label>
-        <%= f.text_field :montant_cp, id: "echeancier_cp", class: "fr-input", required: true , data: {action: "input->acte-form#changeNumber input->acte-form#updateTotalEcheancier", acte_form_number_field: true } %>
+    <% if show_cp %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-input-group">
+          <label for="echeancier_cp" class="fr-label">Montant en CP</label>
+          <%= f.text_field :montant_cp, id: "echeancier_cp", class: "fr-input", required: true , data: {action: "input->acte-form#changeNumber input->acte-form#updateTotalEcheancier", acte_form_number_field: true } %>
+        </div>
       </div>
-    </div>
+    <% end %>
   </div>
   <button type="button" data-action="acte-form#updateTotalDeleteEcheancier nested-form#remove">Supprimer l'année <span class="fr-icon-delete-bin-line fr-icon--sm cbleu"></span></button>
   <%= f.hidden_field :_destroy %>

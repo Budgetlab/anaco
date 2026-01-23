@@ -1,6 +1,7 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
+  has_and_belongs_to_many :organismes
   # Association via le champ centre_financier_code principal
   belongs_to :centre_financier_principal,
              class_name: 'CentreFinancier',
@@ -18,7 +19,7 @@ class Ht2Acte < ApplicationRecord
   has_many :poste_lignes, dependent: :destroy
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
-  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? }, allow_destroy: true
   before_save :upcase_centre_financier_code
   after_save :set_etat_acte
   after_save :set_numero_utilisateur, if: :saved_change_to_annee?
@@ -38,6 +39,8 @@ class Ht2Acte < ApplicationRecord
   scope :clotures_seuls, -> { where(etat: 'clôturé') }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
+  scope :perimetre_etat, -> { where(perimetre: 'etat') }
+  scope :perimetre_organisme, -> { where(perimetre: 'organisme') }
   # Ceux qui ne sont pas clos (année N , N-1 ..) + ceux qui sont clos sur l'annee N
   scope :actifs_annee_courante, -> {
     where(
@@ -57,10 +60,10 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nombre_actes", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pdf_generation_status", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "beneficiaire", "budget_executoire", "categorie", "categorie_organisme", "centre_financier_code", "commentaire_proposition_decision", "concordance_recettes_tiers", "conformite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_deliberation_ca", "date_limite", "decision_finale", "delai_traitement", "deliberation_ca", "destination", "disponibilite_credits", "etat", "flux", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nature_categorie_organisme", "nombre_actes", "nom_organisme", "nomenclature", "numero_chorus", "numero_deliberation_ca", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "observations_deliberation_ca", "operation_budgetaire", "operation_compte_tiers", "ordonnateur", "pdf_generation_status", "perimetre", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "soutenabilite", "type_acte", "type_engagement", "type_montant", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
+    ["centre_financier_principal", "centre_financiers", "echeanciers", "organismes", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
   # Custom ransacker pour filtrer par présence de suspensions

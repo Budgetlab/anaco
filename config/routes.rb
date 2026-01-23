@@ -110,6 +110,10 @@ Rails.application.routes.draw do
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
 
+    resources :organismes, only: [:new, :index]
+    post 'import_organismes', to: 'organismes#import'
+    get '/organismes/autocomplete', to: 'organismes#autocomplete'
+
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'
     get '/accessibilite', to: 'pages#accessibilite'

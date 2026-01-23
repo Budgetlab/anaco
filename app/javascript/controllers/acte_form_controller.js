@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption"]
     static values = { prefixes: Object }
     connect() {
 
@@ -11,7 +11,7 @@ export default class extends Controller {
         if (this.hasTotalMontantTarget) {
             this.updateTotalLignesPoste()
         }
-        if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
+        if (this.hasTotalMontantEcheancierAETarget) {
             this.updateTotalEcheancier()
         }
         if (this.hasDecisionTarget){
@@ -23,6 +23,10 @@ export default class extends Controller {
         }
         if (this.hasEtatClotureRadioTarget){
             this.toggleCloture()
+        }
+        if (this.hasPerimetreRadioTarget){
+            // modal nouvel acte - choix périmètre
+            this.togglePerimetre()
         }
     }
     setValidation(event) {
@@ -297,33 +301,36 @@ export default class extends Controller {
     updateTotalEcheancier(){
         // récupérer bloc
         const montant_card = document.getElementById('total_echeancier_card')
-        // Récupérer tous les champs de montant
-        const montantFields_cp = document.querySelectorAll('input[id="echeancier_cp"]')
-        // Calculer la somme
-        let total_cp = 0
-        montantFields_cp.forEach(field => {
-            // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
-            const value = this.numberFormat(field.value) || 0
-            total_cp += value
-        })
-        // Afficher le total formaté
-        this.totalMontantEcheancierCPTarget.textContent = total_cp.toLocaleString('fr-FR')
 
-        // Récupérer tous les champs de montant
+        // Récupérer tous les champs de montant AE
         const montantFields_ae = document.querySelectorAll('input[id="echeancier_ae"]')
-        // Calculer la somme
+        // Calculer la somme AE
         let total_ae = 0
         montantFields_ae.forEach(field => {
             // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
             const value = this.numberFormat(field.value) || 0
             total_ae += value
         })
-
         // Afficher le total formaté
         this.totalMontantEcheancierAETarget.textContent = total_ae.toLocaleString('fr-FR')
 
+        // Gérer le total CP seulement si le target existe (pas pour les recettes organisme)
+        let total_cp = 0
+        if (this.hasTotalMontantEcheancierCPTarget) {
+            // Récupérer tous les champs de montant CP
+            const montantFields_cp = document.querySelectorAll('input[id="echeancier_cp"]')
+            // Calculer la somme
+            montantFields_cp.forEach(field => {
+                // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
+                const value = this.numberFormat(field.value) || 0
+                total_cp += value
+            })
+            // Afficher le total formaté
+            this.totalMontantEcheancierCPTarget.textContent = total_cp.toLocaleString('fr-FR')
+        }
+
         // afficher le bloc si lignes présentes
-        if (montantFields_cp.length === 0 || (montantFields_cp.length === 1 && total_cp === 0 && total_ae ===0)) { // gérer le cas ou supp unique ligne de post length == 1
+        if (montantFields_ae.length === 0 || (montantFields_ae.length === 1 && total_cp === 0 && total_ae === 0)) { // gérer le cas ou supp unique ligne de post length == 1
             montant_card.classList.add('fr-hidden')
         }else{
             montant_card.classList.remove('fr-hidden')
@@ -338,7 +345,9 @@ export default class extends Controller {
         const montantField_ae = ligneWrapper.querySelector('#echeancier_ae');
         const montantField_cp = ligneWrapper.querySelector('#echeancier_cp');
         montantField_ae.value = null;
-        montantField_cp.value = null;
+        if (montantField_cp) {
+            montantField_cp.value = null;
+        }
         this.updateTotalEcheancier();
     }
 
@@ -361,6 +370,51 @@ export default class extends Controller {
         if (show && !this.preRadioTargets.some(r => r.checked)) {
             const non = this.preRadioTargets.find(r => r.id === 'pre_instruction_no' || r.value === 'false')
             if (non) non.checked = true
+        }
+    }
+
+    // Modal affichage choix catégorie et type d'acte selon périmètre
+    togglePerimetre(event){
+        const selected = this.perimetreRadioTargets.find(r => r.checked)?.value
+        const isOrganisme = selected === "organisme"
+
+        // Afficher/cacher le bloc catégorie (visible seulement pour Organisme)
+        if (this.hasCategorieBlockTarget) {
+            if (isOrganisme) {
+                this.categorieBlockTarget.classList.remove('fr-hidden')
+            } else {
+                this.categorieBlockTarget.classList.add('fr-hidden')
+            }
+
+            // Gérer le required sur les champs de catégorie
+            if (this.hasCategorieRadioTarget) {
+                this.categorieRadioTargets.forEach((el) => {
+                    if (!isOrganisme) {
+                        el.checked = false
+                        el.required = false
+                    } else {
+                        el.required = true
+                    }
+                })
+            }
+        }
+
+        // Afficher/cacher l'option TF (visible seulement pour État)
+        if (this.hasTfOptionTarget) {
+            if (isOrganisme) {
+                this.tfOptionTarget.classList.add('fr-hidden')
+            } else {
+                this.tfOptionTarget.classList.remove('fr-hidden')
+            }
+
+            // Si on passe à Organisme et que TF est sélectionné, décocher
+            const tfRadio = document.getElementById('TF')
+            if (isOrganisme && tfRadio && tfRadio.checked) {
+                tfRadio.checked = false
+                // Sélectionner Avis par défaut
+                const avisRadio = document.getElementById('avis')
+                if (avisRadio) avisRadio.checked = true
+            }
         }
     }
 

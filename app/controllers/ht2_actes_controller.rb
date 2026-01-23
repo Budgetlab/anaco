@@ -1,4 +1,6 @@
 class Ht2ActesController < ApplicationController
+  include Ht2ActesHelper
+
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
@@ -243,7 +245,9 @@ class Ht2ActesController < ApplicationController
       etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
       type_engagement = type_acte == "TF" ? 'Affectation initiale' : 'Engagement initial'
       pre_instruction = params[:pre_instruction] == 'true'
-      @acte = current_user.ht2_actes.new(type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction)
+      perimetre = params[:perimetre].present? && ['etat', 'organisme'].include?(params[:perimetre]) ? params[:perimetre] : 'etat'
+      categorie_organisme = params[:categorie_organisme].present? && ['depense', 'recette'].include?(params[:categorie_organisme]) ? params[:categorie_organisme] : nil
+      @acte = current_user.ht2_actes.new(type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction, perimetre: perimetre, categorie_organisme: categorie_organisme)
     end
     set_variables_form
   end
@@ -786,7 +790,10 @@ class Ht2ActesController < ApplicationController
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
                                      :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement,:programmation_prevue,
-                                     :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, type_observations: [],
+                                     :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, :perimetre, :categorie_organisme, :nom_organisme,
+                                     :type_montant, :operation_compte_tiers, :operation_budgetaire, :nature_categorie_organisme, :budget_executoire,
+                                     :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca, :destination, :nomenclature, :flux,
+                                     :soutenabilite, :conformite, :concordance_recettes_tiers, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
@@ -797,22 +804,84 @@ class Ht2ActesController < ApplicationController
   end
 
   def set_variables_form
-    if (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
-      @liste_natures = ['Accord cadre à bons de commande', 'Accord cadre à marchés subséquents', 'Autre contrat', 'Convention', 'Marché subséquent à bons de commande', 'MAPA à bons de commande', 'Transaction', 'Autre']
-      @liste_decisions = ['Favorable', 'Favorable avec observations', 'Défavorable', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
-      @liste_types_observations = ["Acte déjà signé par l’ordonnateur","Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Engagement initial prévisionnel', 'Engagement complémentaire prévisionnel']
+    # Gestion spécifique pour le périmètre organisme
+    perimetre = params[:perimetre] || @acte&.perimetre
+    categorie_organisme = params[:categorie_organisme] || @acte&.categorie_organisme
+    type_acte = params[:type_acte] || @acte&.type_acte
+
+    if perimetre == 'organisme' && categorie_organisme == 'depense'
+      @liste_natures = [
+        "Accord cadre à bons de commande",
+        "Acquisition d'œuvres",
+        "Acquisition immobilière",
+        "Attribution de garanties",
+        "Autre contrat",
+        "Bail",
+        "Bon de commande",
+        "Conseil",
+        "Convention",
+        "Décision diverse",
+        "Emprunt autorisé",
+        "Intervention",
+        "Marché à tranches",
+        "Marché mixte",
+        "Marché subséquent à bons de commande",
+        "Marché unique",
+        "MAPA à tranches",
+        "MAPA mixte",
+        "MAPA unique",
+        "Participation et apport à toute entité",
+        "Prêt ou avance",
+        "Remboursement de mise à disposition T3",
+        "Subvention",
+        "Transaction",
+        "Autre"
+      ]
+      # Pour organisme dépense, @liste_engagements dépend du type_acte
+      if type_acte == 'avis'
+        @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
+      else
+        @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
+      end
+      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte déjà soumis au contrôle", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine à postériori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+    elsif perimetre == 'organisme' && categorie_organisme == 'recette'
+      @liste_natures = [
+        "Aliénation immobilière",
+        "Cession de participation et retrait d’apport à toute entité",
+        "Convention et contrat en recette",
+        "Autre"
+      ]
+      # Pour organisme recette, pas de @liste_engagements
+      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine à postériori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
+      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Convention", "Marché subséquent à bons de commande", "MAPA à bons de commande", "Transaction", "Autre"]
+      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
-      @liste_natures = ['Autre contrat', 'Bail', 'Bon de commande', 'Convention', 'Décision diverse', 'Dotation en fonds propres', 'Marché unique', 'Marché à tranches', 'Marché mixte', 'MAPA unique', 'MAPA à tranches', 'MAPA mixte', 'Prêt ou avance', 'Remboursement de mise à disposition T3', 'Subvention', "Subvention pour charges d'investissement", 'Subvention pour charges de service public', 'Transaction', 'Transfert', 'Autre']
-      @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
-      @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle",'Compatibilité avec la programmation', 'Construction de l’EJ', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique',"Hors périmètre du CBR/DCB", 'Imputation', 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Engagement initial', 'Engagement complémentaire', "Retrait d'engagement"]
+      @liste_natures = ["Autre contrat", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
+      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_decisions = ['Visa accordé', 'Visa accordé avec observations', 'Refus de visa', 'Retour sans décision (sans suite)', 'Saisine a posteriori']
-      @liste_types_observations = ["Acte déjà signé par l’ordonnateur", "Acte non soumis au contrôle", 'Compatibilité avec la programmation', 'Disponibilité des crédits', 'Évaluation de la consommation des crédits', 'Fondement juridique', 'Imputation',"Hors périmètre du CBR/DCB", 'Pièce(s) manquante(s)', "Problème dans la rédaction de l'acte", 'Risque au titre de la RGP', 'Saisine a posteriori', 'Saisine en dessous du seuil de soumission au contrôle', 'Autre']
-      @liste_engagements = ['Affectation initiale', 'Affectation complémentaire', 'Retrait']
+      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Hors périmètre du CBR/DCB", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
     end
-    @liste_motifs_suspension = ['Défaut du circuit d’approbation Chorus',"Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", 'Erreur d’imputation', 'Erreur dans la construction de l’EJ', 'Mauvaise évaluation de la consommation des crédits', 'Pièce(s) manquante(s)','Non conformité des pièces', 'Problématique de compatibilité avec la programmation', 'Problématique de disponibilité des crédits', 'Problématique de soutenabilité', 'Saisine a posteriori', 'Autre']
+
+    # @liste_decisions définie uniquement en fonction du type_acte
+    if type_acte == 'avis'
+      @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    else
+      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    end
+
+    # @liste_motifs_suspension définie en fonction du périmètre
+    if perimetre == 'organisme' && categorie_organisme == 'depense'
+      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Mauvaise évaluation de la consommation des crédits", "Non conformité des pièces", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine à postériori", "Autre"]
+    elsif perimetre == 'organisme' && categorie_organisme == 'recette'
+      @liste_motifs_suspension = ["Demande d'éléments complémentaires", "Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine à postériori", "Autre"]
+    else
+      # Liste pour périmètre état (liste par défaut)
+      @liste_motifs_suspension = ["Défaut du circuit d'approbation Chorus", "Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", "Erreur d'imputation", "Erreur dans la construction de l'EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Non conformité des pièces", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
+    end
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
   end
 
@@ -857,7 +926,11 @@ class Ht2ActesController < ApplicationController
     redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
 
     @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
-    redirect_to edit_ht2_acte_path(@acte, etape: 2) and return if @acte.disponibilite_credits.nil? && @etape == 3
+
+    # Vérifier que l'étape 2 est complète avant de passer à l'étape 3
+    if @etape == 3
+      redirect_to edit_ht2_acte_path(@acte, etape: 2) and return unless etape2_complete?(@acte)
+    end
   end
 
   def calculate_suspensions_stats(actes)

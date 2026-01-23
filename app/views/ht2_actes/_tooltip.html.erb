@@ -22,6 +22,8 @@
 • la prise en compte d’éléments de contexte externe concernant l’évolution de la ressource du programme (mouvement en cours ou à venir à l’instar de décret de virement/transfert, annulation, avance, LFR, LFG, perception de FDC, ADP, RDC). A cet égard, une attention particulière doit être portée pendant la période de fin de gestion où le schéma de fin de gestion peut avoir un impact direct sur le niveau de la ressource. Des échanges entre CBR/DCB, avec le RFFIM et le BS peuvent contribuer à apprécier ces éléments de contexte de la manière la plus juste et la plus à jour;<br>
 • le suivi des délégations de crédits fléchées (en particulier en BOP déconcentrés) par rapport aux dépenses à financer;<br>
 • la disponibilité des CP nécessaires au paiement lorsque le SF sera certifié dans l’année.
+  <% elsif name == "disponibilite_credits_organisme" %>
+    S’assurer que les crédits disponibles permettent de couvrir le montant de la dépense envisagée, au moment où l’acte est examiné.Une vigilance particulière doit être exercée en fin d’exercice afin de prévenir tout dépassement de crédits.
   <%elsif name == "imputation_depense" %>
     Le contrôle de l’imputation de la dépense nécessite notamment un examen des points suivants :<br><br>
 • vérification du respect du principe de spécialité du programme. Les éléments présentés dans le projet annuel de performance doivent permettre d’apprécier ce principe;<br>
@@ -37,6 +39,10 @@ Des échanges avec le comptable peuvent être utiles s’agissant du contrôle d
 • vérification du choix du centre financier : UO pour les affectations et retraits d’affectation de l’année courante ; BOP pour la restitution des AE issues de retraits d’affectation des années antérieures.<br>
 • à titre exceptionnel, les retraits d’affectation d’AE d’années antérieures peuvent être recyclées sur autorisation expresse du contrôleur budgétaire : lorsque le retrait a été effectué en vue de corriger une erreur d’imputation budgétaire lors de l’affectation ;<br><br>
 Référence documentaire : Guide pratique du budgétaire dans chorus
+    <% elsif name == "imputation_depense_organisme" %>
+    S’assurer que la dépense est imputée sur la nature appropriée : fonctionnement, investissement, intervention.
+    <% elsif name == "imputation_recette_organisme" %>
+    S’assurer que la recette est imputée sur la nature appropriée (subvention pour charges de service public, subvention pour charges d’investissement, autres financements de l’Etat, autres financements publics, recettes propres).
   <% elsif name == "consommation_credits" %>
     Le critère de l’évaluation de la consommation des crédits concerne à la fois le montant des AE à engager et le montant des CP qui seront décaissés, en particulier dans l’année. <br>
                 Il faut se référer au RRCBE pour vérifier le respect des règles et la doctrine applicables pour le décompte des AE et des CP.<br><br>
@@ -44,6 +50,11 @@ Les points d’attention suivants peuvent être signalés s’agissant contrôle
 • la concordance entre le montant présenté à l’engagement ou à l’affectation et la réalité du montant tel qu’il découle de la lecture des pièces transmises (acte d’engagement, convention, arrêté, etc.). Une attention particulière doit être portée à la bonne prise en compte des engagements pluriannuels.<br>
 • pour certains types de dépenses (marchés de travaux), bien prendre en compte les montants correspondants à des provisions pour révision de prix et aléas;<br><br>
 Si le respect de la qualité d’ordonnateur ne fait pas partie des critères du contrôle, le contrôleur peut attirer l’attention du service prescripteur s’il détecte une anomalie.
+  <% elsif name == "consommation_credits_organisme" %>
+    S’assurer que le montant des engagements (AE) et paiements associés (CP) est évalué de manière sincère, fiable et exhaustive (voir le RRBO pour les règles de consommation des AE et CP).<br><br>
+Points d’attention :<br>
+• vérifier la concordance du montant de l’acte soumis au contrôle et les pièces transmises (acte d’engagement, convention, arrêté…)<br>
+• pour certains types de dépenses (marchés de travaux), bien prendre en compte les montants correspondants à des provisions pour révision de prix et aléas.
   <% elsif name == "programmation" %>
     La programmation est celle présentée par le RPROG ou le RBOP à l’occasion du début de la gestion, le cas échéant actualisée en cours d’année notamment à l’occasion des CRG. Elle porte sur l’année en cours et l’année suivante.<br>
 Elle est en principe effectuée à la maille de l’activité. En cas d’impossibilité de disposer de données suffisamment actualisées à cette maille, il est possible de l’apprécier à une maille un peu plus large (brique par exemple) à la condition que les données présentées restent cohérentes.<br>
@@ -52,6 +63,18 @@ Le contrôleur est fondé à solliciter une actualisation de la programmation et
 La pluriannualité s’apprécie à travers la communication d’une chronique d’AE et CP cohérente par l’ordonnateur compatible avec les informations fournies en programmation.
   <% elsif name == "critere_sv" %>
     Les dépenses éligibles sont celles strictement nécessaires pour assurer la continuité des services publics dans les conditions précisées par circulaire.
+  <% elsif name == "critere_sv_organisme" %>
+    S’assurer que la dépense est strictement nécessaire à la continuité des services publics, conformément à la réglementation applicable.
+  <% elsif name == "soutenabilite_depense" %>
+    Il s’agit de vérifier que la dépense peut être supportée par l’organisme sans compromettre durablement son équilibre financier ni sa capacité à honorer ses engagements présents et futurs.<br><br>
+  Au plan infra-annuel, s’assurer que l’impact est compatible avec le plan de trésorerie.<br>
+  Au plan pluriannuel, s ’assurer que les engagements de l’exercice, qui entraîneront des paiements futurs, sont compatibles avec les encaissements attendus, à l’appui des tableaux des opérations pluriannuelles et des opérations sur recettes fléchées.
+  <% elsif name == "soutenabilite_recette" %>
+    S’assurer que la recette est imputée sur la nature appropriée (subvention pour charges de service public, subvention pour charges d’investissement, autres financements de l’Etat, autres financements publics, recettes propres)
+  <% elsif name == "conformite" %>
+    Vérifier que le montant de l’acte respecte le seuil à partir duquel il doit être soumis au contrôleur budgétaire, conformément au document de contrôle en vigueur.
+  <% elsif name == "concordance" %>
+    Toute recette perçue pour compte de tiers doit avoir pour contrepartie une dépense pour compte de tiers d’un montant identique, même si un écart temporel peut exister entre les deux mouvements. Il convient donc de s’assurer de la correspondance exacte entre les encaissements pour compte de tiers et les reversements effectués.
   <% elsif name == "delai_moyen_traitement_info" %>
     Délai réglementaire de traitement prenant en compte les interruptions et suspensions.
   <% elsif name == "duree_moyenne_traitement_info" %>

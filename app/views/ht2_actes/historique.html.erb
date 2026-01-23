@@ -63,10 +63,10 @@
                       </th>
                       <th scope="col">Exercice
                       </th>
-                      <th scope="col">Centre financier</th>
-                      <th scope="col">Bénéficiaire</th>
+                      <th scope="col">Centre financier / Organisme</th>
+                      <th scope="col">Bénéficiaire / Partie versante</th>
                       <th scope="col">Montant</th>
-                      <th scope="col">N°Chorus</th>
+                      <th scope="col">N°Chorus / N°interne</th>
                       <th scope="col">Statut</th>
                       <th scope="col"></th>
                     </tr>
@@ -82,7 +82,7 @@
                             n°<%= acte.numero_formate %></p>
                         </td>
                         <td><%= acte.annee %></td>
-                        <td><%= acte.centre_financier_code %></td>
+                        <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                         <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                         <td><%= format_value(acte.numero_chorus) %></td>

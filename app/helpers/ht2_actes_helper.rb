@@ -124,4 +124,31 @@ module Ht2ActesHelper
       'Autre'
     ].sort
   end
+
+  def badge_perimetre_organisme(acte)
+    return '' unless acte.perimetre == 'organisme'
+
+    content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--purple-glycine')
+  end
+
+  def badge_categorie_organisme(acte)
+    return '' unless acte.perimetre == 'organisme' && acte.categorie_organisme.present?
+
+    badge_color = acte.categorie_organisme == 'recette' ? 'fr-badge--green-tilleul-verveine' : 'fr-badge--blue-ecume'
+    content_tag(:span, acte.categorie_organisme.capitalize, class: "fr-badge #{badge_color}")
+  end
+
+  def etape2_complete?(acte)
+    if acte.perimetre == 'organisme'
+      if acte.categorie_organisme == 'depense'
+        !acte.disponibilite_credits.nil?
+      elsif acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true
+        !acte.conformite.nil?
+      else
+        !acte.imputation_depense.nil?
+      end
+    else
+      !acte.disponibilite_credits.nil?
+    end
+  end
 end

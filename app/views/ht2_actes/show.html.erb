@@ -36,13 +36,20 @@
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">
           <span class="fr-capitalize"><%= @acte.type_acte %> HT2
-            <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
-            <% else %>n°<%= @acte.numero_formate %>
+            <% if @acte.perimetre == 'organisme' %>
+              <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
+              <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
+              <% end %>
+            <% else %>
+
+              <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+              <% else %>n°<%= @acte.numero_formate %>
+              <% end %>
             <% end %>
           </span>
         </h1>
         <% if current_user.statut == "admin" %>
-        <h2><%= @acte.user.nom %></h2>
+          <h2><%= @acte.user.nom %></h2>
         <% end %>
 
         <div class="fr-tabs">
@@ -61,7 +68,8 @@
 
                 <div class="fr-text--italic fr-mb-1w">
                   Acte n°<%= acte.numero_formate %>, créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction"%>, <%= acte.etat %> le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                  <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction" %>
+                    , <%= acte.etat %> le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
                   <% end %>
                 </div>
                 <div>
@@ -75,7 +83,11 @@
                   </button>
                 </div>
               </div>
-              <%= render 'ht2_acte_details', acte: acte %>
+              <% if acte.perimetre == 'organisme' %>
+                <%= render 'ht2_acte_details_organisme', acte: acte %>
+              <% else %>
+                <%= render 'ht2_acte_details', acte: acte %>
+              <% end %>
 
               <!-- Modal de téléchargement pour cet acte -->
               <dialog id="modal-telecharger-acte-<%= acte.id %>" class="fr-modal" aria-labelledby="modal-telecharger-acte-title-<%= acte.id %>">
@@ -106,8 +118,11 @@
                             <% elsif acte.pdf_generation_status == 'generating' %>
                               <div class="fr-alert fr-alert--success fr-mb-2w fr-mx-2v">
                                 <h3 class="fr-alert__title">Le PDF est en cours de création. </h3>
-                                <p>Veuillez recharger la page régulièrement en cliquant sur Actualiser jusqu'à ce que le document soit accessible.</p>
-                                <div class="fr-mt-2v"><%= link_to ht2_acte_path(acte), class: "fr-m-0 fr-btn fr-icon-refresh-line" do %>Actualiser<%end %></div>
+                                <p>Veuillez recharger la page régulièrement en cliquant sur Actualiser jusqu'à ce
+                                  que le document soit accessible.</p>
+                                <div class="fr-mt-2v"><%= link_to ht2_acte_path(acte), class: "fr-m-0 fr-btn fr-icon-refresh-line" do %>
+                                    Actualiser
+                                  <% end %></div>
                               </div>
                             <% elsif ENV["SERVICE_NAME"] == "anaco" %>
                               <%= link_to generate_pdf_ht2_acte_path(acte),
@@ -122,7 +137,8 @@
                               <%= link_to download_attachments_ht2_acte_path(acte),
                                           class: 'fr-btn fr-btn--secondary fr-icon-download-line',
                                           data: { turbo: false } do %>
-                                Télécharger les PJ (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
+                                Télécharger les PJ
+                                (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
                               <% end %>
                             <% end %>
                           </div>

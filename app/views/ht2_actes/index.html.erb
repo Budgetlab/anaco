@@ -145,8 +145,8 @@
                           </th>
                           <th scope="col">Date création</th>
                           <th scope="col">Agent</th>
-                          <th scope="col">Centre financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
                           <th scope="col"></th>
                         </tr>
@@ -160,7 +160,7 @@
                             </td>
                             <td><%= l(acte.created_at, format: "%e/%m/%y") %></td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td class="fr-cell--multiline"><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td>
@@ -235,10 +235,10 @@
                             <% end %>
                           </th>
                           <th scope="col">Agent</th>
-                          <th scope="col">Centre financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
-                          <th scope="col">N°Chorus</th>
+                          <th scope="col">N°Chorus / N°interne</th>
                           <th scope="col">
                             Date limite
                             <% current_sort = params.dig(:q_instruction, :s) %>
@@ -267,7 +267,7 @@
                               <% if acte.renvoie_instruction %><span class="fr-badge fr-badge--sm fr-badge--error fr-badge--no-icon">Renvoyé</span><% end %>
                             </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td><%= format_value(acte.numero_chorus) %></td>
@@ -347,10 +347,10 @@
                             <% end %>
                           </th>
                           <th scope="col">Agent</th>
-                          <th scope="col">Centre financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
-                          <th scope="col">N°Chorus</th>
+                          <th scope="col">N°Chorus / N°interne</th>
                           <th scope="col">Date de suspension</th>
                           <th scope="col"></th>
                         </tr>
@@ -363,7 +363,7 @@
                                 n°<%= acte.numero_formate %></p>
                             </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td><%= format_value(acte.numero_chorus) %></td>
@@ -440,10 +440,10 @@
                                         "aria-label": "Trier par numéro d'acte" do %>
                             <% end %>
                           </th>
-                          <th scope="col">Centre financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
-                          <th scope="col">N°Chorus</th>
+                          <th scope="col">N°Chorus / N°interne</th>
                           <th scope="col">
                             Date limite de réponse
                             <% current_sort = params.dig(:q_validation, :s) %>
@@ -471,7 +471,7 @@
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
                             </td>
-                            <td class="fr-cell--multiline"><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.numero_chorus) %></td>
@@ -575,10 +575,10 @@
                             <% end %>
                           </th>
                           <th scope="col">Agent</th>
-                          <th scope="col">Centre Financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
-                          <th scope="col">N°Chorus</th>
+                          <th scope="col">N°Chorus / N°interne</th>
                           <th scope="col">Proposition de décision</th>
                           <th scope="col"></th>
                         </tr>
@@ -599,7 +599,7 @@
                                 n°<%= acte.numero_formate %></p>
                             </td>
                             <td><p class="fr-tag"><%= acte.instructeur %></p></td>
-                            <td class="fr-cell--multiline"><%= acte.centre_financier_code %></td>
+                            <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                             <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                             <td class="fr-cell--multiline"><%= format_value(acte.numero_chorus) %></td>
@@ -679,10 +679,10 @@
                                         "aria-label": "Trier par numéro d'acte" do %>
                             <% end %>
                           </th>
-                          <th scope="col">Centre financier</th>
-                          <th scope="col">Bénéficiaire</th>
+                          <th scope="col">Centre financier / Organisme</th>
+                          <th scope="col">Bénéficiaire / Partie versante</th>
                           <th scope="col">Montant</th>
-                          <th scope="col">N°Chorus</th>
+                          <th scope="col">N°Chorus / N°interne</th>
                           <th scope="col" style="white-space: nowrap;">
                             Date clôture
                             <% current_sort = params.dig(:q_cloture, :s) %>
@@ -711,7 +711,7 @@
                                 <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                   n°<%= acte.numero_formate %></p>
                               </td>
-                              <td><%= acte.centre_financier_code %></td>
+                              <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                               <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                               <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
                               <td><%= format_value(acte.numero_chorus) %></td>
@@ -1077,7 +1077,7 @@
                   <%= f.search_field :ordonnateur_cont, class: "fr-input", placeholder: 'Rechercher un acte par ordonnateur' %>
                 </div>
                 <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Bénéficiaire</label>
+                  <label class="fr-label fr-text--bold">Bénéficiaire / Partie versante</label>
                   <%= f.search_field :beneficiaire_cont, class: "fr-input", placeholder: 'Rechercher un acte par bénéficiaire' %>
                 </div>
                 <div class="fr-col-12">

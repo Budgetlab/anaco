@@ -9,7 +9,10 @@
             <h1>Saisine n°<%= @acte.numero_saisine %> - <%= @acte.type_acte %> HT2 CHORUS
               n°<%= @acte.numero_chorus %></h1>
           <% else %>
-            <h1>Formulaire <%= @acte.type_acte %> HT2</h1>
+            <h1>Formulaire <%= @acte.type_acte %> HT2
+              <%= badge_perimetre_organisme(@acte) %>
+              <%= badge_categorie_organisme(@acte) %>
+            </h1>
           <% end %>
 
           <button aria-controls="modal-0" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter
@@ -73,13 +76,13 @@
                 <li class="fr-sidemenu__item">
                   <button aria-controls="modal-etape2" data-fr-opened="false" aria-current="<%= @etape == 2 %>" type="button" class="fr-sidemenu__link">
                     Étape 2 : Contrôle des critères
-                    <% unless @acte.disponibilite_credits.nil? %>
+                    <% if etape2_complete?(@acte) %>
                       <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen" aria-hidden="true"></span>
                     <% end %>
                   </button>
                 </li>
                 <li class="fr-sidemenu__item">
-                  <% if @acte.disponibilite_credits.nil? %>
+                  <% unless etape2_complete?(@acte) %>
                     <a disabled class="fr-sidemenu__link">Étape 3 : Proposition de décision de contrôle</a>
                   <% else %>
                     <button aria-controls="modal-etape3" data-fr-opened="false" aria-current="<%= @etape == 3 %>" type="button" class="fr-sidemenu__link">
@@ -98,9 +101,17 @@
       <div class="fr-col-12 fr-col-lg-9">
         <% case @etape %>
         <% when 1 %>
-          <%= render 'form_informations' %>
+          <% if @acte.perimetre == 'organisme' %>
+            <%= render 'form_informations_organisme' %>
+          <% else %>
+            <%= render 'form_informations' %>
+          <% end %>
         <% when 2 %>
-          <%= render 'form_criteres' %>
+          <% if @acte.perimetre == 'organisme' %>
+            <%= render 'form_criteres_organisme' %>
+          <% else %>
+            <%= render 'form_criteres' %>
+          <% end %>
         <% when 3 %>
           <%= render 'form_proposition_decision' %>
         <% end %>
