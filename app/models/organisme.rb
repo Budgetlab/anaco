@@ -30,7 +30,7 @@ class Organisme < ApplicationRecord
       # Find user by nom
       user = User.find_by(nom: row_data['Nom user']&.to_s&.strip) if row_data['Nom user'].present?
 
-      organisme.acronyme = row_data['Acronyme']&.to_s&.strip if row_data['Acronyme'].present?
+      organisme.acronyme = row_data['Acronyme']&.to_s&.strip
       organisme.statut = row_data['Statut']&.to_s&.strip if row_data['Statut'].present?
       organisme.user_id = user.id if user.present?
       organisme.id_opera = row_data['Id opera']&.to_i if row_data['Id opera'].present?
