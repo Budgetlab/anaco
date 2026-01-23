@@ -826,7 +826,28 @@
               <div class="fr-grid-row fr-grid-row--gutters">
                 <div class="fr-col-12">
                   <div>
-                    <span class="fr-label fr-text--bold">Type d’acte</span>
+                    <span class="fr-label fr-text--bold">Périmètre</span>
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% selected_perimetres = Array(params.dig(:q_current, :perimetre_in)) %>
+                      <% ['etat', 'organisme'].each do |p| %>
+                        <li>
+                          <label class="fr-tag tag-selectable"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q_current[perimetre_in][]',
+                                              p,
+                                              selected_perimetres.include?(p),
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= p.capitalize %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Type d'acte</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array(params.dig(:q_current, :type_acte_in)) %>
                       <% ['avis', 'visa', 'TF'].each do |t| %>

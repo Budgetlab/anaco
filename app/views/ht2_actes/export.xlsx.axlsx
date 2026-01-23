@@ -532,19 +532,50 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      if @acte.categorie_organisme == 'recette' && @acte.operation_compte_tiers == true
        # Cas spécial : recette + operation_compte_tiers
        sheet.add_row [
+         "Acte programmé",
          "Conformité au seuil de contrôle",
          "Concordance recettes/reversements"
        ], style: header_style
 
        sheet.add_row [
+         @acte.programmation_prevue? ? "✓" : "✗",
          @acte.conformite? ? "✓" : "✗",
          @acte.concordance_recettes_tiers? ? "✓" : "✗"
        ], style: [
+         @acte.programmation_prevue? ? check_ok_style : check_ko_style,
          @acte.conformite? ? check_ok_style : check_ko_style,
          @acte.concordance_recettes_tiers? ? check_ok_style : check_ko_style
        ]
+     elsif @acte.operation_compte_tiers == true
+       # Cas dépense + operation_compte_tiers (pas d'imputation ni soutenabilité)
+       headers = ["Acte programmé"]
+       row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
+       row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
+
+       if @acte.categorie_organisme == 'depense'
+         headers << "Disponibilité des fonds au sein de la trésorerie"
+         row_data << (@acte.disponibilite_credits? ? "✓" : "✗")
+         row_styles << (@acte.disponibilite_credits? ? check_ok_style : check_ko_style)
+
+         headers << "Exactitude de l'évaluation de la consommation des crédits"
+         row_data << (@acte.consommation_credits? ? "✓" : "✗")
+         row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
+       end
+
+       headers << "Conformité seuil contrôle"
+       row_data << (@acte.conformite? ? "✓" : "✗")
+       row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
+
+       if @acte.services_votes == true && @acte.categorie_organisme == 'depense'
+         headers << "Services votés"
+         row_data << (@acte.programmation? ? "✓" : "✗")
+         row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
+       end
+
+       sheet.add_row headers, style: header_style
+       sheet.add_row row_data, style: row_styles
      else
-       # Cas normal
+       # Cas normal (operation_compte_tiers = false)
        headers = ["Acte programmé"]
        row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
        row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
@@ -560,12 +591,12 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        row_styles << (@acte.imputation_depense? ? check_ok_style : check_ko_style)
 
        if @acte.categorie_organisme == 'depense'
-         headers << "Exactitude de l'évaluation"
+         headers << "Exactitude de l'évaluation de la consommation des crédits"
          row_data << (@acte.consommation_credits? ? "✓" : "✗")
          row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
        end
 
-       headers << "Compatibilité soutenabilité"
+       headers << "Soutenabilité"
        row_data << (@acte.soutenabilite? ? "✓" : "✗")
        row_styles << (@acte.soutenabilite? ? check_ok_style : check_ko_style)
 
@@ -574,7 +605,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
 
        if @acte.services_votes == true && @acte.categorie_organisme == 'depense'
-         headers << "Services votés"
+         headers << "Engagement éligible à la gestion des services votés"
          row_data << (@acte.programmation? ? "✓" : "✗")
          row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
        end

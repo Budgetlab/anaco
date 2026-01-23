@@ -277,25 +277,38 @@
             <thead>
             <tr>
               <th>Acte programmé</th>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>
+                  <% if acte.operation_compte_tiers == true %>Disponibilité des fonds au sein de la trésorerie
+                  <% else %>Disponibilité des crédits
+                  <% end %></th>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
+                <th>Imputation de la <%= acte.categorie_organisme == 'depense' ? 'dépense' : 'recette' %></th>
+              <% end %>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>Exactitude de l'évaluation de la consommation des crédits</th>
+              <% end %>
+
+              <% unless acte.operation_compte_tiers == true %>
+                <th>
+                  <% if acte.categorie_organisme == 'depense' %>Compatibilité avec caractère soutenable de la gestion
+                  <% else %>Caractère soutenable des engagements financiers exigés en contrepartie de la
+                    recette
+                  <% end %></th>
+              <% end %>
+
+              <th>Conformité au seuil de contrôle</th>
+
               <% if acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true %>
-                <th>Conformité au seuil de contrôle</th>
                 <th>Concordance entre les recettes encaissées pour compte de tiers et les reversements correspondants
                 </th>
-              <% else %>
-
-                <% if acte.categorie_organisme == 'depense' %>
-                  <th>Disponibilité des crédits</th>
-                <% end %>
-                <th>Imputation de la <%= acte.categorie_organisme == 'depense' ? 'dépense' : 'recette' %></th>
-                <% if acte.categorie_organisme == 'depense' %>
-                  <th>Exactitude de l'évaluation de la consommation des crédits</th>
-                <% end %>
-                <th>Compatibilité avec caractère soutenable de la gestion</th>
-                <th>Conformité au seuil de contrôle</th>
-                <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
-                  <th>Engagement éligible à la gestion des services votés</th>
-                <% end %>
               <% end %>
+
+              <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
+                <th>Engagement éligible à la gestion des services votés</th>
+              <% end %>
+
             </tr>
             </thead>
             <tbody>
@@ -307,64 +320,66 @@
                 <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                 <% end %>
               </td>
-              <% if acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true %>
+              <% if acte.categorie_organisme == 'depense' %>
                 <td>
-                  <% if acte.conformite == true %>
+                  <% if acte.disponibilite_credits == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>
                 </td>
-                <td>
-                  <% if acte.concordance_recettes_tiers == true %>
-                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                  <% end %>
-                </td>
-              <% else %>
-
-                <% if acte.categorie_organisme == 'depense' %>
-                  <td>
-                    <% if acte.disponibilite_credits == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %>
-                  </td>
-                <% end %>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
                 <td>
                   <% if acte.imputation_depense == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>
                 </td>
-                <% if acte.categorie_organisme == 'depense' %>
-                  <td>
-                    <% if acte.consommation_credits == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %>
-                  </td>
-                <% end %>
+              <% end %>
+
+              <% if acte.categorie_organisme == 'depense' %>
+                <td>
+                  <% if acte.consommation_credits == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+
+              <% unless acte.operation_compte_tiers == true %>
                 <td>
                   <% if acte.soutenabilite == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>
                 </td>
+              <% end %>
+
+              <td>
+                <% if acte.conformite == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+
+              <% if acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true %>
                 <td>
-                  <% if acte.conformite == true %>
+                  <% if acte.concordance_recettes_tiers == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>
                 </td>
-                <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
-                  <td>
-                    <% if acte.programmation == true %>
-                      <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                    <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                    <% end %>
-                  </td>
-                <% end %>
               <% end %>
+
+              <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
+                <td>
+                  <% if acte.programmation == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+
             </tr>
 
             </tbody>
