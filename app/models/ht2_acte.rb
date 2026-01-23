@@ -25,6 +25,7 @@ class Ht2Acte < ApplicationRecord
   after_save :set_numero_utilisateur, if: :saved_change_to_annee?
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
+  after_save :associate_organisme_if_needed
   after_save :calculate_delai_traitement_if_needed
   after_save :purge_pdf_files_on_update
 
@@ -103,7 +104,14 @@ class Ht2Acte < ApplicationRecord
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
 
-    Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
+    query = Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id, perimetre: perimetre)
+
+    # Ajouter le filtre sur categorie_organisme si le champ existe (périmètre organisme)
+    if perimetre == 'organisme' && categorie_organisme.present?
+      query = query.where(categorie_organisme: categorie_organisme)
+    end
+
+    query
   end
 
   def dernier_acte_cloture_chorus
@@ -384,6 +392,31 @@ class Ht2Acte < ApplicationRecord
         statut: 'non valide',
       )
       centre_financiers << centre
+    end
+  end
+
+  def associate_organisme_if_needed
+    # Vérifier si le nom_organisme a changé
+    if saved_change_to_nom_organisme?
+      associate_organisme
+    end
+  end
+
+  def associate_organisme
+    return unless nom_organisme.present?
+
+    # Extraire le nom si le format est "acronyme - nom"
+    nom_recherche = if nom_organisme.include?(' - ')
+                      nom_organisme.split(' - ', 2).last.strip
+                    else
+                      nom_organisme
+                    end
+
+    organisme = Organisme.find_by(nom: nom_recherche)
+    organismes.destroy_all
+    if organisme
+      # Supprimer les associations existantes et ajouter la nouvelle
+      organismes << organisme
     end
   end
 
