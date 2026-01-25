@@ -20,6 +20,7 @@ class Ht2Acte < ApplicationRecord
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? }, allow_destroy: true
+  before_save :strip_organisme_and_cf_fields
   before_save :upcase_centre_financier_code
   after_save :set_etat_acte
   after_save :set_numero_utilisateur, if: :saved_change_to_annee?
@@ -418,6 +419,11 @@ class Ht2Acte < ApplicationRecord
       # Supprimer les associations existantes et ajouter la nouvelle
       organismes << organisme
     end
+  end
+
+  def strip_organisme_and_cf_fields
+    self.nom_organisme = nom_organisme.strip if nom_organisme.present?
+    self.centre_financier_code = centre_financier_code.strip if centre_financier_code.present?
   end
 
   def upcase_centre_financier_code

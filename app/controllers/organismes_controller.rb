@@ -6,7 +6,7 @@ class OrganismesController < ApplicationController
     query = params[:query].to_s.strip
 
     @organismes = if query.present?
-                    current_user.organismes.where("nom ILIKE ? OR acronyme ILIKE ?", "%#{query}%", "%#{query}%").limit(10).order(nom: :asc)
+                    current_user.organismes.where("nom ILIKE ? OR acronyme ILIKE ? OR CONCAT(acronyme, ' - ', nom) ILIKE ?", "%#{query}%", "%#{query}%", "%#{query}%").limit(10).order(nom: :asc)
                   else
                     []
                   end
