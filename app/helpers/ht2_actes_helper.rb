@@ -131,11 +131,22 @@ module Ht2ActesHelper
     content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--purple-glycine')
   end
 
+  def format_categorie_organisme(categorie)
+    case categorie
+    when 'depense'
+      'Dépense'
+    when 'recette'
+      'Recette'
+    else
+      categorie&.capitalize
+    end
+  end
+
   def badge_categorie_organisme(acte)
     return '' unless acte.perimetre == 'organisme' && acte.categorie_organisme.present?
 
     badge_color = acte.categorie_organisme == 'recette' ? 'fr-badge--green-tilleul-verveine' : 'fr-badge--blue-ecume'
-    content_tag(:span, acte.categorie_organisme.capitalize, class: "fr-badge #{badge_color}")
+    content_tag(:span, format_categorie_organisme(acte.categorie_organisme), class: "fr-badge #{badge_color}")
   end
 
   def etape2_complete?(acte)

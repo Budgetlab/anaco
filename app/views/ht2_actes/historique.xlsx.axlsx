@@ -268,7 +268,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       @statut_user == 'admin' ? acte.user.nom : acte.type_acte,
       acte.annee,
       acte.numero_formate,
-      acte.categorie_organisme&.capitalize,
+      format_categorie_organisme(acte.categorie_organisme),
       etat_acte(acte),
       acte.instructeur,
       acte.nom_organisme,

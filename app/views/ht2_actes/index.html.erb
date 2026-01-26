@@ -882,7 +882,7 @@
                                               selected_categories.include?(c),
                                               class: "fr-sr-only",
                                               data: { tag_select_target: "checkbox" } %>
-                            <span><%= c.capitalize %></span>
+                            <span><%= format_categorie_organisme(c) %></span>
                           </label>
                         </li>
                       <% end %>
