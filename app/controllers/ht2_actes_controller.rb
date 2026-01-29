@@ -843,7 +843,7 @@ class Ht2ActesController < ApplicationController
       else
         @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
       end
-      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte déjà soumis au contrôle", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine à postériori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif perimetre == 'organisme' && categorie_organisme == 'recette'
       @liste_natures = [
         "Aliénation immobilière",
@@ -852,17 +852,17 @@ class Ht2ActesController < ApplicationController
         "Autre"
       ]
       # Pour organisme recette, pas de @liste_engagements
-      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine à postériori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Convention", "Marché subséquent à bons de commande", "MAPA à bons de commande", "Transaction", "Autre"]
-      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ["Autre contrat", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
-      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_types_observations = ["Acte déjà signé par l'ordonnateur", "Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Hors périmètre du CBR/DCB", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Imputation", "Hors périmètre du CBR/DCB", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
     end
 
@@ -875,9 +875,9 @@ class Ht2ActesController < ApplicationController
 
     # @liste_motifs_suspension définie en fonction du périmètre
     if perimetre == 'organisme' && categorie_organisme == 'depense'
-      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Mauvaise évaluation de la consommation des crédits", "Non conformité des pièces", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine à postériori", "Autre"]
+      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Mauvaise évaluation de la consommation des crédits", "Non conformité des pièces", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
     elsif perimetre == 'organisme' && categorie_organisme == 'recette'
-      @liste_motifs_suspension = ["Demande d'éléments complémentaires", "Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine à postériori", "Autre"]
+      @liste_motifs_suspension = ["Demande d'éléments complémentaires", "Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine a posteriori", "Autre"]
     else
       # Liste pour périmètre état (liste par défaut)
       @liste_motifs_suspension = ["Défaut du circuit d'approbation Chorus", "Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", "Erreur d'imputation", "Erreur dans la construction de l'EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Non conformité des pièces", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
