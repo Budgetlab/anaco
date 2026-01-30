@@ -757,7 +757,26 @@ class Ht2ActesController < ApplicationController
 
   end
 
-  def ajout_actes; end
+  def ajout_actes
+    # Récupérer tous les utilisateurs avec leurs statistiques pour 2025
+    @users_stats = User.all.order(:nom).map do |user|
+      actes_2025_count = user.ht2_actes.where(annee: 2025).count
+      {
+        user: user,
+        actes_2025_count: actes_2025_count
+      }
+    end.select { |stat| stat[:actes_2025_count] > 0 } # Ne garder que les users avec des actes en 2025
+  end
+
+  def delete_user_actes_year
+    user = User.find(params[:user_id])
+    year = params[:year].to_i
+
+    actes_count = user.ht2_actes.where(annee: year).count
+    user.ht2_actes.where(annee: year).destroy_all
+
+    redirect_to ajout_actes_path, notice: "#{actes_count} actes de l'année #{year} pour #{user.nom} ont été supprimés."
+  end
 
   def import
     Ht2Acte.import(params[:file])

@@ -16,6 +16,47 @@
       </div>
       <div class="fr-my-4w"><%= Ht2Acte.count %> actes</div>
 
+      <% if @users_stats.present? %>
+        <div class="fr-mt-6w">
+          <h2>Actes 2025 par utilisateur</h2>
+          <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption>Statistiques des actes 2025 par utilisateur</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Nom de l'utilisateur</th>
+                        <th scope="col">Nombre d'actes 2025</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @users_stats.each do |stat| %>
+                        <tr>
+                          <td><%= stat[:user].nom %></td>
+                          <td><%= stat[:actes_2025_count] %></td>
+                          <td>
+                            <%= button_to "Supprimer tous les actes 2025",
+                                delete_user_actes_year_path(user_id: stat[:user].id, year: 2025),
+                                method: :delete,
+                                class: "fr-btn fr-btn--secondary fr-btn--sm",
+                                data: {
+                                  turbo_confirm: "Êtes-vous sûr de vouloir supprimer tous les #{stat[:actes_2025_count]} actes de l'année 2025 pour #{stat[:user].nom} ? Cette action est irréversible."
+                                } %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
     </div>
   </div>
 </main>
