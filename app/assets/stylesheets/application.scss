@@ -530,3 +530,20 @@ a.fr-tag[aria-pressed=true]::after{
 .perimetre-organisme td{
   background-color: var(--artwork-background-purple-glycine) !important;
 }
+
+.fr-search-bar .fr-btn--filter::before {
+  -webkit-mask-image: image-url("icons/system/filter-line.svg") !important;
+  mask-image: image-url("icons/system/filter-line.svg") !important;
+}
+
+.fr-fieldset--inline {
+  .fr-fieldset__content {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .fr-fieldset__legend {
+    margin-bottom: 0.5rem;
+  }
+}

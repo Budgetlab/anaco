@@ -1215,6 +1215,12 @@ class Ht2ActesController < ApplicationController
     q.delete("s")
     q.delete(:s)
 
+    # On ne compte pas les filtres de périmètre et de recherche (qui sont dans la barre principale)
+    q.delete("perimetre_in")
+    q.delete(:perimetre_in)
+    q.delete("numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont")
+    q.delete(:numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont)
+
     # Compte des filtres "classiques"
     count = q.count do |_k, v|
       case v
