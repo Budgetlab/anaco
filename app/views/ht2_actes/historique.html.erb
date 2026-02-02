@@ -73,7 +73,7 @@
                     </thead>
                     <tbody>
                     <% @actes.each_with_index do |acte, index| %>
-                      <tr>
+                      <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                         <% if @statut_user == 'admin' %>
                           <td class="fr-cell--multiline"><%= acte.user.nom %></td>
                         <% end %>

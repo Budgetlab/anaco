@@ -153,7 +153,7 @@
                         </thead>
                         <tbody>
                         <% @actes_pre_instruction.each do |acte| %>
-                          <tr>
+                          <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                             <td class="fr-cell--multiline">
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
@@ -260,7 +260,7 @@
                         </thead>
                         <tbody>
                         <% @actes_instruction.each do |acte| %>
-                          <tr>
+                          <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                             <td class="fr-cell--multiline">
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
@@ -357,7 +357,7 @@
                         </thead>
                         <tbody>
                         <% @actes_suspendu.each do |acte| %>
-                          <tr>
+                          <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                             <td class="fr-cell--multiline">
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
@@ -466,7 +466,7 @@
                         </thead>
                         <tbody>
                         <% @actes_validation.each do |acte| %>
-                          <tr>
+                          <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                             <td class="fr-cell--multiline">
                               <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                 n°<%= acte.numero_formate %></p>
@@ -585,7 +585,7 @@
                         </thead>
                         <tbody>
                         <% @actes_validation_chorus.each do |acte| %>
-                          <tr>
+                          <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                             <th class="fr-cell--fixed fr-col-check">
                               <div class='fr-checkbox-group fr-checkbox-group--sm'>
                                 <input type="checkbox" name="acte_ids[]" value="<%= acte.id %>" id='table-select-checkbox--<%= acte.id %>' data-bulk-target="checkbox" data-action="bulk#updateButtonState">
@@ -706,7 +706,7 @@
                         <tbody>
                         <% if @actes_cloture.present? %>
                           <% @actes_cloture.each_with_index do |acte, index| %>
-                            <tr>
+                            <tr class="<%= 'perimetre-organisme' if acte.perimetre == 'organisme' %>">
                               <td class="fr-cell--multiline">
                                 <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                                   n°<%= acte.numero_formate %></p>

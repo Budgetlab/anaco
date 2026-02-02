@@ -526,3 +526,7 @@ a.fr-tag[aria-pressed=true]::after{
   background-repeat: no-repeat;
   background-image: linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
 }
+
+.perimetre-organisme td{
+  background-color: var(--artwork-background-purple-glycine) !important;
+}
