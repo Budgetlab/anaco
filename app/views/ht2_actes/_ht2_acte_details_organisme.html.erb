@@ -306,6 +306,10 @@
                 <th>Engagement éligible à la gestion des services votés</th>
               <% end %>
 
+              <% if acte.budget_executoire == false %>
+                <th>Opération autorisée par les autorités de tutelle dans l'attente du vote du BI</th>
+              <% end %>
+
             </tr>
             </thead>
             <tbody>
@@ -371,6 +375,15 @@
               <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
                 <td>
                   <% if acte.programmation == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+
+              <% if acte.budget_executoire == false %>
+                <td>
+                  <% if acte.autorisation_tutelle == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>

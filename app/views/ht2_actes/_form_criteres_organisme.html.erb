@@ -196,6 +196,31 @@
           </fieldset>
         </div>
       <% end %>
+
+      <% if @acte.budget_executoire == false %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <h6 class="fr-my-1w">
+            Opération autorisée par les autorités de tutelle dans l'attente du vote du BI <%= render partial: "ht2_actes/tooltip", locals: { name: "autorisation_tutelle" } %>
+          </h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w" id='radio-inline-legend'>
+              Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :autorisation_tutelle, true, id: "radio-true-8", checked: @acte.autorisation_tutelle.nil? || @acte.autorisation_tutelle == true %>
+                <label class="fr-label" for="radio-true-8">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :autorisation_tutelle, false, checked: @acte.autorisation_tutelle == false, id: "radio-false-8" %>
+                <label class="fr-label" for="radio-false-8">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
     </div>
     <div class="mt-4">
       <label class="form-label">Tableur</label>

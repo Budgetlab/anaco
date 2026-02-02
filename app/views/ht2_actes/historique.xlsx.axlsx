@@ -242,6 +242,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
     'Conformité au seuil de contrôle',
     'Concordance recettes/reversements',
     'Engagement éligible à la gestion des services votés',
+    'Opération autorisée par les autorités de tutelle dans l\'attente du vote du BI',
     'Observations',
     'Valideur final',
     'Commentaire interne',
@@ -315,6 +316,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       acte.conformite ? "Oui" : "Non",
       is_recette_tiers ? (acte.concordance_recettes_tiers ? "Oui" : "Non") : "N/A",
       (is_depense && acte.services_votes) ? (acte.programmation ? "Oui" : "Non") : "N/A",
+      (acte.budget_executoire == false) ? (acte.autorisation_tutelle ? "Oui" : "Non") : "N/A",
       acte.observations,
       acte.valideur,
       acte.commentaire_proposition_decision

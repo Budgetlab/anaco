@@ -531,21 +531,30 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      # Critères pour organisme
      if @acte.categorie_organisme == 'recette' && @acte.operation_compte_tiers == true
        # Cas spécial : recette + operation_compte_tiers
-       sheet.add_row [
+       headers = [
          "Acte programmé",
          "Conformité au seuil de contrôle",
          "Concordance recettes/reversements"
-       ], style: header_style
-
-       sheet.add_row [
+       ]
+       row_data = [
          @acte.programmation_prevue? ? "✓" : "✗",
          @acte.conformite? ? "✓" : "✗",
          @acte.concordance_recettes_tiers? ? "✓" : "✗"
-       ], style: [
+       ]
+       row_styles = [
          @acte.programmation_prevue? ? check_ok_style : check_ko_style,
          @acte.conformite? ? check_ok_style : check_ko_style,
          @acte.concordance_recettes_tiers? ? check_ok_style : check_ko_style
        ]
+
+       if @acte.budget_executoire == false
+         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
+         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
+         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
+       end
+
+       sheet.add_row headers, style: header_style
+       sheet.add_row row_data, style: row_styles
      elsif @acte.operation_compte_tiers == true
        # Cas dépense + operation_compte_tiers (pas d'imputation ni soutenabilité)
        headers = ["Acte programmé"]
@@ -570,6 +579,12 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          headers << "Services votés"
          row_data << (@acte.programmation? ? "✓" : "✗")
          row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
+       end
+
+       if @acte.budget_executoire == false
+         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
+         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
+         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
        end
 
        sheet.add_row headers, style: header_style
@@ -608,6 +623,12 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          headers << "Engagement éligible à la gestion des services votés"
          row_data << (@acte.programmation? ? "✓" : "✗")
          row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
+       end
+
+       if @acte.budget_executoire == false
+         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
+         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
+         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
        end
 
        sheet.add_row headers, style: header_style

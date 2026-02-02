@@ -17,7 +17,7 @@ ActiveAdmin.register Ht2Acte do
                 :nature_categorie_organisme, :budget_executoire, :deliberation_ca,
                 :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca,
                 :destination, :nomenclature, :flux, :soutenabilite, :conformite,
-                :concordance_recettes_tiers, type_observations: []
+                :concordance_recettes_tiers, :autorisation_tutelle, type_observations: []
 
   # Index (liste)
   index do
@@ -133,6 +133,7 @@ ActiveAdmin.register Ht2Acte do
       f.input :soutenabilite, as: :boolean
       f.input :conformite, as: :boolean
       f.input :concordance_recettes_tiers, as: :boolean
+      f.input :autorisation_tutelle, as: :boolean
     end
 
     f.inputs 'Délibérations et budgets' do
@@ -247,6 +248,7 @@ ActiveAdmin.register Ht2Acte do
       row :soutenabilite
       row :conformite
       row :concordance_recettes_tiers
+      row :autorisation_tutelle
 
       row :budget_executoire
       row :deliberation_ca

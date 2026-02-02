@@ -812,7 +812,7 @@ class Ht2ActesController < ApplicationController
                                      :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, :perimetre, :categorie_organisme, :nom_organisme,
                                      :type_montant, :operation_compte_tiers, :operation_budgetaire, :nature_categorie_organisme, :budget_executoire,
                                      :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca, :destination, :nomenclature, :flux,
-                                     :soutenabilite, :conformite, :concordance_recettes_tiers, type_observations: [],
+                                     :soutenabilite, :conformite, :concordance_recettes_tiers, :autorisation_tutelle, type_observations: [],
                                      suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
