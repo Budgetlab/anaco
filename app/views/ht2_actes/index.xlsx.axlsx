@@ -279,7 +279,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       acte.numero_chorus.to_s,
       acte.operation_compte_tiers ? "Oui" : "Non",
       acte.operation_compte_tiers ? "N/A" : (acte.operation_budgetaire || "N/A"),
-      (acte.operation_compte_tiers || acte.operation_budgetaire == 'Globalisée') ? "N/A" : (acte.nature_categorie_organisme || "N/A"),
+      acte.operation_compte_tiers ? "N/A" : (acte.nature_categorie_organisme || "N/A"),
       acte.budget_executoire ? "Oui" : "Non",
       acte.beneficiaire,
       acte.objet,
