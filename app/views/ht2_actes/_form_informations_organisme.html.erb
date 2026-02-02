@@ -115,7 +115,7 @@
         </div>
       <% end %>
     </div>
-    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field operation-budgetaire" data-conditional-field-inverse-value="true">
+    <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field" data-conditional-field-inverse-value="true">
       <div class="fr-col-12 fr-col-lg-4">
         <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="operation-compte-tiers-legend">
           <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="operation-compte-tiers-legend">
@@ -123,13 +123,13 @@
           </legend>
           <div class="fr-fieldset__element fr-fieldset__element--inline">
             <div class="fr-radio-group">
-              <%= f.radio_button :operation_compte_tiers, true, id: "operation_compte_tiers_oui", data: { action: "change->conditional-field#toggle change->operation-budgetaire#toggle", conditional_field_target: "checkbox" } %>
+              <%= f.radio_button :operation_compte_tiers, true, id: "operation_compte_tiers_oui", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
               <label class="fr-label" for="operation_compte_tiers_oui">Oui</label>
             </div>
           </div>
           <div class="fr-fieldset__element fr-fieldset__element--inline">
             <div class="fr-radio-group">
-              <%= f.radio_button :operation_compte_tiers, false, id: "operation_compte_tiers_non", checked: @acte.operation_compte_tiers == false || @acte.operation_compte_tiers.nil?, data: { action: "change->conditional-field#toggle change->operation-budgetaire#toggle", conditional_field_target: "checkbox" } %>
+              <%= f.radio_button :operation_compte_tiers, false, id: "operation_compte_tiers_non", checked: @acte.operation_compte_tiers == false || @acte.operation_compte_tiers.nil?, data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
               <label class="fr-label" for="operation_compte_tiers_non">Non</label>
             </div>
           </div>
@@ -141,11 +141,11 @@
           <label for="operation_budgetaire" class="fr-label">
             Opération budgétaire*
           </label>
-          <%= f.select :operation_budgetaire, options_for_select([['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']], @acte.operation_budgetaire), { prompt: "- sélectionner -" }, { id: "operation_budgetaire", class: "fr-select", required: true, data: { action: "change->operation-budgetaire#toggle" } } %>
+          <%= f.select :operation_budgetaire, options_for_select([['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']], @acte.operation_budgetaire), { prompt: "- sélectionner -" }, { id: "operation_budgetaire", class: "fr-select", required: true } %>
         </div>
       </div>
 
-      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true || @acte.operation_budgetaire == 'Globalisée' %>" data-conditional-field-target="field" data-operation-budgetaire-target="natureField">
+      <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true %>" data-conditional-field-target="field">
         <div class="fr-select-group">
           <label for="nature_categorie_organisme" class="fr-label">
             <%= @acte.categorie_organisme == 'depense' ? 'Nature de la dépense*' : 'Destination de la recette*' %>

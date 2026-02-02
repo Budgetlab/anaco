@@ -117,12 +117,10 @@
               <th>Opération pour compte de tiers</th>
               <% if acte.operation_compte_tiers == false %>
                 <th>Opération budgétaire</th>
-                <% if acte.operation_budgetaire == "Fléchée" %>
-                  <th>
-                    <% if acte.categorie_organisme == 'depense' %>Nature de dépense
-                    <% else %>Destination recette
-                    <% end %></th>
-                <% end %>
+                <th>
+                  <% if acte.categorie_organisme == 'depense' %>Nature de dépense
+                  <% else %>Destination recette
+                  <% end %></th>
               <% end %>
               <th>Budget exécutoire</th>
               <th>N°interne</th>
@@ -144,9 +142,7 @@
               <td><%= acte.operation_compte_tiers ? 'Oui' : 'Non' %></td>
               <% if acte.operation_compte_tiers == false %>
                 <td> <%= format_value(acte.operation_budgetaire) %></td>
-                <% if acte.operation_budgetaire == "Fléchée" %>
-                  <td> <%= format_value(acte.nature_categorie_organisme) %></td>
-                <% end %>
+                <td> <%= format_value(acte.nature_categorie_organisme) %></td>
               <% end %>
               <td> <%= acte.budget_executoire ? 'Oui' : 'Non' %></td>
               <td> <%= format_value(acte.numero_chorus) %></td>

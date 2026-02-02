@@ -229,7 +229,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      headers << "Opération budgétaire" if @acte.operation_compte_tiers == false
 
      nature_label = @acte.categorie_organisme == 'depense' ? "Nature de dépense" : "Destination recette"
-     headers << nature_label if @acte.operation_compte_tiers == false && @acte.operation_budgetaire == "Fléchée"
+     headers << nature_label if @acte.operation_compte_tiers == false
 
      headers += ["Budget exécutoire", "N°interne"]
      headers << (@acte.categorie_organisme == 'depense' ? "Bénéficiaire" : "Partie versante")
@@ -248,7 +248,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        data_styles << cell_style
      end
 
-     if @acte.operation_compte_tiers == false && @acte.operation_budgetaire == "Fléchée"
+     if @acte.operation_compte_tiers == false
        data_row << @acte.nature_categorie_organisme
        data_styles << cell_style
      end
