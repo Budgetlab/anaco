@@ -144,6 +144,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      montant_headers << "Montant total" if @acte.categorie_organisme == 'depense'
 
      sheet.add_row [
+       "Nom organisme",
        "Instructeur",
        "Valideur",
        "Nature de l'acte",
@@ -159,11 +160,12 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              etat_acte(@acte)
 
      row_data = [
+       @acte.nom_organisme,
        @acte.instructeur,
        @acte.valideur,
        @acte.nature,
      ]
-     row_styles = [cell_style, cell_style, cell_style]
+     row_styles = [cell_style, cell_style, cell_style, cell_style]
 
      if @acte.categorie_organisme == 'depense'
        row_data << @acte.type_engagement
@@ -225,7 +227,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # Deuxième table d'informations
    if @acte.perimetre == 'organisme'
      # Pour organisme
-     headers = ["Opération compte tiers"]
+     headers = ["Catégorie", "Opération compte tiers"]
      headers << "Opération budgétaire" if @acte.operation_compte_tiers == false
 
      nature_label = @acte.categorie_organisme == 'depense' ? "Nature de dépense" : "Destination recette"
@@ -240,8 +242,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
      sheet.add_row headers, style: header_style
 
-     data_row = [@acte.operation_compte_tiers ? 'Oui' : 'Non']
-     data_styles = [cell_style]
+     data_row = [format_categorie_organisme(@acte.categorie_organisme), @acte.operation_compte_tiers ? 'Oui' : 'Non']
+     data_styles = [cell_style, cell_style]
 
      if @acte.operation_compte_tiers == false
        data_row << @acte.operation_budgetaire
