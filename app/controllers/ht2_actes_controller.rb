@@ -857,11 +857,7 @@ class Ht2ActesController < ApplicationController
         "Autre"
       ]
       # Pour organisme dépense, @liste_engagements dépend du type_acte
-      if type_acte == 'avis'
-        @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
-      else
-        @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
-      end
+      @liste_engagements = ["Engagement initial","Engagement initial prévisionnel", "Engagement complémentaire","Engagement complémentaire prévisionnel", "Retrait d'engagement"]
       @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif perimetre == 'organisme' && categorie_organisme == 'recette'
       @liste_natures = [
