@@ -4,60 +4,109 @@
 <div class="fr-container">
   <div class="fr-grid-row">
     <div class="fr-col-12">
-      <h1 class="fr-mt-6w title-btn">
+      <h1 class="fr-mt-6w">
         Tableau de bord Actes HT2
       </h1>
+      <div class="fr-mb-2w">
+        <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+          Filtrer les résultats
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-
-<div class="fr-container-blue">
+<%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
   <div class="fr-container">
     <div class="fr-grid-row">
-      <div class="fr-col-12 fr-col-lg-3">
-        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
-          <div class="fr-sidemenu__inner fr-backgroud--grey">
-            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
-              Dans cette rubrique
-            </button>
-            <div class="fr-collapse" id="fr-sidemenu-wrapper">
-              <div class="fr-sidemenu__title fr-hidden" id="fr-sidemenu-title">Tableau de bord Actes HT2</div>
-              <ul class="fr-sidemenu__list">
-                <li class="fr-sidemenu__item">
-                  <button class="fr-sidemenu__btn" aria-current="true">
-                    Activité globale
-                  </button>
+      <div class="fr-col-12">
+        <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+        <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
+        <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count %>
+        <div>
+          <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
+          <ul class="fr-tags-group">
+            <li>
+              <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
+            </li>
+            <% if @q_params[:user_statut_eq].present? %>
+              <li>
+                <p class="fr-tag fr-tag--filtres"><%= @q_params[:user_statut_eq] %></p>
+              </li>
+            <% end %>
+            <% if @q_params[:user_nom_in].present? %>
+              <% Array(@q_params[:user_nom_in]).each do |nom| %>
+                <li>
+                  <p class="fr-tag fr-tag--filtres"><%= nom %></p>
                 </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_temporelle_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Délais
-                  <% end %>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_suspensions_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Suspensions & Interruptions
-                  <% end %>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Observations aux ordonnateurs
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+              <% end %>
+            <% end %>
+            <% if @q_params[:centre_financier_code_cont].present? %>
+              <li>
+                <p class="fr-tag fr-tag--filtres"><%= @q_params[:centre_financier_code_cont] %></p>
+              </li>
+            <% end %>
+            <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+              <li>
+                <p class="fr-tag fr-tag--filtres">
+                  Clôture
+                  <%= " du #{@q_params[:date_cloture_gteq]}" if @q_params[:date_cloture_gteq].present? %>
+                  <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
+                </p>
+              </li>
+            <% end %>
+            <% if has_filters %>
+              <li>
+                <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "results" } do %>
+                  Réinitialiser les filtres
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <h2 class="fr-mt-6w fr-mb-2w title-btn">Activité globale
-          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-            Filtrer les résultats
-          </button>
-        </h2>
+    </div>
+  </div>
 
-        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
-          <p class="fr-badge fr-badge--no-icon fr-badge--info fr-mb-2w"><%= params.dig(:q, :annee_eq) || Date.today.year %></p>
+  <div class="fr-container-blue">
+    <div class="fr-container">
+      <div class="fr-grid-row">
+        <div class="fr-col-12 fr-col-lg-3">
+          <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+            <div class="fr-sidemenu__inner fr-backgroud--grey">
+              <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+                Dans cette rubrique
+              </button>
+              <div class="fr-collapse" id="fr-sidemenu-wrapper">
+                <div class="fr-sidemenu__title fr-hidden" id="fr-sidemenu-title">Tableau de bord Actes HT2</div>
+                <ul class="fr-sidemenu__list">
+                  <li class="fr-sidemenu__item">
+                    <%= link_to tableau_de_bord_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == tableau_de_bord_ht2_actes_path) do %>
+                      Activité globale
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_temporelle_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_temporelle_ht2_actes_path) do %>
+                      Délais
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_suspensions_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_suspensions_ht2_actes_path) do %>
+                      Suspensions & Interruptions
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_anomalies_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_anomalies_ht2_actes_path) do %>
+                      Observations aux ordonnateurs
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <h2 class="fr-my-3w">Activité globale</h2>
 
           <div class="fr-grid-row">
             <div class="fr-col-12 fr-col-lg-6">
@@ -408,7 +457,7 @@
                                 <tbody>
                                 <% @ordonnateurs_data.each do |hash| %>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom': hash[:name]  %> </td>
+                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom' : hash[:name] %> </td>
                                     <td> <%= hash[:y] %> </td>
                                     <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
                                   </tr>
@@ -442,13 +491,11 @@
               </div>
             </div>
           </div>
-        <% end %>
+        </div>
       </div>
     </div>
-
   </div>
-</div>
-
+<% end %>
 
 <dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
   <div class="fr-container--fluid">
@@ -468,20 +515,42 @@
                   <label class="fr-label fr-text--bold">Exercice</label>
                   <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
                   <%= f.select :annee_eq,
-                               options_for_select(years_options, params.dig(:q, :annee_eq) || Date.today.year),
+                               options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
                                {},
                                class: "fr-select" %>
                 </div>
                 <% if @statut_user == 'admin' %>
                   <div class="fr-col-12">
-                    <label class="fr-label fr-text--bold">Contrôleur</label>
-                    <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
-                    <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
+                    <label class="fr-label fr-text--bold">Profil</label>
+                    <%= f.select :user_statut_eq,
+                                 options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], @q_params[:user_statut_eq]),
+                                 {},
+                                 class: "fr-select" %>
+                  </div>
+                  <div class="fr-col-12">
+                    <fieldset class="fr-fieldset">
+                      <legend class="fr-fieldset__legend fr-text--regular fr-text--bold">
+                        Contrôleur
+                      </legend>
+                      <div class="fr-fieldset__content">
+                        <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
+                        <% selected_noms = Array(@q_params[:user_nom_in]) %>
+                        <% noms.each do |nom| %>
+                          <div class="fr-checkbox-group">
+                            <%= f.check_box :user_nom_in,
+                                            { multiple: true, checked: selected_noms.include?(nom), class: "fr-checkbox" },
+                                            nom,
+                                            nil %>
+                            <%= f.label :user_nom_in, nom, value: nom, class: "fr-label" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </fieldset>
                   </div>
                 <% end %>
                 <div class="fr-col-12">
                   <label class="fr-label fr-text--bold">Centre financier</label>
-                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
+                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
                 </div>
                 <div class="fr-col-12">
                   <span class="fr-label fr-text--bold">Clôture entre</span>
@@ -491,14 +560,14 @@
                       <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
                       <%= f.date_field :date_cloture_gteq,
                                        class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_gteq) %>
+                                       value: @q_params[:date_cloture_gteq] %>
                     </div>
 
                     <div class="fr-col-12 fr-col-md-6">
                       <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
                       <%= f.date_field :date_cloture_lteq,
                                        class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_lteq) %>
+                                       value: @q_params[:date_cloture_lteq] %>
                     </div>
                   </div>
                 </div>

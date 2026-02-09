@@ -288,7 +288,7 @@
           <% if @acte.categorie_organisme == "depense" %>
             <div class="fr-col-12 fr-col-lg-4">
               <div class="fr-input-group">
-                <label for="destination" class="fr-label">Destination</label>
+                <label for="destination" class="fr-label">Destination <%= render partial: "ht2_actes/tooltip", locals: { name: "destination_organisme" } %></label>
                 <%= f.text_field :destination, id: "destination", class: "fr-input", value: @acte.destination %>
               </div>
             </div>

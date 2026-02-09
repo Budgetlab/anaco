@@ -547,3 +547,11 @@ a.fr-tag[aria-pressed=true]::after{
     margin-bottom: 0.5rem;
   }
 }
+.fr-tag--filtres{
+  color: var(--text-action-high-blue-france) !important;
+  background-color: var(--background-action-low-blue-france) !important;
+
+  --idle: transparent;
+  --hover: var(--background-action-low-blue-france-hover);
+  --active: var(--background-action-low-blue-france-active);
+}

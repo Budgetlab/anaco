@@ -27,7 +27,7 @@
                         <th scope="col">Actes clôturés</th>
                         <th scope="col">Actes en cours de traitement</th>
                         <th scope="col">Actes clôturés avec suspension</th>
-                        <th scope="col">Suspensions totales</th>
+                        <th scope="col">Actes clôturés avec observations</th>
                         <th scope="col">Délai moyen de traitement</th>
                       </tr>
                       </thead>
@@ -37,7 +37,7 @@
                         <td><%= @stats_cbr.sum { |stat| stat[:actes_clotures_count] } %></td>
                         <td><%= @stats_cbr.sum { |stat| stat[:actes_non_clotures_count] } %></td>
                         <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
-                        <td><%= @stats_cbr.sum { |stat| stat[:suspensions_count] } %></td>
+                        <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_observations_count] } %></td>
                         <td><%= pluralize(@stats_cbr.any? ? (@stats_cbr.sum { |stat| stat[:delai_moyen] } / @stats_cbr.size.to_f).round : 0, 'jour', plural: 'jours')%> </td>
                       </tr>
                       <% @stats_cbr.each do |stat| %>
@@ -46,7 +46,7 @@
                           <td><%= stat[:actes_clotures_count] %></td>
                           <td><%= stat[:actes_non_clotures_count] %></td>
                           <td><%= stat[:actes_avec_suspensions_count] %></td>
-                          <td><%= stat[:suspensions_count] %></td>
+                          <td><%= stat[:actes_avec_observations_count] %></td>
                           <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%></td>
                         </tr>
                       <% end %>
@@ -71,7 +71,7 @@
                         <th scope="col">Actes clôturés</th>
                         <th scope="col">Actes en cours de traitement</th>
                         <th scope="col">Actes clôturés avec suspension</th>
-                        <th scope="col">Suspensions totales</th>
+                        <th scope="col">Actes clôturés avec observations</th>
                         <th scope="col">Délai moyen de traitement</th>
                       </tr>
                       </thead>
@@ -81,7 +81,7 @@
                         <td><%= @stats_dcb.sum { |stat| stat[:actes_clotures_count] } %></td>
                         <td><%= @stats_dcb.sum { |stat| stat[:actes_non_clotures_count] } %></td>
                         <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
-                        <td><%= @stats_dcb.sum { |stat| stat[:suspensions_count] } %></td>
+                        <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_observations_count] } %></td>
                         <td><%= pluralize(@stats_dcb.any? ? (@stats_dcb.sum { |stat| stat[:delai_moyen] } / @stats_dcb.size.to_f).round : 0, 'jour', plural: 'jours')%></td>
                       </tr>
                       <% @stats_dcb.each do |stat| %>
@@ -90,7 +90,7 @@
                           <td><%= stat[:actes_clotures_count] %></td>
                           <td><%= stat[:actes_non_clotures_count] %></td>
                           <td><%= stat[:actes_avec_suspensions_count] %></td>
-                          <td><%= stat[:suspensions_count] %></td>
+                          <td><%= stat[:actes_avec_observations_count] %></td>
                           <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%> </td>
                         </tr>
                       <% end %>

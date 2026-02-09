@@ -4,191 +4,258 @@
       <h1 class="fr-mt-6w title-btn">
         Tableau de bord Actes HT2
       </h1>
+      <div class="fr-mb-2w">
+        <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+          Filtrer les résultats
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="fr-container-blue">
+<%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
   <div class="fr-container">
     <div class="fr-grid-row">
-      <div class="fr-col-12 fr-col-lg-3">
-        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
-          <div class="fr-sidemenu__inner fr-backgroud--grey">
-            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
-              Dans cette rubrique
-            </button>
-            <div class="fr-collapse" id="fr-sidemenu-wrapper">
-              <ul class="fr-sidemenu__list">
-                <li class="fr-sidemenu__item">
-                  <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Activité globale
-                  <% end %>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <button class="fr-sidemenu__btn" aria-current="true">
-                    Délais
-                  </button>
-
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_suspensions_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Suspensions & Interruptions
-                  <% end %>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Observations aux ordonnateurs
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-      </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <h2 class="fr-mt-6w fr-mb-2w title-btn">Suivi des délais
-          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-            Filtrer les résultats
-          </button>
-        </h2>
-
-        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
-          <p class="fr-badge fr-badge--no-icon fr-badge--info fr-mb-2w"><%= params.dig(:q, :annee_eq) || Date.today.year %></p>
-          <div class="fr-grid-row">
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-text--center fr-p-2v">
-                <div class="fr-card fr-p-2w">
-                  <div class="fr-cart__body">
-                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count_with_long_delay %></p>
-                    <p class="fr-text--lg fr-mb-0 text_center">Actes cloturés hors délai</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-text--center fr-p-2v">
-                <div class="fr-card fr-p-2w">
-                  <div class="fr-cart__body">
-                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.delai_moyen_traitement %> jours</p>
-                    <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "delai_moyen_traitement_info" } %></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-text--center fr-p-2v">
-                <div class="fr-card fr-p-2w">
-                  <div class="fr-cart__body">
-                    <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.duree_total_moyenne %> jours</p>
-                    <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "duree_moyenne_traitement_info" } %></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="fr-grid-row">
-            <div class="fr-col-12 fr-col-lg-12">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="line"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @delais_dataset.to_json %>"
-                       data-highcharts-actes-title-value="Délai moyen de traitement par mois"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="fr-grid-row">
-            <div class="fr-col-12 fr-col-lg-12">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="multi-column"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @delais_par_programme_dataset.to_json %>"
-                       data-highcharts-actes-title-value="Délai moyen de traitement par programme"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-</div>
-
-<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
-  <div class="fr-container--fluid">
-    <div class="fr-modal-custom__row--left">
       <div class="fr-col-12">
-        <div class="fr-modal-custom__body">
-          <div class="fr-modal__header">
-            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
-          </div>
-          <%= search_form_for @q, url: synthese_temporelle_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
-            <div class="fr-modal__content">
-              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
-                Filtrer les résultats
-              </h2>
-              <div class="fr-grid-row fr-grid-row--gutters">
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Exercice</label>
-                  <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
-                  <%= f.select :annee_eq,
-                               options_for_select(years_options, params.dig(:q, :annee_eq) || Date.today.year),
-                               {},
-                               class: "fr-select" %>
-                </div>
-
-                <% if @statut_user == 'admin' %>
-                  <div class="fr-col-12">
-                    <label class="fr-label fr-text--bold">Contrôleur</label>
-                    <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
-                    <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
-                  </div>
-                <% end %>
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Centre financier</label>
-                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
-                </div>
-                <div class="fr-col-12">
-                  <span class="fr-label fr-text--bold">Clôture entre</span>
-
-                  <div class="fr-grid-row fr-grid-row--gutters">
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_gteq,
-                                       class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_gteq) %>
-                    </div>
-
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_lteq,
-                                       class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_lteq) %>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            <div class="fr-modal__footer">
-              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+        <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+        <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
+        <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count %>
+        <div>
+          <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
+          <ul class="fr-tags-group">
+            <li>
+              <p class="fr-tag"><%= @q_params[:annee_eq] || Date.today.year %></p>
+            </li>
+            <% if @q_params[:user_statut_eq].present? %>
+              <li>
+                <p class="fr-tag">Profil : <%= @q_params[:user_statut_eq] %></p>
+              </li>
+            <% end %>
+            <% if @q_params[:user_nom_in].present? %>
+              <% Array(@q_params[:user_nom_in]).each do |nom| %>
                 <li>
-                  <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                  <p class="fr-tag"><%= nom %></p>
                 </li>
-                <li>
-                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
-                    Réinitialiser
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          <% end %>
+              <% end %>
+            <% end %>
+            <% if @q_params[:centre_financier_code_cont].present? %>
+              <li>
+                <p class="fr-tag"><%= @q_params[:centre_financier_code_cont] %></p>
+              </li>
+            <% end %>
+            <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+              <li>
+                <p class="fr-tag">
+                  Clôture
+                  <%= " du #{@q_params[:date_cloture_gteq]}" if @q_params[:date_cloture_gteq].present? %>
+                  <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
+                </p>
+              </li>
+            <% end %>
+            <% if has_filters %>
+              <%= link_to synthese_temporelle_ht2_actes_path, class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "results" } do %>
+                Réinitialiser les filtres
+              <% end %>
+            <% end %>
+          </ul>
         </div>
       </div>
     </div>
   </div>
-</dialog>
+
+  <div class="fr-container-blue">
+          <div class="fr-container">
+            <div class="fr-grid-row">
+              <div class="fr-col-12 fr-col-lg-3">
+                <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+                  <div class="fr-sidemenu__inner fr-backgroud--grey">
+                    <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+                      Dans cette rubrique
+                    </button>
+                    <div class="fr-collapse" id="fr-sidemenu-wrapper">
+                      <ul class="fr-sidemenu__list">
+                        <li class="fr-sidemenu__item">
+                          <%= link_to tableau_de_bord_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == tableau_de_bord_ht2_actes_path) do %>
+                            Activité globale
+                          <% end %>
+                        </li>
+                        <li class="fr-sidemenu__item">
+                          <%= link_to synthese_temporelle_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_temporelle_ht2_actes_path) do %>
+                            Délais
+                          <% end %>
+                        </li>
+                        <li class="fr-sidemenu__item">
+                          <%= link_to synthese_suspensions_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_suspensions_ht2_actes_path) do %>
+                            Suspensions & Interruptions
+                          <% end %>
+                        </li>
+                        <li class="fr-sidemenu__item">
+                          <%= link_to synthese_anomalies_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_anomalies_ht2_actes_path) do %>
+                            Observations aux ordonnateurs
+                          <% end %>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+              <div class="fr-col-12 fr-col-lg-9">
+                <h2 class="fr-my-3w title-btn">Suivi des délais</h2>
+
+                <div class="fr-grid-row">
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div class="fr-text--center fr-p-2v">
+                      <div class="fr-card fr-p-2w">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.count_with_long_delay %></p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Actes cloturés hors délai</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div class="fr-text--center fr-p-2v">
+                      <div class="fr-card fr-p-2w">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.delai_moyen_traitement %>
+                            jours</p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Délai moyen de
+                            traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "delai_moyen_traitement_info" } %></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-lg-4">
+                    <div class="fr-text--center fr-p-2v">
+                      <div class="fr-card fr-p-2w">
+                        <div class="fr-cart__body">
+                          <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @actes_filtered.duree_total_moyenne %>
+                            jours</p>
+                          <p class="fr-text--lg fr-mb-0 text_center">Durée moyenne de
+                            traitement <%= render partial: "ht2_actes/tooltip", locals: { name: "duree_moyenne_traitement_info" } %></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="fr-grid-row">
+                  <div class="fr-col-12 fr-col-lg-12">
+                    <div class="fr-p-2v">
+                      <div class='fr-card fr-p-2w'>
+                        <div data-controller="highcharts-actes"
+                             data-highcharts-actes-type-value="line"
+                             data-highcharts-actes-target="chart"
+                             data-highcharts-actes-dataset-value="<%= @delais_dataset.to_json %>"
+                             data-highcharts-actes-title-value="Délai moyen de traitement par mois"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="fr-grid-row">
+                  <div class="fr-col-12 fr-col-lg-12">
+                    <div class="fr-p-2v">
+                      <div class='fr-card fr-p-2w'>
+                        <div data-controller="highcharts-actes"
+                             data-highcharts-actes-type-value="multi-column"
+                             data-highcharts-actes-target="chart"
+                             data-highcharts-actes-dataset-value="<%= @delais_par_programme_dataset.to_json %>"
+                             data-highcharts-actes-title-value="Délai moyen de traitement par programme"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<% end %>
+
+<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container--fluid">
+          <div class="fr-modal-custom__row--left">
+            <div class="fr-col-12">
+              <div class="fr-modal-custom__body">
+                <div class="fr-modal__header">
+                  <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
+                </div>
+                <%= search_form_for @q, url: synthese_temporelle_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+                  <div class="fr-modal__content">
+                    <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                      Filtrer les résultats
+                    </h2>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12">
+                        <label class="fr-label fr-text--bold">Exercice</label>
+                        <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
+                        <%= f.select :annee_eq,
+                                     options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
+                                     {},
+                                     class: "fr-select" %>
+                      </div>
+
+                      <% if @statut_user == 'admin' %>
+                        <div class="fr-col-12">
+                          <fieldset class="fr-fieldset">
+                            <legend class="fr-fieldset__legend fr-text--regular fr-text--bold">
+                              Contrôleur
+                            </legend>
+                            <div class="fr-fieldset__content">
+                              <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
+                              <% selected_noms = Array(@q_params[:user_nom_in]) %>
+                              <% noms.each do |nom| %>
+                                <div class="fr-checkbox-group">
+                                  <%= f.check_box :user_nom_in,
+                                                  { multiple: true, checked: selected_noms.include?(nom), class: "fr-checkbox" },
+                                                  nom,
+                                                  nil %>
+                                  <%= f.label :user_nom_in, nom, value: nom, class: "fr-label" %>
+                                </div>
+                              <% end %>
+                            </div>
+                          </fieldset>
+                        </div>
+                      <% end %>
+                      <div class="fr-col-12">
+                        <label class="fr-label fr-text--bold">Centre financier</label>
+                        <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
+                      </div>
+                      <div class="fr-col-12">
+                        <span class="fr-label fr-text--bold">Clôture entre</span>
+
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
+                            <%= f.date_field :date_cloture_gteq,
+                                             class: 'fr-input',
+                                             value: @q_params[:date_cloture_gteq] %>
+                          </div>
+
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
+                            <%= f.date_field :date_cloture_lteq,
+                                             class: 'fr-input',
+                                             value: @q_params[:date_cloture_lteq] %>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="fr-modal__footer">
+                    <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                      <li>
+                        <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                      </li>
+                      <li>
+                        <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                          Réinitialiser
+                        <% end %>
+                      </li>
+                    </ul>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>

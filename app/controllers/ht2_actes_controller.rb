@@ -439,13 +439,16 @@ class Ht2ActesController < ApplicationController
   def tableau_de_bord
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
     @all_actes_user = @ht2_actes.clotures_seuls
-    search_params = params[:q] || {}
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_eq].blank?
-      search_params[:annee_eq] = Date.today.year
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.clotures.ransack(search_params)
+    @q = @ht2_actes.clotures.ransack(@q_params)
     @actes_filtered = @q.result(distinct: true) #pour graphes pre instruction
     @actes_cloture = @actes_filtered.clotures_seuls
     @total_actes = @actes_cloture.count
@@ -467,7 +470,7 @@ class Ht2ActesController < ApplicationController
       { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
     ]
 
-    year = search_params[:annee_eq].to_i
+    year = @q_params[:annee_eq].to_i
     start_date = Date.new(year, 1, 1)
     end_date   = start_date.end_of_year
 
@@ -516,16 +519,19 @@ class Ht2ActesController < ApplicationController
 
   def synthese_temporelle
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
-    search_params = params[:q] || {}
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_eq].blank?
-      search_params[:annee_eq] = Date.today.year
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.clotures_seuls.ransack(search_params)
+    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
     @actes_filtered = @q.result(distinct: true)
 
-    year = search_params[:annee_eq].to_i
+    year = @q_params[:annee_eq].to_i
     # 12 mois basés sur la date_cloture
     delais_par_mois = (1..12).map do |month|
       actes_du_mois = @actes_filtered.where(
@@ -572,13 +578,16 @@ class Ht2ActesController < ApplicationController
 
   def synthese_suspensions
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
-    search_params = params[:q] || {}
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_eq].blank?
-      search_params[:annee_eq] = Date.today.year
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.ransack(search_params)
+    @q = @ht2_actes.ransack(@q_params)
     @actes_filtered = @q.result.includes(:suspensions)
     @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
     @suspensions_all_count = @suspensions_all.count
@@ -627,13 +636,16 @@ class Ht2ActesController < ApplicationController
 
   def synthese_anomalies
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
-    search_params = params[:q] || {}
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
-    if search_params[:annee_eq].blank?
-      search_params[:annee_eq] = Date.today.year
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.ransack(search_params)
+    @q = @ht2_actes.ransack(@q_params)
     @actes_filtered = @q.result.includes(:suspensions)
 
     # Données pour les observations - Utilise unnest de PostgreSQL
@@ -1129,14 +1141,14 @@ class Ht2ActesController < ApplicationController
       actes_avec_suspension_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:ht2_acte_id).uniq
       actes_avec_suspensions_count = actes_avec_suspension_ids.size
 
-      suspensions_count = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).count
-
+      #suspensions_count = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).count
+      actes_avec_observations_count = actes_clotures.where.not(type_observations: []).count
       {
         user: user,
         actes_clotures_count: actes_clotures.count,
         actes_non_clotures_count: actes_non_clotures.count,
         actes_avec_suspensions_count: actes_avec_suspensions_count,
-        suspensions_count: suspensions_count,
+        actes_avec_observations_count: actes_avec_observations_count,
         delai_moyen: actes_clotures.delai_moyen_traitement,
       }
     end

@@ -16,6 +16,9 @@
     Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001. Si plusieurs centres financiers, indiquer le principal.
   <% elsif name == "pre_instruction_info" %>
     Cette information est utilisée pour le suivi statistique des actes.
+  <% elsif name == "destination_organisme" %>
+    L’article 178 du décret GBCP prévoit la présentation des crédits selon une nomenclature par destination :<br><br>
+    Présentée obligatoirement mais à titre indicatif, elle traduit budgétairement les missions et activités de l’organisme. La destination indique la finalité de la dépense qu’il s’agisse d’une finalité stratégique (missions statutaires de l’organisme, objectifs contractualisés avec l’Etat, contribution de l’organisme au programme de l’Etat dont il relève) ou d’une finalité opérationnelle (activités des services de l’organisme).
   <% elsif name == "disponibilite_credits" %>
     Le contrôle de la disponibilité des crédits opéré par le contrôleur doit cibler :<br>
 • une éventuelle concomitance de demandes d’achat en cours de traitement (non encore comptabilisées dans le SI)  et pouvant conduire à une indisponibilité de crédits;<br>
