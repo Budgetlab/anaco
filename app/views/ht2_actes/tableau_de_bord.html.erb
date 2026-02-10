@@ -528,24 +528,39 @@
                                  class: "fr-select" %>
                   </div>
                   <div class="fr-col-12">
-                    <fieldset class="fr-fieldset">
-                      <legend class="fr-fieldset__legend fr-text--regular fr-text--bold">
-                        Contrôleur
-                      </legend>
-                      <div class="fr-fieldset__content">
+                    <label class="fr-label fr-text--bold">Contrôleur</label>
+                    <div class="fr-select-group" style="position: relative;">
+                      <button type="button"
+                              id="controleur-button"
+                              class="fr-select"
+                              style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;"
+                              onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
                         <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
                         <% selected_noms = Array(@q_params[:user_nom_in]) %>
-                        <% noms.each do |nom| %>
-                          <div class="fr-checkbox-group">
-                            <%= f.check_box :user_nom_in,
-                                            { multiple: true, checked: selected_noms.include?(nom), class: "fr-checkbox" },
-                                            nom,
-                                            nil %>
-                            <%= f.label :user_nom_in, nom, value: nom, class: "fr-label" %>
-                          </div>
-                        <% end %>
+                        Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
+                      </button>
+                      <div style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                        <div style="padding: 0.5rem;">
+                          <% noms.each do |nom| %>
+                            <div class="fr-checkbox-group" style="margin-bottom: 0.5rem;">
+                              <%= f.check_box :user_nom_in,
+                                              { multiple: true, checked: selected_noms.include?(nom), class: "fr-checkbox controleur-checkbox", onchange: "updateControleurCount()" },
+                                              nom,
+                                              nil %>
+                              <%= f.label :user_nom_in, nom, value: nom, class: "fr-label" %>
+                            </div>
+                          <% end %>
+                        </div>
                       </div>
-                    </fieldset>
+                    </div>
+                    <script>
+                      function updateControleurCount() {
+                        const checkboxes = document.querySelectorAll('.controleur-checkbox:checked');
+                        const count = checkboxes.length;
+                        const button = document.getElementById('controleur-button');
+                        button.textContent = count > 0 ? 'Sélectionner des contrôleurs (' + count + ')' : 'Sélectionner des contrôleurs';
+                      }
+                    </script>
                   </div>
                 <% end %>
                 <div class="fr-col-12">
