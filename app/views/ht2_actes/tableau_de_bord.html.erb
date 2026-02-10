@@ -495,116 +495,128 @@
       </div>
     </div>
   </div>
-<% end %>
 
-<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
-  <div class="fr-container--fluid">
-    <div class="fr-modal-custom__row--left">
-      <div class="fr-col-12">
-        <div class="fr-modal-custom__body">
-          <div class="fr-modal__header">
-            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
-          </div>
-          <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
-            <div class="fr-modal__content">
-              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
-                Filtrer les résultats
-              </h2>
-              <div class="fr-grid-row fr-grid-row--gutters">
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Exercice</label>
-                  <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
-                  <%= f.select :annee_eq,
-                               options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
-                               {},
-                               class: "fr-select" %>
-                </div>
-                <% if @statut_user == 'admin' %>
+  <dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container--fluid">
+      <div class="fr-modal-custom__row--left">
+        <div class="fr-col-12">
+          <div class="fr-modal-custom__body">
+            <div class="fr-modal__header">
+              <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
+            </div>
+            <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+              <div class="fr-modal__content">
+                <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                  Filtrer les résultats
+                </h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
                   <div class="fr-col-12">
-                    <label class="fr-label fr-text--bold">Profil</label>
-                    <%= f.select :user_statut_eq,
-                                 options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], @q_params[:user_statut_eq]),
+                    <label class="fr-label fr-text--bold">Exercice</label>
+                    <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
+                    <%= f.select :annee_eq,
+                                 options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
                                  {},
                                  class: "fr-select" %>
                   </div>
-                  <div class="fr-col-12">
-                    <label class="fr-label fr-text--bold">Contrôleur</label>
-                    <div class="fr-select-group" style="position: relative;">
-                      <button type="button"
-                              id="controleur-button"
-                              class="fr-select"
-                              style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;"
-                              onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                        <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
-                        <% selected_noms = Array(@q_params[:user_nom_in]) %>
-                        Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
-                      </button>
-                      <div style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                        <div style="padding: 0.5rem;">
-                          <% noms.each do |nom| %>
-                            <div class="fr-checkbox-group" style="margin-bottom: 0.5rem;">
-                              <%= f.check_box :user_nom_in,
-                                              { multiple: true, checked: selected_noms.include?(nom), class: "fr-checkbox controleur-checkbox", onchange: "updateControleurCount()" },
-                                              nom,
-                                              nil %>
-                              <%= f.label :user_nom_in, nom, value: nom, class: "fr-label" %>
-                            </div>
-                          <% end %>
+                </div>
+                <% if @statut_user == 'admin' %>
+                  <div class="fr-grid-row fr-grid-row--gutters" data-controller="controleur-filter">
+                    <div class="fr-col-12">
+                      <label class="fr-label fr-text--bold">Profil</label>
+                      <%= f.select :user_statut_eq,
+                                   options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], @q_params[:user_statut_eq]),
+                                   {},
+                                   class: "fr-select",
+                                   data: {
+                                     controleur_filter_target: "profilSelect",
+                                     action: "change->controleur-filter#filterByProfil"
+                                   } %>
+                    </div>
+                    <div class="fr-col-12 fr-pt-0">
+                      <label class="fr-label fr-text--bold">Contrôleur</label>
+                      <div class="fr-select-group fr-mt-1w" style="position: relative;">
+                        <button type="button"
+                                data-controleur-filter-target="button"
+                                data-action="click->controleur-filter#toggleDropdown"
+                                class="fr-select"
+                                style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;">
+                          <% users_by_statut = User.where(statut: ['DCB', 'CBR']).select(:nom, :statut).distinct.order(nom: :asc) %>
+                          <% selected_noms = Array(@q_params[:user_nom_in]) %>
+                          Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
+                        </button>
+                        <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                          <div style="padding: 0.5rem;">
+                            <% users_by_statut.each do |user| %>
+                              <div class="fr-checkbox-group"
+                                   data-controleur-filter-target="item"
+                                   data-statut="<%= user.statut %>"
+                                   style="margin-bottom: 0.5rem;">
+                                <%= f.check_box :user_nom_in,
+                                                {
+                                                  multiple: true,
+                                                  checked: selected_noms.include?(user.nom),
+                                                  class: "fr-checkbox",
+                                                  data: {
+                                                    controleur_filter_target: "checkbox",
+                                                    action: "change->controleur-filter#updateCount"
+                                                  }
+                                                },
+                                                user.nom,
+                                                nil %>
+                                <%= f.label :user_nom_in, user.nom, value: user.nom, class: "fr-label" %>
+                              </div>
+                            <% end %>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <script>
-                      function updateControleurCount() {
-                        const checkboxes = document.querySelectorAll('.controleur-checkbox:checked');
-                        const count = checkboxes.length;
-                        const button = document.getElementById('controleur-button');
-                        button.textContent = count > 0 ? 'Sélectionner des contrôleurs (' + count + ')' : 'Sélectionner des contrôleurs';
-                      }
-                    </script>
                   </div>
+
                 <% end %>
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Centre financier</label>
-                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
-                </div>
-                <div class="fr-col-12">
-                  <span class="fr-label fr-text--bold">Clôture entre</span>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Centre financier</label>
+                    <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
+                  </div>
+                  <div class="fr-col-12">
+                    <span class="fr-label fr-text--bold">Clôture entre</span>
 
-                  <div class="fr-grid-row fr-grid-row--gutters">
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_gteq,
-                                       class: 'fr-input',
-                                       value: @q_params[:date_cloture_gteq] %>
-                    </div>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12 fr-col-md-6">
+                        <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
+                        <%= f.date_field :date_cloture_gteq,
+                                         class: 'fr-input',
+                                         value: @q_params[:date_cloture_gteq] %>
+                      </div>
 
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_lteq,
-                                       class: 'fr-input',
-                                       value: @q_params[:date_cloture_lteq] %>
+                      <div class="fr-col-12 fr-col-md-6">
+                        <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
+                        <%= f.date_field :date_cloture_lteq,
+                                         class: 'fr-input',
+                                         value: @q_params[:date_cloture_lteq] %>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-
               </div>
-            </div>
-            <div class="fr-modal__footer">
-              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
-                <li>
-                  <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
-                </li>
-                <li>
-                  <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
-                    Réinitialiser
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          <% end %>
+              <div class="fr-modal__footer">
+                <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                  <li>
+                    <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                  </li>
+                  <li>
+                    <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                      Réinitialiser
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</dialog>
+  </dialog>
+
+<% end %>
+
