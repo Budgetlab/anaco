@@ -574,112 +574,170 @@
               </div>
             </div>
 
-            <div class="fr-col-12 fr-col-lg-6">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="bar"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @programmes_data.to_json %>"
-                       data-highcharts-actes-title-value="Nombre d'actes clôturés par Programme"></div>
-                  <section class="fr-accordion">
-                    <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-programmes">Tableau
-                        des données
-                      </button>
-                    </h3>
-                    <div class="fr-collapse" id="accordion-programmes">
-                      <div class="fr-table">
-                        <div class="fr-table__wrapper">
-                          <div class="fr-table__container">
-                            <div class="fr-table__content">
-                              <table>
-                                <caption>Répartition par programme</caption>
-                                <thead>
-                                <tr>
-                                  <th> Programme</th>
-                                  <th> Nombre</th>
-                                  <th> Répartition</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <% @programmes_data.each do |hash| %>
+            <% if @q_params[:perimetre_eq] == 'etat' %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="bar"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-data-value="<%= @programmes_data.to_json %>"
+                         data-highcharts-actes-title-value="Nombre d'actes clôturés par Programme"></div>
+                    <section class="fr-accordion">
+                      <h3 class="fr-accordion__title">
+                        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-programmes">Tableau
+                          des données
+                        </button>
+                      </h3>
+                      <div class="fr-collapse" id="accordion-programmes">
+                        <div class="fr-table">
+                          <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                              <div class="fr-table__content">
+                                <table>
+                                  <caption>Répartition par programme</caption>
+                                  <thead>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
-                                    <td> <%= hash[:y] %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    <th> Programme</th>
+                                    <th> Nombre</th>
+                                    <th> Répartition</th>
                                   </tr>
-                                <% end %>
-                                <tr class="fr-table--total">
-                                  <td>Total</td>
-                                  <td><%= @total_actes %></td>
-                                  <td>100%</td>
-                                </tr>
-                                </tbody>
-                              </table>
+                                  </thead>
+                                  <tbody>
+                                  <% @programmes_data.each do |hash| %>
+                                    <tr>
+                                      <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
+                                      <td> <%= hash[:y] %> </td>
+                                      <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    </tr>
+                                  <% end %>
+                                  <tr class="fr-table--total">
+                                    <td>Total</td>
+                                    <td><%= @total_actes %></td>
+                                    <td>100%</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
 
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="fr-col-12 fr-col-lg-6">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="bar"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @ordonnateurs_data.to_json %>"
-                       data-highcharts-actes-title-value="Nombre d'actes clôturés par Ordonnateur"></div>
-                  <section class="fr-accordion">
-                    <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-ordonnateurs">Tableau
-                        des données
-                      </button>
-                    </h3>
-                    <div class="fr-collapse" id="accordion-ordonnateurs">
-                      <div class="fr-table">
-                        <div class="fr-table__wrapper">
-                          <div class="fr-table__container">
-                            <div class="fr-table__content">
-                              <table>
-                                <caption>Répartition par programme</caption>
-                                <thead>
-                                <tr>
-                                  <th> Ordonnateur</th>
-                                  <th> Nombre</th>
-                                  <th> Répartition</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <% @ordonnateurs_data.each do |hash| %>
-                                  <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom' : hash[:name] %> </td>
-                                    <td> <%= hash[:y] %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
-                                  </tr>
-                                <% end %>
-                                <tr class="fr-table--total">
-                                  <td>Total</td>
-                                  <td><%= @total_actes %></td>
-                                  <td>100%</td>
-                                </tr>
-                                </tbody>
-                              </table>
+              <% if @statut_user != "admin" %>
+                <div class="fr-col-12 fr-col-lg-6">
+                  <div class="fr-p-2v">
+                    <div class='fr-card fr-p-2w'>
+                      <div data-controller="highcharts-actes"
+                           data-highcharts-actes-type-value="bar"
+                           data-highcharts-actes-target="chart"
+                           data-highcharts-actes-data-value="<%= @ordonnateurs_data.to_json %>"
+                           data-highcharts-actes-title-value="Nombre d'actes clôturés par Ordonnateur"></div>
+                      <section class="fr-accordion">
+                        <h3 class="fr-accordion__title">
+                          <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-ordonnateurs">Tableau
+                            des données
+                          </button>
+                        </h3>
+                        <div class="fr-collapse" id="accordion-ordonnateurs">
+                          <div class="fr-table">
+                            <div class="fr-table__wrapper">
+                              <div class="fr-table__container">
+                                <div class="fr-table__content">
+                                  <table>
+                                    <caption>Répartition par programme</caption>
+                                    <thead>
+                                    <tr>
+                                      <th> Ordonnateur</th>
+                                      <th> Nombre</th>
+                                      <th> Répartition</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <% @ordonnateurs_data.each do |hash| %>
+                                      <tr>
+                                        <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom' : hash[:name] %> </td>
+                                        <td> <%= hash[:y] %> </td>
+                                        <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                      </tr>
+                                    <% end %>
+                                    <tr class="fr-table--total">
+                                      <td>Total</td>
+                                      <td><%= @total_actes %></td>
+                                      <td>100%</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
+                  </div>
                 </div>
               </div>
-            </div>
+              <% end %>
+            <% end %>
 
+            <% if @q_params[:perimetre_eq] == 'organisme' %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="bar"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-data-value="<%= @organismes_data.to_json %>"
+                         data-highcharts-actes-title-value="Nombre d'actes clôturés par Organisme"></div>
+                    <section class="fr-accordion">
+                      <h3 class="fr-accordion__title">
+                        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-organismes">Tableau
+                          des données
+                        </button>
+                      </h3>
+                      <div class="fr-collapse" id="accordion-organismes">
+                        <div class="fr-table">
+                          <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                              <div class="fr-table__content">
+                                <table>
+                                  <caption>Répartition par organisme</caption>
+                                  <thead>
+                                  <tr>
+                                    <th> Organisme</th>
+                                    <th> Nombre</th>
+                                    <th> Répartition</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  <% @organismes_data.each do |hash| %>
+                                    <tr>
+                                      <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
+                                      <td> <%= hash[:y] %> </td>
+                                      <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    </tr>
+                                  <% end %>
+                                  <tr class="fr-table--total">
+                                    <td>Total</td>
+                                    <td><%= @total_actes %></td>
+                                    <td>100%</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            <% end %>
 
           </div>
         </div>

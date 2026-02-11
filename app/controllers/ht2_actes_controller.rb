@@ -465,6 +465,10 @@ class Ht2ActesController < ApplicationController
                                       .group_by(&:programme_principal)
                                       .transform_values(&:count)
                                       .map { |programme, count| { name: programme&.numero || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
+    # Données pour le graphique des organismes
+    @organismes_data = @actes_cloture.group_by(&:nom_organisme)
+                                      .transform_values(&:count)
+                                      .map { |organisme, count| { name: organisme || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
     # Répartition état/pré-instruction (SIMPLE)
     @preinstruction_data = [
       { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
