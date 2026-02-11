@@ -237,7 +237,7 @@ export default class extends Controller {
         return {
             text: this.titleValue,
             style: {
-                fontSize: '13px',
+                fontSize: '18px',
                 fontWeight: "900",
                 color: 'var(--text-title-grey)',
             },

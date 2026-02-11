@@ -441,6 +441,7 @@ class Ht2ActesController < ApplicationController
     @all_actes_user = @ht2_actes.clotures_seuls
     q = params[:q] || {}
     @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+
     # Supprimer les paramètres vides
     @q_params.reject! { |_, v| v.blank? }
     # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours

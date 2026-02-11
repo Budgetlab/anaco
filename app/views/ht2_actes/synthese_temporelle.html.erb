@@ -4,17 +4,66 @@
       <h1 class="fr-mt-6w title-btn">
         Tableau de bord Actes HT2
       </h1>
-      <div class="fr-mb-2w">
-        <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-          Filtrer les résultats
-        </button>
-      </div>
     </div>
   </div>
 </div>
 
 <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
   <div class="fr-container">
+    <div class="fr-grid-row">
+      <div class="fr-col-12">
+        <%= form_with url: synthese_temporelle_ht2_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+          <div >
+            <fieldset class="fr-fieldset">
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag 'q[perimetre_eq]', '',
+                                       @q_params[:perimetre_eq].blank?,
+                                       class: "fr-radio",
+                                       id: "perimetre-globale",
+                                       onchange: "this.form.requestSubmit()" %>
+                  <%= label_tag "perimetre-globale", "Vue globale", class: "fr-label" %>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag 'q[perimetre_eq]', 'etat',
+                                       @q_params[:perimetre_eq] == 'etat',
+                                       class: "fr-radio",
+                                       id: "perimetre-etat",
+                                       onchange: "this.form.requestSubmit()" %>
+                  <%= label_tag "perimetre-etat", "Vue État", class: "fr-label" %>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag 'q[perimetre_eq]', 'organisme',
+                                       @q_params[:perimetre_eq] == 'organisme',
+                                       class: "fr-radio",
+                                       id: "perimetre-organisme",
+                                       onchange: "this.form.requestSubmit()" %>
+                  <%= label_tag "perimetre-organisme", "Vue Organisme", class: "fr-label" %>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <% @q_params.except(:perimetre_eq).each do |key, value| %>
+            <% if value.is_a?(Array) %>
+              <% value.each do |v| %>
+                <%= hidden_field_tag "q[#{key}][]", v %>
+              <% end %>
+            <% else %>
+              <%= hidden_field_tag "q[#{key}]", value %>
+            <% end %>
+          <% end %>
+        <% end %>
+        <div class="fr-mb-2w">
+          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+            Filtrer les résultats
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="fr-grid-row">
       <div class="fr-col-12">
         <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
@@ -180,6 +229,7 @@
               <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
             </div>
             <%= search_form_for @q, url: synthese_temporelle_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+              <%= f.hidden_field :perimetre_eq, value: @q_params[:perimetre_eq] %>
               <div class="fr-modal__content">
                 <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
                   Filtrer les résultats
