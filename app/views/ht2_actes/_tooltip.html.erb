@@ -17,8 +17,18 @@
   <% elsif name == "pre_instruction_info" %>
     Cette information est utilisée pour le suivi statistique des actes.
   <% elsif name == "destination_organisme" %>
-    L’article 178 du décret GBCP prévoit la présentation des crédits selon une nomenclature par destination :<br><br>
-    Présentée obligatoirement mais à titre indicatif, elle traduit budgétairement les missions et activités de l’organisme. La destination indique la finalité de la dépense qu’il s’agisse d’une finalité stratégique (missions statutaires de l’organisme, objectifs contractualisés avec l’Etat, contribution de l’organisme au programme de l’Etat dont il relève) ou d’une finalité opérationnelle (activités des services de l’organisme).
+    La nomenclature par destination, propre à chaque organisme, traduit budgétairement les missions et activités de l’établissement. Elle précise la finalité de la dépense, qu’il s’agisse d’une finalité stratégique (missions statutaires de l’organisme, objectifs contractualisés avec l’Etat, contribution de l’organisme au programme de l’Etat dont il relève) ou d’une finalité opérationnelle (activités des services de l’organisme).
+  <% elsif name == "nomenclature_depense" %>
+    Certains organismes disposent d’une nomenclature achat, c’est-à-dire un référentiel qui permet de classer les achats par familles et sous-familles homogènes.
+  <% elsif name == "nomenclature_recette" %>
+    La nomenclature par destination, propre à chaque organisme, traduit budgétairement les missions et activités de l’établissement. Elle précise la finalité de la recette, qu’il s’agisse d’une finalité stratégique (missions statutaires de l’organisme, objectifs contractualisés avec l’Etat, contribution de l’organisme au programme de l’Etat dont il relève) ou d’une finalité opérationnelle (activités des services de l’organisme). Elle se distingue de la classification par nature.
+  <% elsif name == "flux_organisme" %>
+    Le décret GBCP définit les règles applicables au traitement de la dépense et précise que celle-ci s’exécute selon une succession d’opérations : l’engagement, la liquidation, le cas échéant l’ordonnancement, puis le paiement.<br>
+Ce processus est matérialisé dans le SI financier par le flux de gestion n°1, au sein duquel les différentes étapes d’exécution de la dépense (engagement juridique (EJ), service fait (SF) et paiement (P)) sont enregistrées et réalisées de manière successive.<br><br>
+Toutefois, des flux dérogatoires peuvent être utilisés :<br>
+Flux 2 : le SF est concomitant à l’EJ et est enregistré lors de la validation de l’EJ<br>
+Flux 3 : l’EJ est effectué, puis le SF est concomitant au paiement.<br>
+Flux 4 : les 3 étapes - EJ, SF et paiement- sont concomitantes et toutes matérialisées au moment du paiement.
   <% elsif name == "disponibilite_credits" %>
     Le contrôle de la disponibilité des crédits opéré par le contrôleur doit cibler :<br>
 • une éventuelle concomitance de demandes d’achat en cours de traitement (non encore comptabilisées dans le SI)  et pouvant conduire à une indisponibilité de crédits;<br>

@@ -139,18 +139,18 @@
       <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true %>" data-conditional-field-target="field">
         <div class="fr-select-group">
           <label for="operation_budgetaire" class="fr-label">
-            Opération budgétaire*
+            Opération budgétaire
           </label>
-          <%= f.select :operation_budgetaire, options_for_select([['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']], @acte.operation_budgetaire), { prompt: "- sélectionner -" }, { id: "operation_budgetaire", class: "fr-select", required: true } %>
+          <%= f.select :operation_budgetaire, options_for_select([['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']], @acte.operation_budgetaire), { prompt: "- sélectionner -" }, { id: "operation_budgetaire", class: "fr-select" } %>
         </div>
       </div>
 
       <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' if @acte.operation_compte_tiers == true %>" data-conditional-field-target="field">
         <div class="fr-select-group">
           <label for="nature_categorie_organisme" class="fr-label">
-            <%= @acte.categorie_organisme == 'depense' ? 'Nature de la dépense*' : 'Destination de la recette*' %>
+            <%= @acte.categorie_organisme == 'depense' ? 'Nature de la dépense' : 'Affectation de la recette' %>
           </label>
-          <%= f.select :nature_categorie_organisme, options_for_select([['Investissement', 'Investissement'], ['Fonctionnement', 'Fonctionnement'], ['Intervention', 'Intervention']], @acte.nature_categorie_organisme), { prompt: "- sélectionner -" }, { id: "nature_categorie_organisme", class: "fr-select", required: true } %>
+          <%= f.select :nature_categorie_organisme, options_for_select([['Investissement', 'Investissement'], ['Fonctionnement', 'Fonctionnement'], ['Intervention', 'Intervention']], @acte.nature_categorie_organisme), { prompt: "- sélectionner -" }, { id: "nature_categorie_organisme", class: "fr-select" } %>
         </div>
       </div>
     </div>
@@ -296,14 +296,18 @@
 
           <div class="fr-col-12 fr-col-lg-4">
             <div class="fr-input-group">
-              <label for="nomenclature" class="fr-label">Nomenclature <%= @acte.categorie_organisme == 'depense' ? 'achat' : 'recette' %></label>
+              <label for="nomenclature" class="fr-label"><%if  @acte.categorie_organisme == 'depense'%> Nomenclature achat
+                <%= render partial: "ht2_actes/tooltip", locals: { name: "nomenclature_depense" } %>
+                  <% else %>Nomenclature recette
+                  <%= render partial: "ht2_actes/tooltip", locals: { name: "nomenclature_recette" } %>
+                <% end %></label>
               <%= f.text_field :nomenclature, id: "nomenclature", class: "fr-input", value: @acte.nomenclature %>
             </div>
           </div>
           <% if @acte.categorie_organisme == "depense" %>
             <div class="fr-col-12 fr-col-lg-4">
               <div class="fr-select-group">
-                <label for="flux" class="fr-label">Flux</label>
+                <label for="flux" class="fr-label">Flux <%= render partial: "ht2_actes/tooltip", locals: { name: "flux_organisme" } %></label>
                 <%= f.select :flux, options_for_select([['1', '1'], ['2', '2'], ['3', '3'], ['4', '4']], @acte.flux), { include_blank: "- sélectionner -" }, { id: "flux", class: "fr-select" } %>
               </div>
             </div>

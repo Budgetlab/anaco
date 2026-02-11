@@ -204,7 +204,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
     "N° acte interne organisme",
     'Opération pour compte de tiers',
     'Opération budgétaire',
-    'Nature catégorie',
+    'Nature dépense / Affectation recette',
     'Budget exécutoire',
     'Bénéficiaire / Partie versante',
     'Objet',

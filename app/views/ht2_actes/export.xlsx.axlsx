@@ -230,7 +230,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      headers = ["Catégorie", "Opération compte tiers"]
      headers << "Opération budgétaire" if @acte.operation_compte_tiers == false
 
-     nature_label = @acte.categorie_organisme == 'depense' ? "Nature de dépense" : "Destination recette"
+     nature_label = @acte.categorie_organisme == 'depense' ? "Nature de dépense" : "Affectation recette"
      headers << nature_label if @acte.operation_compte_tiers == false
 
      headers += ["Budget exécutoire", "N°interne"]
