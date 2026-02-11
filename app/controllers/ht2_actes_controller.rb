@@ -500,8 +500,13 @@ class Ht2ActesController < ApplicationController
       ]
     }
 
+    # Créer un scope pour @evolution_par_annee sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
     # Regrouper par année et type_acte
-    @counts = @all_actes_user.group(:annee, :type_acte).count
+    @counts = actes_for_evolution.group(:annee, :type_acte).count
     # => { [2022, "avis"] => 813, [2023, "avis"] => 623, ... }
 
     @years = (2024..Date.today.year).to_a
