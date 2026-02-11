@@ -456,6 +456,7 @@ class Ht2ActesController < ApplicationController
 
     # Données pour le graphique pie
     @type_actes = @actes_cloture.group_by(&:type_acte).transform_values(&:count).map { |type, count| { name: type || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
+    @perimetre_data = @actes_cloture.group_by(&:perimetre).transform_values(&:count).map { |perimetre, count| { name: perimetre&.capitalize || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
     @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @natures_data = @actes_cloture.group_by(&:nature).transform_values(&:count).map { |nature, count| { name: nature || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @ordonnateurs_data = @actes_cloture.group_by(&:ordonnateur).transform_values(&:count).map { |ordonnateur, count| { name: ordonnateur || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
@@ -469,6 +470,12 @@ class Ht2ActesController < ApplicationController
       { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
       { name: "Clôturé avec pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: true).count },
       { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
+    ]
+
+    # Répartition des actes programmés
+    @programmation_data = [
+      { name: "Oui", y: @actes_cloture.where(programmation_prevue: true).count },
+      { name: "Non", y: @actes_cloture.where(programmation_prevue: [false, nil]).count }
     ]
 
     year = @q_params[:annee_eq].to_i
