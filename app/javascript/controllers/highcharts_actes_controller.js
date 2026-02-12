@@ -122,7 +122,7 @@ export default class extends Controller {
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
             title: this.getTitleConfig(),
-            legend: {enabled: false},
+            legend: this.getLegendColumnConfig(),
             tooltip: this.getTooltipColumnConfig(),
             plotOptions: this.getPlotColumnOptions(stacked),
             series: highchartsSeries,
@@ -264,6 +264,20 @@ export default class extends Controller {
     }
 
     getLegendLineConfig() {
+        return {
+            enabled: this.showLegendValue,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                color: 'var(--text-title-grey)',
+                fontSize: '12px',
+                fontWeight: 'normal'
+            },
+        };
+    }
+
+    getLegendColumnConfig() {
         return {
             enabled: this.showLegendValue,
             align: 'center',
