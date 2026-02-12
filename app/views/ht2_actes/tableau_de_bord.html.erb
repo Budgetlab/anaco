@@ -754,7 +754,7 @@
             <div class="fr-modal__header">
               <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
             </div>
-            <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+            <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance', controller: 'date-range-filter' } do |f| %>
               <%= f.hidden_field :perimetre_eq, value: @q_params[:perimetre_eq] %>
               <div class="fr-modal__content">
                 <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
@@ -767,7 +767,11 @@
                     <%= f.select :annee_eq,
                                  options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
                                  {},
-                                 class: "fr-select" %>
+                                 class: "fr-select",
+                                 data: {
+                                   date_range_filter_target: "yearSelect",
+                                   action: "change->date-range-filter#updateDateRange"
+                                 } %>
                   </div>
                 </div>
                 <% if @statut_user == 'admin' %>
@@ -837,14 +841,16 @@
                         <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
                         <%= f.date_field :date_cloture_gteq,
                                          class: 'fr-input',
-                                         value: @q_params[:date_cloture_gteq] %>
+                                         value: @q_params[:date_cloture_gteq],
+                                         data: { date_range_filter_target: "dateFrom" } %>
                       </div>
 
                       <div class="fr-col-12 fr-col-md-6">
                         <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
                         <%= f.date_field :date_cloture_lteq,
                                          class: 'fr-input',
-                                         value: @q_params[:date_cloture_lteq] %>
+                                         value: @q_params[:date_cloture_lteq],
+                                         data: { date_range_filter_target: "dateTo" } %>
                       </div>
                     </div>
                   </div>

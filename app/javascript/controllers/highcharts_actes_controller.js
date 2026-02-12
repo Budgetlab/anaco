@@ -109,7 +109,6 @@ export default class extends Controller {
     renderMultiSeriesColumnChart(stacked = false) {
         if (!this.datasetValue) return;
         const { categories, series } = this.datasetValue
-        console.log(this.datasetValue)
 
         const highchartsSeries = series.map(s => ({
             name: s.name,
