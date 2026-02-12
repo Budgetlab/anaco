@@ -438,7 +438,6 @@ class Ht2ActesController < ApplicationController
   end
   def tableau_de_bord
     # Initialiser les paramètres de recherche avec l'année en cours par défaut
-    @all_actes_user = @ht2_actes.clotures_seuls
     q = params[:q] || {}
     @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
 
@@ -588,6 +587,25 @@ class Ht2ActesController < ApplicationController
         {
           name: "Délai moyen (jours)",
           y: delais_par_programme.values # Les valeurs sont maintenant des float
+        }
+      ]
+    }
+
+    # Calcul du délai moyen de traitement par organisme
+    delais_par_organisme = @actes_filtered
+      .group(:nom_organisme)
+      .average(:delai_traitement)
+      .reject { |k, v| k.nil? || v.nil? } # Filtrer les organismes null et valeurs null
+      .transform_values { |v| v.to_f.round(1) } # Convertir explicitement en float
+      .sort_by { |_k, v| -v }
+      .to_h
+
+    @delais_par_organisme_dataset = {
+      categories: delais_par_organisme.keys,
+      series: [
+        {
+          name: "Délai moyen (jours)",
+          y: delais_par_organisme.values
         }
       ]
     }
