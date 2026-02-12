@@ -694,9 +694,32 @@ class Ht2ActesController < ApplicationController
       ]
     }
 
+    # Calcul du nombre de suspensions par organisme
+    suspensions_par_organisme = @actes_filtered
+                                  .joins(:suspensions)
+                                  .group(:nom_organisme)
+                                  .order('COUNT(suspensions.id) DESC')
+                                  .pluck(:nom_organisme, 'COUNT(suspensions.id)')
+                                  .to_h
+
+    @suspensions_par_organisme_dataset = {
+      categories: suspensions_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_organisme.values
+        }
+      ]
+    }
+
     # Calcul de l'évolution pluriannuelle des suspensions
+    # Créer un scope pour @evolution_suspensions_dataset sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    @q_evolution = @ht2_actes.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
     years = (2024..Date.today.year).to_a
-    suspensions_par_annee = @ht2_actes
+    suspensions_par_annee = actes_for_evolution
                               .joins(:suspensions)
                               .where(annee: years)
                               .group(:annee)

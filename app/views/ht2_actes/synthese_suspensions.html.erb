@@ -13,7 +13,7 @@
     <div class="fr-grid-row">
       <div class="fr-col-12">
         <%= form_with url: synthese_suspensions_ht2_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
-          <div >
+          <div>
             <fieldset class="fr-fieldset">
               <div class="fr-fieldset__element fr-fieldset__element--inline">
                 <div class="fr-radio-group fr-radio-rich">
@@ -256,19 +256,37 @@
               </div>
             </div>
           </div>
-          <div class="fr-grid-row">
-            <div class="fr-col-12 fr-col-lg-12">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="multi-column"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @suspensions_par_programme_dataset.to_json %>"
-                       data-highcharts-actes-title-value="Nombre de suspensions/interruptions par programme"></div>
+          <% if @q_params[:perimetre_eq] == 'etat' %>
+            <div class="fr-grid-row">
+              <div class="fr-col-12 fr-col-lg-12">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="multi-column"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-dataset-value="<%= @suspensions_par_programme_dataset.to_json %>"
+                         data-highcharts-actes-title-value="Nombre de suspensions/interruptions par programme"></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          <% end %>
+
+          <% if @q_params[:perimetre_eq] == 'organisme' %>
+            <div class="fr-grid-row">
+              <div class="fr-col-12 fr-col-lg-12">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="multi-column"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-dataset-value="<%= @suspensions_par_organisme_dataset.to_json %>"
+                         data-highcharts-actes-title-value="Nombre de suspensions/interruptions par organisme"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
