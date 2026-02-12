@@ -548,27 +548,75 @@ class Ht2ActesController < ApplicationController
     @actes_filtered = @q.result(distinct: true)
 
     year = @q_params[:annee_eq].to_i
-    # 12 mois basés sur la date_cloture
-    delais_par_mois = (1..12).map do |month|
-      actes_du_mois = @actes_filtered.where(
-        date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
-      )
 
-      if actes_du_mois.any?
-        (actes_du_mois.average(:delai_traitement).to_f).round(1)
-      else
-        0  # ou 0 si tu préfères
+    # Construire les séries en fonction du périmètre sélectionné
+    series = []
+
+    if @q_params[:perimetre_eq].blank?
+      # Vue globale : afficher les 3 courbes
+
+      # Délai moyen pour périmètre État
+      delais_etat = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          perimetre: 'etat',
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
       end
+
+      # Délai moyen pour périmètre Organisme
+      delais_organisme = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          perimetre: 'organisme',
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      # Délai moyen global (tous les actes)
+      delais_global = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen État", y: delais_etat },
+        { name: "Délai moyen Organisme", y: delais_organisme },
+        { name: "Délai moyen Global", y: delais_global }
+      ]
+
+    elsif @q_params[:perimetre_eq] == 'etat'
+      # Vue État : afficher uniquement la courbe État
+      delais_etat = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen de traitement (jours)", y: delais_etat }
+      ]
+
+    elsif @q_params[:perimetre_eq] == 'organisme'
+      # Vue Organisme : afficher uniquement la courbe Organisme
+      delais_organisme = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen de traitement (jours)", y: delais_organisme }
+      ]
     end
 
     @delais_dataset = {
       categories: I18n.t("date.month_names")[1..12], # ["janvier", ..., "décembre"]
-      series: [
-        {
-          name: "Délai moyen de traitement (jours)",
-          y: delais_par_mois
-        }
-      ]
+      series: series
     }
 
     # Calcul du délai moyen de traitement par programme

@@ -18,7 +18,8 @@ export default class extends Controller {
         title: String,
         type: { type: String, default: 'pie' },
         data: Array,  // Déclarez la value ici
-        dataset: Object
+        dataset: Object,
+        showLegend: { type: Boolean, default: false }
     }
 
     static CHART_COLORS = [
@@ -149,7 +150,7 @@ export default class extends Controller {
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
             title: this.getTitleConfig(),
-            legend: {enabled: false},
+            legend: this.getLegendLineConfig(),
             tooltip: this.getTooltipLineConfig(),
             series: highchartsSeries,
         };
@@ -258,6 +259,20 @@ export default class extends Controller {
             itemStyle: {
                 color: 'var(--text-title-grey)',
                 fontSize: '11px' // Réduire la taille si nécessaire
+            },
+        };
+    }
+
+    getLegendLineConfig() {
+        return {
+            enabled: this.showLegendValue,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                color: 'var(--text-title-grey)',
+                fontSize: '12px',
+                fontWeight: 'normal'
             },
         };
     }
