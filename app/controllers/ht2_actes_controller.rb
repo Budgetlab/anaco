@@ -670,8 +670,8 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.ransack(@q_params)
-    @actes_filtered = @q.result.includes(:suspensions)
+    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true).includes(:suspensions)
     @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
     @suspensions_all_count = @suspensions_all.count
     @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
@@ -715,7 +715,7 @@ class Ht2ActesController < ApplicationController
     # Calcul de l'évolution pluriannuelle des suspensions
     # Créer un scope pour @evolution_suspensions_dataset sans les filtres annee_eq et dates de clôture
     q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
-    @q_evolution = @ht2_actes.ransack(q_params_evolution)
+    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
     actes_for_evolution = @q_evolution.result(distinct: true)
 
     years = (2024..Date.today.year).to_a
@@ -751,8 +751,8 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.ransack(@q_params)
-    @actes_filtered = @q.result.includes(:suspensions)
+    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true)
 
     # Données pour les observations - Utilise unnest de PostgreSQL
     all_observations =
@@ -771,11 +771,16 @@ class Ht2ActesController < ApplicationController
     @total_observations = all_observations.size
 
     # Calcul de l'évolution pluriannuelle des observations
+    # Créer un scope pour @evolution_observations_dataset sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
     years = (2024..Date.today.year).to_a
     observations_par_annee = {}
 
     years.each do |year|
-      actes_annee = @ht2_actes.where(annee: year)
+      actes_annee = actes_for_evolution.where(annee: year)
       observations_count = actes_annee
         .pluck(:type_observations)
         .compact
@@ -832,6 +837,81 @@ class Ht2ActesController < ApplicationController
         {
           name: "Nombre d'observations",
           y: observations_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'actes non programmés par programme
+    actes_non_programmes_par_programme = @actes_filtered
+                                          .where(programmation_prevue: false)
+                                          .includes(centre_financier_principal: :programme)
+                                          .group('programmes.numero')
+                                          .order('COUNT(ht2_actes.id) DESC')
+                                          .pluck('programmes.numero', 'COUNT(ht2_actes.id)')
+                                          .to_h
+
+    @actes_non_programmes_par_programme_dataset = {
+      categories: actes_non_programmes_par_programme.keys,
+      series: [
+        {
+          name: "Nombre d'actes non programmés",
+          y: actes_non_programmes_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'actes non programmés par organisme
+    actes_non_programmes_par_organisme = @actes_filtered
+                                          .where(programmation_prevue: false)
+                                          .group(:nom_organisme)
+                                          .order('COUNT(ht2_actes.id) DESC')
+                                          .pluck(:nom_organisme, 'COUNT(ht2_actes.id)')
+                                          .to_h
+
+    @actes_non_programmes_par_organisme_dataset = {
+      categories: actes_non_programmes_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre d'actes non programmés",
+          y: actes_non_programmes_par_organisme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'observations par organisme
+    observations_par_organisme = {}
+
+    @actes_filtered.each do |acte|
+      organisme_nom = acte.nom_organisme
+      next unless organisme_nom.present?
+
+      # Compter les observations de cet acte
+      observations_count = if acte.type_observations.present?
+        obs = acte.type_observations
+        if obs.is_a?(String)
+          obs.strip.start_with?('[') ? JSON.parse(obs).size : 1
+        elsif obs.is_a?(Array)
+          obs.reject(&:blank?).size
+        else
+          0
+        end
+      else
+        0
+      end
+
+      observations_par_organisme[organisme_nom] ||= 0
+      observations_par_organisme[organisme_nom] += observations_count
+    end
+
+    # Retirer les organismes avec 0 observations et trier par nombre décroissant
+    observations_par_organisme = observations_par_organisme.reject { |_k, v| v == 0 }.sort_by { |_k, v| -v }.to_h
+
+    @observations_par_organisme_dataset = {
+      categories: observations_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_par_organisme.values
         }
       ]
     }
