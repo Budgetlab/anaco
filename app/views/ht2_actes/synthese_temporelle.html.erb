@@ -70,9 +70,9 @@
         </div>
         <div class="fr-grid-row">
           <div class="fr-col-12">
-            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
             <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
-            <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count %>
+            <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], @q_params[:nom_organisme_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count %>
             <div>
               <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
               <ul class="fr-tags-group">
@@ -94,6 +94,11 @@
                 <% if @q_params[:centre_financier_code_cont].present? %>
                   <li>
                     <p class="fr-tag fr-tag--filtres"><%= @q_params[:centre_financier_code_cont] %></p>
+                  </li>
+                <% end %>
+                <% if @q_params[:nom_organisme_cont].present? %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= @q_params[:nom_organisme_cont] %></p>
                   </li>
                 <% end %>
                 <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
@@ -331,6 +336,22 @@
                   <div class="fr-col-12">
                     <label class="fr-label fr-text--bold">Centre financier</label>
                     <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
+                  </div>
+                  <div class="fr-col-12">
+                    <div class="fr-input-group" data-controller="autocomplete-organisme" data-autocomplete-organisme-url-value="<%= organismes_autocomplete_path %>">
+                      <label class="fr-label fr-text--bold">Organisme</label>
+                      <%= f.search_field :nom_organisme_cont,
+                                         class: "fr-input",
+                                         placeholder: 'Rechercher un acte par organisme',
+                                         value: @q_params[:nom_organisme_cont],
+                                         data: {
+                                           action: "input->autocomplete-organisme#search",
+                                           autocomplete_organisme_target: "input"
+                                         } %>
+                      <div class="autocomplete-results" data-autocomplete-organisme-target="results" hidden>
+                        <!-- Les résultats seront insérés ici par JavaScript -->
+                      </div>
+                    </div>
                   </div>
                   <div class="fr-col-12">
                     <span class="fr-label fr-text--bold">Clôture entre</span>
