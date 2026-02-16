@@ -553,7 +553,7 @@ class Ht2ActesController < ApplicationController
     series = []
 
     if @q_params[:perimetre_eq].blank?
-      # Vue globale : afficher les 3 courbes
+      # Vue consolidée : afficher les 3 courbes
 
       # Délai moyen pour périmètre État
       delais_etat = (1..12).map do |month|
@@ -584,7 +584,7 @@ class Ht2ActesController < ApplicationController
       series = [
         { name: "Délai moyen État", y: delais_etat },
         { name: "Délai moyen Organisme", y: delais_organisme },
-        { name: "Délai moyen Global", y: delais_global }
+        { name: "Délai moyen consolidé", y: delais_global }
       ]
 
     elsif @q_params[:perimetre_eq] == 'etat'
