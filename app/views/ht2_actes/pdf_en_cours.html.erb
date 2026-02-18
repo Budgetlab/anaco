@@ -1,0 +1,70 @@
+<% content_for :title do %>Suivi des PDFs | ANACO<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12">
+        <h1 class="fr-mt-6w fr-mb-4w">Suivi des PDFs en cours / en erreur</h1>
+
+        <% if @actes_pdf.any? %>
+          <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption>Actes avec PDF en cours de génération ou en erreur</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Numéro acte</th>
+                        <th scope="col">Type d'acte</th>
+                        <th scope="col">Utilisateur</th>
+                        <th scope="col">Statut PDF</th>
+                        <th scope="col">Dernière mise à jour</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @actes_pdf.each do |acte| %>
+                        <tr>
+                          <td>
+                            <%= link_to acte.numero_formate.presence || acte.id, ht2_acte_path(acte) %>
+                          </td>
+                          <td>
+                            <p class="fr-badge fr-badge--sm fr-badge--blue-ecume"><%= acte.type_acte %></p>
+                          </td>
+                          <td><%= acte.user&.nom %></td>
+                          <td>
+                            <% if acte.pdf_generation_status == 'generating' %>
+                              <p class="fr-badge fr-badge--sm fr-badge--warning">generating</p>
+                            <% elsif acte.pdf_generation_status == 'failed' %>
+                              <p class="fr-badge fr-badge--sm fr-badge--error">failed</p>
+                            <% end %>
+                          </td>
+                          <td><%= l(acte.updated_at, format: :long) %></td>
+                          <td>
+                            <%= link_to generate_pdf_ht2_acte_path(acte),
+                                        method: :post,
+                                        data: { turbo_method: :post, turbo_confirm: "Regénérer le PDF pour l'acte #{acte.numero_formate.presence || acte.id} ?" },
+                                        class: "fr-btn fr-btn--sm fr-btn--secondary fr-icon-refresh-line" do %>
+                              Regénérer le PDF
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="fr-table__footer--middle">
+                <%== pagy_nav_custom(@pagy) %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="fr-alert fr-alert--info fr-my-4w">
+            <p>Aucun acte avec un PDF en cours de génération ou en erreur.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</main>
