@@ -16,7 +16,7 @@ servers:
   # L'app web reste sur Cloud Run
   workers:
     hosts:
-      - 34.163.126.114  # IP externe VM GCP anaco-workers
+      - 34.155.115.62  # IP externe VM GCP anaco-workers
     cmd: bin/jobs  # Commande pour lancer Solid Queue workers
     proxy: false
     labels:
@@ -100,5 +100,5 @@ accessories:
   cloud-sql-proxy:
     image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
     hosts:  # Pluriel pour Kamal 2
-      - 34.163.126.114
+      - 34.155.115.62
     cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
