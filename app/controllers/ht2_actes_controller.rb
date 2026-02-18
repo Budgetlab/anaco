@@ -36,6 +36,9 @@ class Ht2ActesController < ApplicationController
       search_params_current[:delai_traitement_lteq] = 15
     end
 
+    # Gestion du filtre "Avec observations"
+    avec_observations_values = Array(search_params_current.delete(:avec_observations_in))
+
     # Gestion du filtre "Type d'observation"
     type_observations_values = Array(search_params_current.delete(:type_observations_array_in))
 
@@ -44,6 +47,13 @@ class Ht2ActesController < ApplicationController
 
     @q_current = @actes.ransack(search_params_current, search_key: :q_current)
     @actes_filtered = @q_current.result(distinct: true)
+
+    # Appliquer le filtre "Avec observations"
+    if avec_observations_values.include?('oui') && !avec_observations_values.include?('non')
+      @actes_filtered = @actes_filtered.where.not(type_observations: [])
+    elsif avec_observations_values.include?('non') && !avec_observations_values.include?('oui')
+      @actes_filtered = @actes_filtered.where(type_observations: [])
+    end
 
     # Appliquer le filtre type_observations si présent
     if type_observations_values.present?
@@ -149,6 +159,9 @@ class Ht2ActesController < ApplicationController
     end
     # si les deux ou aucun sont cochés → pas de condition particulière
 
+    # Gestion du filtre "Avec observations"
+    avec_observations_values = Array(search_params.delete(:avec_observations_in))
+
     # Gestion du filtre "Type d'observation"
     type_observations_values = Array(search_params.delete(:type_observations_array_in))
 
@@ -159,6 +172,13 @@ class Ht2ActesController < ApplicationController
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
     @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
+
+    # Appliquer le filtre "Avec observations"
+    if avec_observations_values.include?('oui') && !avec_observations_values.include?('non')
+      @actes_all = @actes_all.where.not(type_observations: [])
+    elsif avec_observations_values.include?('non') && !avec_observations_values.include?('oui')
+      @actes_all = @actes_all.where(type_observations: [])
+    end
 
     # Appliquer le filtre type_observations si présent
     if type_observations_values.present?
@@ -1193,6 +1213,9 @@ class Ht2ActesController < ApplicationController
     delay_gt   = q.delete("delai_traitement_gt")   || q.delete(:delai_traitement_gt)
     delay_lteq = q.delete("delai_traitement_lteq") || q.delete(:delai_traitement_lteq)
 
+    # On récupère le filtre "avec observations" puis on le retire du hash
+    avec_observations = q.delete("avec_observations_in") || q.delete(:avec_observations_in)
+
     # On récupère le filtre "type d'observation" puis on le retire du hash
     type_observations = q.delete("type_observations_array_in") || q.delete(:type_observations_array_in)
 
@@ -1221,6 +1244,9 @@ class Ht2ActesController < ApplicationController
 
     # Ajout de 1 si le filtre "hors délai" est activé
     count += 1 if delay_gt.present? || delay_lteq.present?
+
+    # Ajout de 1 si le filtre "avec observations" est activé
+    count += 1 if avec_observations.is_a?(Array) && avec_observations.reject(&:blank?).any?
 
     # Ajout de 1 si le filtre "type d'observation" est activé
     count += 1 if type_observations.is_a?(Array) && type_observations.reject(&:blank?).any?

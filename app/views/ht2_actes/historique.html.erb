@@ -404,6 +404,29 @@
                       <% end %>
                     </ul>
                   </div>
+                  <div>
+                    <span class="fr-label fr-text--bold">Avec observations</span>
+                    <% selected_avec_obs = Array(params.dig(:q, :avec_observations_in)).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'oui', 'Non' => 'non' }.each do |label, value| %>
+                        <% checked = selected_avec_obs.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[avec_observations_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
                 </div>
                 <div class="fr-col-12">
                   <div data-controller="multi-select-filter" data-multi-select-filter-param-name-value="q[type_observations_array_in][]">
