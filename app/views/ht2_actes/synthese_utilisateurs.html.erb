@@ -4,105 +4,207 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-mt-6w fr-mb-4w ">Suivi du remplissage <%= Date.today.year %> par CBR/DCB</h1>
-        <div class="fr-tabs fr-my-2w">
-          <ul class="fr-tabs__list" role="tablist" aria-label="Synthèse des actes par Profil">
-            <li role="presentation">
-              <button type="button" id="storybook-tab-20" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="storybook-tab-20-panel">Synthèse CBR</button>
-            </li>
-            <li role="presentation">
-              <button type="button" id="storybook-tab-21" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-21-panel">Synthèse DCB</button>
-            </li>
-          </ul>
-          <div id="storybook-tab-20-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="storybook-tab-20" tabindex="0">
-            <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
-              <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                  <div class="fr-table__content">
-                    <table>
-                      <caption>Synthèse CBR</caption>
-                      <thead>
-                      <tr class="fr-cell--multiline">
-                        <th class="fr-cell--fixed" scope="col">Nom</th>
-                        <th scope="col">Actes clôturés</th>
-                        <th scope="col">Actes en cours de traitement</th>
-                        <th scope="col">Actes clôturés avec suspension</th>
-                        <th scope="col">Actes clôturés avec observations</th>
-                        <th scope="col">Délai moyen de traitement</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr class="fr-table--total">
-                        <th class="fr-cell--fixed">Total</th>
-                        <td><%= @stats_cbr.sum { |stat| stat[:actes_clotures_count] } %></td>
-                        <td><%= @stats_cbr.sum { |stat| stat[:actes_non_clotures_count] } %></td>
-                        <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
-                        <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_observations_count] } %></td>
-                        <td><%= pluralize(@stats_cbr.any? ? (@stats_cbr.sum { |stat| stat[:delai_moyen] } / @stats_cbr.size.to_f).round : 0, 'jour', plural: 'jours')%> </td>
-                      </tr>
-                      <% @stats_cbr.each do |stat| %>
-                        <tr>
-                          <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
-                          <td><%= stat[:actes_clotures_count] %></td>
-                          <td><%= stat[:actes_non_clotures_count] %></td>
-                          <td><%= stat[:actes_avec_suspensions_count] %></td>
-                          <td><%= stat[:actes_avec_observations_count] %></td>
-                          <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%></td>
+        <h1 class="fr-mt-6w fr-mb-2w">Suivi du remplissage par CBR/DCB</h1>
+
+        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
+          <div class="fr-mb-2w">
+            <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer-utilisateurs" data-fr-opened="false" type="button">
+              Filtrer les résultats
+            </button>
+          </div>
+          <div class="fr-mb-4w">
+            <% has_filters = @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+            <% filter_count = 1 + (has_filters ? 1 : 0) %>
+            <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
+            <ul class="fr-tags-group">
+              <li>
+                <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
+              </li>
+              <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+                <li>
+                  <p class="fr-tag fr-tag--filtres">
+                    Clôture
+                    <%= " du #{@q_params[:date_cloture_gteq]}" if @q_params[:date_cloture_gteq].present? %>
+                    <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
+                  </p>
+                </li>
+              <% end %>
+              <% if has_filters %>
+                <li>
+                  <%= link_to synthese_users_ht2_actes_path, class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "results" } do %>
+                    Réinitialiser les filtres
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+
+          <div class="fr-tabs fr-my-2w">
+            <ul class="fr-tabs__list" role="tablist" aria-label="Synthèse des actes par Profil">
+              <li role="presentation">
+                <button type="button" id="storybook-tab-20" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="storybook-tab-20-panel">Synthèse CBR</button>
+              </li>
+              <li role="presentation">
+                <button type="button" id="storybook-tab-21" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="storybook-tab-21-panel">Synthèse DCB</button>
+              </li>
+            </ul>
+            <div id="storybook-tab-20-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="storybook-tab-20" tabindex="0">
+              <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+                <div class="fr-table__wrapper">
+                  <div class="fr-table__container">
+                    <div class="fr-table__content">
+                      <table>
+                        <caption>Synthèse CBR</caption>
+                        <thead>
+                        <tr class="fr-cell--multiline">
+                          <th class="fr-cell--fixed" scope="col">Nom</th>
+                          <th scope="col">Actes clôturés</th>
+                          <th scope="col">Actes en cours de traitement</th>
+                          <th scope="col">Actes clôturés avec suspension</th>
+                          <th scope="col">Actes clôturés avec observations</th>
+                          <th scope="col">Délai moyen de traitement</th>
                         </tr>
-                      <% end %>
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                        <tr class="fr-table--total">
+                          <th class="fr-cell--fixed">Total</th>
+                          <td><%= @stats_cbr.sum { |stat| stat[:actes_clotures_count] } %></td>
+                          <td><%= @stats_cbr.sum { |stat| stat[:actes_non_clotures_count] } %></td>
+                          <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
+                          <td><%= @stats_cbr.sum { |stat| stat[:actes_avec_observations_count] } %></td>
+                          <td><%= pluralize(@stats_cbr.any? ? (@stats_cbr.sum { |stat| stat[:delai_moyen] } / @stats_cbr.size.to_f).round : 0, 'jour', plural: 'jours')%> </td>
+                        </tr>
+                        <% @stats_cbr.each do |stat| %>
+                          <tr>
+                            <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
+                            <td><%= stat[:actes_clotures_count] %></td>
+                            <td><%= stat[:actes_non_clotures_count] %></td>
+                            <td><%= stat[:actes_avec_suspensions_count] %></td>
+                            <td><%= stat[:actes_avec_observations_count] %></td>
+                            <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%></td>
+                          </tr>
+                        <% end %>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
-
             </div>
-          </div>
-          <div id="storybook-tab-21-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-21" tabindex="0">
-            <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
-              <div class="fr-table__wrapper">
-                <div class="fr-table__container">
-                  <div class="fr-table__content">
-                    <table>
-                      <caption>Synthèse DCB</caption>
-                      <thead>
-                      <tr class="fr-cell--multiline">
-                        <th class="fr-cell--fixed" scope="col">Nom</th>
-                        <th scope="col">Actes clôturés</th>
-                        <th scope="col">Actes en cours de traitement</th>
-                        <th scope="col">Actes clôturés avec suspension</th>
-                        <th scope="col">Actes clôturés avec observations</th>
-                        <th scope="col">Délai moyen de traitement</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr class="fr-table--total">
-                        <th class="fr-cell--fixed">Total</th>
-                        <td><%= @stats_dcb.sum { |stat| stat[:actes_clotures_count] } %></td>
-                        <td><%= @stats_dcb.sum { |stat| stat[:actes_non_clotures_count] } %></td>
-                        <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
-                        <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_observations_count] } %></td>
-                        <td><%= pluralize(@stats_dcb.any? ? (@stats_dcb.sum { |stat| stat[:delai_moyen] } / @stats_dcb.size.to_f).round : 0, 'jour', plural: 'jours')%></td>
-                      </tr>
-                      <% @stats_dcb.each do |stat| %>
-                        <tr>
-                          <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
-                          <td><%= stat[:actes_clotures_count] %></td>
-                          <td><%= stat[:actes_non_clotures_count] %></td>
-                          <td><%= stat[:actes_avec_suspensions_count] %></td>
-                          <td><%= stat[:actes_avec_observations_count] %></td>
-                          <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%> </td>
+            <div id="storybook-tab-21-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-21" tabindex="0">
+              <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
+                <div class="fr-table__wrapper">
+                  <div class="fr-table__container">
+                    <div class="fr-table__content">
+                      <table>
+                        <caption>Synthèse DCB</caption>
+                        <thead>
+                        <tr class="fr-cell--multiline">
+                          <th class="fr-cell--fixed" scope="col">Nom</th>
+                          <th scope="col">Actes clôturés</th>
+                          <th scope="col">Actes en cours de traitement</th>
+                          <th scope="col">Actes clôturés avec suspension</th>
+                          <th scope="col">Actes clôturés avec observations</th>
+                          <th scope="col">Délai moyen de traitement</th>
                         </tr>
-                      <% end %>
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                        <tr class="fr-table--total">
+                          <th class="fr-cell--fixed">Total</th>
+                          <td><%= @stats_dcb.sum { |stat| stat[:actes_clotures_count] } %></td>
+                          <td><%= @stats_dcb.sum { |stat| stat[:actes_non_clotures_count] } %></td>
+                          <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_suspensions_count] } %></td>
+                          <td><%= @stats_dcb.sum { |stat| stat[:actes_avec_observations_count] } %></td>
+                          <td><%= pluralize(@stats_dcb.any? ? (@stats_dcb.sum { |stat| stat[:delai_moyen] } / @stats_dcb.size.to_f).round : 0, 'jour', plural: 'jours')%></td>
+                        </tr>
+                        <% @stats_dcb.each do |stat| %>
+                          <tr>
+                            <th class="fr-cell--fixed"><%= stat[:user].nom %></th>
+                            <td><%= stat[:actes_clotures_count] %></td>
+                            <td><%= stat[:actes_non_clotures_count] %></td>
+                            <td><%= stat[:actes_avec_suspensions_count] %></td>
+                            <td><%= stat[:actes_avec_observations_count] %></td>
+                            <td><%= pluralize(stat[:delai_moyen], 'jour', plural: 'jours')%> </td>
+                          </tr>
+                        <% end %>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
-       </div>
+
+          <dialog id="modal-btn-filtrer-utilisateurs" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-utilisateurs-title" data-fr-concealing-backdrop="true">
+            <div class="fr-container--fluid">
+              <div class="fr-modal-custom__row--left">
+                <div class="fr-col-12">
+                  <div class="fr-modal-custom__body">
+                    <div class="fr-modal__header">
+                      <button aria-controls="modal-btn-filtrer-utilisateurs" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+                    </div>
+                    <%= form_with url: synthese_users_ht2_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance', controller: 'date-range-filter' } do |f| %>
+                      <div class="fr-modal__content">
+                        <h2 id="modal-btn-filtrer-utilisateurs-title" class="fr-modal__title">
+                          Filtrer les résultats
+                        </h2>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12">
+                            <label class="fr-label fr-text--bold" for="q_annee_eq">Exercice</label>
+                            <% years_options = (2024..Date.today.year + 1).to_a.reverse %>
+                            <%= select_tag "q[annee_eq]",
+                                         options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
+                                         id: "q_annee_eq",
+                                         class: "fr-select",
+                                         data: {
+                                           date_range_filter_target: "yearSelect",
+                                           action: "change->date-range-filter#updateDateRange"
+                                         } %>
+                          </div>
+                        </div>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12">
+                            <span class="fr-label fr-text--bold">Clôture entre</span>
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                              <div class="fr-col-12 fr-col-md-6">
+                                <label class="fr-label" for="q_date_cloture_gteq">Du</label>
+                                <input type="date" name="q[date_cloture_gteq]" id="q_date_cloture_gteq"
+                                       class="fr-input"
+                                       value="<%= @q_params[:date_cloture_gteq] %>"
+                                       data-date-range-filter-target="dateFrom">
+                              </div>
+                              <div class="fr-col-12 fr-col-md-6">
+                                <label class="fr-label" for="q_date_cloture_lteq">Au</label>
+                                <input type="date" name="q[date_cloture_lteq]" id="q_date_cloture_lteq"
+                                       class="fr-input"
+                                       value="<%= @q_params[:date_cloture_lteq] %>"
+                                       data-date-range-filter-target="dateTo">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="fr-modal__footer">
+                        <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                          <li>
+                            <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer-utilisateurs" %>
+                          </li>
+                          <li>
+                            <%= link_to synthese_users_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                              Réinitialiser
+                            <% end %>
+                          </li>
+                        </ul>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dialog>
+        <% end %>
+
       </div>
     </div>
   </div>

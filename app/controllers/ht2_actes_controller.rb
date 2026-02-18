@@ -858,11 +858,18 @@ class Ht2ActesController < ApplicationController
     }
   end
   def synthese_utilisateurs
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    @q_params.reject! { |_, v| v.blank? }
+
+    @selected_year = @q_params[:annee_eq].present? ? @q_params[:annee_eq].to_i : Date.today.year
+    @q_params[:annee_eq] = @selected_year
+
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
     @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
 
-    @stats_cbr = user_ht2_stats(@users_cbr)
-    @stats_dcb = user_ht2_stats(@users_dcb)
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq])
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq])
   end
 
   def download_attachments
@@ -1102,11 +1109,13 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def user_ht2_stats(users)
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil)
     users.includes(:ht2_actes).map do |user|
-      ht2_actes = user.ht2_actes.annee_courante
+      ht2_actes = year ? user.ht2_actes.where(annee: year) : user.ht2_actes.annee_courante
 
       actes_clotures = ht2_actes.clotures
+      actes_clotures = actes_clotures.where('date_cloture >= ?', date_cloture_from) if date_cloture_from.present?
+      actes_clotures = actes_clotures.where('date_cloture <= ?', date_cloture_to) if date_cloture_to.present?
       actes_non_clotures = ht2_actes.non_clotures
 
       actes_avec_suspension_ids = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).pluck(:ht2_acte_id).uniq
