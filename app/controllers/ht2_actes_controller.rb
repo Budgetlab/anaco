@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   include Ht2ActesHelper
 
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :set_variables_form, only: [:edit, :validate_acte]
@@ -922,6 +922,13 @@ class Ht2ActesController < ApplicationController
     respond_to do |format|
       format.turbo_stream { redirect_to ajout_actes_path }
     end
+  end
+
+  def pdf_en_cours
+    @actes_pdf = Ht2Acte.where(pdf_generation_status: ['generating', 'failed'])
+                        .includes(:user)
+                        .order(updated_at: :desc)
+    @pagy, @actes_pdf = pagy(@actes_pdf, limit: 20)
   end
 
   def generate_pdf

@@ -82,6 +82,7 @@ Rails.application.routes.draw do
         get 'synthese_temporelle', to: 'ht2_actes#synthese_temporelle'
         get 'synthese_anomalies', to: 'ht2_actes#synthese_anomalies'
         get 'synthese_suspensions', to: 'ht2_actes#synthese_suspensions'
+        get 'pdf_en_cours', to: 'ht2_actes#pdf_en_cours'
       end
       member do
         post :generate_pdf
