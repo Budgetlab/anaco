@@ -100,7 +100,6 @@ Rails.application.routes.draw do
     get 'acte_actions/:id', to: 'ht2_actes#acte_actions', as: 'acte_actions'
     post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
-    get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
