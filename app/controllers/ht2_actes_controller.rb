@@ -888,8 +888,11 @@ class Ht2ActesController < ApplicationController
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
     @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
 
-    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq])
-    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq])
+    @selected_perimetres = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    @selected_type_actes = Array(@q_params[:type_acte_in]).reject(&:blank?)
+
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes)
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes)
   end
 
   def download_attachments
@@ -1129,9 +1132,11 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil)
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetres = [], type_actes = [])
     users.includes(:ht2_actes).map do |user|
       ht2_actes = year ? user.ht2_actes.where(annee: year) : user.ht2_actes.annee_courante
+      ht2_actes = ht2_actes.where(perimetre: perimetres) if perimetres.present?
+      ht2_actes = ht2_actes.where(type_acte: type_actes) if type_actes.present?
 
       actes_clotures = ht2_actes.clotures
       actes_clotures = actes_clotures.where('date_cloture >= ?', date_cloture_from) if date_cloture_from.present?
@@ -1142,7 +1147,7 @@ class Ht2ActesController < ApplicationController
       actes_avec_suspensions_count = actes_avec_suspension_ids.size
 
       #suspensions_count = Suspension.where(ht2_acte_id: actes_clotures.pluck(:id)).count
-      actes_avec_observations_count = actes_clotures.where.not(type_observations: []).count
+      actes_avec_observations_count = actes_clotures.where(decision_finale: ['Favorable avec observations', 'Visa accordé avec observations']).count
       {
         user: user,
         actes_clotures_count: actes_clotures.count,

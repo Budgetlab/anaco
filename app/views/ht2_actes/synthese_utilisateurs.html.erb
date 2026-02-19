@@ -13,14 +13,17 @@
             </button>
           </div>
           <div class="fr-mb-4w">
-            <% has_filters = @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
-            <% filter_count = 1 + (has_filters ? 1 : 0) %>
+            <% has_date_filter = @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+            <% has_perimetre_filter = @selected_perimetres.present? %>
+            <% has_type_acte_filter = @selected_type_actes.present? %>
+            <% has_filters = has_date_filter || has_perimetre_filter || has_type_acte_filter %>
+            <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_perimetre_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) %>
             <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
             <ul class="fr-tags-group">
               <li>
                 <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
               </li>
-              <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+              <% if has_date_filter %>
                 <li>
                   <p class="fr-tag fr-tag--filtres">
                     Clôture
@@ -28,6 +31,20 @@
                     <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
                   </p>
                 </li>
+              <% end %>
+              <% if has_perimetre_filter %>
+                <% @selected_perimetres.each do |p| %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= p.capitalize %></p>
+                  </li>
+                <% end %>
+              <% end %>
+              <% if has_type_acte_filter %>
+                <% @selected_type_actes.each do |t| %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= t %></p>
+                  </li>
+                <% end %>
               <% end %>
               <% if has_filters %>
                 <li>
@@ -60,7 +77,7 @@
                           <th class="fr-cell--fixed" scope="col">Nom</th>
                           <th scope="col">Actes clôturés</th>
                           <th scope="col">Actes en cours de traitement</th>
-                          <th scope="col">Actes clôturés avec suspension</th>
+                          <th scope="col">Actes clôturés avec suspension/interruption</th>
                           <th scope="col">Actes clôturés avec observations</th>
                           <th scope="col">Délai moyen de traitement</th>
                         </tr>
@@ -103,7 +120,7 @@
                           <th class="fr-cell--fixed" scope="col">Nom</th>
                           <th scope="col">Actes clôturés</th>
                           <th scope="col">Actes en cours de traitement</th>
-                          <th scope="col">Actes clôturés avec suspension</th>
+                          <th scope="col">Actes clôturés avec suspension/interruption</th>
                           <th scope="col">Actes clôturés avec observations</th>
                           <th scope="col">Délai moyen de traitement</th>
                         </tr>
@@ -182,6 +199,54 @@
                                        data-date-range-filter-target="dateTo">
                               </div>
                             </div>
+                          </div>
+                        </div>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12">
+                            <span class="fr-label fr-text--bold">Périmètre</span>
+                            <% selected_perimetres = Array(@q_params[:perimetre_in]) %>
+                            <ul class="fr-tags-group fr-mt-1w">
+                              <% ['etat', 'organisme'].each do |p| %>
+                                <% checked = selected_perimetres.include?(p) %>
+                                <li>
+                                  <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                         data-controller="tag-select"
+                                         data-action="change->tag-select#toggle"
+                                         role="button">
+                                    <%= check_box_tag 'q[perimetre_in][]',
+                                                      p,
+                                                      checked,
+                                                      class: "fr-sr-only",
+                                                      data: { tag_select_target: "checkbox" } %>
+                                    <span><%= p.capitalize %></span>
+                                  </label>
+                                </li>
+                              <% end %>
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12">
+                            <span class="fr-label fr-text--bold">Type d'acte</span>
+                            <% selected_type_actes = Array(@q_params[:type_acte_in]) %>
+                            <ul class="fr-tags-group fr-mt-1w">
+                              <% ['avis', 'visa', 'TF'].each do |t| %>
+                                <% checked = selected_type_actes.include?(t) %>
+                                <li>
+                                  <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                         data-controller="tag-select"
+                                         data-action="change->tag-select#toggle"
+                                         role="button">
+                                    <%= check_box_tag 'q[type_acte_in][]',
+                                                      t,
+                                                      checked,
+                                                      class: "fr-sr-only",
+                                                      data: { tag_select_target: "checkbox" } %>
+                                    <span><%= t %></span>
+                                  </label>
+                                </li>
+                              <% end %>
+                            </ul>
                           </div>
                         </div>
                       </div>
