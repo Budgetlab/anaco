@@ -147,6 +147,14 @@ class Ht2ActesController < ApplicationController
     # On duplique pour ne pas modifier params directement
     search_params = (params[:q] || {}).dup
 
+    # Par défaut, filtrer sur l'année en cours si aucun filtre n'est spécifié
+    if params[:q].blank?
+      search_params[:annee_in] = [Date.today.year.to_s]
+    end
+
+    # Exposer les params pour l'affichage des filtres dans la vue
+    @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
+
     # Gestion du filtre "Acte clôturé hors délai"
     hors_delai_values = Array(search_params.delete(:delai_traitement_hors_delai_in))
 
