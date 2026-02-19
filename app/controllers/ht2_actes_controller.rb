@@ -896,11 +896,11 @@ class Ht2ActesController < ApplicationController
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
     @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
 
-    @selected_perimetres = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    @selected_perimetre = @q_params[:perimetre_eq].presence
     @selected_type_actes = Array(@q_params[:type_acte_in]).reject(&:blank?)
 
-    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes)
-    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes)
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes)
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes)
   end
 
   def download_attachments
@@ -1140,10 +1140,10 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetres = [], type_actes = [])
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [])
     users.includes(:ht2_actes).map do |user|
       ht2_actes = year ? user.ht2_actes.where(annee: year) : user.ht2_actes.annee_courante
-      ht2_actes = ht2_actes.where(perimetre: perimetres) if perimetres.present?
+      ht2_actes = ht2_actes.where(perimetre: perimetre) if perimetre.present?
       ht2_actes = ht2_actes.where(type_acte: type_actes) if type_actes.present?
 
       actes_clotures = ht2_actes.clotures
