@@ -343,27 +343,29 @@
                             <% end %>
                           </ul>
                         </div>
-                        <div>
-                          <span class="fr-label fr-text--bold">Catégorie</span>
-                          <ul class="fr-tags-group fr-mt-1w">
-                            <% selected_categories = Array(params.dig(:q, :categorie_organisme_in)) %>
-                            <% ['depense', 'recette'].each do |c| %>
-                              <li>
-                                <label class="fr-tag tag-selectable"
-                                       data-controller="tag-select"
-                                       data-action="change->tag-select#toggle"
-                                       role="button">
-                                  <%= check_box_tag 'q[categorie_organisme_in][]',
-                                                    c,
-                                                    selected_categories.include?(c),
-                                                    class: "fr-sr-only",
-                                                    data: { tag_select_target: "checkbox" } %>
-                                  <span><%= format_categorie_organisme(c) %></span>
-                                </label>
-                              </li>
-                            <% end %>
-                          </ul>
-                        </div>
+                        <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
+                          <div>
+                            <span class="fr-label fr-text--bold">Catégorie</span>
+                            <ul class="fr-tags-group fr-mt-1w">
+                              <% selected_categories = Array(params.dig(:q, :categorie_organisme_in)) %>
+                              <% ['depense', 'recette'].each do |c| %>
+                                <li>
+                                  <label class="fr-tag tag-selectable"
+                                         data-controller="tag-select"
+                                         data-action="change->tag-select#toggle"
+                                         role="button">
+                                    <%= check_box_tag 'q[categorie_organisme_in][]',
+                                                      c,
+                                                      selected_categories.include?(c),
+                                                      class: "fr-sr-only",
+                                                      data: { tag_select_target: "checkbox" } %>
+                                    <span><%= format_categorie_organisme(c) %></span>
+                                  </label>
+                                </li>
+                              <% end %>
+                            </ul>
+                          </div>
+                        <% end %>
                         <div>
                           <span class="fr-label fr-text--bold">Exercice</span>
                           <% selected_years = Array((@q_params || {})[:annee_in]).map(&:to_s) %>
@@ -643,14 +645,18 @@
                           <%= f.search_field :instructeur_cont, class: "fr-input", placeholder: 'Rechercher un acte par instructeur' %>
                         </div>
                       <% end %>
-                      <div class="fr-col-12">
-                        <label class="fr-label fr-text--bold">Centre financier</label>
-                        <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
-                      </div>
-                      <div class="fr-col-12">
-                        <label class="fr-label fr-text--bold">Organisme</label>
-                        <%= f.search_field :nom_organisme_cont, class: "fr-input", placeholder: 'Rechercher un acte par organismer' %>
-                      </div>
+                      <% unless (@q_params || {})[:perimetre_eq] == 'organisme' %>
+                        <div class="fr-col-12">
+                          <label class="fr-label fr-text--bold">Centre financier</label>
+                          <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
+                        </div>
+                      <% end %>
+                      <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
+                        <div class="fr-col-12">
+                          <label class="fr-label fr-text--bold">Organisme</label>
+                          <%= f.search_field :nom_organisme_cont, class: "fr-input", placeholder: 'Rechercher un acte par organismer' %>
+                        </div>
+                      <% end %>
                       <div class="fr-col-12">
                         <label class="fr-label fr-text--bold">Ordonnateur ou service ordonnateur</label>
                         <%= f.search_field :ordonnateur_cont, class: "fr-input", placeholder: 'Rechercher un acte par ordonnateur' %>
@@ -659,17 +665,21 @@
                         <label class="fr-label fr-text--bold">Bénéficiaire ou partie versante</label>
                         <%= f.search_field :beneficiaire_cont, class: "fr-input", placeholder: 'Rechercher un acte par bénéficiaire' %>
                       </div>
-                      <div class="fr-col-12">
-                        <label class="fr-label fr-text--bold">Activité</label>
-                        <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
-                      </div>
-                      <div class="fr-col-12">
-                        <label class="fr-label fr-text--bold">Nature de la dépense ou affectation de la recette</label>
-                        <%= f.select :nature_categorie_organisme_eq,
-                                     options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q, :nature_categorie_organisme_eq)),
-                                     { include_blank: 'Sélectionner une nature' },
-                                     class: "fr-select" %>
-                      </div>
+                      <% unless (@q_params || {})[:perimetre_eq] == 'organisme' %>
+                        <div class="fr-col-12">
+                          <label class="fr-label fr-text--bold">Activité</label>
+                          <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
+                        </div>
+                      <% end %>
+                      <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
+                        <div class="fr-col-12">
+                          <label class="fr-label fr-text--bold">Nature de la dépense ou affectation de la recette</label>
+                          <%= f.select :nature_categorie_organisme_eq,
+                                       options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q, :nature_categorie_organisme_eq)),
+                                       { include_blank: 'Sélectionner une nature' },
+                                       class: "fr-select" %>
+                        </div>
+                      <% end %>
                       <div class="fr-col-12">
                         <span class="fr-label fr-text--bold">Montant entre</span>
 
