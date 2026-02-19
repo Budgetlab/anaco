@@ -1172,9 +1172,9 @@
                       <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
                     </div>
                     <div class="fr-col-12">
-                      <label class="fr-label fr-text--bold">Nature des dépenses ou destination des recettes</label>
+                      <label class="fr-label fr-text--bold">Nature de la dépense ou affectation de la recette</label>
                       <%= f.select :nature_categorie_organisme_eq,
-                                   options_for_select(['Investissement', 'Fonctionnement', 'Intervention', 'Autre'], params.dig(:q_current, :nature_categorie_organisme_eq)),
+                                   options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q_current, :nature_categorie_organisme_eq)),
                                    { include_blank: 'Sélectionner une nature' },
                                    class: "fr-select" %>
                     </div>
