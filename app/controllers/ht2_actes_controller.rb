@@ -935,14 +935,15 @@ class Ht2ActesController < ApplicationController
   end
 
   def ajout_actes
-    # Récupérer tous les utilisateurs avec leurs statistiques pour 2025
     @users_stats = User.all.order(:nom).map do |user|
+      actes_2024_count = user.ht2_actes.where(annee: 2024).count
       actes_2025_count = user.ht2_actes.where(annee: 2025).count
       {
         user: user,
+        actes_2024_count: actes_2024_count,
         actes_2025_count: actes_2025_count
       }
-    end.select { |stat| stat[:actes_2025_count] > 0 } # Ne garder que les users avec des actes en 2025
+    end.select { |stat| stat[:actes_2024_count] > 0 || stat[:actes_2025_count] > 0 }
   end
 
   def delete_user_actes_year
