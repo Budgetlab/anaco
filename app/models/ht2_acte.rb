@@ -138,6 +138,10 @@ class Ht2Acte < ApplicationRecord
     suspensions.order(created_at: :desc).first
   end
 
+  def last_suspension_date_reprise
+    last_suspension&.date_reprise
+  end
+
   # Méthode de classe pour retrouver tous les actes ayant au moins une suspension
   def self.with_suspensions
     joins(:suspensions).distinct

@@ -95,7 +95,7 @@
               <td> <%= format_value(number_to_currency(acte.montant_global, unit: "€", format: "%n %u")) %> </td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
-                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
+                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><span class="<%= 'cwarning' if acte.delai_traitement.to_i > 15 %>"><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %></span>
                 <% else %>
                   <%= etat_acte(acte) %>
                 <% end %>

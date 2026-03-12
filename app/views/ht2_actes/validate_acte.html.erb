@@ -85,13 +85,25 @@
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-select-group">
                 <label for="date_cloture" class="fr-label">Date de clôture*<span class="fr-hint-text">Renseigner une date pour clôturer l'acte directement à cette étape.</span></label>
-                <%= f.text_field :date_cloture, class: "fr-select", id: "date_cloture", placeholder: "jj/mm/aaaa", data: { controller: "flatpickr", flatpickr_min_date: format_date(@acte.date_chorus) }  %>
+                <% min_date_cloture = @acte.last_suspension_date_reprise.presence || @acte.date_chorus %>
+                <%= f.text_field :date_cloture, class: "fr-select", id: "date_cloture", placeholder: "jj/mm/aaaa", data: {
+                  controller: "flatpickr",
+                  flatpickr_min_date: format_date(min_date_cloture),
+                  action: "change->acte-form#checkDateCloture input->acte-form#checkDateCloture",
+                  "acte-form-target": "dateCloture",
+                  "min-date-cloture": format_date(min_date_cloture),
+                  "date-chorus": format_date(@acte.date_chorus),
+                  "type-acte": @acte.type_acte,
+                  "suspensions": @acte.suspensions.map { |s| { ds: format_date(s.date_suspension), dr: format_date(s.date_reprise) } }.to_json
+                } %>
+                <p id="delai-traitement-error" class="fr-error-text fr-hidden"></p>
+                <p id="delai-traitement-info" class="fr-message fr-message--info fr-text--sm fr-hidden"></p>
               </div>
             </div>
           </div>
         </div>
         <div>
-            <%= f.submit "Valider", class: 'fr-btn' %>
+            <%= f.submit "Valider", class: 'fr-btn', data: { "acte-form-target": "submitCloture" } %>
         </div>
       <% end %>
     </div>

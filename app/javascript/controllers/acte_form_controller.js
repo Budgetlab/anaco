@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension"]
     static values = { prefixes: Object }
     connect() {
 
@@ -433,6 +433,156 @@ export default class extends Controller {
         if (show) date_cloture.required = true
     }
 
+    checkDateSuspension() {
+        if (!this.hasDateSuspensionTarget) return
+
+        const input = this.dateSuspensionTarget
+        const errorEl = document.getElementById('error-date-suspension')
+        if (!errorEl) return
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateSuspension = parseDate(input.value)
+        const minDate = parseDate(input.dataset.minDateSuspension)
+
+        if (!input.value || !dateSuspension || !minDate) {
+            errorEl.classList.add('fr-hidden')
+            return
+        }
+
+        if (dateSuspension < minDate) {
+            errorEl.classList.remove('fr-hidden')
+        } else {
+            errorEl.classList.add('fr-hidden')
+        }
+    }
+
+    checkDateSuspensionFuture() {
+        if (!this.hasDateSuspensionTarget) return
+
+        const input = this.dateSuspensionTarget
+        const warningEl = document.getElementById('warning-date-suspension-future')
+        if (!warningEl) return
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateSuspension = parseDate(input.value)
+        if (!dateSuspension) { warningEl.classList.add('fr-hidden'); return }
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateSuspension > today) {
+            warningEl.classList.remove('fr-hidden')
+        } else {
+            warningEl.classList.add('fr-hidden')
+        }
+    }
+
+    checkDateCloture() {
+        if (!this.hasDateClotureTarget) return
+
+        const input = this.dateClotureTarget
+        const errorEl = document.getElementById('delai-traitement-error')
+        if (!errorEl) return
+
+        const dateClotureStr = input.value
+        const minDateStr = input.dataset.minDateCloture
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateCloture = parseDate(dateClotureStr)
+        const minDate = parseDate(minDateStr)
+        const infoEl = document.getElementById('delai-traitement-info')
+
+        if (!dateClotureStr || !dateCloture || isNaN(dateCloture) || !minDate) {
+            input.setCustomValidity('')
+            errorEl.classList.add('fr-hidden')
+            errorEl.textContent = ''
+            if (infoEl) { infoEl.classList.add('fr-hidden'); infoEl.textContent = '' }
+            return
+        }
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateCloture < minDate) {
+            input.setCustomValidity('invalid')
+            errorEl.textContent = `La date de clôture ne peut pas être antérieure au ${minDateStr}.`
+            errorEl.className = 'fr-error-text'
+            if (infoEl) { infoEl.classList.add('fr-hidden'); infoEl.textContent = '' }
+        } else {
+            input.setCustomValidity('')
+            if (dateCloture > today) {
+                errorEl.textContent = `La date de clôture est postérieure à la date du jour.`
+                errorEl.className = 'fr-message cwarning fr-text--small'
+            } else {
+                errorEl.classList.add('fr-hidden')
+                errorEl.textContent = ''
+            }
+
+            // Calcul du délai de traitement
+            if (infoEl) {
+                const dateChorus = parseDate(input.dataset.dateChorus)
+                const typeActe = input.dataset.typeActe || ''
+                let suspensions = []
+                try { suspensions = JSON.parse(input.dataset.suspensions || '[]') } catch(e) {}
+
+                const diffJours = (d1, d2) => Math.round((d1 - d2) / (1000 * 60 * 60 * 24))
+
+                let delai
+                if (!dateChorus) {
+                    delai = null
+                } else if (suspensions.length === 0) {
+                    delai = diffJours(dateCloture, dateChorus)
+                } else if (typeActe === 'avis') {
+                    const dureeTotal = diffJours(dateCloture, dateChorus)
+                    const dureeSuspensions = suspensions.reduce((acc, s) => {
+                        const ds = parseDate(s.ds)
+                        const dr = parseDate(s.dr)
+                        return (ds && dr) ? acc + diffJours(dr, ds) : acc
+                    }, 0)
+                    delai = Math.max(dureeTotal - dureeSuspensions, 0)
+                } else if (typeActe === 'visa' || typeActe === 'TF') {
+                    const suspsWithReprise = suspensions.filter(s => s.dr)
+                    if (suspsWithReprise.length > 0) {
+                        const derniere = suspsWithReprise[suspsWithReprise.length - 1]
+                        const dateReprise = parseDate(derniere.dr)
+                        delai = dateReprise ? diffJours(dateCloture, dateReprise) : diffJours(dateCloture, dateChorus)
+                    } else {
+                        delai = diffJours(dateCloture, dateChorus)
+                    }
+                } else {
+                    delai = diffJours(dateCloture, dateChorus)
+                }
+
+                if (delai !== null) {
+                    infoEl.textContent = `Délai de traitement : ${delai} jour(s)`
+                    infoEl.className = delai > 15
+                        ? 'fr-message fr-message--warning fr-text--small'
+                        : 'fr-message fr-message--info fr-text--small'
+                } else {
+                    infoEl.classList.add('fr-hidden')
+                }
+            }
+        }
+    }
+
     toggleSuspension(){
         const panelSuspension = document.getElementById("panelSuspension")
         const isHidden = panelSuspension.classList.toggle("fr-hidden")
@@ -517,6 +667,27 @@ export default class extends Controller {
             cloture_button.classList.add('fr-hidden');
             validation_button.classList.remove('fr-hidden');
             save_button.classList.remove('fr-hidden');
+        }
+    }
+
+    checkDateChorusFuture() {
+        const dateChorusInput = document.getElementById('date_chorus')
+        const alert = document.getElementById('alert-date-chorus-future')
+        if (!dateChorusInput || !alert) return
+
+        const parts = dateChorusInput.value.split('/')
+        if (parts.length !== 3) { dateChorusInput.setCustomValidity(''); alert.classList.add('fr-hidden'); return }
+
+        const dateChorus = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateChorus > today) {
+            dateChorusInput.setCustomValidity('La date de saisine ne peut pas être postérieure à la date du jour.')
+            alert.classList.remove('fr-hidden')
+        } else {
+            dateChorusInput.setCustomValidity('')
+            alert.classList.add('fr-hidden')
         }
     }
 

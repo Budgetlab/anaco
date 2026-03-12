@@ -158,20 +158,31 @@
       <h3 class="fr-callout__title">Clôturer l'acte</h3>
       <p class="fr-callout__text">Indiquer la date marquant la fin du contrôle sur l'acte.</p>
 
-      <%= form_with(model: @acte, data: { turbo_frame: "_top"}) do |f| %>
+      <%= form_with(model: @acte, data: { turbo_frame: "_top", controller: "acte-form" }) do |f| %>
         <%= hidden_field_tag :etape, 6 %>
         <%= f.hidden_field :etat, value: 'clôturé' %>
         <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
           <div class="fr-col-12 fr-col-lg-6">
             <div class="fr-select-group">
               <label for="date_cloture" class="fr-label">Date de clôture*</label>
-              <%= f.text_field :date_cloture, class: "fr-select", data: { controller: "flatpickr", flatpickr_min_date: format_date(@acte.date_chorus) }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
-
+              <% min_date_cloture = @acte.last_suspension_date_reprise.presence || @acte.date_chorus %>
+              <%= f.text_field :date_cloture, class: "fr-select", data: {
+                controller: "flatpickr",
+                flatpickr_min_date: format_date(min_date_cloture),
+                action: "change->acte-form#checkDateCloture input->acte-form#checkDateCloture",
+                "acte-form-target": "dateCloture",
+                "min-date-cloture": format_date(min_date_cloture),
+                "date-chorus": format_date(@acte.date_chorus),
+                "type-acte": @acte.type_acte,
+                "suspensions": @acte.suspensions.map { |s| { ds: format_date(s.date_suspension), dr: format_date(s.date_reprise) } }.to_json
+              }, value: format_date(@acte.date_cloture), id: "date_cloture", placeholder: "jj/mm/aaaa", required: true %>
+              <p id="delai-traitement-error" class="fr-error-text fr-hidden"></p>
+              <p id="delai-traitement-info" class="fr-message fr-message--info fr-text--sm fr-hidden"></p>
             </div>
           </div>
         </div>
         <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-          <li><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn' %></li>
+          <li><%= f.submit "Valider et clôturer l'acte", class: 'fr-btn', data: { "acte-form-target": "submitCloture" } %></li>
           <li>
             <a href="<%= modal_renvoie_validation_path(@acte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary fr-icon-arrow-go-back-line " data-fr-opened="false" aria-controls="modal-acte">
               Renvoyer l'acte en validation

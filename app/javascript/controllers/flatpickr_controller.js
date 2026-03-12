@@ -11,7 +11,8 @@ export default class extends Controller {
       dateFormat: "d/m/Y",
       defaultDate: this.element.value || null,
       allowInput: true,
-      ...(this.element.dataset.flatpickrMinDate && { minDate: this.element.dataset.flatpickrMinDate })
+      ...(this.element.dataset.flatpickrMinDate && { minDate: this.element.dataset.flatpickrMinDate }),
+      ...(this.element.dataset.flatpickrMaxDate && { maxDate: this.element.dataset.flatpickrMaxDate })
     })
   }
 
