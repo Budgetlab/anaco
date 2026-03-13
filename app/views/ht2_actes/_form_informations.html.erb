@@ -171,15 +171,15 @@
 
       </div>
     </div>
-
-    <% has_nested_data = @acte.poste_lignes.any? || @acte.echeanciers.any? %>
+    <div class="fr-h6 fr-mt-3w fr-mb-2w">Informations complémentaires (facultatif)</div>
+    <% has_nested_data = true %>
     <div data-controller="toggle">
-      <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+      <button class="fr-link fr-icon-arrow-up-s-line fr-link--icon-left fr-mb-2w"
               data-action="click->toggle#toggleContent"
               data-toggle-target="button"
-              data-toggle-text-show="Renseigner plus d'informations"
+              data-toggle-text-show="Renseigner plus d'informations complémentaires"
               data-toggle-text-hide="Afficher moins">
-        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations' %>
+        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations complémentaires' %>
       </button>
       <div class="<%= 'fr-hidden' unless has_nested_data %>" data-toggle-target="content">
 
@@ -230,6 +230,7 @@
           <label class="fr-label" for="services_votes">Cet acte a été réalisé en période de services votés</label>
         </div>
         <% if @acte.type_acte != 'TF' %>
+          <div class="fr-h6 fr-my-2w">Lignes de poste</div>
           <template data-nested-form2-target="template">
             <%= f.fields_for :poste_lignes, PosteLigne.new, child_index: 'NEW_RECORD' do |poste_ligne_fields| %>
               <%= render "form_poste_ligne", f: poste_ligne_fields %>
@@ -255,7 +256,7 @@
             </div>
           </div>
 
-          <div class="fr-h6 fr-my-2w">Échéancier (facultatif)</div>
+          <div class="fr-h6 fr-my-2w">Échéancier</div>
 
           <template data-nested-form-target="template">
             <%= f.fields_for :echeanciers, Echeancier.new, child_index: 'NEW_RECORD' do |echeancier_fields| %>

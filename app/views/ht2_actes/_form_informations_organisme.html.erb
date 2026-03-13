@@ -238,15 +238,15 @@
 
       </div>
     </div>
-
-    <% has_nested_data = @acte.deliberation_ca || @acte.destination.present? || @acte.nomenclature.present? || @acte.flux.present? || @acte.echeanciers.any? %>
+    <div class="fr-h6 fr-mt-3w fr-mb-2w">Informations complémentaires (facultatif)</div>
+    <% has_nested_data = true%>
     <div data-controller="toggle">
-      <button class="fr-link fr-icon-add-line fr-link--icon-left fr-my-2w"
+      <button class="fr-link fr-icon-arrow-up-s-line fr-link--icon-left fr-mb-2w"
               data-action="click->toggle#toggleContent"
               data-toggle-target="button"
-              data-toggle-text-show="Renseigner plus d'informations"
+              data-toggle-text-show="Renseigner plus d'informations complémentaires"
               data-toggle-text-hide="Afficher moins">
-        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations' %>
+        <%= has_nested_data ? 'Afficher moins' : 'Renseigner plus d\'informations complémentaires' %>
       </button>
       <div class="<%= 'fr-hidden' unless has_nested_data %>" data-toggle-target="content">
 
