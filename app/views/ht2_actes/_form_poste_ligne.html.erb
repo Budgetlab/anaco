@@ -1,8 +1,6 @@
 <div class="nested-form-wrapper fr-mb-3w" data-new-record="<%= f.object.new_record? %>">
-  <div class="fr-text--bold fr-capitalize">Ligne de poste
-    <button type="button" data-action="acte-form#updateTotalDelete nested-form2#remove">
-      <span class="fr-icon-delete-bin-line fr-icon--sm cbleu"></span></button>
-  </div>
+  <div class="fr-text--bold fr-capitalize fr-mb-1w">Ligne de poste</div>
+
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
@@ -84,6 +82,13 @@
         <%= f.text_field :numero_tf, class: "fr-input", id: 'numero_tf_poste' %>
       </div>
     </div>
+  </div>
+
+  <div class="fr-my-1w">
+    <button class="fr-btn fr-btn--tertiary fr-icon-delete-bin-line fr-btn--icon-left fr-btn--sm" type="button" data-action="acte-form#updateTotalDelete nested-form2#remove">
+      Supprimer </button>
+    <button class="fr-btn fr-btn--tertiary fr-icon-add-circle-fill fr-btn--icon-left fr-btn--sm" type="button" data-action="nested-form2#duplicate" title="Dupliquer cette ligne">
+      Dupliquer </button>
   </div>
   <%= f.hidden_field :_destroy %>
 </div>
