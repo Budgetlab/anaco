@@ -212,6 +212,12 @@
     <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-checkbox-group fr-my-2w">
+          <%= f.check_box :gestion_anticipee, id: "gestion_anticipee", checked_value: true, unchecked_value: false %>
+          <label class="fr-label" for="gestion_anticipee">Acte en gestion anticipée</label>
+        </div>
+      </div>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-checkbox-group fr-my-2w">
           <%= f.check_box :liste_actes, id: "liste_actes", data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
           <label class="fr-label" for="liste_actes">Cette instruction concerne une liste d'actes.</label>
         </div>

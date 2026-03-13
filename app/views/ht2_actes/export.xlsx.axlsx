@@ -85,6 +85,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      "Statut",
      "Proposition de décision",
      "Décision finale",
+     "Instructeur",
+     "Valideur",
    ], style: header_style
 
    @etat = @acte.etat == "clôturé" ? "clôturé le #{@acte.date_cloture.strftime('%d/%m/%Y')}" : etat_acte(@acte)
@@ -92,6 +94,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          @etat,
          format_value(@acte.proposition_decision),
          format_value(@acte.decision_finale),
+         @acte.instructeur,
+         @acte.valideur,
        ], style: cell_style
    sheet.add_row
 
@@ -143,29 +147,19 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      montant_headers = ["Montant de l'acte", "Type de montant"]
      montant_headers << "Montant total" if @acte.categorie_organisme == 'depense'
 
-     sheet.add_row [
-       "Nom organisme",
-       "Instructeur",
-       "Valideur",
-       "Nature de l'acte",
+     info_headers = ["Nom organisme", "Nature de l'acte",
        (@acte.categorie_organisme == 'depense' ? "Type d'engagement" : ""),
-       *montant_headers,
-       "Exercice",
-       "Date de saisine",
-       "Délai de traitement"
-     ].reject(&:blank?), style: header_style
+       *montant_headers, "Exercice"]
+     info_headers << "Gestion anticipée" if @acte.gestion_anticipee?
+     info_headers += ["Date de saisine", "Délai de traitement"]
+     sheet.add_row info_headers.reject(&:blank?), style: header_style
 
      delai = ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat) ?
              "#{@acte.delai_traitement.to_i} jour#{'s' if @acte.delai_traitement.to_i != 1}" :
              etat_acte(@acte)
 
-     row_data = [
-       @acte.nom_organisme,
-       @acte.instructeur,
-       @acte.valideur,
-       @acte.nature,
-     ]
-     row_styles = [cell_style, cell_style, cell_style, cell_style]
+     row_data = [@acte.nom_organisme, @acte.nature]
+     row_styles = [cell_style, cell_style]
 
      if @acte.categorie_organisme == 'depense'
        row_data << @acte.type_engagement
@@ -180,8 +174,14 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        row_styles << currency_style
      end
 
-     row_data += [@acte.annee, @acte.date_chorus&.strftime('%d/%m/%Y'), delai]
-     row_styles += [cell_style, cell_style, cell_style]
+     row_data << @acte.annee
+     row_styles << cell_style
+     if @acte.gestion_anticipee?
+       row_data << 'Oui'
+       row_styles << cell_style
+     end
+     row_data += [@acte.date_chorus&.strftime('%d/%m/%Y'), delai]
+     row_styles += [cell_style, cell_style]
 
      sheet.add_row row_data, style: row_styles
    else
@@ -201,26 +201,20 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          etat_acte(@acte)
        end
 
-     sheet.add_row [
-       "Instructeur",
-       "Valideur",
-       "Nature de l'acte",
-       type_label,
-       montant_label,
-       "Montant de cet acte",
-       "Date de saisine",
-       "Délai de traitement"
-     ], style: header_style
-     sheet.add_row [
-           @acte.instructeur,
-           @acte.valideur,
-           @acte.nature,
-           @acte.type_engagement,
-           @acte.montant_global,
-           @acte.montant_ae,
-           @acte.date_chorus&.strftime('%d/%m/%Y'),
-           delai
-         ], style: [cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style, cell_style]
+     etat_headers = ["Nature de l'acte", type_label, montant_label, "Montant de cet acte", "Exercice"]
+     etat_headers << "Gestion anticipée" if @acte.gestion_anticipee?
+     etat_headers += ["Date de saisine", "Délai de traitement"]
+     sheet.add_row etat_headers, style: header_style
+
+     etat_data = [@acte.nature, @acte.type_engagement, @acte.montant_global, @acte.montant_ae, @acte.annee]
+     etat_styles = [cell_style, cell_style, currency_style, currency_style, cell_style]
+     if @acte.gestion_anticipee?
+       etat_data << 'Oui'
+       etat_styles << cell_style
+     end
+     etat_data += [@acte.date_chorus&.strftime('%d/%m/%Y'), delai]
+     etat_styles += [cell_style, cell_style]
+     sheet.add_row etat_data, style: etat_styles
    end
    sheet.add_row
 
@@ -274,19 +268,19 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.add_row data_row, style: data_styles
    else
      # Pour état (code original)
-     headers = ["Exercice","Centre financier","N°Chorus"]
+     headers = ["Centre financier","N°Chorus"]
      headers << "Bénéficiaire" if @acte.type_acte != 'TF'
      headers << "N° d'affectation" if @acte.type_acte == 'TF'
      objet_label = @acte.type_acte == 'TF' ? "Opération d'investissement" : "Objet"
-     headers += [objet_label,"Ordonnateur"]
-    headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
-    headers << "Pré-instruction"
+     headers += [objet_label, "Ordonnateur"]
+     headers << "Nombre d'actes" if @acte.nombre_actes.present? && @acte.nombre_actes > 1
+     headers << "Pré-instruction"
 
      sheet.add_row headers, style: header_style
 
-     data_row = [@acte.annee, @acte.centre_financier_code, @acte.numero_chorus.to_s]
-     data_styles = [cell_style, cell_style, text_style]
-     data_types = [:string, :string, :string]
+     data_row = [@acte.centre_financier_code, @acte.numero_chorus.to_s]
+     data_styles = [cell_style, text_style]
+     data_types = [:string, :string]
 
      if @acte.type_acte != 'TF'
        data_row << @acte.beneficiaire

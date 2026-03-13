@@ -63,6 +63,9 @@
   <% if acte.pre_instruction == true %>
     <p class="fr-badge fr-badge--blue-ecume">Préinstruction : Oui</p>
   <% end %>
+  <% if acte.gestion_anticipee == true %>
+    <p class="fr-badge fr-badge--blue-ecume">Acte en gestion anticipée</p>
+  <% end %>
   <div class="fr-table fr-table--no-caption fr-table--no-scroll">
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
@@ -88,7 +91,7 @@
                 <% elsif acte.type_acte == 'visa' %>Montant total engagé
                 <% elsif acte.type_acte == 'TF' %>Montant total affecté
                 <% end %></th>
-
+              <th>Exercice</th>
               <th>Date de saisine</th>
               <th>Délai de traitement</th>
             </tr>
@@ -101,6 +104,7 @@
               <td> <%= acte.type_engagement %></td>
               <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
               <td> <%= number_to_currency(acte.montant_global, unit: "€", format: "%n %u") %> </td>
+              <td><%= acte.annee %></td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
                 <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
@@ -124,7 +128,6 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
-              <th>Exercice</th>
               <th>Centre financier</th>
               <th>N°Chorus</th>
               <% if acte.type_acte != 'TF' %>
@@ -144,7 +147,6 @@
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
-              <td><%= acte.annee %></td>
               <td> <%= format_value(acte.centre_financier_code) %></td>
               <td> <%= format_value(acte.numero_chorus) %></td>
               <% if acte.type_acte != 'TF' %>

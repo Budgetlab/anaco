@@ -993,7 +993,7 @@ class Ht2ActesController < ApplicationController
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
                                      :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
-                                     :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement,:programmation_prevue,
+                                     :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement, :programmation_prevue, :gestion_anticipee,
                                      :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, :perimetre, :categorie_organisme, :nom_organisme,
                                      :type_montant, :operation_compte_tiers, :operation_budgetaire, :nature_categorie_organisme, :budget_executoire,
                                      :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca, :destination, :nomenclature, :flux,

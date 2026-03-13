@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_02_090257) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_13_081434) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -224,6 +224,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_02_090257) do
     t.boolean "disponibilite_credits"
     t.string "etat"
     t.string "flux"
+    t.boolean "gestion_anticipee", default: false
     t.string "groupe_marchandises"
     t.boolean "imputation_depense"
     t.string "instructeur"
