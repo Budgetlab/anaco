@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_13_081434) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_13_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -203,6 +203,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_13_081434) do
     t.string "activite"
     t.integer "annee"
     t.boolean "autorisation_tutelle"
+    t.boolean "avis_programmation", default: true
     t.string "beneficiaire"
     t.boolean "budget_executoire", default: true
     t.string "categorie"

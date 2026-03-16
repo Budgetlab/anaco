@@ -16,6 +16,8 @@
     Format du type XXXX-*, exemple 0101-CCAS, 0101-CCAS-C001. Si plusieurs centres financiers, indiquer le principal.
   <% elsif name == "pre_instruction_info" %>
     Cette information est utilisée pour le suivi statistique des actes.
+  <% elsif name == "gestion_anticipee_info" %>
+    Dans le cas d'utilisation d'AE en gestion anticipée, le dossier est rattaché à l'exercice de l'année N (conserver dans le champ "Exercice" la date de l'année N qui est mise par défaut par l'application).
   <% elsif name == "destination_organisme" %>
     La nomenclature par destination, propre à chaque organisme, traduit budgétairement les missions et activités de l’établissement. Elle précise la finalité de la dépense, qu’il s’agisse d’une finalité stratégique (missions statutaires de l’organisme, objectifs contractualisés avec l’Etat, contribution de l’organisme au programme de l’Etat dont il relève) ou d’une finalité opérationnelle (activités des services de l’organisme).
   <% elsif name == "nomenclature_depense" %>

@@ -213,7 +213,7 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-checkbox-group fr-my-2w">
           <%= f.check_box :gestion_anticipee, id: "gestion_anticipee", checked_value: true, unchecked_value: false %>
-          <label class="fr-label" for="gestion_anticipee">Acte en gestion anticipée</label>
+          <label class="fr-label" for="gestion_anticipee">Acte en gestion anticipée <%= render partial: "ht2_actes/tooltip", locals: { name: "gestion_anticipee_info" } %></label>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-4">

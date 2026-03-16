@@ -632,7 +632,15 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      end
    else
      # Critères pour état (code original)
-     critere4 = @acte.services_votes == true ? "Engagement éligible à la gestion des services votés" : "Compatibilité programmation"
+     if @acte.services_votes == true
+       critere4 = "Engagement éligible à la gestion des services votés"
+     elsif @acte.avis_programmation == false
+       critere4 = "Avis de programmation initiale"
+     else
+       critere4 = "Compatibilité programmation"
+     end
+     critere4_valeur = @acte.avis_programmation == false ? "✗" : (@acte.programmation? ? "✓" : "✗")
+     critere4_style  = @acte.avis_programmation == false ? check_ko_style : (@acte.programmation? ? check_ok_style : check_ko_style)
      sheet.add_row [
        "Acte programmé",
        "Disponibilité des crédits",
@@ -646,13 +654,13 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        @acte.disponibilite_credits? ? "✓" : "✗",
        @acte.imputation_depense? ? "✓" : "✗",
        @acte.consommation_credits? ? "✓" : "✗",
-       @acte.programmation? ? "✓" : "✗"
+       critere4_valeur
      ], style: [
-     @acte.programmation_prevue? ? check_ok_style : check_ko_style,
+       @acte.programmation_prevue? ? check_ok_style : check_ko_style,
        @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
        @acte.imputation_depense? ? check_ok_style : check_ko_style,
        @acte.consommation_credits? ? check_ok_style : check_ko_style,
-       @acte.programmation? ? check_ok_style : check_ko_style
+       critere4_style
      ]
    end
 

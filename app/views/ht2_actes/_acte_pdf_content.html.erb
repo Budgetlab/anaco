@@ -267,6 +267,7 @@
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
               <th>
                 <% if acte.services_votes == true %>Engagement éligible à la gestion des services votés
+                <% elsif acte.avis_programmation == false %>Avis de programmation intiale
                 <% else %> Compatibilité avec la programmation annuelle et pluriannuelle
                 <% end %></th>
             </tr>
@@ -299,9 +300,13 @@
                 <% end %>
               </td>
               <td>
-                <% if acte.programmation == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% if acte.avis_programmation == false %>
+                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% else %>
+                  <% if acte.programmation == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
                 <% end %>
               </td>
             </tr>

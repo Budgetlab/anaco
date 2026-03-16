@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension", "programmationBlock"]
     static values = { prefixes: Object }
     connect() {
 
@@ -688,6 +688,16 @@ export default class extends Controller {
         } else {
             dateChorusInput.setCustomValidity('')
             alert.classList.add('fr-hidden')
+        }
+    }
+
+    toggleAvisProgrammation(event) {
+        if (!this.hasProgrammationBlockTarget) return
+        const checked = event.target.checked
+        if (checked) {
+            this.programmationBlockTarget.classList.remove('fr-hidden')
+        } else {
+            this.programmationBlockTarget.classList.add('fr-hidden')
         }
     }
 
