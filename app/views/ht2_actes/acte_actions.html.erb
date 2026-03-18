@@ -63,14 +63,14 @@
                 <thead>
                 <tr>
                   <th> Date</th>
-                  <th> Motif</th>
+                  <th> Motif(s)</th>
                   <th> Observations</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                   <td> <%= format_date_text(@acte.suspension_ouverte.date_suspension) %> </td>
-                  <td> <%= @acte.suspension_ouverte.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= Array(@acte.suspension_ouverte.motif).join(", ") %> </td>
                   <td class="fr-cell--multiline"> <%= format_value(@acte.suspension_ouverte.observations) %></td>
                 </tr>
                 </tbody>
@@ -103,14 +103,14 @@
                 <thead>
                 <tr>
                   <th> Date</th>
-                  <th> Motif</th>
+                  <th> Motif(s)</th>
                   <th> Observations</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                   <td> <%= format_date_text(@acte.suspension_ouverte.date_suspension) %> </td>
-                  <td> <%= @acte.suspension_ouverte.motif %> </td>
+                  <td class="fr-cell--multiline"> <%= Array(@acte.suspension_ouverte.motif).join(", ") %> </td>
                   <td class="fr-cell--multiline"> <%= format_value(@acte.suspension_ouverte.observations) %></td>
                 </tr>
                 </tbody>

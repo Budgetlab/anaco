@@ -420,7 +420,9 @@
             au <%= format_date_text(suspension.date_reprise) %>
           <% end %></p>
         <div class="fr-mt-2w"><span class="fr-text--bold">Motif : </span>
-          <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </p></div>
+          <% Array(suspension.motif).each do |m| %>
+            <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= m %></p>
+          <% end %></div>
         <div class="fr-text--bold fr-mt-3w">Observations</div>
         <div><%= format_value(suspension.observations) %></div>
         <% if suspension.date_reprise.present? %>

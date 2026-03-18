@@ -643,7 +643,8 @@ class Ht2ActesController < ApplicationController
     @actes_filtered = @q.result(distinct: true).includes(:suspensions)
     @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
     @suspensions_all_count = @suspensions_all.count
-    @suspensions_data = @suspensions_all.group_by(&:motif).transform_values(&:count).map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
+    @suspensions_data = @suspensions_all.flat_map { |s| Array(s.motif) }.tally.map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
+    @suspensions_motifs_count = @suspensions_data.sum { |h| h[:y] }
     # Calcul du nombre de suspensions par programme
     suspensions_par_programme = @actes_filtered
                                   .joins(:suspensions)
@@ -704,6 +705,25 @@ class Ht2ActesController < ApplicationController
         {
           name: "Nombre de suspensions",
           y: suspensions_values
+        }
+      ]
+    }
+
+    actes_suspendus_par_annee = actes_for_evolution
+                                  .joins(:suspensions)
+                                  .where(annee: years)
+                                  .group(:annee)
+                                  .order(:annee)
+                                  .count('DISTINCT ht2_actes.id')
+
+    actes_suspendus_values = years.map { |year| actes_suspendus_par_annee[year] || 0 }
+
+    @evolution_actes_suspendus_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre d'actes suspendus",
+          y: actes_suspendus_values
         }
       ]
     }
@@ -986,6 +1006,10 @@ class Ht2ActesController < ApplicationController
   def ht2_acte_params
     params[:ht2_acte][:type_observations] = params[:ht2_acte][:type_observations]&.split(',') if params[:ht2_acte][:type_observations].is_a?(String)
 
+    params[:ht2_acte][:suspensions_attributes]&.each_value do |susp|
+      susp[:motif] = susp[:motif].split(',') if susp[:motif].is_a?(String)
+    end
+
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                      :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
                                      :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
@@ -998,7 +1022,7 @@ class Ht2ActesController < ApplicationController
                                      :type_montant, :operation_compte_tiers, :operation_budgetaire, :nature_categorie_organisme, :budget_executoire,
                                      :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca, :destination, :nomenclature, :flux,
                                      :soutenabilite, :conformite, :concordance_recettes_tiers, :autorisation_tutelle, type_observations: [],
-                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :motif, :observations],
+                                     suspensions_attributes: [:id, :_destroy, :date_suspension, :observations, motif: []],
                                      echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
                                      poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
   end

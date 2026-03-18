@@ -18,7 +18,7 @@ class Ht2Acte < ApplicationRecord
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
-  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || Array(attributes['motif']).reject(&:blank?).empty? }, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? }, allow_destroy: true
   before_save :strip_organisme_and_cf_fields
   before_save :upcase_centre_financier_code
@@ -288,7 +288,7 @@ class Ht2Acte < ApplicationRecord
           acte.suspensions.create(
             date_suspension: row_data["date_suspension"],
             date_reprise: row_data["date_reprise"],
-            motif: row_data["motif"] || 'Autre'
+            motif: [row_data["motif"].presence || 'Autre']
           )
           # recalcul APRÈS les suspensions
           acte.recalculate_delai_traitement!

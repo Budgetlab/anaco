@@ -23,13 +23,13 @@
                       <thead>
                       <tr>
                         <th> Date <%= type_suspension %></th>
-                        <th> Motif</th>
+                        <th> Motif(s)</th>
                       </tr>
                       </thead>
                       <tbody>
                       <tr>
                         <td> <%= format_date_text(@suspension.date_suspension) %> </td>
-                        <td> <%= @suspension.motif %> </td>
+                        <td class="fr-cell--multiline"> <%= Array(@suspension.motif).join(", ")%> </td>
                       </tr>
                       </tbody>
                     </table>

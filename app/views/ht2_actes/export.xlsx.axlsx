@@ -706,7 +706,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
              "n°#{index + 1}",
              suspension.date_suspension&.strftime('%d/%m/%Y'),
              suspension.date_reprise&.strftime('%d/%m/%Y'),
-             suspension.motif,
+             Array(suspension.motif).join(", "),
              suspension.observations,
              suspension.commentaire_reprise
            ], style: cell_style

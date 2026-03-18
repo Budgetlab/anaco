@@ -98,7 +98,7 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
 
           last_susp_date        = last_susp&.date_suspension
           last_susp_end_date    = last_susp&.date_reprise
-          last_susp_motif       = last_susp&.motif
+          last_susp_motif       = Array(last_susp&.motif).join(", ")
           has_suspension        = last_susp.present? ? "Oui" : "Non"
     row_data = [
       acte.type_acte,

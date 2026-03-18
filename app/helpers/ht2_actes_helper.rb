@@ -127,6 +127,25 @@ module Ht2ActesHelper
     ].sort
   end
 
+  def tous_types_motifs_suspensions
+    [
+      "Demande de précisions",
+      "Demande d'éléments complémentaires",
+      "Défaut du circuit d'approbation Chorus",
+      "Demande de mise en cohérence EJ /PJ",
+      "Erreur d'imputation",
+      "Erreur dans la construction de l'EJ",
+      "Mauvaise évaluation de la consommation des crédits",
+      "Non conformité des pièces",
+      "Pièce(s) manquante(s)",
+      "Problématique de compatibilité avec la programmation",
+      "Problématique de disponibilité des crédits",
+      "Problématique de soutenabilité",
+      "Saisine a posteriori",
+      "Autre",
+    ].sort
+  end
+
   def badge_perimetre_organisme(acte)
     return '' unless acte.perimetre == 'organisme'
 

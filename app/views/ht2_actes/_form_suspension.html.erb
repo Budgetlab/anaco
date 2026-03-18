@@ -16,9 +16,22 @@
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-6">
-      <div class="fr-select-group">
-        <label for="motif" class="fr-label">Motif <%= type_suspension %>*</label>
-        <%= f.select :motif, options_for_select(@liste_motifs_suspension.map { |decision| [decision, decision] }, f.object.motif), {prompt: "- sélectionner -" }, { id: "motif", class: "fr-select", required: required } %>
+      <div data-controller="multi-select">
+        <div class="fr-select-group">
+          <label for="motif_select" class="fr-label">Motif(s) <%= type_suspension %>*
+          </label>
+          <%= select_tag "motif_select", options_for_select([["- sélectionner -", ""]] + @liste_motifs_suspension.map { |m| [m, m] }),
+              id: "motif_select_#{f.object.object_id}", class: "fr-select",
+              data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+        </div>
+        <ul class="fr-tags-group" data-multi-select-target="container">
+          <% Array(f.object.motif).each do |m| %>
+            <li data-action="click->multi-select#remove" data-value="<%= m %>">
+              <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= m %>"><%= m %></button>
+            </li>
+          <% end %>
+        </ul>
+        <%= f.hidden_field :motif, value: Array(f.object.motif).join(","), id: "hidden_motif_#{f.object.object_id}", data: { multi_select_target: "hidden" } %>
       </div>
     </div>
   </div>

@@ -40,7 +40,7 @@
             <% @acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
               <section class="fr-accordion">
                 <h3 class="fr-accordion__title">
-                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspension-<%= index %>"><%= type_suspension %> n°<%= index +1 %> <span class="fr-tag fr-mx-2v">Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %></span> <span class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </span></button>
+                  <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-suspension-<%= index %>"><%= type_suspension %> n°<%= index +1 %> <span class="fr-tag fr-mx-2v">Du <%= format_date_text(suspension.date_suspension) %> au <%= format_date_text(suspension.date_reprise) %></span> <span class="fr-badge fr-badge--info fr-badge--no-icon"><%= Array(suspension.motif).join(", ") %></span></button>
                 </h3>
                 <div class="fr-collapse" id="accordion-suspension-<%= index %>">
                   <p class="fr-mb-2w"><span class="fr-text--bold">Observations :</span> <%= format_value(suspension.observations) %></p>
