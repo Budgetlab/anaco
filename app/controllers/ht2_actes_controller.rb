@@ -5,6 +5,7 @@ class Ht2ActesController < ApplicationController
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
+  before_action :authorize_show!, only: [:show]
   before_action :set_variables_form, only: [:edit, :validate_acte]
   before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
   before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
@@ -1002,6 +1003,12 @@ class Ht2ActesController < ApplicationController
   end
 
   private
+
+  def authorize_show!
+    unless current_user.statut == 'admin' || @acte.user_id == current_user.id
+      redirect_to ht2_actes_path, alert: "Vous n'êtes pas autorisé à accéder à cet acte."
+    end
+  end
 
   def ht2_acte_params
     params[:ht2_acte][:type_observations] = params[:ht2_acte][:type_observations]&.split(',') if params[:ht2_acte][:type_observations].is_a?(String)
