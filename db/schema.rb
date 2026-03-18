@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_18_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_18_140603) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -104,6 +104,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_100000) do
     t.bigint "user_id", null: false
     t.index ["bop_id"], name: "index_avis_on_bop_id"
     t.index ["user_id"], name: "index_avis_on_user_id"
+  end
+
+  create_table "backup_exports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.string "filename"
+    t.string "status"
+    t.datetime "updated_at", null: false
   end
 
   create_table "bops", force: :cascade do |t|

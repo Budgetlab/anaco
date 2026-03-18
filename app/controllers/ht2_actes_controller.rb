@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   include Ht2ActesHelper
 
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :authorize_show!, only: [:show]
@@ -989,6 +989,30 @@ class Ht2ActesController < ApplicationController
                         .includes(:user)
                         .order(updated_at: :desc)
     @pagy, @actes_pdf = pagy(@actes_pdf, limit: 20)
+  end
+
+  def admin_backup
+    @backups = BackupExport.order(created_at: :desc).limit(10)
+  end
+
+  def generate_backup
+    backup = BackupExport.create!(status: 'generating')
+    GenerateBackupJob.perform_later(backup.id)
+    redirect_to admin_backup_path, notice: "La sauvegarde est en cours de génération. Rechargez la page dans quelques instants."
+  end
+
+  def download_backup
+    backup = BackupExport.find(params[:id])
+    filepath = Rails.root.join('tmp', backup.filename)
+    send_file filepath, filename: backup.filename, type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', disposition: 'attachment'
+  end
+
+  def destroy_backup
+    backup = BackupExport.find(params[:id])
+    filepath = Rails.root.join('tmp', backup.filename) if backup.filename.present?
+    File.delete(filepath) if filepath && File.exist?(filepath)
+    backup.destroy!
+    redirect_to admin_backup_path, notice: "Sauvegarde supprimée."
   end
 
   def generate_pdf
