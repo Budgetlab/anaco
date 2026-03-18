@@ -107,15 +107,17 @@ module Ht2ActesHelper
 
   def tous_types_observations
     [
-      "Acte déjà signé par l'ordonnateur",
       "Acte non soumis au contrôle",
       'Compatibilité avec la programmation',
       "Construction de l'EJ",
+      "Contrôle interne nécessaire",
       'Disponibilité des crédits',
       'Évaluation de la consommation des crédits',
       'Fondement juridique',
       "Hors périmètre du CBR/DCB",
+      "Impact à prendre en compte dans le prochain budget",
       'Imputation',
+      "Non-conformité du bon de commande avec les prix du BPU ou du marché",
       'Pièce(s) manquante(s)',
       "Problème dans la rédaction de l'acte",
       'Risque au titre de la RGP',

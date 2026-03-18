@@ -469,7 +469,7 @@
                                 <tbody>
                                 <% @preinstruction_data.each do |item| %>
                                   <tr>
-                                    <td> <%= item[:name] %> </td>
+                                    <td class="fr-cell--multiline"> <%= item[:name] %> </td>
                                     <td> <%= item[:y] %> </td>
                                     <td class="fr-cell--multiline"><%= percentage_of(item[:y], @total_actes) %></td>
                                   </tr>
