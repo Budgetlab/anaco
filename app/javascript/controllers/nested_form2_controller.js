@@ -22,6 +22,8 @@ export default class extends NestedForm {
       }
       // Réinitialiser _destroy
       if (el.name?.includes('_destroy')) el.value = 'false'
+      // Ne pas dupliquer le champ numero
+      if (el.name?.includes('[numero]')) el.value = ''
     })
 
     clone.dataset.newRecord = 'true'

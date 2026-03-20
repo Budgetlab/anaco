@@ -110,7 +110,7 @@ module Ht2ActesHelper
       "Acte non soumis au contrôle",
       'Compatibilité avec la programmation',
       "Construction de l'EJ",
-      "Contrôle interne nécessaire",
+      "Alerte contrôle interne",
       'Disponibilité des crédits',
       'Évaluation de la consommation des crédits',
       'Fondement juridique',

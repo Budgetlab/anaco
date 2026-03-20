@@ -55,7 +55,7 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
     'Code activité',
     'Numéro Chorus',
     'Numéro Marché',
-    'Numéro TF ou affectation',
+    'Numéro TF / Affectation',
     'Groupe de marchandises',
     'Nature',
     "Nombre d'actes",

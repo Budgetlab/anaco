@@ -4,8 +4,8 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="numero" class="fr-label">N° ligne de poste Chorus</label>
-        <%= f.text_field :numero, id: "numero", class: "fr-input" %>
+        <label for="numero_poste" class="fr-label">N° ligne de poste Chorus</label>
+        <%= f.text_field :numero, id: "numero_poste", class: "fr-input" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
@@ -34,40 +34,40 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="domaine_fonctionnel" class="fr-label">Action/Sous-action</label>
-        <%= f.text_field :domaine_fonctionnel, id: "domaine_fonctionnel", class: "fr-input" %>
+        <label for="domaine_fonctionnel_poste" class="fr-label">Action/Sous-action</label>
+        <%= f.text_field :domaine_fonctionnel, id: "domaine_fonctionnel_poste", class: "fr-input" %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="fonds" class="fr-label">Fonds</label>
-        <%= f.text_field :fonds, class: "fr-input", id: 'fonds' %>
+        <label for="fonds_poste" class="fr-label">Fonds</label>
+        <%= f.text_field :fonds, class: "fr-input", id: 'fonds_poste' %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="compte_budgetaire" class="fr-label">Titre/Catégorie</label>
-        <%= f.select :compte_budgetaire, @categories.map { |categorie| [categorie, categorie] }, { prompt: "- sélectionner -" }, { id: "compte_budgetaire", class: "fr-select" } %>
+        <label for="compte_budgetaire_poste" class="fr-label">Titre/Catégorie</label>
+        <%= f.select :compte_budgetaire, @categories.map { |categorie| [categorie, categorie] }, { prompt: "- sélectionner -" }, { id: "compte_budgetaire_poste", class: "fr-select" } %>
       </div>
     </div>
   </div>
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="code_activite" class="fr-label">Code activité</label>
-        <%= f.text_field :code_activite, class: "fr-input", id: 'code_activite' %>
+        <label for="code_activite_poste" class="fr-label">Code activité</label>
+        <%= f.text_field :code_activite, class: "fr-input", id: 'code_activite_poste' %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-input-group">
-        <label for="axe_ministeriel" class="fr-label">Axe ministériel</label>
-        <%= f.text_field :axe_ministeriel, class: "fr-input", id: 'axe_ministeriel' %>
+        <label for="axe_ministeriel_poste" class="fr-label">Axe ministériel</label>
+        <%= f.text_field :axe_ministeriel, class: "fr-input", id: 'axe_ministeriel_poste' %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">
       <div class="fr-select-group">
-        <label for="flux" class="fr-label">Flux</label>
-        <%= f.select :flux, [["1","1"], ["2","2"], ["3","3"],["4","4"]],{ prompt: "- sélectionner -" }, { id: 'axe_ministeriel', class: "fr-select" } %>
+        <label for="flux_poste" class="fr-label">Flux</label>
+        <%= f.select :flux, [["1","1"], ["2","2"], ["3","3"],["4","4"]],{ prompt: "- sélectionner -" }, { id: 'flux_poste', class: "fr-select" } %>
       </div>
     </div>
     <div class="fr-col-12 fr-col-lg-4">

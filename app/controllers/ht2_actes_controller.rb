@@ -247,7 +247,7 @@ class Ht2ActesController < ApplicationController
 
       # Duplication des poste_lignes
       @acte_parent.poste_lignes.each do |poste_ligne|
-        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id', 'montant'))
       end
 
       # Duplication des écheanciers
@@ -262,7 +262,7 @@ class Ht2ActesController < ApplicationController
 
       # Duplication des poste_lignes
       @acte_parent.poste_lignes.each do |poste_ligne|
-        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id', 'montant'))
       end
 
       # Duplication des écheanciers
@@ -1098,7 +1098,7 @@ class Ht2ActesController < ApplicationController
       ]
       # Pour organisme dépense, @liste_engagements dépend du type_acte
       @liste_engagements = ["Engagement initial","Engagement initial prévisionnel", "Engagement complémentaire","Engagement complémentaire prévisionnel", "Retrait d'engagement"]
-      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Contrôle interne nécessaire", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif perimetre == 'organisme' && categorie_organisme == 'recette'
       @liste_natures = [
         "Aliénation immobilière",
@@ -1107,17 +1107,17 @@ class Ht2ActesController < ApplicationController
         "Autre"
       ]
       # Pour organisme recette, pas de @liste_engagements
-      @liste_types_observations = ["Acte non soumis au contrôle", "Contrôle interne nécessaire", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
       @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Convention", "Marché subséquent à bons de commande", "MAPA à bons de commande", "Transaction", "Autre"]
-      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Contrôle interne nécessaire", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
       @liste_natures = ["Autre contrat", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
-      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Construction de l'EJ", "Contrôle interne nécessaire", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
     elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
-      @liste_types_observations = ["Acte non soumis au contrôle", "Compatibilité avec la programmation", "Contrôle interne nécessaire", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
       @liste_engagements = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
     end
 
