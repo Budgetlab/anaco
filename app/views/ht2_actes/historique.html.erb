@@ -71,6 +71,7 @@
                 selected_decisions = Array(q[:decision_finale_in]).reject(&:blank?)
                 selected_engagements = Array(q[:type_engagement_in]).reject(&:blank?)
                 selected_services_votes = Array(q[:services_votes_in]).reject(&:blank?)
+                selected_gestion_anticipee = Array(q[:gestion_anticipee_in]).reject(&:blank?)
                 selected_programmation = Array(q[:programmation_prevue_in]).reject(&:blank?)
                 selected_hors_delai = Array(q[:delai_traitement_hors_delai_in]).reject(&:blank?)
                 selected_suspensions = Array(q[:suspensions_count_in]).reject(&:blank?)
@@ -93,7 +94,7 @@
                 filter_count = [
                   selected_years.any?, selected_type_actes.any?,
                   selected_categories.any?, selected_etats.any?, selected_decisions.any?,
-                  selected_engagements.any?, selected_services_votes.any?, selected_programmation.any?,
+                  selected_engagements.any?, selected_services_votes.any?, selected_gestion_anticipee.any?, selected_programmation.any?,
                   selected_hors_delai.any?, selected_suspensions.any?, selected_avec_obs.any?,
                   selected_type_obs.any?, has_numero, has_nature, has_controleur, has_instructeur,
                   has_cf, has_organisme, has_ordonnateur, has_beneficiaire, has_activite,
@@ -126,6 +127,10 @@
                 <% if selected_services_votes.any? %>
                   <li><p class="fr-tag fr-tag--filtres">Services votés
                     : <%= selected_services_votes.map { |v| v == 'true' ? 'Oui' : 'Non' }.join(', ') %></p></li>
+                <% end %>
+                <% if selected_gestion_anticipee.any? %>
+                  <li><p class="fr-tag fr-tag--filtres">Gestion anticipée
+                    : <%= selected_gestion_anticipee.map { |v| v == 'true' ? 'Oui' : 'Non' }.join(', ') %></p></li>
                 <% end %>
                 <% if selected_programmation.any? %>
                   <li><p class="fr-tag fr-tag--filtres">Programmé
@@ -497,6 +502,30 @@
                         </div>
 
                         <div>
+                          <span class="fr-label fr-text--bold">Gestion anticipée</span>
+                          <% selected = Array(params.dig(:q, :gestion_anticipee_in)).map(&:to_s) %>
+
+                          <ul class="fr-tags-group fr-mt-1w">
+                            <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                              <% checked = selected.include?(value) %>
+                              <li>
+                                <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                       data-controller="tag-select"
+                                       data-action="change->tag-select#toggle"
+                                       role="button">
+                                  <%= check_box_tag 'q[gestion_anticipee_in][]',
+                                                    value,
+                                                    checked,
+                                                    class: "fr-sr-only",
+                                                    data: { tag_select_target: "checkbox" } %>
+                                  <span><%= label %></span>
+                                </label>
+                              </li>
+                            <% end %>
+                          </ul>
+                        </div>
+
+                        <div>
                           <span class="fr-label fr-text--bold">Acte programmé</span>
                           <% selected = Array(params.dig(:q, :programmation_prevue_in)).map(&:to_s) %>
 
@@ -654,7 +683,7 @@
                       <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
                         <div class="fr-col-12">
                           <label class="fr-label fr-text--bold">Organisme</label>
-                          <%= f.search_field :nom_organisme_cont, class: "fr-input", placeholder: 'Rechercher un acte par organismer' %>
+                          <%= f.search_field :nom_organisme_cont, class: "fr-input", placeholder: 'Rechercher un acte par organisme' %>
                         </div>
                       <% end %>
                       <div class="fr-col-12">
@@ -673,7 +702,7 @@
                       <% end %>
                       <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
                         <div class="fr-col-12">
-                          <label class="fr-label fr-text--bold">Nature de la dépense ou affectation de la recette</label>
+                          <label class="fr-label fr-text--bold">Organismes : Nature de la dépense ou affectation de la recette</label>
                           <%= f.select :nature_categorie_organisme_eq,
                                        options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q, :nature_categorie_organisme_eq)),
                                        { include_blank: 'Sélectionner une nature' },

@@ -242,7 +242,7 @@ class Ht2ActesController < ApplicationController
 
   def new
     if params[:id].present? # nouveau modèle
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'montant_ae', 'montant_global', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'montant_ae', 'montant_global', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
       @acte.etat = @acte_parent.etat == "en pré-instruction" ? @acte_parent.etat : "en cours d'instruction"
 
       # Duplication des poste_lignes
@@ -255,7 +255,7 @@ class Ht2ActesController < ApplicationController
         @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
       end
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
       @acte.etat = "en cours d'instruction"
       @acte.annee = Date.today.year
       @saisine = true

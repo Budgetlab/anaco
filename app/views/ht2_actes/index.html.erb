@@ -1015,6 +1015,30 @@
                       </div>
 
                       <div>
+                        <span class="fr-label fr-text--bold">Gestion anticipée</span>
+                        <% selected = Array(params.dig(:q_current, :gestion_anticipee_in)).map(&:to_s) %>
+
+                        <ul class="fr-tags-group fr-mt-1w">
+                          <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                            <% checked = selected.include?(value) %>
+                            <li>
+                              <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                     data-controller="tag-select"
+                                     data-action="change->tag-select#toggle"
+                                     role="button">
+                                <%= check_box_tag 'q_current[gestion_anticipee_in][]',
+                                                  value,
+                                                  checked,
+                                                  class: "fr-sr-only",
+                                                  data: { tag_select_target: "checkbox" } %>
+                                <span><%= label %></span>
+                              </label>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+
+                      <div>
                         <span class="fr-label fr-text--bold">Acte programmé</span>
                         <% selected_prog = Array(params.dig(:q_current, :programmation_prevue_in)).map(&:to_s) %>
 
@@ -1174,7 +1198,7 @@
                       <%= f.search_field :activite_cont, class: "fr-input", placeholder: 'Rechercher un acte par activité' %>
                     </div>
                     <div class="fr-col-12">
-                      <label class="fr-label fr-text--bold">Nature de la dépense ou affectation de la recette</label>
+                      <label class="fr-label fr-text--bold">Organismes : Nature de la dépense ou affectation de la recette</label>
                       <%= f.select :nature_categorie_organisme_eq,
                                    options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q_current, :nature_categorie_organisme_eq)),
                                    { include_blank: 'Sélectionner une nature' },
