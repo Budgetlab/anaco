@@ -80,6 +80,8 @@
                 has_numero = q[:numero_formate_or_numero_chorus_cont].present?
                 has_nature = q[:nature_eq].present?
                 has_controleur = q[:user_nom_eq].present?
+                selected_controleurs = Array(q[:user_nom_in]).reject(&:blank?)
+                has_profil = q[:user_statut_eq].present?
                 has_instructeur = q[:instructeur_cont].present?
                 has_cf = q[:centre_financier_code_cont].present?
                 has_organisme = q[:nom_organisme_cont].present?
@@ -96,7 +98,7 @@
                   selected_categories.any?, selected_etats.any?, selected_decisions.any?,
                   selected_engagements.any?, selected_services_votes.any?, selected_gestion_anticipee.any?, selected_programmation.any?,
                   selected_hors_delai.any?, selected_suspensions.any?, selected_avec_obs.any?,
-                  selected_type_obs.any?, has_numero, has_nature, has_controleur, has_instructeur,
+                  selected_type_obs.any?, has_numero, has_nature, has_controleur, selected_controleurs.any?, has_profil, has_instructeur,
                   has_cf, has_organisme, has_ordonnateur, has_beneficiaire, has_activite,
                   has_nature_cat, has_montant, has_cloture, has_reception
                 ].count(true)
@@ -160,6 +162,12 @@
                 <% end %>
                 <% if has_controleur %>
                   <li><p class="fr-tag fr-tag--filtres"><%= q[:user_nom_eq] %></p></li>
+                <% end %>
+                <% if has_profil %>
+                  <li><p class="fr-tag fr-tag--filtres">Profil : <%= q[:user_statut_eq] %></p></li>
+                <% end %>
+                <% selected_controleurs.each do |nom| %>
+                  <li><p class="fr-tag fr-tag--filtres"><%= nom %></p></li>
                 <% end %>
                 <% if has_instructeur %>
                   <li><p class="fr-tag fr-tag--filtres">Instructeur : <%= q[:instructeur_cont] %></p></li>
@@ -662,18 +670,69 @@
                         <label class="fr-label fr-text--bold">Nature</label>
                         <%= f.select :nature_eq, options_for_select(@liste_natures, params.dig(:q, :nature_eq)), { include_blank: 'Toutes' }, class: "fr-select" %>
                       </div>
-                      <% if @statut_user == 'admin' %>
+                    </div>
+                    <% if @statut_user == 'admin' %>
+                      <div class="fr-grid-row fr-grid-row--gutters" data-controller="controleur-filter">
                         <div class="fr-col-12">
-                          <label class="fr-label fr-text--bold">Contrôleur</label>
-                          <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
-                          <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
+                          <label class="fr-label fr-text--bold">Profil</label>
+                          <%= f.select :user_statut_eq,
+                                       options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], (@q_params || {})[:user_statut_eq]),
+                                       {},
+                                       class: "fr-select",
+                                       data: {
+                                         controleur_filter_target: "profilSelect",
+                                         action: "change->controleur-filter#filterByProfil"
+                                       } %>
                         </div>
-                      <% else %>
+                        <div class="fr-col-12 fr-pt-0">
+                          <label class="fr-label fr-text--bold">Contrôleur</label>
+                          <div class="fr-select-group fr-mt-1w" style="position: relative;">
+                            <button type="button"
+                                    data-controleur-filter-target="button"
+                                    data-action="click->controleur-filter#toggleDropdown"
+                                    class="fr-select"
+                                    style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;">
+                              <% users_by_statut = User.where(statut: ['DCB', 'CBR']).select(:nom, :statut).distinct.order(nom: :asc) %>
+                              <% selected_noms = Array((@q_params || {})[:user_nom_in]) %>
+                              Sélectionner des
+                              contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
+                            </button>
+                            <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                              <div style="padding: 0.5rem;">
+                                <% users_by_statut.each do |user| %>
+                                  <div class="fr-checkbox-group"
+                                       data-controleur-filter-target="item"
+                                       data-statut="<%= user.statut %>"
+                                       style="margin-bottom: 0.5rem;">
+                                    <%= f.check_box :user_nom_in,
+                                                    {
+                                                      multiple: true,
+                                                      checked: selected_noms.include?(user.nom),
+                                                      class: "fr-checkbox",
+                                                      data: {
+                                                        controleur_filter_target: "checkbox",
+                                                        action: "change->controleur-filter#updateCount"
+                                                      }
+                                                    },
+                                                    user.nom,
+                                                    nil %>
+                                    <%= f.label :user_nom_in, user.nom, value: user.nom, class: "fr-label" %>
+                                  </div>
+                                <% end %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% else %>
+                      <div class="fr-grid-row fr-grid-row--gutters">
                         <div class="fr-col-12">
                           <label class="fr-label fr-text--bold">Instructeur</label>
                           <%= f.search_field :instructeur_cont, class: "fr-input", placeholder: 'Rechercher un acte par instructeur' %>
                         </div>
-                      <% end %>
+                      </div>
+                    <% end %>
+                    <div class="fr-grid-row fr-grid-row--gutters">
                       <% unless (@q_params || {})[:perimetre_eq] == 'organisme' %>
                         <div class="fr-col-12">
                           <label class="fr-label fr-text--bold">Centre financier</label>
@@ -702,7 +761,8 @@
                       <% end %>
                       <% unless (@q_params || {})[:perimetre_eq] == 'etat' %>
                         <div class="fr-col-12">
-                          <label class="fr-label fr-text--bold">Organismes : Nature de la dépense ou affectation de la recette</label>
+                          <label class="fr-label fr-text--bold">Organismes : Nature de la dépense ou affectation de la
+                            recette</label>
                           <%= f.select :nature_categorie_organisme_eq,
                                        options_for_select(['Investissement', 'Fonctionnement', 'Intervention'], params.dig(:q, :nature_categorie_organisme_eq)),
                                        { include_blank: 'Sélectionner une nature' },
