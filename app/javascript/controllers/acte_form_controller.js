@@ -201,10 +201,17 @@ export default class extends Controller {
         const url = this.data.get("checkchorusurl")
         const numero_size = numero.length
         const message_nombre = document.getElementById('message-chorus-number')
+        const message_tf_prefix = document.getElementById('message-chorus-tf-prefix')
         let requiredLength = 10;
         if (typeActe === "TF") {
             requiredLength = 8;
         }
+
+        // Alerte préfixe TF
+        if (message_tf_prefix) {
+            message_tf_prefix.classList.toggle('fr-hidden', numero === '' || numero.toUpperCase().startsWith('TF'))
+        }
+
         if (numero_size > 0 && numero_size !== requiredLength) {
             message.classList.add('fr-hidden')
             message_nombre.classList.remove('fr-hidden')
@@ -730,6 +737,26 @@ export default class extends Controller {
         } else {
             alert.classList.add('fr-hidden')
         }
+    }
+
+    validateNumeroTf(event) {
+        const input = event.target
+        const value = input.value.trim()
+        const alertPrefix = document.getElementById('numero-tf-alert-prefix')
+        const alertLength = document.getElementById('numero-tf-alert-length')
+
+        if (alertPrefix) alertPrefix.classList.toggle('fr-hidden', value === '' || value.startsWith('30'))
+        if (alertLength) alertLength.classList.toggle('fr-hidden', value === '' || value.length === 10)
+    }
+
+    validateNumeroChorusTf(event) {
+        const input = event.target
+        const value = input.value.trim()
+        const alertPrefix = document.getElementById('numero-chorus-tf-alert-prefix')
+        const alertLength = document.getElementById('numero-chorus-tf-alert-length')
+
+        if (alertPrefix) alertPrefix.classList.toggle('fr-hidden', value === '' || value.toUpperCase().startsWith('TF'))
+        if (alertLength) alertLength.classList.toggle('fr-hidden', value === '' || value.length === 8)
     }
 
 }

@@ -635,7 +635,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      if @acte.services_votes == true
        critere4 = "Engagement éligible à la gestion des services votés"
      elsif @acte.avis_programmation == false
-       critere4 = "Avis de programmation initiale"
+       critere4 = "Programmation initiale transmise"
      else
        critere4 = "Compatibilité programmation"
      end
