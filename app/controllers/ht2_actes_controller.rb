@@ -298,7 +298,7 @@ class Ht2ActesController < ApplicationController
     @etape = params[:etape].to_i || 1
     if @acte.update(ht2_acte_params)
       # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
-      if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
+      if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction", "à suspendre"].include?(@acte.etat)
         redirect_to edit_ht2_acte_path(@acte, etape: @etape)
       else
         notice = update_acte_notice(@acte.etat, @etape, @acte.type_acte)
@@ -1186,7 +1186,7 @@ class Ht2ActesController < ApplicationController
   end
 
   def check_edit_conditions
-    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction"].include?(@acte.etat)
+    redirect_to ht2_actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction", "à suspendre"].include?(@acte.etat)
 
     @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
 

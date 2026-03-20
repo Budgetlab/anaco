@@ -136,10 +136,10 @@
     <%= f.hidden_field :etat, value: @acte.etat, data: { acte_form_target: "submitAction" } %>
 
     <%# --- Submit “Suspendre” visible seulement en mode suspension --- %>
-    <div class="fr-grid-row fr-grid-row--gutters <%= @acte.etat == "suspendu" ? "" : "fr-hidden" %>" id="suspension_submit_wrapper">
+    <div class="fr-grid-row fr-grid-row--gutters <%= @acte.etat == "suspendu" || @acte.etat == "à suspendre" ? "" : "fr-hidden" %>" id="suspension_submit_wrapper">
       <div class="fr-col-12 fr-col-lg-12">
         <div class="fr-checkbox-group fr-mb-2w">
-          <%= check_box_tag :submit_suspension, "à suspendre", id: "suspendre", data: { action: "change->acte-form#suspendSkipValidation" } %>
+          <%= check_box_tag :submit_suspension, "à suspendre", @acte.etat == "à suspendre", id: "suspendre", data: { action: "change->acte-form#suspendSkipValidation" } %>
           <label class="fr-label" for="suspendre">Soumettre cette <%= type_suspension %> à validation.</label>
         </div>
       </div>

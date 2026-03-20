@@ -85,8 +85,12 @@
             Reprendre l'instruction
           </a>
         </li>
+        <li><%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+            Modifier cette <%= type_suspension(@acte) %>
+          <% end %>
+        </li>
         <li><%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
-            Actualiser
+            Actualiser les informations
           <% end %>
         </li>
       </ul>
@@ -131,6 +135,14 @@
           <a href="<%= ht2_acte_suspension_modal_refus_suspension_path(@acte, @acte.suspension_ouverte) %>" data-turbo-frame="modal" class="fr-btn fr-btn--secondary" data-fr-opened="false" aria-controls="modal-acte">
             Rejeter et renvoyer en instruction
           </a>
+        </li>
+        <li><%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+            Modifier cette <%= type_suspension(@acte) %>
+          <% end %>
+        </li>
+        <li><%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+            Actualiser les informations
+          <% end %>
         </li>
       </ul>
     </div>

@@ -620,8 +620,8 @@ export default class extends Controller {
         //hidden date choture
         this.checkDecision()
     }
-    suspendSkipValidation(){
-        this.submitActionTarget.value = "à suspendre"
+    suspendSkipValidation(event){
+        this.submitActionTarget.value = event.target.checked ? "à suspendre" : "suspendu"
     }
 
     resetSuspensionForm(panel) {

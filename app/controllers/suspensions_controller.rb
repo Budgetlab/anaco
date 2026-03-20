@@ -6,6 +6,7 @@ class SuspensionsController < ApplicationController
   def edit; end
 
   def update
+    # reprise de l'acte en cours d'instruction, fin de la suspension
     if @suspension.update(suspension_params)
       @acte.update!(etat: "en cours d'instruction")
       redirect_to edit_ht2_acte_path(@acte, etape: 2)
