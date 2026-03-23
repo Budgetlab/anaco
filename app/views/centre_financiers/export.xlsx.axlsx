@@ -1,0 +1,30 @@
+wb = xlsx_package.workbook
+s = wb.styles
+header_style = s.add_style(
+  bg_color: 'dae1f2', fg_color: '161616', font_name: 'Calibri', sz: 13, b: true,
+  alignment: { horizontal: :center, vertical: :center },
+  border: { style: :thick, color: "00" }
+)
+cell_style = s.add_style(
+  bg_color: 'fff', fg_color: '161616', font_name: 'Calibri', sz: 13,
+  alignment: { vertical: :center },
+  border: { style: :thin, color: '161616' }
+)
+
+wb.add_worksheet(name: "Centres financiers") do |sheet|
+  sheet.add_row %w[id code statut deconcentre bop_id programme_id created_at updated_at], style: header_style, height: 30
+  sheet.auto_filter = "A1:H1"
+  @centre_financiers.each do |cf|
+    sheet.add_row [
+      cf.id,
+      cf.code,
+      cf.statut,
+      cf.deconcentre,
+      cf.bop_id,
+      cf.programme_id,
+      cf.created_at&.strftime('%d/%m/%Y %H:%M'),
+      cf.updated_at&.strftime('%d/%m/%Y %H:%M')
+    ], style: cell_style
+  end
+  sheet.column_widths 8, 20, 15, 12, 10, 14, 20, 20
+end

@@ -111,9 +111,10 @@ Rails.application.routes.draw do
     post 'import_actes', to: 'ht2_actes#import'
     delete 'delete_user_actes_year', to: 'ht2_actes#delete_user_actes_year', as: 'delete_user_actes_year'
 
-    resources :centre_financiers, only: [:new]
+    resources :centre_financiers, only: [:new, :destroy]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
+    get 'export_cf', to: 'centre_financiers#export', as: 'export_cf'
 
     resources :organismes, only: [:new, :index]
     post 'import_organismes', to: 'organismes#import'
