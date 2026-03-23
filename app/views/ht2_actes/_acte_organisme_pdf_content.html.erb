@@ -2,11 +2,11 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12">
       <h1 class="title-btn">
-          <span class="fr-capitalize"><%= acte.type_acte %> HT2
-            <% if acte.numero_chorus.present? %>CHORUS n°<%= acte.numero_chorus %>
-            <% else %>n°<%= acte.numero_formate %>
-            <% end %>
-          </span>
+        <span class="fr-capitalize"><%= acte.type_acte %> HT2
+          <% if acte.numero_chorus.present? %>n°<%= acte.numero_chorus %> - <%= acte.nom_organisme %>
+          <% else %>n°<%= acte.numero_formate %> - <%= acte.nom_organisme %>
+          <% end %>
+        </span>
       </h1>
       <div class="fr-text--italic fr-mb-1w">
         Acte n°<%= acte.numero_formate %>, saisine n°<%= acte.numero_saisine %>, créé
@@ -44,7 +44,7 @@
     <div class="fr-col-6">
       <div class="fr-p-2v" style="height: 100%;">
         <div class="fr-card fr-card--blue fr-p-2w" style="height: 100%;">
-          <div class="fr-h6">Observations à l’ordonnateur</div>
+          <div class="fr-h6">Observations à l'ordonnateur</div>
           <div><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
 
           <% if acte.type_observations.present? %>
@@ -63,9 +63,6 @@
   <% if acte.pre_instruction == true %>
     <p class="fr-badge fr-badge--blue-ecume">Préinstruction : Oui</p>
   <% end %>
-  <% if acte.gestion_anticipee == true %>
-    <p class="fr-badge fr-badge--blue-ecume">Acte en gestion anticipée</p>
-  <% end %>
   <div class="fr-table fr-table--no-caption fr-table--no-scroll">
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
@@ -74,23 +71,15 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
-              <% if acte.type_acte != 'TF' %>
-                <th>Nature de l'acte</th>
+              <th>Nature de l'acte</th>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>Type d'engagement</th>
               <% end %>
-              <th>
-                <% if acte.type_acte == 'TF' %>Type d’affectation
-                <% else %>Type d'engagement
-                <% end %></th>
-              <th>
-                <% if acte.type_acte == 'avis' %>Montant de l'acte (AE)
-                <% elsif acte.type_acte == 'visa' %>Montant engagé par l'acte
-                <% else %>Montant de l'affectation
-                <% end %></th>
-              <th>
-                <% if acte.type_acte == 'avis' %>Montant estimatif global (AE)
-                <% elsif acte.type_acte == 'visa' %>Montant total engagé
-                <% elsif acte.type_acte == 'TF' %>Montant total affecté
-                <% end %></th>
+              <th>Montant de l'acte</th>
+              <th>Type de montant</th>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>Montant total</th>
+              <% end %>
               <th>Exercice</th>
               <th>Date de saisine</th>
               <th>Délai de traitement</th>
@@ -98,17 +87,19 @@
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
-              <% if acte.type_acte != 'TF' %>
-                <td> <%= acte.nature %></td>
+              <td> <%= acte.nature %></td>
+              <% if acte.categorie_organisme == 'depense' %>
+                <td> <%= acte.type_engagement %></td>
               <% end %>
-              <td> <%= acte.type_engagement %></td>
               <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
-              <td> <%= format_value(number_to_currency(acte.montant_global, unit: "€", format: "%n %u")) %></td>
-              <td><%= acte.annee %></td>
+              <td> <%= acte.type_montant %></td>
+              <% if acte.categorie_organisme == 'depense' %>
+                <td> <%= format_value(number_to_currency(acte.montant_global, unit: "€", format: "%n %u")) %> </td>
+              <% end %>
+              <td> <%= acte.annee %></td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
-                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %>
-                  <span class="<%= 'cwarning' if acte.delai_traitement.to_i > 15 %>"><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %></span>
+                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
                 <% else %>
                   <%= etat_acte(acte) %>
                 <% end %>
@@ -129,18 +120,24 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
-              <th>Centre financier</th>
-              <th>N°Chorus</th>
-              <% if acte.type_acte != 'TF' %>
-                <th>Bénéficiaire</th>
-              <% else %>
-                <th>N° d'affectation</th>
+              <th>Opération pour compte de tiers</th>
+              <% if acte.operation_compte_tiers == false %>
+                <th>Opération budgétaire</th>
+                <th>
+                  <% if acte.categorie_organisme == 'depense' %>Nature de dépense
+                  <% else %>Affectation recette
+                  <% end %></th>
               <% end %>
+              <th>Budget exécutoire</th>
+              <th>N°interne</th>
               <th>
-                <% if acte.type_acte == 'TF' %>Opération d’investissement
-                <% else %>Objet
+                <% if acte.categorie_organisme == 'depense' %>Bénéficiaire
+                <% else %>Partie versante
                 <% end %></th>
-              <th>Ordonnateur</th>
+              <th>Objet <%= acte.categorie_organisme == 'depense' ? "de la dépense" : "de la recette" %></th>
+              <% if acte.categorie_organisme == "depense" %>
+                <th>Service ordonnateur</th>
+              <% end %>
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <th>Nombre d'actes</th>
               <% end %>
@@ -148,15 +145,18 @@
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
-              <td> <%= format_value(acte.centre_financier_code) %></td>
-              <td> <%= format_value(acte.numero_chorus) %></td>
-              <% if acte.type_acte != 'TF' %>
-                <td> <%= format_value(acte.beneficiaire) %></td>
-              <% else %>
-                <td><%= format_value(acte.numero_tf) %></td>
+              <td><%= acte.operation_compte_tiers ? 'Oui' : 'Non' %></td>
+              <% if acte.operation_compte_tiers == false %>
+                <td> <%= format_value(acte.operation_budgetaire) %></td>
+                <td> <%= format_value(acte.nature_categorie_organisme) %></td>
               <% end %>
+              <td> <%= acte.budget_executoire ? 'Oui' : 'Non' %></td>
+              <td> <%= format_value(acte.numero_chorus) %></td>
+              <td> <%= format_value(acte.beneficiaire) %></td>
               <td> <%= format_value(acte.objet) %></td>
-              <td> <%= format_value(acte.ordonnateur) %></td>
+              <% if acte.categorie_organisme == "depense" %>
+                <td> <%= format_value(acte.ordonnateur) %></td>
+              <% end %>
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <td> <%= acte.nombre_actes %></td>
               <% end %>
@@ -167,6 +167,7 @@
       </div>
     </div>
   </div>
+
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12">
       <div>Précisions sur l'acte</div>
@@ -174,7 +175,7 @@
     </div>
   </div>
 
-  <% if acte.categorie.present? || acte.action.present? || acte.activite.present? || acte.numero_marche.present? || acte.numero_tf.present? || acte.services_votes == true || acte.groupe_marchandises.present? %>
+  <% if acte.deliberation_ca.present? || acte.destination.present? || acte.nomenclature.present? || acte.flux.present? || acte.services_votes.present? %>
     <div class="fr-table fr-table--no-caption">
       <div class="fr-table__wrapper">
         <div class="fr-table__container">
@@ -183,36 +184,38 @@
               <caption> Informations complémentaires</caption>
               <thead>
               <tr class="fr-cell--multiline">
-                <th> Catégorie</th>
-                <th> Action/Sous-action</th>
-                <th> Code activité</th>
-                <% if acte.numero_marche.present? %>
-                  <th> Numéro de marché</th>
+                <th>Délibération du CA</th>
+                <% if acte.deliberation_ca == true %>
+                  <th>N° délibération</th>
+                  <th>Date délibération</th>
+                  <th>Observations délibération</th>
                 <% end %>
-                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
-                  <th> Numéro Chorus de la TF associée</th>
+                <% if acte.categorie_organisme == "depense" %>
+                  <th>Destination</th>
                 <% end %>
-                <% if acte.groupe_marchandises.present? %>
-                  <th> Groupe de marchandises</th>
+                <th>Nomenclature <%= acte.categorie_organisme == 'depense' ? 'achat' : 'recette' %></th>
+                <% if acte.categorie_organisme == "depense" %>
+                  <th>Flux</th>
                 <% end %>
-                <th> Services votés</th>
+                <th>Services votés</th>
               </tr>
               </thead>
               <tbody>
               <tr class="fr-cell--multiline">
-                <td> <%= format_value(acte.categorie) %> </td>
-                <td> <%= format_value(acte.action) %> </td>
-                <td> <%= format_value(acte.activite) %> </td>
-                <% if acte.numero_marche.present? %>
-                  <td> <%= format_value(acte.numero_marche) %> </td>
+                <td><%= acte.deliberation_ca ? 'Oui' : 'Non' %></td>
+                <% if acte.deliberation_ca == true %>
+                  <td><%= format_value(acte.numero_deliberation_ca) %></td>
+                  <td><%= format_date_text(acte.date_deliberation_ca) %></td>
+                  <td><%= format_value(acte.observations_deliberation_ca) %></td>
                 <% end %>
-                <% if acte.numero_tf.present? && acte.type_acte != 'TF' %>
-                  <td> <%= format_value(acte.numero_tf) %> </td>
+                <% if acte.categorie_organisme == "depense" %>
+                  <td><%= format_value(acte.destination) %></td>
                 <% end %>
-                <% if acte.groupe_marchandises.present? %>
-                  <td> <%= format_value(acte.groupe_marchandises) %></td>
+                <td><%= format_value(acte.nomenclature) %></td>
+                <% if acte.categorie_organisme == "depense" %>
+                  <td><%= format_value(acte.flux) %></td>
                 <% end %>
-                <td><%= acte.services_votes == true ? 'Oui' : 'Non' %></td>
+                <td><%= acte.services_votes ? 'Oui' : 'Non' %></td>
               </tr>
               </tbody>
             </table>
@@ -233,8 +236,10 @@
               <thead>
               <tr>
                 <th> Année</th>
-                <th> Montant AE (€)</th>
-                <th> Montant CP (€)</th>
+                <th> Montant <%= acte.categorie_organisme == 'recette' ? '(€)' : 'AE (€)' %></th>
+                <% if acte.categorie_organisme != 'recette' %>
+                  <th> Montant CP (€)</th>
+                <% end %>
               </tr>
               </thead>
               <tbody>
@@ -242,7 +247,9 @@
                 <tr>
                   <td> <%= echeancier.annee %> </td>
                   <td> <%= number_to_currency(echeancier.montant_ae, unit: "€", format: "%n %u") %></td>
-                  <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
+                  <% if acte.categorie_organisme != 'recette' %>
+                    <td> <%= number_to_currency(echeancier.montant_cp, unit: "€", format: "%n %u") %> </td>
+                  <% end %>
                 </tr>
               <% end %>
               </tbody>
@@ -258,23 +265,42 @@
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
         <div class="fr-table__content">
-          <table id="table-echeancier">
+          <table id="table-criteres">
             <caption> Critères</caption>
             <thead>
             <tr>
-              <th> Acte programmé</th>
-              <th> Disponibilité des crédits</th>
-              <th> Imputation de la dépense</th>
-              <th> Exactitude de l’évaluation de la consommation des crédits</th>
-              <th>
-                <% if acte.services_votes == true %>Engagement éligible à la gestion des services votés
-                <% elsif acte.avis_programmation == false %>Programmation initiale transmise
-                <% else %> Compatibilité avec la programmation annuelle et pluriannuelle
-                <% end %></th>
+              <th>Acte programmé</th>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>
+                  <% if acte.operation_compte_tiers == true %>Disponibilité des fonds au sein de la trésorerie
+                  <% else %>Disponibilité des crédits
+                  <% end %></th>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
+                <th>Imputation de la <%= acte.categorie_organisme == 'depense' ? 'dépense' : 'recette' %></th>
+              <% end %>
+              <% if acte.categorie_organisme == 'depense' %>
+                <th>Exactitude de l'évaluation de la consommation des crédits</th>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
+                <th>
+                  <% if acte.categorie_organisme == 'depense' %>Compatibilité avec caractère soutenable de la gestion
+                  <% else %>Caractère soutenable des engagements financiers exigés en contrepartie de la recette
+                  <% end %></th>
+              <% end %>
+              <th>Conformité au seuil de contrôle</th>
+              <% if acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true %>
+                <th>Concordance entre les recettes encaissées pour compte de tiers et les reversements correspondants</th>
+              <% end %>
+              <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
+                <th>Engagement éligible à la gestion des services votés</th>
+              <% end %>
+              <% if acte.budget_executoire == false %>
+                <th>Opération autorisée par les autorités de tutelle dans l'attente du vote du BI</th>
+              <% end %>
             </tr>
             </thead>
             <tbody>
-
             <tr>
               <td>
                 <% if acte.programmation_prevue == true %>
@@ -282,42 +308,76 @@
                 <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                 <% end %>
               </td>
+              <% if acte.categorie_organisme == 'depense' %>
+                <td>
+                  <% if acte.disponibilite_credits == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
+                <td>
+                  <% if acte.imputation_depense == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+              <% if acte.categorie_organisme == 'depense' %>
+                <td>
+                  <% if acte.consommation_credits == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+              <% unless acte.operation_compte_tiers == true %>
+                <td>
+                  <% if acte.soutenabilite == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
               <td>
-                <% if acte.disponibilite_credits == true %>
+                <% if acte.conformite == true %>
                   <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                 <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                 <% end %>
               </td>
-              <td>
-                <% if acte.imputation_depense == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                <% end %>
-              </td>
-              <td>
-                <% if acte.consommation_credits == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                <% end %>
-              </td>
-              <td>
-                <% if acte.avis_programmation == false %>
-                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                <% else %>
+              <% if acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true %>
+                <td>
+                  <% if acte.concordance_recettes_tiers == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
+              <% if acte.services_votes == true && acte.categorie_organisme == 'depense' %>
+                <td>
                   <% if acte.programmation == true %>
                     <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
                   <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
                   <% end %>
-                <% end %>
-              </td>
+                </td>
+              <% end %>
+              <% if acte.budget_executoire == false %>
+                <td>
+                  <% if acte.autorisation_tutelle == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
+                </td>
+              <% end %>
             </tr>
-
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
   <%
     raw = acte.sheet_data
     parsed =
@@ -331,7 +391,6 @@
 
     blank = ->(v) { v.nil? || v.to_s.strip == "" }
 
-    # Récupère toutes les matrices de lignes (v4: data | v5: worksheets[].data)
     matrices =
       if parsed.is_a?(Hash) && parsed["worksheets"].is_a?(Array)
         parsed["worksheets"].map { |ws| ws["data"] }.compact
@@ -377,72 +436,5 @@
         <% end %>
       </div>
     <% end %>
-  <% end %>
-
-
-  <% if acte.poste_lignes.present? %>
-
-    <!-- Force un saut de page avant le tableau -->
-    <div class="page-break-before landscape-section">
-      <div class="fr-h6 fr-my-3w">Lignes de poste</div>
-      <div class="fr-table fr-table--no-caption fr-table--no-scroll">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table>
-                <caption> Lignes de poste</caption>
-                <thead>
-                <tr class="fr-cell--multiline">
-                  <th> Numéro</th>
-                  <th> Centre financier</th>
-                  <th> Montant (€)</th>
-                  <th> Action/Sous-action</th>
-                  <th> Fonds</th>
-                  <th> Titre/Catégorie</th>
-                  <th> Code activité</th>
-                  <th> Axe ministériel</th>
-                  <th> Flux</th>
-                  <th> Groupe de marchandises</th>
-                  <th> Numéro Chorus de la TF</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% acte.poste_lignes.each do |ligne| %>
-                  <tr class="fr-cell--multiline">
-                    <td> <%= ligne.numero %></td>
-                    <td> <%= ligne.centre_financier_code %> </td>
-                    <td> <%= number_to_currency(ligne.montant, unit: "€", format: "%n %u") %></td>
-                    <td> <%= ligne.domaine_fonctionnel %> </td>
-                    <td> <%= ligne.fonds %> </td>
-                    <td> <%= ligne.compte_budgetaire %> </td>
-                    <td> <%= ligne.code_activite %> </td>
-                    <td> <%= ligne.axe_ministeriel %> </td>
-                    <td> <%= ligne.flux %> </td>
-                    <td> <%= ligne.groupe_marchandises %></td>
-                    <td> <%= ligne.numero_tf %></td>
-                  </tr>
-                <% end %>
-                <tr class="fr-table--total">
-                  <td>Total</td>
-                  <td></td>
-                  <td><%= number_to_currency(acte.poste_lignes.sum(:montant), unit: "€", format: "%n %u") %></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Force un retour en portrait après -->
-    <div class="page-break-before portrait-section" style="display: none;"></div>
   <% end %>
 </div>
