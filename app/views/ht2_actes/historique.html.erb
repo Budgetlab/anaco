@@ -283,7 +283,7 @@
                         <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                         <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>
                         <td><%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %></td>
-                        <td><%= format_value(acte.numero_chorus) %></td>
+                        <td class="fr-cell--multiline"><%= format_value(acte.numero_chorus) %></td>
 
                         <td class="fr-cell--multiline">
                           <p class="fr-badge--sm <%= badge_class_for_etat_actes(acte.etat) %>"><%= etat_acte(acte) %></p>
