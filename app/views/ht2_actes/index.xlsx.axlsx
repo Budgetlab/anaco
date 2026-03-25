@@ -128,16 +128,16 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
       acte.gestion_anticipee ? "Oui" : "Non",
       acte.programmation_prevue ? "Oui" : "Non",
       acte.pre_instruction ? "Oui" : "Non",
-      acte.created_at,
-      acte.date_chorus,
+      acte.created_at&.strftime('%d/%m/%Y'),
+      acte.date_chorus&.strftime('%d/%m/%Y'),
       has_suspension,
-      last_susp_date,
-      last_susp_end_date,
-      acte.date_limite,
+      last_susp_date&.strftime('%d/%m/%Y'),
+      last_susp_end_date&.strftime('%d/%m/%Y'),
+      acte.date_limite&.strftime('%d/%m/%Y'),
       last_susp_motif,
       acte.proposition_decision,
       acte.decision_finale,
-      acte.date_cloture,
+      acte.date_cloture&.strftime('%d/%m/%Y'),
       (acte.type_observations&.join(", ") if acte.type_observations.present?),
       acte.delai_traitement,
       acte.disponibilite_credits ? "Oui" : "Non",
@@ -157,28 +157,16 @@ wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
     styles[13] = text_style  # Numéro TF
     styles[20] = number_style  # Montant AE
     styles[21] = number_style  # Montant global
-    styles[25] = date_style  # Date creation
-    styles[26] = date_style  # Date saisine
-    styles[28] = date_style  # Date suspension
-    styles[29] = date_style  # Date fin suspension
-    styles[30] = date_style  # Date limite
-    styles[34] = date_style  # Date clôture
 
     # Types pour forcer le format texte sur les numéros
     types = Array.new(headers.count, :string)
-    types[1] = :integer  # Exercice
-    types[6] = :integer  # Numéro programme
-    types[8] = :integer  # Categorie
+    types[1] = :integer   # Exercice
+    types[6] = :integer   # Numéro programme
+    types[8] = :integer   # Categorie
     types[16] = :integer  # Nombre d'actes
     types[20] = :float    # Montant AE
     types[21] = :float    # Montant global
-    types[25] = :time     # Date creation
-    types[26] = :time     # Date saisine
-    types[28] = :time     # Date suspension
-    types[29] = :time     # Date fin suspension
-    types[30] = :time     # Date limite
-    types[34] = :time     # Date clôture
-    types[36] = :integer  # Délai traitement
+    types[37] = :integer  # Délai traitement
 
     sheet.add_row row_data, style: styles, types: types
   end
@@ -294,7 +282,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       is_depense ? acte.montant_global : "N/A",
       acte.deliberation_ca ? "Oui" : "Non",
       acte.numero_deliberation_ca,
-      acte.date_deliberation_ca,
+      acte.date_deliberation_ca&.strftime('%d/%m/%Y'),
       acte.observations_deliberation_ca,
       is_depense ? acte.destination : "N/A",
       acte.nomenclature,
@@ -303,16 +291,16 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       acte.gestion_anticipee ? "Oui" : "Non",
       acte.programmation_prevue ? "Oui" : "Non",
       acte.pre_instruction ? "Oui" : "Non",
-      acte.created_at,
-      acte.date_chorus,
+      acte.created_at&.strftime('%d/%m/%Y'),
+      acte.date_chorus&.strftime('%d/%m/%Y'),
       has_suspension,
-      last_susp_date,
-      last_susp_end_date,
-      acte.date_limite,
+      last_susp_date&.strftime('%d/%m/%Y'),
+      last_susp_end_date&.strftime('%d/%m/%Y'),
+      acte.date_limite&.strftime('%d/%m/%Y'),
       last_susp_motif,
       acte.proposition_decision,
       acte.decision_finale,
-      acte.date_cloture,
+      acte.date_cloture&.strftime('%d/%m/%Y'),
       (acte.type_observations&.join(", ") if acte.type_observations.present?),
       acte.delai_traitement,
       is_depense ? (acte.disponibilite_credits ? "Oui" : "Non") : "N/A",
@@ -330,31 +318,17 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
 
     # Styles spécifiques pour certaines colonnes
     styles = Array.new(headers.count, cell_style)
-    styles[9] = text_style    # N° acte interne
-    styles[18] = number_style # Montant de l'acte
-    styles[20] = number_style # Montant total
-    styles[23] = date_style   # Date délibération
-    styles[31] = date_style   # Date creation
-    styles[32] = date_style   # Date saisine
-    styles[34] = date_style   # Date suspension
-    styles[35] = date_style   # Date fin suspension
-    styles[36] = date_style   # Date limite
-    styles[40] = date_style   # Date clôture
+    styles[9]  = text_style    # N° acte interne
+    styles[18] = number_style  # Montant de l'acte
+    styles[20] = number_style  # Montant total
 
     # Types pour forcer le format texte sur les numéros
     types = Array.new(headers.count, :string)
-    types[1] = :integer   # Exercice
+    types[1]  = :integer  # Exercice
     types[17] = :integer  # Nombre d'actes
     types[18] = :float    # Montant de l'acte
     types[20] = :float    # Montant total
-    types[23] = :time     # Date délibération
-    types[31] = :time     # Date creation
-    types[32] = :time     # Date saisine
-    types[34] = :time     # Date suspension
-    types[35] = :time     # Date fin suspension
-    types[36] = :time     # Date limite
-    types[40] = :time     # Date clôture
-    types[42] = :integer  # Délai traitement
+    types[43] = :integer  # Délai traitement
 
     sheet.add_row row_data, style: styles, types: types
   end

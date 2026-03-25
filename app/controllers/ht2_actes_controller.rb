@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   include Ht2ActesHelper
 
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :authorize_show!, only: [:show]
@@ -993,6 +993,31 @@ class Ht2ActesController < ApplicationController
 
   def admin_backup
     @backups = BackupExport.order(created_at: :desc).limit(10)
+  end
+
+  def export_organisme_2026
+    @actes = Ht2Acte.where(perimetre: 'organisme', annee: 2026)
+                    .includes(:user, :suspensions, :echeanciers, :poste_lignes)
+                    .order(:id)
+    respond_to do |format|
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"actes_organisme_2026_#{Date.current.strftime('%Y%m%d')}.xlsx\""
+      end
+    end
+  end
+
+  def import_from_backup
+    if params[:backup_file].blank?
+      return redirect_to admin_backup_path, alert: "Veuillez sélectionner un fichier."
+    end
+
+    begin
+      id_map = Ht2Acte.import_from_backup(params[:backup_file].tempfile)
+      redirect_to admin_backup_path, notice: "Import terminé : #{id_map.size} acte(s) importé(s)."
+    rescue => e
+      Rails.logger.error "[import_from_backup] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      redirect_to admin_backup_path, alert: "Erreur lors de l'import : #{e.message}"
+    end
   end
 
   def generate_backup

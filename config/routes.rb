@@ -106,6 +106,8 @@ Rails.application.routes.draw do
     post 'admin_backup/generate', to: 'ht2_actes#generate_backup', as: 'generate_backup'
     get 'admin_backup/:id/download', to: 'ht2_actes#download_backup', as: 'download_backup'
     delete 'admin_backup/:id', to: 'ht2_actes#destroy_backup', as: 'destroy_backup'
+    get 'admin_backup/export_organisme_2026', to: 'ht2_actes#export_organisme_2026', as: 'export_organisme_2026'
+    post 'admin_backup/import_from_backup', to: 'ht2_actes#import_from_backup', as: 'import_from_backup'
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
     post 'import_actes', to: 'ht2_actes#import'

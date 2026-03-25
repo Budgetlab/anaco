@@ -230,6 +230,170 @@ class Ht2Acte < ApplicationRecord
     suspension_ouverte.present?
   end
 
+  def self.import_from_backup(file)
+    data = Roo::Spreadsheet.open(file.path)
+
+    # ── Onglet ht2_actes ──────────────────────────────────────────────────────
+    actes_sheet = data.sheet('ht2_actes')
+    actes_headers = actes_sheet.row(1).map { |h| h.to_s.strip }
+
+    # id_map : ancien id (exporté) → nouvel id (créé en prod)
+    id_map = {}
+
+    actes_sheet.each_with_index do |row, idx|
+      next if idx == 0
+      r = Hash[actes_headers.zip(row)]
+
+      old_id = r['id'].to_i
+      user = User.find_by(id: r['user_id'].to_i)
+      next unless user
+
+      bool = ->(v) { ['true', '1', 't'].include?(v.to_s.downcase) }
+      parse_date = ->(v) {
+        return nil if v.blank?
+        v.is_a?(Date) || v.is_a?(Time) ? v.to_date : Date.strptime(v.to_s.strip, '%d/%m/%Y') rescue nil
+      }
+      parse_array = ->(v) { v.blank? ? [] : v.to_s.split(',').map(&:strip).reject(&:blank?) }
+
+      acte = Ht2Acte.new(
+        user:                             user,
+        annee:                            r['annee'].to_i,
+        type_acte:                        r['type_acte'],
+        etat:                             r['etat'],
+        perimetre:                        r['perimetre'],
+        categorie_organisme:              r['categorie_organisme'],
+        instructeur:                      r['instructeur'],
+        valideur:                         r['valideur'],
+        numero_formate:                   nil, # sera recalculé par le callback
+        numero_chorus:                    r['numero_chorus'].to_s,
+        numero_marche:                    r['numero_marche'].to_s,
+        numero_tf:                        r['numero_tf'].to_s,
+        numero_utilisateur:               r['numero_utilisateur'].presence&.to_i,
+        date_chorus:                      parse_date.(r['date_chorus']),
+        date_limite:                      parse_date.(r['date_limite']),
+        date_cloture:                     parse_date.(r['date_cloture']),
+        delai_traitement:                 r['delai_traitement'].presence&.to_i,
+        nature:                           r['nature'],
+        nature_categorie_organisme:       r['nature_categorie_organisme'],
+        beneficiaire:                     r['beneficiaire'],
+        objet:                            r['objet'],
+        ordonnateur:                      r['ordonnateur'],
+        destination:                      r['destination'],
+        montant_ae:                       r['montant_ae'].presence&.to_f,
+        montant_global:                   r['montant_global'].presence&.to_f,
+        type_montant:                     r['type_montant'],
+        type_engagement:                  r['type_engagement'],
+        centre_financier_code:            r['centre_financier_code'],
+        groupe_marchandises:              r['groupe_marchandises'],
+        nomenclature:                     r['nomenclature'],
+        flux:                             r['flux'],
+        activite:                         r['activite'],
+        action:                           r['action'],
+        sous_action:                      r['sous_action'],
+        operation_budgetaire:             r['operation_budgetaire'],
+        nom_organisme:                    r['nom_organisme'],
+        categorie:                        r['categorie'],
+        proposition_decision:             r['proposition_decision'],
+        decision_finale:                  r['decision_finale'],
+        commentaire_proposition_decision: r['commentaire_proposition_decision'],
+        observations:                     r['observations'],
+        type_observations:                parse_array.(r['type_observations']),
+        precisions_acte:                  r['precisions_acte'],
+        disponibilite_credits:            bool.(r['disponibilite_credits']),
+        imputation_depense:               bool.(r['imputation_depense']),
+        consommation_credits:             bool.(r['consommation_credits']),
+        programmation:                    bool.(r['programmation']),
+        programmation_prevue:             bool.(r['programmation_prevue']),
+        avis_programmation:               r['avis_programmation'].blank? ? true : bool.(r['avis_programmation']),
+        services_votes:                   bool.(r['services_votes']),
+        liste_actes:                      bool.(r['liste_actes']),
+        nombre_actes:                     r['nombre_actes'].presence&.to_i,
+        gestion_anticipee:                bool.(r['gestion_anticipee']),
+        pre_instruction:                  bool.(r['pre_instruction']),
+        renvoie_instruction:              bool.(r['renvoie_instruction']),
+        soutenabilite:                    r['soutenabilite'].blank? ? true : bool.(r['soutenabilite']),
+        conformite:                       r['conformite'].blank? ? true : bool.(r['conformite']),
+        concordance_recettes_tiers:       bool.(r['concordance_recettes_tiers']),
+        autorisation_tutelle:             bool.(r['autorisation_tutelle']),
+        budget_executoire:                r['budget_executoire'].blank? ? true : bool.(r['budget_executoire']),
+        operation_compte_tiers:           bool.(r['operation_compte_tiers']),
+        deliberation_ca:                  bool.(r['deliberation_ca']),
+        numero_deliberation_ca:           r['numero_deliberation_ca'],
+        date_deliberation_ca:             parse_date.(r['date_deliberation_ca']),
+        observations_deliberation_ca:     r['observations_deliberation_ca'],
+        pdf_generation_status:            'none',
+      )
+
+      if acte.save
+        id_map[old_id] = acte.id
+      else
+        Rails.logger.warn "[import_from_backup] acte old_id=#{old_id} : #{acte.errors.full_messages.join(', ')}"
+      end
+    end
+
+    # ── Onglet suspensions ────────────────────────────────────────────────────
+    begin
+      susp_sheet = data.sheet('suspensions')
+      susp_headers = susp_sheet.row(1).map { |h| h.to_s.strip }
+
+      susp_sheet.each_with_index do |row, idx|
+        next if idx == 0
+        r = Hash[susp_headers.zip(row)]
+
+        old_acte_id = r['ht2_acte_id'].to_i
+        new_acte_id = id_map[old_acte_id]
+        next unless new_acte_id
+
+        parse_date = ->(v) {
+          return nil if v.blank?
+          v.is_a?(Date) || v.is_a?(Time) ? v.to_date : Date.strptime(v.to_s.strip, '%d/%m/%Y') rescue nil
+        }
+
+        date_susp = parse_date.(r['date_suspension'])
+        next unless date_susp
+
+        motif = r['motif'].blank? ? ['Autre'] : r['motif'].to_s.split(',').map(&:strip).reject(&:blank?)
+
+        Suspension.create!(
+          ht2_acte_id:        new_acte_id,
+          date_suspension:    date_susp,
+          date_reprise:       parse_date.(r['date_reprise']),
+          motif:              motif,
+          observations:       r['observations'],
+          commentaire_reprise: r['commentaire_reprise'],
+        )
+      end
+    rescue RangeError, Roo::UnsupportedFileType
+      Rails.logger.warn "[import_from_backup] onglet suspensions introuvable ou vide"
+    end
+
+    # ── Onglet echeanciers ────────────────────────────────────────────────────
+    begin
+      ech_sheet = data.sheet('echeanciers')
+      ech_headers = ech_sheet.row(1).map { |h| h.to_s.strip }
+
+      ech_sheet.each_with_index do |row, idx|
+        next if idx == 0
+        r = Hash[ech_headers.zip(row)]
+
+        old_acte_id = r['ht2_acte_id'].to_i
+        new_acte_id = id_map[old_acte_id]
+        next unless new_acte_id
+
+        Echeancier.create!(
+          ht2_acte_id: new_acte_id,
+          annee:       r['annee'].to_i,
+          montant_ae:  r['montant_ae'].presence&.to_f,
+          montant_cp:  r['montant_cp'].presence&.to_f,
+        )
+      end
+    rescue RangeError, Roo::UnsupportedFileType
+      Rails.logger.warn "[import_from_backup] onglet echeanciers introuvable ou vide"
+    end
+
+    id_map
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
