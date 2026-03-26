@@ -245,7 +245,7 @@ class Ht2Acte < ApplicationRecord
       r = Hash[actes_headers.zip(row)]
 
       old_id = r['id'].to_i
-      user = User.find_by(id: r['user_id'].to_i)
+      user = User.find_by(nom: r['user_nom'].to_s.strip)
       next unless user
 
       bool = ->(v) { ['true', '1', 't'].include?(v.to_s.downcase) }
@@ -264,15 +264,15 @@ class Ht2Acte < ApplicationRecord
         categorie_organisme:              r['categorie_organisme'],
         instructeur:                      r['instructeur'],
         valideur:                         r['valideur'],
-        numero_formate:                   nil, # sera recalculé par le callback
+        numero_formate:                   nil, # recalculé par set_numero_utilisateur
         numero_chorus:                    r['numero_chorus'].to_s,
         numero_marche:                    r['numero_marche'].to_s,
         numero_tf:                        r['numero_tf'].to_s,
-        numero_utilisateur:               r['numero_utilisateur'].presence&.to_i,
+        # numero_utilisateur : recalculé par set_numero_utilisateur (after_save)
         date_chorus:                      parse_date.(r['date_chorus']),
         date_limite:                      parse_date.(r['date_limite']),
         date_cloture:                     parse_date.(r['date_cloture']),
-        delai_traitement:                 r['delai_traitement'].presence&.to_i,
+        # delai_traitement : recalculé par calculate_delai_traitement_if_needed (after_save)
         nature:                           r['nature'],
         nature_categorie_organisme:       r['nature_categorie_organisme'],
         beneficiaire:                     r['beneficiaire'],
