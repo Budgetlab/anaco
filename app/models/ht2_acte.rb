@@ -363,6 +363,11 @@ class Ht2Acte < ApplicationRecord
           commentaire_reprise: r['commentaire_reprise'],
         )
       end
+
+      # Recalculer l'état des actes importés maintenant que leurs suspensions existent
+      Ht2Acte.where(id: id_map.values).each do |acte|
+        acte.send(:set_etat_acte)
+      end
     rescue RangeError, Roo::UnsupportedFileType
       Rails.logger.warn "[import_from_backup] onglet suspensions introuvable ou vide"
     end

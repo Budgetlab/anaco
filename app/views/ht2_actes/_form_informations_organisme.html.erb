@@ -153,7 +153,7 @@
           <label for="nature_categorie_organisme" class="fr-label">
             <%= @acte.categorie_organisme == 'depense' ? 'Nature de la dépense' : 'Affectation de la recette' %>
           </label>
-          <%= f.select :nature_categorie_organisme, options_for_select([['Investissement', 'Investissement'], ['Fonctionnement', 'Fonctionnement'], ['Intervention', 'Intervention']], @acte.nature_categorie_organisme), { prompt: "- sélectionner -" }, { id: "nature_categorie_organisme", class: "fr-select" } %>
+          <%= f.select :nature_categorie_organisme, options_for_select([['Investissement', 'Investissement'], ['Fonctionnement', 'Fonctionnement'], ['Intervention', 'Intervention'], ['Mixte','Mixte']], @acte.nature_categorie_organisme), { prompt: "- sélectionner -" }, { id: "nature_categorie_organisme", class: "fr-select" } %>
         </div>
       </div>
     </div>
