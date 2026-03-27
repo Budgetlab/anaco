@@ -39,11 +39,12 @@ registry:
 
 # Configuration du builder
 builder:
-  arch: amd64
   # Build remote directement sur le serveur GCP
   #remote: ssh://alexandra@34.155.46.127
   # Utiliser Dockerfile.workers au lieu de Dockerfile
   dockerfile: Dockerfile.workers
+  args:
+    platform: linux/amd64
 
 # Variables d'environnement
 env:
