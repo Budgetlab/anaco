@@ -41,7 +41,7 @@
     <orderEntry type="library" scope="PROVIDED" name="bootsnap (v1.20.1, rbenv: 4.0.2) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="brakeman (v7.1.2, rbenv: 4.0.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="builder (v3.3.0, rbenv: 4.0.2) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.9, rbenv: 4.0.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v4.0.9, rbenv: 4.0.2) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="bundler-audit (v0.9.3, rbenv: 4.0.2) [gem]" level="application" />
     <orderEntry type="library" scope="TEST" name="capybara (v3.40.0, rbenv: 4.0.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="caxlsx (v4.4.1, rbenv: 4.0.2) [gem]" level="application" />

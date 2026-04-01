@@ -109,7 +109,7 @@ class Ht2Acte < ApplicationRecord
 
     # Ajouter le filtre sur categorie_organisme si le champ existe (périmètre organisme)
     if perimetre == 'organisme' && categorie_organisme.present?
-      query = query.where(categorie_organisme: categorie_organisme)
+      query = query.where(categorie_organisme: categorie_organisme, nom_organisme: nom_organisme)
     end
 
     query
