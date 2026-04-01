@@ -1,6 +1,7 @@
 class Ht2Acte < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :centre_financiers
+  has_and_belongs_to_many :organismes
   # Association via le champ centre_financier_code principal
   belongs_to :centre_financier_principal,
              class_name: 'CentreFinancier',
@@ -17,13 +18,15 @@ class Ht2Acte < ApplicationRecord
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
-  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || attributes['motif'].blank? }, allow_destroy: true
-  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? || attributes['montant_cp'].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || Array(attributes['motif']).reject(&:blank?).empty? }, allow_destroy: true
+  accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? }, allow_destroy: true
+  before_save :strip_organisme_and_cf_fields
   before_save :upcase_centre_financier_code
   after_save :set_etat_acte
   after_save :set_numero_utilisateur, if: :saved_change_to_annee?
   after_save :calculate_date_limite_if_needed
   after_save :associate_centre_financier_if_needed
+  after_save :associate_organisme_if_needed
   after_save :calculate_delai_traitement_if_needed
   after_save :purge_pdf_files_on_update
 
@@ -38,6 +41,8 @@ class Ht2Acte < ApplicationRecord
   scope :clotures_seuls, -> { where(etat: 'clôturé') }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
+  scope :perimetre_etat, -> { where(perimetre: 'etat') }
+  scope :perimetre_organisme, -> { where(perimetre: 'organisme') }
   # Ceux qui ne sont pas clos (année N , N-1 ..) + ceux qui sont clos sur l'annee N
   scope :actifs_annee_courante, -> {
     where(
@@ -57,10 +62,10 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "beneficiaire", "categorie", "centre_financier_code", "commentaire_proposition_decision", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_limite", "decision_finale", "delai_traitement", "disponibilite_credits", "etat", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nombre_actes", "numero_chorus", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "ordonnateur", "pdf_generation_status", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "type_acte", "type_engagement", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "autorisation_tutelle", "avis_programmation", "beneficiaire", "budget_executoire", "categorie", "categorie_organisme", "centre_financier_code", "commentaire_proposition_decision", "concordance_recettes_tiers", "conformite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_deliberation_ca", "date_limite", "decision_finale", "delai_traitement", "deliberation_ca", "destination", "disponibilite_credits", "etat", "flux", "gestion_anticipee", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nature_categorie_organisme", "nombre_actes", "nom_organisme", "nomenclature", "numero_chorus", "numero_deliberation_ca", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "observations_deliberation_ca", "operation_budgetaire", "operation_compte_tiers", "ordonnateur", "pdf_generation_status", "perimetre", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "soutenabilite", "type_acte", "type_engagement", "type_montant", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["centre_financier_principal", "centre_financiers", "echeanciers", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
+    ["centre_financier_principal", "centre_financiers", "echeanciers", "organismes", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
   end
 
   # Custom ransacker pour filtrer par présence de suspensions
@@ -100,7 +105,14 @@ class Ht2Acte < ApplicationRecord
   def tous_actes_meme_chorus
     return [self] if numero_chorus.blank?
 
-    Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id)
+    query = Ht2Acte.where(numero_chorus: numero_chorus, user_id: user_id, perimetre: perimetre)
+
+    # Ajouter le filtre sur categorie_organisme si le champ existe (périmètre organisme)
+    if perimetre == 'organisme' && categorie_organisme.present?
+      query = query.where(categorie_organisme: categorie_organisme, nom_organisme: nom_organisme)
+    end
+
+    query
   end
 
   def dernier_acte_cloture_chorus
@@ -124,6 +136,10 @@ class Ht2Acte < ApplicationRecord
 
   def last_suspension
     suspensions.order(created_at: :desc).first
+  end
+
+  def last_suspension_date_reprise
+    last_suspension&.date_reprise
   end
 
   # Méthode de classe pour retrouver tous les actes ayant au moins une suspension
@@ -214,6 +230,175 @@ class Ht2Acte < ApplicationRecord
     suspension_ouverte.present?
   end
 
+  def self.import_from_backup(file)
+    data = Roo::Spreadsheet.open(file.path)
+
+    # ── Onglet ht2_actes ──────────────────────────────────────────────────────
+    actes_sheet = data.sheet('ht2_actes')
+    actes_headers = actes_sheet.row(1).map { |h| h.to_s.strip }
+
+    # id_map : ancien id (exporté) → nouvel id (créé en prod)
+    id_map = {}
+
+    actes_sheet.each_with_index do |row, idx|
+      next if idx == 0
+      r = Hash[actes_headers.zip(row)]
+
+      old_id = r['id'].to_i
+      user = User.find_by(nom: r['user_nom'].to_s.strip)
+      next unless user
+
+      bool = ->(v) { ['true', '1', 't'].include?(v.to_s.downcase) }
+      parse_date = ->(v) {
+        return nil if v.blank?
+        v.is_a?(Date) || v.is_a?(Time) ? v.to_date : Date.strptime(v.to_s.strip, '%d/%m/%Y') rescue nil
+      }
+      parse_array = ->(v) { v.blank? ? [] : v.to_s.split(',').map(&:strip).reject(&:blank?) }
+
+      acte = Ht2Acte.new(
+        user:                             user,
+        annee:                            r['annee'].to_i,
+        type_acte:                        r['type_acte'],
+        etat:                             r['etat'],
+        perimetre:                        r['perimetre'],
+        categorie_organisme:              r['categorie_organisme'],
+        instructeur:                      r['instructeur'],
+        valideur:                         r['valideur'],
+        numero_formate:                   nil, # recalculé par set_numero_utilisateur
+        numero_chorus:                    r['numero_chorus'].to_s,
+        numero_marche:                    r['numero_marche'].to_s,
+        numero_tf:                        r['numero_tf'].to_s,
+        # numero_utilisateur : recalculé par set_numero_utilisateur (after_save)
+        date_chorus:                      parse_date.(r['date_chorus']),
+        date_limite:                      parse_date.(r['date_limite']),
+        date_cloture:                     parse_date.(r['date_cloture']),
+        # delai_traitement : recalculé par calculate_delai_traitement_if_needed (after_save)
+        nature:                           r['nature'],
+        nature_categorie_organisme:       r['nature_categorie_organisme'],
+        beneficiaire:                     r['beneficiaire'],
+        objet:                            r['objet'],
+        ordonnateur:                      r['ordonnateur'],
+        destination:                      r['destination'],
+        montant_ae:                       r['montant_ae'].presence&.to_f,
+        montant_global:                   r['montant_global'].presence&.to_f,
+        type_montant:                     r['type_montant'],
+        type_engagement:                  r['type_engagement'],
+        centre_financier_code:            r['centre_financier_code'],
+        groupe_marchandises:              r['groupe_marchandises'],
+        nomenclature:                     r['nomenclature'],
+        flux:                             r['flux'],
+        activite:                         r['activite'],
+        action:                           r['action'],
+        sous_action:                      r['sous_action'],
+        operation_budgetaire:             r['operation_budgetaire'],
+        nom_organisme:                    r['nom_organisme'],
+        categorie:                        r['categorie'],
+        proposition_decision:             r['proposition_decision'],
+        decision_finale:                  r['decision_finale'],
+        commentaire_proposition_decision: r['commentaire_proposition_decision'],
+        observations:                     r['observations'],
+        type_observations:                parse_array.(r['type_observations']),
+        precisions_acte:                  r['precisions_acte'],
+        disponibilite_credits:            bool.(r['disponibilite_credits']),
+        imputation_depense:               bool.(r['imputation_depense']),
+        consommation_credits:             bool.(r['consommation_credits']),
+        programmation:                    bool.(r['programmation']),
+        programmation_prevue:             bool.(r['programmation_prevue']),
+        avis_programmation:               r['avis_programmation'].blank? ? true : bool.(r['avis_programmation']),
+        services_votes:                   bool.(r['services_votes']),
+        liste_actes:                      bool.(r['liste_actes']),
+        nombre_actes:                     r['nombre_actes'].presence&.to_i,
+        gestion_anticipee:                bool.(r['gestion_anticipee']),
+        pre_instruction:                  bool.(r['pre_instruction']),
+        renvoie_instruction:              bool.(r['renvoie_instruction']),
+        soutenabilite:                    r['soutenabilite'].blank? ? true : bool.(r['soutenabilite']),
+        conformite:                       r['conformite'].blank? ? true : bool.(r['conformite']),
+        concordance_recettes_tiers:       bool.(r['concordance_recettes_tiers']),
+        autorisation_tutelle:             bool.(r['autorisation_tutelle']),
+        budget_executoire:                r['budget_executoire'].blank? ? true : bool.(r['budget_executoire']),
+        operation_compte_tiers:           bool.(r['operation_compte_tiers']),
+        deliberation_ca:                  bool.(r['deliberation_ca']),
+        numero_deliberation_ca:           r['numero_deliberation_ca'],
+        date_deliberation_ca:             parse_date.(r['date_deliberation_ca']),
+        observations_deliberation_ca:     r['observations_deliberation_ca'],
+        pdf_generation_status:            'none',
+      )
+
+      if acte.save
+        id_map[old_id] = acte.id
+      else
+        Rails.logger.warn "[import_from_backup] acte old_id=#{old_id} : #{acte.errors.full_messages.join(', ')}"
+      end
+    end
+
+    # ── Onglet suspensions ────────────────────────────────────────────────────
+    begin
+      susp_sheet = data.sheet('suspensions')
+      susp_headers = susp_sheet.row(1).map { |h| h.to_s.strip }
+
+      susp_sheet.each_with_index do |row, idx|
+        next if idx == 0
+        r = Hash[susp_headers.zip(row)]
+
+        old_acte_id = r['ht2_acte_id'].to_i
+        new_acte_id = id_map[old_acte_id]
+        next unless new_acte_id
+
+        parse_date = ->(v) {
+          return nil if v.blank?
+          v.is_a?(Date) || v.is_a?(Time) ? v.to_date : Date.strptime(v.to_s.strip, '%d/%m/%Y') rescue nil
+        }
+
+        date_susp = parse_date.(r['date_suspension'])
+        next unless date_susp
+
+        motif = r['motif'].blank? ? ['Autre'] : r['motif'].to_s.split(',').map(&:strip).reject(&:blank?)
+
+        Suspension.create!(
+          ht2_acte_id:        new_acte_id,
+          date_suspension:    date_susp,
+          date_reprise:       parse_date.(r['date_reprise']),
+          motif:              motif,
+          observations:       r['observations'],
+          commentaire_reprise: r['commentaire_reprise'],
+        )
+      end
+
+      # Recalculer l'état des actes importés maintenant que leurs suspensions existent
+      Ht2Acte.where(id: id_map.values).each do |acte|
+        acte.send(:set_etat_acte)
+      end
+    rescue RangeError, Roo::UnsupportedFileType
+      Rails.logger.warn "[import_from_backup] onglet suspensions introuvable ou vide"
+    end
+
+    # ── Onglet echeanciers ────────────────────────────────────────────────────
+    begin
+      ech_sheet = data.sheet('echeanciers')
+      ech_headers = ech_sheet.row(1).map { |h| h.to_s.strip }
+
+      ech_sheet.each_with_index do |row, idx|
+        next if idx == 0
+        r = Hash[ech_headers.zip(row)]
+
+        old_acte_id = r['ht2_acte_id'].to_i
+        new_acte_id = id_map[old_acte_id]
+        next unless new_acte_id
+
+        Echeancier.create!(
+          ht2_acte_id: new_acte_id,
+          annee:       r['annee'].to_i,
+          montant_ae:  r['montant_ae'].presence&.to_f,
+          montant_cp:  r['montant_cp'].presence&.to_f,
+        )
+      end
+    rescue RangeError, Roo::UnsupportedFileType
+      Rails.logger.warn "[import_from_backup] onglet echeanciers introuvable ou vide"
+    end
+
+    id_map
+  end
+
   def self.import(file)
     data = Roo::Spreadsheet.open(file.path)
     # Ligne 1 = noms de colonnes
@@ -272,7 +457,7 @@ class Ht2Acte < ApplicationRecord
           acte.suspensions.create(
             date_suspension: row_data["date_suspension"],
             date_reprise: row_data["date_reprise"],
-            motif: row_data["motif"] || 'Autre'
+            motif: [row_data["motif"].presence || 'Autre']
           )
           # recalcul APRÈS les suspensions
           acte.recalculate_delai_traitement!
@@ -293,7 +478,7 @@ class Ht2Acte < ApplicationRecord
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "en pré-instruction"
       update_column(:pre_instruction , true)
-    elsif self.etat == 'suspendu' && self.suspensions.where(date_reprise: nil).empty?
+    elsif ["suspendu", "à suspendre"].include?(self.etat) && self.suspensions.where(date_reprise: nil).empty?
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "clôturé" && self.decision_finale.nil?
       update_column(:decision_finale, self.proposition_decision)
@@ -382,6 +567,36 @@ class Ht2Acte < ApplicationRecord
       )
       centre_financiers << centre
     end
+  end
+
+  def associate_organisme_if_needed
+    # Vérifier si le nom_organisme a changé
+    if saved_change_to_nom_organisme?
+      associate_organisme
+    end
+  end
+
+  def associate_organisme
+    return unless nom_organisme.present?
+
+    # Extraire le nom si le format est "acronyme - nom"
+    nom_recherche = if nom_organisme.include?(' - ')
+                      nom_organisme.split(' - ', 2).last.strip
+                    else
+                      nom_organisme
+                    end
+
+    organisme = Organisme.find_by(nom: nom_recherche)
+    organismes.destroy_all
+    if organisme
+      # Supprimer les associations existantes et ajouter la nouvelle
+      organismes << organisme
+    end
+  end
+
+  def strip_organisme_and_cf_fields
+    self.nom_organisme = nom_organisme.strip if nom_organisme.present?
+    self.centre_financier_code = centre_financier_code.strip if centre_financier_code.present?
   end
 
   def upcase_centre_financier_code

@@ -64,11 +64,11 @@ export default class extends Controller {
             // Quand le contenu est caché, afficher "Renseigner plus" avec l'icône "+"
             this.buttonTarget.textContent =textShow;
             this.buttonTarget.classList.remove("fr-icon-arrow-up-s-line");
-            this.buttonTarget.classList.add("fr-icon-add-line");
+            this.buttonTarget.classList.add("fr-icon-arrow-down-s-line");
         } else {
             // Quand le contenu est visible, afficher "Afficher moins" sans icône
             this.buttonTarget.textContent = textHide;
-            this.buttonTarget.classList.remove("fr-icon-add-line");
+            this.buttonTarget.classList.remove("fr-icon-arrow-down-s-line");
             this.buttonTarget.classList.add("fr-icon-arrow-up-s-line");
         }
         // this.buttonTarget.textContent = this.contentTarget.classList.contains("fr-hidden") ? "Renseigner plus d'informations" : "Afficher moins"

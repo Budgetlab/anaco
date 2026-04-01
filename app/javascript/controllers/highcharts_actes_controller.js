@@ -18,7 +18,8 @@ export default class extends Controller {
         title: String,
         type: { type: String, default: 'pie' },
         data: Array,  // Déclarez la value ici
-        dataset: Object
+        dataset: Object,
+        showLegend: { type: Boolean, default: false }
     }
 
     static CHART_COLORS = [
@@ -108,7 +109,6 @@ export default class extends Controller {
     renderMultiSeriesColumnChart(stacked = false) {
         if (!this.datasetValue) return;
         const { categories, series } = this.datasetValue
-        console.log(this.datasetValue)
 
         const highchartsSeries = series.map(s => ({
             name: s.name,
@@ -121,7 +121,7 @@ export default class extends Controller {
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
             title: this.getTitleConfig(),
-            legend: {enabled: false},
+            legend: this.getLegendColumnConfig(),
             tooltip: this.getTooltipColumnConfig(),
             plotOptions: this.getPlotColumnOptions(stacked),
             series: highchartsSeries,
@@ -149,7 +149,7 @@ export default class extends Controller {
             xAxis: this.getXAxisColumnConfig(categories),
             yAxis: this.getYAxisBarConfig(),
             title: this.getTitleConfig(),
-            legend: {enabled: false},
+            legend: this.getLegendLineConfig(),
             tooltip: this.getTooltipLineConfig(),
             series: highchartsSeries,
         };
@@ -237,7 +237,7 @@ export default class extends Controller {
         return {
             text: this.titleValue,
             style: {
-                fontSize: '13px',
+                fontSize: '18px',
                 fontWeight: "900",
                 color: 'var(--text-title-grey)',
             },
@@ -258,6 +258,34 @@ export default class extends Controller {
             itemStyle: {
                 color: 'var(--text-title-grey)',
                 fontSize: '11px' // Réduire la taille si nécessaire
+            },
+        };
+    }
+
+    getLegendLineConfig() {
+        return {
+            enabled: this.showLegendValue,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                color: 'var(--text-title-grey)',
+                fontSize: '12px',
+                fontWeight: 'normal'
+            },
+        };
+    }
+
+    getLegendColumnConfig() {
+        return {
+            enabled: this.showLegendValue,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                color: 'var(--text-title-grey)',
+                fontSize: '12px',
+                fontWeight: 'normal'
             },
         };
     }

@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.4.8'
+ruby '4.0.2'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 8.1.1'
+gem 'rails', '~> 8.1.2'
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem 'sprockets-rails'
@@ -52,7 +52,7 @@ gem 'active_link_to'
 gem 'activeadmin'
 gem 'caxlsx'
 gem 'caxlsx_rails'
-gem 'devise'
+gem 'devise', '>= 5.0.3'
 gem 'dotenv-rails', '~> 2.7', '>= 2.7.6'
 gem 'pagy', '~> 43.2'
 gem 'rails_autolink'

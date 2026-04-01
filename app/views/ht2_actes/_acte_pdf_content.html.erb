@@ -60,6 +60,12 @@
   </div>
 
   <div class="fr-h6">Informations sur l'acte</div>
+  <% if acte.pre_instruction == true %>
+    <p class="fr-badge fr-badge--blue-ecume">Préinstruction : Oui</p>
+  <% end %>
+  <% if acte.gestion_anticipee == true %>
+    <p class="fr-badge fr-badge--blue-ecume">Acte en gestion anticipée</p>
+  <% end %>
   <div class="fr-table fr-table--no-caption fr-table--no-scroll">
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
@@ -85,7 +91,7 @@
                 <% elsif acte.type_acte == 'visa' %>Montant total engagé
                 <% elsif acte.type_acte == 'TF' %>Montant total affecté
                 <% end %></th>
-
+              <th>Exercice</th>
               <th>Date de saisine</th>
               <th>Délai de traitement</th>
             </tr>
@@ -97,10 +103,12 @@
               <% end %>
               <td> <%= acte.type_engagement %></td>
               <td> <%= number_to_currency(acte.montant_ae, unit: "€", format: "%n %u") %> </td>
-              <td> <%= number_to_currency(acte.montant_global, unit: "€", format: "%n %u") %> </td>
+              <td> <%= format_value(number_to_currency(acte.montant_global, unit: "€", format: "%n %u")) %></td>
+              <td><%= acte.annee %></td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
-                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %>
+                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %>
+                  <span class="<%= 'cwarning' if acte.delai_traitement.to_i > 15 %>"><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %></span>
                 <% else %>
                   <%= etat_acte(acte) %>
                 <% end %>
@@ -121,7 +129,6 @@
             <caption> Informations</caption>
             <thead>
             <tr class="fr-cell--multiline">
-              <th>Exercice</th>
               <th>Centre financier</th>
               <th>N°Chorus</th>
               <% if acte.type_acte != 'TF' %>
@@ -137,12 +144,10 @@
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <th>Nombre d'actes</th>
               <% end %>
-              <th>Pré-instruction</th>
             </tr>
             </thead>
             <tbody>
             <tr class="fr-cell--multiline">
-              <td><%= acte.annee %></td>
               <td> <%= format_value(acte.centre_financier_code) %></td>
               <td> <%= format_value(acte.numero_chorus) %></td>
               <% if acte.type_acte != 'TF' %>
@@ -155,7 +160,6 @@
               <% if acte.nombre_actes.present? && acte.nombre_actes > 1 %>
                 <td> <%= acte.nombre_actes %></td>
               <% end %>
-              <td> <%= acte.pre_instruction == true ? 'Oui' : 'Non' %></td>
             </tr>
             </tbody>
           </table>
@@ -264,6 +268,7 @@
               <th> Exactitude de l’évaluation de la consommation des crédits</th>
               <th>
                 <% if acte.services_votes == true %>Engagement éligible à la gestion des services votés
+                <% elsif acte.avis_programmation == false %>Programmation initiale transmise
                 <% else %> Compatibilité avec la programmation annuelle et pluriannuelle
                 <% end %></th>
             </tr>
@@ -296,9 +301,13 @@
                 <% end %>
               </td>
               <td>
-                <% if acte.programmation == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% if acte.avis_programmation == false %>
+                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% else %>
+                  <% if acte.programmation == true %>
+                    <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                  <% else %><span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                  <% end %>
                 <% end %>
               </td>
             </tr>
@@ -357,7 +366,9 @@
             au <%= format_date_text(suspension.date_reprise) %>
           <% end %></p>
         <div class="fr-mt-2w"><span class="fr-text--bold">Motif : </span>
-          <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= suspension.motif %> </p></div>
+          <% Array(suspension.motif).each do |m| %>
+            <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= m %></p>
+          <% end %></div>
         <div class="fr-text--bold fr-mt-3w">Observations</div>
         <div><%= format_value(suspension.observations) %></div>
         <% if suspension.date_reprise.present? %>

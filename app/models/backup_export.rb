@@ -1,0 +1,2 @@
+class BackupExport < ApplicationRecord
+end

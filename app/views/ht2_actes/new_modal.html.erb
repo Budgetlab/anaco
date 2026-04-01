@@ -16,8 +16,29 @@
               </div>
             <% end %>
             <%= form_with url: new_ht2_acte_path, method: :get, data: { turbo_frame: "_top", turbo: false } do |f| %>
-              <fieldset class="fr-fieldset" id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
-                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend">
+
+              <!-- Choix du périmètre -->
+              <fieldset class="fr-fieldset" aria-labelledby="perimetre-legend">
+                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="perimetre-legend">
+                  Choisissez un périmètre*
+                </legend>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :perimetre, "etat", id: "perimetre_etat", required: true, checked: true, data: { "acte-form-target": "perimetreRadio", action: "change->acte-form#togglePerimetre" } %>
+                    <label class="fr-label" for="perimetre_etat">État</label>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :perimetre, "organisme", id: "perimetre_organisme", data: { "acte-form-target": "perimetreRadio", action: "change->acte-form#togglePerimetre" } %>
+                    <label class="fr-label" for="perimetre_organisme">Organisme</label>
+                  </div>
+                </div>
+              </fieldset>
+
+              <!-- Choix du type d'acte -->
+              <fieldset class="fr-fieldset" aria-labelledby="type-acte-legend">
+                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="type-acte-legend">
                   Choisissez un type d'acte*
                 </legend>
                 <div class="fr-fieldset__element fr-fieldset__element--inline">
@@ -32,13 +53,31 @@
                     <label class="fr-label" for="visa"> Visa </label>
                   </div>
                 </div>
-                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-fieldset__element fr-fieldset__element--inline" data-acte-form-target="tfOption">
                   <div class="fr-radio-group fr-radio-rich">
                     <%= f.radio_button :type_acte, "TF", id: "TF" %>
                     <label class="fr-label" for="TF"> TF </label>
                   </div>
                 </div>
                 <div class="fr-messages-group" id="storybook-form-messages" aria-live="polite">
+                </div>
+              </fieldset>
+              <!-- Choix de la catégorie (visible seulement pour Organisme) -->
+              <fieldset class="fr-fieldset fr-hidden" id="categorie-organisme-block" aria-labelledby="categorie-organisme-legend" data-acte-form-target="categorieBlock">
+                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="categorie-organisme-legend">
+                  Choisissez une catégorie*
+                </legend>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :categorie_organisme, "depense", id: "categorie_depense", data: { "acte-form-target": "categorieRadio" } %>
+                    <label class="fr-label" for="categorie_depense">Dépense</label>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :categorie_organisme, "recette", id: "categorie_recette", data: { "acte-form-target": "categorieRadio" } %>
+                    <label class="fr-label" for="categorie_recette">Recette</label>
+                  </div>
                 </div>
               </fieldset>
 

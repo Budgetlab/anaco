@@ -14,12 +14,57 @@
           <div class="fr-my-4w"><%= submit_tag "Transmettre", class:"fr-btn" %></div>
         <% end %>
       </div>
-      <div class="fr-my-4w"><%= CentreFinancier.all.count%> CF</div>
-      <div class=""><%= @centre_financiers_non_valide.count%> CF non validés:</div>
-      <% @centre_financiers_non_valide.all.order(code: :asc).each do |cf| %>
-        <div><%= cf.code %> - <%= cf.ht2_actes.map(&:id) %></div>
-      <%end %>
+
+      <%= turbo_frame_tag "cf-liste" do %>
+        <div class="fr-table--lg fr-table fr-table--no-caption">
+          <div class="fr-table__header">
+            <div class="fr-table__detail">
+              <span class="fr-badge fr-badge--info"><%= CentreFinancier.count %> CF au total</span>
+              <span class="fr-badge fr-badge--warning fr-ml-1w"><%= @centre_financiers_non_valide.count %> CF non valides</span>
+            </div>
+            <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-md fr-btns-group--icon-left">
+              <li>
+                <%= link_to "Exporter", export_cf_path(format: :xlsx),
+                      class: "fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left",
+                      data: { turbo: false } %>
+              </li>
+            </ul>
+          </div>
+
+          <div class="fr-table__wrapper">
+            <div class="fr-table__container">
+              <div class="fr-table__content">
+                <table class="fr-cell--multiline">
+                  <caption>Centres financiers</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Code</th>
+                      <th scope="col">Actes</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @centre_financiers_non_valide.each do |cf| %>
+                      <tr>
+                        <td><%= cf.code %></td>
+
+                        <td><%= cf.ht2_actes.map(&:id).join(", ") %></td>
+                        <td>
+                          <% if cf.ht2_actes.empty? %>
+                            <%= button_to "Supprimer", centre_financier_path(cf), method: :delete,
+                                  data: { turbo_confirm: "Supprimer le CF #{cf.code} ?", turbo_frame: "cf-liste" },
+                                  class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line fr-btn--icon-left" %>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </main>
-

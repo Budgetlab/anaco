@@ -185,7 +185,7 @@ h1, h2{
   background-position: bottom;
   background-repeat: no-repeat;
   background-image: linear-gradient(0deg, var(--border-plain-grey), var(--border-plain-grey));
-  min-width:8rem !important;
+  //min-width:8rem !important;
 }
 .fr-table th.fr-col-check{
   min-width: 3rem !important;
@@ -525,4 +525,33 @@ a.fr-tag[aria-pressed=true]::after{
   background-position: 0 0;
   background-repeat: no-repeat;
   background-image: linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
+}
+
+.perimetre-organisme td{
+  background-color: var(--artwork-background-purple-glycine) !important;
+}
+
+.fr-search-bar .fr-btn--filter::before {
+  -webkit-mask-image: image-url("icons/system/filter-line.svg") !important;
+  mask-image: image-url("icons/system/filter-line.svg") !important;
+}
+
+.fr-fieldset--inline {
+  .fr-fieldset__content {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .fr-fieldset__legend {
+    margin-bottom: 0.5rem;
+  }
+}
+.fr-tag--filtres{
+  color: var(--text-action-high-blue-france) !important;
+  background-color: var(--background-action-low-blue-france) !important;
+
+  --idle: transparent;
+  --hover: var(--background-action-low-blue-france-hover);
+  --active: var(--background-action-low-blue-france-active);
 }

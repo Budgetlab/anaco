@@ -29,6 +29,11 @@
                       Reprendre l'instruction
                     <% end %>
                   </li>
+                  <li>
+                    <%= link_to edit_ht2_acte_path(@acte, etape: 3), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>
+                      Modifier la suspension/interruption
+                    <% end %>
+                  </li>
                 <% end %>
                 <li>
                   <%= link_to edit_ht2_acte_path(@acte), class: 'fr-btn fr-btn--sm fr-icon-edit-line fr-btn--secondary', data: { turbo_frame: "_top" } do %>

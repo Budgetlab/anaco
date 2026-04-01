@@ -101,15 +101,26 @@ Rails.application.routes.draw do
     get 'acte_actions/:id', to: 'ht2_actes#acte_actions', as: 'acte_actions'
     post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
     get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
-    get 'synthese_ht2_actes', to: 'ht2_actes#synthese'
     get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
+    get 'admin_backup', to: 'ht2_actes#admin_backup', as: 'admin_backup'
+    post 'admin_backup/generate', to: 'ht2_actes#generate_backup', as: 'generate_backup'
+    get 'admin_backup/:id/download', to: 'ht2_actes#download_backup', as: 'download_backup'
+    delete 'admin_backup/:id', to: 'ht2_actes#destroy_backup', as: 'destroy_backup'
+    get 'admin_backup/export_organisme_2026', to: 'ht2_actes#export_organisme_2026', as: 'export_organisme_2026'
+    post 'admin_backup/import_from_backup', to: 'ht2_actes#import_from_backup', as: 'import_from_backup'
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
     post 'import_actes', to: 'ht2_actes#import'
+    delete 'delete_user_actes_year', to: 'ht2_actes#delete_user_actes_year', as: 'delete_user_actes_year'
 
-    resources :centre_financiers, only: [:new]
+    resources :centre_financiers, only: [:new, :destroy]
     post 'import_cf', to: 'centre_financiers#import'
     get '/centre_financiers/autocomplete', to: 'centre_financiers#autocomplete'
+    get 'export_cf', to: 'centre_financiers#export', as: 'export_cf'
+
+    resources :organismes, only: [:new, :index]
+    post 'import_organismes', to: 'organismes#import'
+    get '/organismes/autocomplete', to: 'organismes#autocomplete'
 
     get '/mentions-legales', to: 'pages#mentions_legales'
     get '/donnees-personnelles', to: 'pages#donnees_personnelles'

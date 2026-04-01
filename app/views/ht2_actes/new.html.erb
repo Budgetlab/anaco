@@ -9,7 +9,10 @@
             <h1>Saisine n°<%= @acte_parent.tous_actes_meme_chorus.count + 1 %> - <%= @acte.type_acte %> HT2 CHORUS
               n°<%= @acte.numero_chorus %></h1>
           <% else %>
-            <h1>Formulaire <%= @acte.type_acte %> HT2</h1>
+            <h1>Formulaire <%= @acte.type_acte %> HT2
+              <%= badge_perimetre_organisme(@acte) %>
+              <%= badge_categorie_organisme(@acte) %>
+            </h1>
           <% end %>
           <button aria-controls="modal-0" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter le formulaire</button>
         </div>
@@ -77,7 +80,11 @@
       </div>
 
       <div class="fr-col-12 fr-col-lg-9">
-        <%= render 'form_informations' %>
+        <% if @acte.perimetre == 'organisme' %>
+          <%= render 'form_informations_organisme' %>
+        <% else %>
+          <%= render 'form_informations' %>
+        <% end %>
       </div>
     </div>
   </div>

@@ -107,15 +107,17 @@ module Ht2ActesHelper
 
   def tous_types_observations
     [
-      "Acte déjà signé par l'ordonnateur",
       "Acte non soumis au contrôle",
       'Compatibilité avec la programmation',
       "Construction de l'EJ",
+      "Alerte contrôle interne",
       'Disponibilité des crédits',
       'Évaluation de la consommation des crédits',
       'Fondement juridique',
       "Hors périmètre du CBR/DCB",
+      "Impact à prendre en compte dans le prochain budget",
       'Imputation',
+      "Non-conformité du bon de commande avec les prix du BPU ou du marché",
       'Pièce(s) manquante(s)',
       "Problème dans la rédaction de l'acte",
       'Risque au titre de la RGP',
@@ -123,5 +125,62 @@ module Ht2ActesHelper
       'Saisine en dessous du seuil de soumission au contrôle',
       'Autre'
     ].sort
+  end
+
+  def tous_types_motifs_suspensions
+    [
+      "Demande de précisions",
+      "Demande d'éléments complémentaires",
+      "Défaut du circuit d'approbation Chorus",
+      "Demande de mise en cohérence EJ /PJ",
+      "Erreur d'imputation",
+      "Erreur dans la construction de l'EJ",
+      "Mauvaise évaluation de la consommation des crédits",
+      "Non conformité des pièces",
+      "Pièce(s) manquante(s)",
+      "Problématique de compatibilité avec la programmation",
+      "Problématique de disponibilité des crédits",
+      "Problématique de soutenabilité",
+      "Saisine a posteriori",
+      "Autre",
+    ].sort
+  end
+
+  def badge_perimetre_organisme(acte)
+    return '' unless acte.perimetre == 'organisme'
+
+    content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--purple-glycine')
+  end
+
+  def format_categorie_organisme(categorie)
+    case categorie
+    when 'depense'
+      'Dépense'
+    when 'recette'
+      'Recette'
+    else
+      categorie&.capitalize
+    end
+  end
+
+  def badge_categorie_organisme(acte)
+    return '' unless acte.perimetre == 'organisme' && acte.categorie_organisme.present?
+
+    badge_color = acte.categorie_organisme == 'recette' ? 'fr-badge--green-tilleul-verveine' : 'fr-badge--blue-ecume'
+    content_tag(:span, format_categorie_organisme(acte.categorie_organisme), class: "fr-badge #{badge_color}")
+  end
+
+  def etape2_complete?(acte)
+    if acte.perimetre == 'organisme'
+      if acte.categorie_organisme == 'depense'
+        !acte.disponibilite_credits.nil?
+      elsif acte.categorie_organisme == 'recette' && acte.operation_compte_tiers == true
+        !acte.conformite.nil?
+      else
+        !acte.imputation_depense.nil?
+      end
+    else
+      !acte.disponibilite_credits.nil?
+    end
   end
 end

@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension", "programmationBlock"]
     static values = { prefixes: Object }
     connect() {
 
@@ -11,7 +11,7 @@ export default class extends Controller {
         if (this.hasTotalMontantTarget) {
             this.updateTotalLignesPoste()
         }
-        if (this.hasTotalMontantEcheancierAETarget && this.hasTotalMontantEcheancierCPTarget) {
+        if (this.hasTotalMontantEcheancierAETarget) {
             this.updateTotalEcheancier()
         }
         if (this.hasDecisionTarget){
@@ -23,6 +23,10 @@ export default class extends Controller {
         }
         if (this.hasEtatClotureRadioTarget){
             this.toggleCloture()
+        }
+        if (this.hasPerimetreRadioTarget){
+            // modal nouvel acte - choix périmètre
+            this.togglePerimetre()
         }
     }
     setValidation(event) {
@@ -197,10 +201,17 @@ export default class extends Controller {
         const url = this.data.get("checkchorusurl")
         const numero_size = numero.length
         const message_nombre = document.getElementById('message-chorus-number')
+        const message_tf_prefix = document.getElementById('message-chorus-tf-prefix')
         let requiredLength = 10;
         if (typeActe === "TF") {
             requiredLength = 8;
         }
+
+        // Alerte préfixe TF
+        if (message_tf_prefix) {
+            message_tf_prefix.classList.toggle('fr-hidden', numero === '' || numero.toUpperCase().startsWith('TF'))
+        }
+
         if (numero_size > 0 && numero_size !== requiredLength) {
             message.classList.add('fr-hidden')
             message_nombre.classList.remove('fr-hidden')
@@ -297,33 +308,36 @@ export default class extends Controller {
     updateTotalEcheancier(){
         // récupérer bloc
         const montant_card = document.getElementById('total_echeancier_card')
-        // Récupérer tous les champs de montant
-        const montantFields_cp = document.querySelectorAll('input[id="echeancier_cp"]')
-        // Calculer la somme
-        let total_cp = 0
-        montantFields_cp.forEach(field => {
-            // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
-            const value = this.numberFormat(field.value) || 0
-            total_cp += value
-        })
-        // Afficher le total formaté
-        this.totalMontantEcheancierCPTarget.textContent = total_cp.toLocaleString('fr-FR')
 
-        // Récupérer tous les champs de montant
+        // Récupérer tous les champs de montant AE
         const montantFields_ae = document.querySelectorAll('input[id="echeancier_ae"]')
-        // Calculer la somme
+        // Calculer la somme AE
         let total_ae = 0
         montantFields_ae.forEach(field => {
             // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
             const value = this.numberFormat(field.value) || 0
             total_ae += value
         })
-
         // Afficher le total formaté
         this.totalMontantEcheancierAETarget.textContent = total_ae.toLocaleString('fr-FR')
 
+        // Gérer le total CP seulement si le target existe (pas pour les recettes organisme)
+        let total_cp = 0
+        if (this.hasTotalMontantEcheancierCPTarget) {
+            // Récupérer tous les champs de montant CP
+            const montantFields_cp = document.querySelectorAll('input[id="echeancier_cp"]')
+            // Calculer la somme
+            montantFields_cp.forEach(field => {
+                // Convertir en nombre et ajouter au total (en gérant les valeurs vides ou non numériques)
+                const value = this.numberFormat(field.value) || 0
+                total_cp += value
+            })
+            // Afficher le total formaté
+            this.totalMontantEcheancierCPTarget.textContent = total_cp.toLocaleString('fr-FR')
+        }
+
         // afficher le bloc si lignes présentes
-        if (montantFields_cp.length === 0 || (montantFields_cp.length === 1 && total_cp === 0 && total_ae ===0)) { // gérer le cas ou supp unique ligne de post length == 1
+        if (montantFields_ae.length === 0 || (montantFields_ae.length === 1 && total_cp === 0 && total_ae === 0)) { // gérer le cas ou supp unique ligne de post length == 1
             montant_card.classList.add('fr-hidden')
         }else{
             montant_card.classList.remove('fr-hidden')
@@ -338,7 +352,9 @@ export default class extends Controller {
         const montantField_ae = ligneWrapper.querySelector('#echeancier_ae');
         const montantField_cp = ligneWrapper.querySelector('#echeancier_cp');
         montantField_ae.value = null;
-        montantField_cp.value = null;
+        if (montantField_cp) {
+            montantField_cp.value = null;
+        }
         this.updateTotalEcheancier();
     }
 
@@ -364,6 +380,51 @@ export default class extends Controller {
         }
     }
 
+    // Modal affichage choix catégorie et type d'acte selon périmètre
+    togglePerimetre(event){
+        const selected = this.perimetreRadioTargets.find(r => r.checked)?.value
+        const isOrganisme = selected === "organisme"
+
+        // Afficher/cacher le bloc catégorie (visible seulement pour Organisme)
+        if (this.hasCategorieBlockTarget) {
+            if (isOrganisme) {
+                this.categorieBlockTarget.classList.remove('fr-hidden')
+            } else {
+                this.categorieBlockTarget.classList.add('fr-hidden')
+            }
+
+            // Gérer le required sur les champs de catégorie
+            if (this.hasCategorieRadioTarget) {
+                this.categorieRadioTargets.forEach((el) => {
+                    if (!isOrganisme) {
+                        el.checked = false
+                        el.required = false
+                    } else {
+                        el.required = true
+                    }
+                })
+            }
+        }
+
+        // Afficher/cacher l'option TF (visible seulement pour État)
+        if (this.hasTfOptionTarget) {
+            if (isOrganisme) {
+                this.tfOptionTarget.classList.add('fr-hidden')
+            } else {
+                this.tfOptionTarget.classList.remove('fr-hidden')
+            }
+
+            // Si on passe à Organisme et que TF est sélectionné, décocher
+            const tfRadio = document.getElementById('TF')
+            if (isOrganisme && tfRadio && tfRadio.checked) {
+                tfRadio.checked = false
+                // Sélectionner Avis par défaut
+                const avisRadio = document.getElementById('avis')
+                if (avisRadio) avisRadio.checked = true
+            }
+        }
+    }
+
     toggleCloture(event){
         const selected = this.etatClotureRadioTargets.find(r => r.checked)?.value
         const show = selected === "clôturé"
@@ -377,6 +438,156 @@ export default class extends Controller {
         if (!show) date_cloture.value = null
         if (!show) date_cloture.required = false
         if (show) date_cloture.required = true
+    }
+
+    checkDateSuspension() {
+        if (!this.hasDateSuspensionTarget) return
+
+        const input = this.dateSuspensionTarget
+        const errorEl = document.getElementById('error-date-suspension')
+        if (!errorEl) return
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateSuspension = parseDate(input.value)
+        const minDate = parseDate(input.dataset.minDateSuspension)
+
+        if (!input.value || !dateSuspension || !minDate) {
+            errorEl.classList.add('fr-hidden')
+            return
+        }
+
+        if (dateSuspension < minDate) {
+            errorEl.classList.remove('fr-hidden')
+        } else {
+            errorEl.classList.add('fr-hidden')
+        }
+    }
+
+    checkDateSuspensionFuture() {
+        if (!this.hasDateSuspensionTarget) return
+
+        const input = this.dateSuspensionTarget
+        const warningEl = document.getElementById('warning-date-suspension-future')
+        if (!warningEl) return
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateSuspension = parseDate(input.value)
+        if (!dateSuspension) { warningEl.classList.add('fr-hidden'); return }
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateSuspension > today) {
+            warningEl.classList.remove('fr-hidden')
+        } else {
+            warningEl.classList.add('fr-hidden')
+        }
+    }
+
+    checkDateCloture() {
+        if (!this.hasDateClotureTarget) return
+
+        const input = this.dateClotureTarget
+        const errorEl = document.getElementById('delai-traitement-error')
+        if (!errorEl) return
+
+        const dateClotureStr = input.value
+        const minDateStr = input.dataset.minDateCloture
+
+        const parseDate = (str) => {
+            if (!str) return null
+            const parts = str.split('/')
+            if (parts.length !== 3) return null
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        }
+
+        const dateCloture = parseDate(dateClotureStr)
+        const minDate = parseDate(minDateStr)
+        const infoEl = document.getElementById('delai-traitement-info')
+
+        if (!dateClotureStr || !dateCloture || isNaN(dateCloture) || !minDate) {
+            input.setCustomValidity('')
+            errorEl.classList.add('fr-hidden')
+            errorEl.textContent = ''
+            if (infoEl) { infoEl.classList.add('fr-hidden'); infoEl.textContent = '' }
+            return
+        }
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateCloture < minDate) {
+            input.setCustomValidity('invalid')
+            errorEl.textContent = `La date de clôture ne peut pas être antérieure au ${minDateStr}.`
+            errorEl.className = 'fr-error-text'
+            if (infoEl) { infoEl.classList.add('fr-hidden'); infoEl.textContent = '' }
+        } else {
+            input.setCustomValidity('')
+            if (dateCloture > today) {
+                errorEl.textContent = `La date de clôture est postérieure à la date du jour.`
+                errorEl.className = 'fr-message cwarning fr-text--small'
+            } else {
+                errorEl.classList.add('fr-hidden')
+                errorEl.textContent = ''
+            }
+
+            // Calcul du délai de traitement
+            if (infoEl) {
+                const dateChorus = parseDate(input.dataset.dateChorus)
+                const typeActe = input.dataset.typeActe || ''
+                let suspensions = []
+                try { suspensions = JSON.parse(input.dataset.suspensions || '[]') } catch(e) {}
+
+                const diffJours = (d1, d2) => Math.round((d1 - d2) / (1000 * 60 * 60 * 24))
+
+                let delai
+                if (!dateChorus) {
+                    delai = null
+                } else if (suspensions.length === 0) {
+                    delai = diffJours(dateCloture, dateChorus)
+                } else if (typeActe === 'avis') {
+                    const dureeTotal = diffJours(dateCloture, dateChorus)
+                    const dureeSuspensions = suspensions.reduce((acc, s) => {
+                        const ds = parseDate(s.ds)
+                        const dr = parseDate(s.dr)
+                        return (ds && dr) ? acc + diffJours(dr, ds) : acc
+                    }, 0)
+                    delai = Math.max(dureeTotal - dureeSuspensions, 0)
+                } else if (typeActe === 'visa' || typeActe === 'TF') {
+                    const suspsWithReprise = suspensions.filter(s => s.dr)
+                    if (suspsWithReprise.length > 0) {
+                        const derniere = suspsWithReprise[suspsWithReprise.length - 1]
+                        const dateReprise = parseDate(derniere.dr)
+                        delai = dateReprise ? diffJours(dateCloture, dateReprise) : diffJours(dateCloture, dateChorus)
+                    } else {
+                        delai = diffJours(dateCloture, dateChorus)
+                    }
+                } else {
+                    delai = diffJours(dateCloture, dateChorus)
+                }
+
+                if (delai !== null) {
+                    infoEl.textContent = `Délai de traitement : ${delai} jour(s)`
+                    infoEl.className = delai > 15
+                        ? 'fr-message fr-message--warning fr-text--small'
+                        : 'fr-message fr-message--info fr-text--small'
+                } else {
+                    infoEl.classList.add('fr-hidden')
+                }
+            }
+        }
     }
 
     toggleSuspension(){
@@ -409,8 +620,8 @@ export default class extends Controller {
         //hidden date choture
         this.checkDecision()
     }
-    suspendSkipValidation(){
-        this.submitActionTarget.value = "à suspendre"
+    suspendSkipValidation(event){
+        this.submitActionTarget.value = event.target.checked ? "à suspendre" : "suspendu"
     }
 
     resetSuspensionForm(panel) {
@@ -466,6 +677,37 @@ export default class extends Controller {
         }
     }
 
+    checkDateChorusFuture() {
+        const dateChorusInput = document.getElementById('date_chorus')
+        const alert = document.getElementById('alert-date-chorus-future')
+        if (!dateChorusInput || !alert) return
+
+        const parts = dateChorusInput.value.split('/')
+        if (parts.length !== 3) { dateChorusInput.setCustomValidity(''); alert.classList.add('fr-hidden'); return }
+
+        const dateChorus = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        if (dateChorus > today) {
+            dateChorusInput.setCustomValidity('La date de saisine ne peut pas être postérieure à la date du jour.')
+            alert.classList.remove('fr-hidden')
+        } else {
+            dateChorusInput.setCustomValidity('')
+            alert.classList.add('fr-hidden')
+        }
+    }
+
+    toggleAvisProgrammation(event) {
+        if (!this.hasProgrammationBlockTarget) return
+        const checked = event.target.checked
+        if (checked) {
+            this.programmationBlockTarget.classList.remove('fr-hidden')
+        } else {
+            this.programmationBlockTarget.classList.add('fr-hidden')
+        }
+    }
+
     validateYears() {
         const anneeSelect = document.getElementById('annee')
         const dateChorusInput = document.getElementById('date_chorus')
@@ -495,6 +737,26 @@ export default class extends Controller {
         } else {
             alert.classList.add('fr-hidden')
         }
+    }
+
+    validateNumeroTf(event) {
+        const input = event.target
+        const value = input.value.trim()
+        const alertPrefix = document.getElementById('numero-tf-alert-prefix')
+        const alertLength = document.getElementById('numero-tf-alert-length')
+
+        if (alertPrefix) alertPrefix.classList.toggle('fr-hidden', value === '' || value.startsWith('30'))
+        if (alertLength) alertLength.classList.toggle('fr-hidden', value === '' || value.length === 10)
+    }
+
+    validateNumeroChorusTf(event) {
+        const input = event.target
+        const value = input.value.trim()
+        const alertPrefix = document.getElementById('numero-chorus-tf-alert-prefix')
+        const alertLength = document.getElementById('numero-chorus-tf-alert-length')
+
+        if (alertPrefix) alertPrefix.classList.toggle('fr-hidden', value === '' || value.toUpperCase().startsWith('TF'))
+        if (alertLength) alertLength.classList.toggle('fr-hidden', value === '' || value.length === 8)
     }
 
 }

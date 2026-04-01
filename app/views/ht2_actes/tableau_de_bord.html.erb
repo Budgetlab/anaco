@@ -1,63 +1,179 @@
 <% content_for :title do %>Tableau de bord Actes HT2 | ANACO
 <% end %>
-
-<div class="fr-container">
-  <div class="fr-grid-row">
-    <div class="fr-col-12">
-      <h1 class="fr-mt-6w title-btn">
-        Tableau de bord Actes HT2
-      </h1>
+<div class="fr-container-blue">
+  <div class="fr-container">
+    <div class="fr-grid-row">
+      <div class="fr-col-12">
+        <h1 class="fr-mt-6w">
+          Tableau de bord Actes HT2
+        </h1>
+      </div>
     </div>
   </div>
 </div>
 
-
-<div class="fr-container-blue">
-  <div class="fr-container">
-    <div class="fr-grid-row">
-      <div class="fr-col-12 fr-col-lg-3">
-        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
-          <div class="fr-sidemenu__inner fr-backgroud--grey">
-            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
-              Dans cette rubrique
-            </button>
-            <div class="fr-collapse" id="fr-sidemenu-wrapper">
-              <div class="fr-sidemenu__title fr-hidden" id="fr-sidemenu-title">Tableau de bord Actes HT2</div>
-              <ul class="fr-sidemenu__list">
-                <li class="fr-sidemenu__item">
-                  <button class="fr-sidemenu__btn" aria-current="true">
-                    Activité globale
-                  </button>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_temporelle_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Délais
+<%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
+  <div class="fr-container-blue">
+    <div class="fr-container fr-pb-2w">
+      <div class="fr-container--grey fr-p-2w">
+        <div class="fr-grid-row">
+          <div class="fr-col-12">
+            <%= form_with url: tableau_de_bord_ht2_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
+              <div>
+                <fieldset class="fr-fieldset">
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= radio_button_tag 'q[perimetre_eq]', '',
+                                           @q_params[:perimetre_eq].blank?,
+                                           class: "fr-radio",
+                                           id: "perimetre-globale",
+                                           onchange: "this.form.requestSubmit()" %>
+                      <%= label_tag "perimetre-globale", "Vue consolidée", class: "fr-label" %>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= radio_button_tag 'q[perimetre_eq]', 'etat',
+                                           @q_params[:perimetre_eq] == 'etat',
+                                           class: "fr-radio",
+                                           id: "perimetre-etat",
+                                           onchange: "this.form.requestSubmit()" %>
+                      <%= label_tag "perimetre-etat", "Vue État", class: "fr-label" %>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element fr-fieldset__element--inline">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <%= radio_button_tag 'q[perimetre_eq]', 'organisme',
+                                           @q_params[:perimetre_eq] == 'organisme',
+                                           class: "fr-radio",
+                                           id: "perimetre-organisme",
+                                           onchange: "this.form.requestSubmit()" %>
+                      <%= label_tag "perimetre-organisme", "Vue Organisme", class: "fr-label" %>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <% @q_params.except(:perimetre_eq).each do |key, value| %>
+                <% if value.is_a?(Array) %>
+                  <% value.each do |v| %>
+                    <%= hidden_field_tag "q[#{key}][]", v %>
                   <% end %>
+                <% else %>
+                  <%= hidden_field_tag "q[#{key}]", value %>
+                <% end %>
+              <% end %>
+            <% end %>
+            <div class="fr-mb-2w">
+              <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+                Filtrer les résultats
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="fr-grid-row">
+          <div class="fr-col-12">
+            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? || @q_params[:services_votes_in].present? %>
+            <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
+            <% services_votes_count = @q_params[:services_votes_in].present? ? Array(@q_params[:services_votes_in]).reject(&:blank?).count : 0 %>
+            <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], @q_params[:nom_organisme_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count + (services_votes_count > 0 ? 1 : 0) %>
+            <div>
+              <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
+              <ul class="fr-tags-group">
+                <li>
+                  <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
                 </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_suspensions_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Suspensions & Interruptions
+                <% if @q_params[:user_statut_eq].present? %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= @q_params[:user_statut_eq] %></p>
+                  </li>
+                <% end %>
+                <% if @q_params[:user_nom_in].present? %>
+                  <% Array(@q_params[:user_nom_in]).each do |nom| %>
+                    <li>
+                      <p class="fr-tag fr-tag--filtres"><%= nom %></p>
+                    </li>
                   <% end %>
-                </li>
-                <li class="fr-sidemenu__item">
-                  <%= link_to synthese_anomalies_ht2_actes_path, class: "fr-sidemenu__link", target: "_self" do %>
-                    Observations aux ordonnateurs
+                <% end %>
+                <% if @q_params[:centre_financier_code_cont].present? %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= @q_params[:centre_financier_code_cont] %></p>
+                  </li>
+                <% end %>
+                <% if @q_params[:nom_organisme_cont].present? %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres"><%= @q_params[:nom_organisme_cont] %></p>
+                  </li>
+                <% end %>
+                <% if @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">
+                      Clôture
+                      <%= " du #{@q_params[:date_cloture_gteq]}" if @q_params[:date_cloture_gteq].present? %>
+                      <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
+                    </p>
+                  </li>
+                <% end %>
+                <% if @q_params[:services_votes_in].present? %>
+                  <% Array(@q_params[:services_votes_in]).reject(&:blank?).each do |value| %>
+                    <li>
+                      <p class="fr-tag fr-tag--filtres">Services votés : <%= value == 'true' ? 'Oui' : 'Non' %></p>
+                    </li>
                   <% end %>
-                </li>
+                <% end %>
+                <% if has_filters %>
+                  <li>
+                    <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-tag fr-tag--dismiss", data: { turbo_frame: "results" } do %>
+                      Réinitialiser les filtres
+                    <% end %>
+                  </li>
+                <% end %>
               </ul>
             </div>
           </div>
-        </nav>
+        </div>
       </div>
-      <div class="fr-col-12 fr-col-lg-9">
-        <h2 class="fr-mt-6w fr-mb-2w title-btn">Activité globale
-          <button class="fr-btn fr-icon-filter-line fr-btn--icon-left " aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
-            Filtrer les résultats
-          </button>
-        </h2>
+    </div>
+  </div>
 
-        <%= turbo_frame_tag :results, data: { turbo_action: 'advance' } do %>
-          <p class="fr-badge fr-badge--no-icon fr-badge--info fr-mb-2w"><%= params.dig(:q, :annee_eq) || Date.today.year %></p>
+  <div class="fr-container-blue">
+    <div class="fr-container">
+      <div class="fr-grid-row">
+        <div class="fr-col-12 fr-col-lg-3">
+          <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+            <div class="fr-sidemenu__inner fr-backgroud--grey">
+              <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+                Dans cette rubrique
+              </button>
+              <div class="fr-collapse" id="fr-sidemenu-wrapper">
+                <div class="fr-sidemenu__title fr-hidden" id="fr-sidemenu-title">Tableau de bord Actes HT2</div>
+                <ul class="fr-sidemenu__list">
+                  <li class="fr-sidemenu__item">
+                    <%= link_to tableau_de_bord_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == tableau_de_bord_ht2_actes_path) do %>
+                      Activité globale
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_temporelle_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_temporelle_ht2_actes_path) do %>
+                      Délais
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_suspensions_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_suspensions_ht2_actes_path) do %>
+                      Suspensions & Interruptions
+                    <% end %>
+                  </li>
+                  <li class="fr-sidemenu__item">
+                    <%= link_to synthese_anomalies_ht2_actes_path(q: @q_params), class: "fr-sidemenu__link", target: "_self", **({ "aria-current": "true" } if request.path == synthese_anomalies_ht2_actes_path) do %>
+                      Observations aux ordonnateurs
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="fr-col-12 fr-col-lg-9">
+          <h2 class="fr-my-3w">Activité globale</h2>
 
           <div class="fr-grid-row">
             <div class="fr-col-12 fr-col-lg-6">
@@ -107,39 +223,35 @@
               <div class="fr-p-2v">
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="stacked-column"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-dataset-value="<%= @evolution_par_annee.to_json %>"
-                       data-highcharts-actes-title-value="Évolution pluriannuelle de l’activité"></div>
+                       data-highcharts-actes-data-value="<%= @perimetre_data.to_json %>"
+                       data-highcharts-actes-title-value="Actes clôturés par périmètre"></div>
                   <div class="fr-table">
                     <div class="fr-table__wrapper">
                       <div class="fr-table__container">
                         <div class="fr-table__content">
                           <table>
-                            <caption>Évolution pluriannuelle en nombre</caption>
+                            <caption>Actes par périmètre</caption>
                             <thead>
                             <tr>
-                              <th> Nature</th>
-                              <% @years.each do |year| %>
-                                <th> <%= year %></th>
-                              <% end %>
+                              <th> Périmètre</th>
+                              <th> Nombre</th>
+                              <th> Répartition</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <% ['avis', 'visa', 'TF'].each do |type| %>
+                            <% ['Etat', 'Organisme'].each do |perimetre| %>
+                              <% value = @perimetre_data.find { |h| h[:name] == perimetre }&.dig(:y) || 0 %>
                               <tr>
-                                <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
-                                <% @years.each do |year| %>
-                                  <td><%= count_for(@counts, year, type) %></td>
-                                <% end %>
+                                <td> <%= perimetre %> </td>
+                                <td> <%= value %> </td>
+                                <td class="fr-cell--multiline"><%= percentage_of(value, @total_actes) %></td>
                               </tr>
                             <% end %>
                             <tr class="fr-table--total">
                               <td>Total</td>
-                              <% @years.each do |year| %>
-                                <% total = ['avis', 'visa', 'TF'].sum { |type| count_for(@counts, year, type) } %>
-                                <td><%= total %></td>
-                              <% end %>
+                              <td><%= @total_actes %></td>
+                              <td>100%</td>
                             </tr>
                             </tbody>
                           </table>
@@ -147,6 +259,117 @@
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-type-value="stacked-column"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-dataset-value="<%= @evolution_par_annee.to_json %>"
+                       data-highcharts-actes-title-value="Évolution pluriannuelle de l'activité"
+                       data-highcharts-actes-show-legend-value="true"></div>
+                  <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-perimetre">Tableau
+                        des données
+                      </button>
+                    </h3>
+                    <div class="fr-collapse" id="accordion-perimetre">
+                      <div class="fr-table">
+                        <div class="fr-table__wrapper">
+                          <div class="fr-table__container">
+                            <div class="fr-table__content">
+                              <table>
+                                <caption>Évolution pluriannuelle en nombre</caption>
+                                <thead>
+                                <tr>
+                                  <th> Nature</th>
+                                  <% @years.each do |year| %>
+                                    <th> <%= year %></th>
+                                  <% end %>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <% ['avis', 'visa', 'TF'].each do |type| %>
+                                  <tr>
+                                    <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
+                                    <% @years.each do |year| %>
+                                      <td><%= count_for(@counts, year, type) %></td>
+                                    <% end %>
+                                  </tr>
+                                <% end %>
+                                <tr class="fr-table--total">
+                                  <td>Total</td>
+                                  <% @years.each do |year| %>
+                                    <% total = ['avis', 'visa', 'TF'].sum { |type| count_for(@counts, year, type) } %>
+                                    <td><%= total %></td>
+                                  <% end %>
+                                </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </div>
+
+            <div class="fr-col-12 fr-col-lg-6">
+              <div class="fr-p-2v">
+                <div class='fr-card fr-p-2w'>
+                  <div data-controller="highcharts-actes"
+                       data-highcharts-actes-target="chart"
+                       data-highcharts-actes-data-value="<%= @decisions_data.to_json %>"
+                       data-highcharts-actes-title-value="Répartition des actes par Décision"></div>
+                  <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-decisions">Tableau
+                        des données
+                      </button>
+                    </h3>
+                    <div class="fr-collapse" id="accordion-decisions">
+                      <div class="fr-table">
+                        <div class="fr-table__wrapper">
+                          <div class="fr-table__container">
+                            <div class="fr-table__content">
+                              <table>
+                                <caption>Répartition des décisions</caption>
+                                <thead>
+                                <tr>
+                                  <th> Nature</th>
+                                  <th> Nombre</th>
+                                  <th> Répartition</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <% return_variable('decision').each do |type| %>
+                                  <% value = @decisions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                                  <tr>
+                                    <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
+                                    <td> <%= value %> </td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(value, @total_actes) %></td>
+                                  </tr>
+                                <% end %>
+                                <tr class="fr-table--total">
+                                  <td>Total</td>
+                                  <td><%= @total_actes %></td>
+                                  <td>100%</td>
+                                </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
                 </div>
               </div>
             </div>
@@ -209,33 +432,33 @@
                        data-highcharts-actes-type-value="multi-column"
                        data-highcharts-actes-target="chart"
                        data-highcharts-actes-dataset-value="<%= @actes_par_mois.to_json %>"
-                       data-highcharts-actes-title-value="Évolution mensuelle des actes reçus et clôturés">
+                       data-highcharts-actes-title-value="Évolution mensuelle des actes reçus et clôturés"
+                       data-highcharts-actes-show-legend-value="true">
                   </div>
                 </div>
               </div>
             </div>
-
 
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-p-2v">
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @decisions_data.to_json %>"
-                       data-highcharts-actes-title-value="Répartition des actes par Décision"></div>
+                       data-highcharts-actes-data-value="<%= @preinstruction_data.to_json %>"
+                       data-highcharts-actes-title-value="Suivi de la pré-instruction"></div>
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-decisions">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-preinstruction">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-decisions">
+                    <div class="fr-collapse" id="accordion-preinstruction">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
                             <div class="fr-table__content">
                               <table>
-                                <caption>Répartition des décisions</caption>
+                                <caption>Pré-instruction</caption>
                                 <thead>
                                 <tr>
                                   <th> Nature</th>
@@ -244,12 +467,11 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% return_variable('decision').each do |type| %>
-                                  <% value = @decisions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                                <% @preinstruction_data.each do |item| %>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
-                                    <td> <%= value %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(value, @total_actes) %></td>
+                                    <td class="fr-cell--multiline"> <%= item[:name] %> </td>
+                                    <td> <%= item[:y] %> </td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(item[:y], @total_actes) %></td>
                                   </tr>
                                 <% end %>
                                 <tr class="fr-table--total">
@@ -265,45 +487,42 @@
                       </div>
                     </div>
                   </section>
-
                 </div>
               </div>
             </div>
-
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-p-2v">
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="bar"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @programmes_data.to_json %>"
-                       data-highcharts-actes-title-value="Nombre d'actes clôturés par Programme"></div>
+                       data-highcharts-actes-data-value="<%= @programmation_data.to_json %>"
+                       data-highcharts-actes-title-value="Actes programmés"></div>
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-programmes">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-programmation">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-programmes">
+                    <div class="fr-collapse" id="accordion-programmation">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
                             <div class="fr-table__content">
                               <table>
-                                <caption>Répartition par programme</caption>
+                                <caption>Actes programmés</caption>
                                 <thead>
                                 <tr>
-                                  <th> Programme</th>
+                                  <th> Actes programmés</th>
                                   <th> Nombre</th>
                                   <th> Répartition</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% @programmes_data.each do |hash| %>
+                                <% @programmation_data.each do |item| %>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
-                                    <td> <%= hash[:y] %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    <td> <%= item[:name] %> </td>
+                                    <td> <%= item[:y] %> </td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(item[:y], @total_actes) %></td>
                                   </tr>
                                 <% end %>
                                 <tr class="fr-table--total">
@@ -319,12 +538,9 @@
                       </div>
                     </div>
                   </section>
-
                 </div>
               </div>
             </div>
-
-
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-p-2v">
                 <div class='fr-card fr-p-2w'>
@@ -377,150 +593,345 @@
                 </div>
               </div>
             </div>
-            <div class="fr-col-12 fr-col-lg-6">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-type-value="bar"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @ordonnateurs_data.to_json %>"
-                       data-highcharts-actes-title-value="Nombre d'actes clôturés par Ordonnateur"></div>
-                  <section class="fr-accordion">
-                    <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-ordonnateurs">Tableau
-                        des données
-                      </button>
-                    </h3>
-                    <div class="fr-collapse" id="accordion-ordonnateurs">
-                      <div class="fr-table">
-                        <div class="fr-table__wrapper">
-                          <div class="fr-table__container">
-                            <div class="fr-table__content">
-                              <table>
-                                <caption>Répartition par programme</caption>
-                                <thead>
-                                <tr>
-                                  <th> Ordonnateur</th>
-                                  <th> Nombre</th>
-                                  <th> Répartition</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <% @ordonnateurs_data.each do |hash| %>
+
+            <% if @q_params[:perimetre_eq] == 'etat' %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="bar"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-data-value="<%= @programmes_data.to_json %>"
+                         data-highcharts-actes-title-value="Nombre d'actes clôturés par Programme"></div>
+                    <section class="fr-accordion">
+                      <h3 class="fr-accordion__title">
+                        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-programmes">Tableau
+                          des données
+                        </button>
+                      </h3>
+                      <div class="fr-collapse" id="accordion-programmes">
+                        <div class="fr-table">
+                          <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                              <div class="fr-table__content">
+                                <table>
+                                  <caption>Répartition par programme</caption>
+                                  <thead>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom': hash[:name]  %> </td>
-                                    <td> <%= hash[:y] %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    <th> Programme</th>
+                                    <th> Nombre</th>
+                                    <th> Répartition</th>
                                   </tr>
-                                <% end %>
-                                <tr class="fr-table--total">
-                                  <td>Total</td>
-                                  <td><%= @total_actes %></td>
-                                  <td>100%</td>
-                                </tr>
-                                </tbody>
-                              </table>
+                                  </thead>
+                                  <tbody>
+                                  <% @programmes_data.each do |hash| %>
+                                    <tr>
+                                      <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
+                                      <td> <%= hash[:y] %> </td>
+                                      <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    </tr>
+                                  <% end %>
+                                  <tr class="fr-table--total">
+                                    <td>Total</td>
+                                    <td><%= @total_actes %></td>
+                                    <td>100%</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </section>
-                </div>
-              </div>
-            </div>
+                    </section>
 
-
-            <div class="fr-col-12 fr-col-lg-6">
-              <div class="fr-p-2v">
-                <div class='fr-card fr-p-2w'>
-                  <div data-controller="highcharts-actes"
-                       data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @preinstruction_data.to_json %>"
-                       data-highcharts-actes-title-value="Suivi de la pré-instruction"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
-  <div class="fr-container--fluid">
-    <div class="fr-modal-custom__row--left">
-      <div class="fr-col-12">
-        <div class="fr-modal-custom__body">
-          <div class="fr-modal__header">
-            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
-          </div>
-          <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
-            <div class="fr-modal__content">
-              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
-                Filtrer les résultats
-              </h2>
-              <div class="fr-grid-row fr-grid-row--gutters">
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Exercice</label>
-                  <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
-                  <%= f.select :annee_eq,
-                               options_for_select(years_options, params.dig(:q, :annee_eq) || Date.today.year),
-                               {},
-                               class: "fr-select" %>
-                </div>
-                <% if @statut_user == 'admin' %>
-                  <div class="fr-col-12">
-                    <label class="fr-label fr-text--bold">Contrôleur</label>
-                    <% noms = User.where(statut: ['DCB', 'CBR']).distinct.order(nom: :asc).pluck(:nom) %>
-                    <%= f.select :user_nom_eq, options_for_select(noms, params.dig(:q, :user_nom_in)), { include_blank: 'Tous' }, class: "fr-select" %>
                   </div>
-                <% end %>
-                <div class="fr-col-12">
-                  <label class="fr-label fr-text--bold">Centre financier</label>
-                  <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier' %>
                 </div>
-                <div class="fr-col-12">
-                  <span class="fr-label fr-text--bold">Clôture entre</span>
-
-                  <div class="fr-grid-row fr-grid-row--gutters">
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_gteq,
-                                       class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_gteq) %>
-                    </div>
-
-                    <div class="fr-col-12 fr-col-md-6">
-                      <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
-                      <%= f.date_field :date_cloture_lteq,
-                                       class: 'fr-input',
-                                       value: params.dig(:q, :date_cloture_lteq) %>
+              </div>
+              <% if @statut_user != "admin" %>
+                <div class="fr-col-12 fr-col-lg-6">
+                  <div class="fr-p-2v">
+                    <div class='fr-card fr-p-2w'>
+                      <div data-controller="highcharts-actes"
+                           data-highcharts-actes-type-value="bar"
+                           data-highcharts-actes-target="chart"
+                           data-highcharts-actes-data-value="<%= @ordonnateurs_data.to_json %>"
+                           data-highcharts-actes-title-value="Nombre d'actes clôturés par Ordonnateur"></div>
+                      <section class="fr-accordion">
+                        <h3 class="fr-accordion__title">
+                          <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-ordonnateurs">Tableau
+                            des données
+                          </button>
+                        </h3>
+                        <div class="fr-collapse" id="accordion-ordonnateurs">
+                          <div class="fr-table">
+                            <div class="fr-table__wrapper">
+                              <div class="fr-table__container">
+                                <div class="fr-table__content">
+                                  <table>
+                                    <caption>Répartition par programme</caption>
+                                    <thead>
+                                    <tr>
+                                      <th> Ordonnateur</th>
+                                      <th> Nombre</th>
+                                      <th> Répartition</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <% @ordonnateurs_data.each do |hash| %>
+                                      <tr>
+                                        <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name].blank? ? 'Sans nom' : hash[:name] %> </td>
+                                        <td> <%= hash[:y] %> </td>
+                                        <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                      </tr>
+                                    <% end %>
+                                    <tr class="fr-table--total">
+                                      <td>Total</td>
+                                      <td><%= @total_actes %></td>
+                                      <td>100%</td>
+                                    </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
                     </div>
                   </div>
                 </div>
+              <% end %>
+            <% end %>
 
-
+            <% if @q_params[:perimetre_eq] == 'organisme' %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class='fr-card fr-p-2w'>
+                    <div data-controller="highcharts-actes"
+                         data-highcharts-actes-type-value="bar"
+                         data-highcharts-actes-target="chart"
+                         data-highcharts-actes-data-value="<%= @organismes_data.to_json %>"
+                         data-highcharts-actes-title-value="Nombre d'actes clôturés par Organisme"></div>
+                    <section class="fr-accordion">
+                      <h3 class="fr-accordion__title">
+                        <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-organismes">Tableau
+                          des données
+                        </button>
+                      </h3>
+                      <div class="fr-collapse" id="accordion-organismes">
+                        <div class="fr-table">
+                          <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                              <div class="fr-table__content">
+                                <table>
+                                  <caption>Répartition par organisme</caption>
+                                  <thead>
+                                  <tr>
+                                    <th> Organisme</th>
+                                    <th> Nombre</th>
+                                    <th> Répartition</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  <% @organismes_data.each do |hash| %>
+                                    <tr>
+                                      <td class='fr-capitalize fr-cell--multiline'> <%= hash[:name] %> </td>
+                                      <td> <%= hash[:y] %> </td>
+                                      <td class="fr-cell--multiline"><%= percentage_of(hash[:y], @total_actes) %></td>
+                                    </tr>
+                                  <% end %>
+                                  <tr class="fr-table--total">
+                                    <td>Total</td>
+                                    <td><%= @total_actes %></td>
+                                    <td>100%</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="fr-modal__footer">
-              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
-                <li>
-                  <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
-                </li>
-                <li>
-                  <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
-                    Réinitialiser
-                  <% end %>
-                </li>
-              </ul>
-            </div>
-          <% end %>
+            <% end %>
+
+          </div>
         </div>
       </div>
     </div>
   </div>
-</dialog>
+
+  <dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+    <div class="fr-container--fluid">
+      <div class="fr-modal-custom__row--left">
+        <div class="fr-col-12">
+          <div class="fr-modal-custom__body">
+            <div class="fr-modal__header">
+              <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-11" class="fr-btn--close fr-btn">Fermer</button>
+            </div>
+            <%= search_form_for @q, url: tableau_de_bord_ht2_actes_path, data: { 'request-target': 'form', turbo_frame: 'results', turbo_action: 'advance', controller: 'date-range-filter' } do |f| %>
+              <%= f.hidden_field :perimetre_eq, value: @q_params[:perimetre_eq] %>
+              <div class="fr-modal__content">
+                <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                  Filtrer les résultats
+                </h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Exercice</label>
+                    <% years_options = (2019..Date.today.year + 1).to_a.reverse %>
+                    <%= f.select :annee_eq,
+                                 options_for_select(years_options, @q_params[:annee_eq] || Date.today.year),
+                                 {},
+                                 class: "fr-select",
+                                 data: {
+                                   date_range_filter_target: "yearSelect",
+                                   action: "change->date-range-filter#updateDateRange"
+                                 } %>
+                  </div>
+                </div>
+                <% if @statut_user == 'admin' %>
+                  <div class="fr-grid-row fr-grid-row--gutters" data-controller="controleur-filter">
+                    <div class="fr-col-12">
+                      <label class="fr-label fr-text--bold">Profil</label>
+                      <%= f.select :user_statut_eq,
+                                   options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], @q_params[:user_statut_eq]),
+                                   {},
+                                   class: "fr-select",
+                                   data: {
+                                     controleur_filter_target: "profilSelect",
+                                     action: "change->controleur-filter#filterByProfil"
+                                   } %>
+                    </div>
+                    <div class="fr-col-12 fr-pt-0">
+                      <label class="fr-label fr-text--bold">Contrôleur</label>
+                      <div class="fr-select-group fr-mt-1w" style="position: relative;">
+                        <button type="button"
+                                data-controleur-filter-target="button"
+                                data-action="click->controleur-filter#toggleDropdown"
+                                class="fr-select"
+                                style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;">
+                          <% users_by_statut = User.where(statut: ['DCB', 'CBR']).select(:nom, :statut).distinct.order(nom: :asc) %>
+                          <% selected_noms = Array(@q_params[:user_nom_in]) %>
+                          Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
+                        </button>
+                        <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                          <div style="padding: 0.5rem;">
+                            <% users_by_statut.each do |user| %>
+                              <div class="fr-checkbox-group"
+                                   data-controleur-filter-target="item"
+                                   data-statut="<%= user.statut %>"
+                                   style="margin-bottom: 0.5rem;">
+                                <%= f.check_box :user_nom_in,
+                                                {
+                                                  multiple: true,
+                                                  checked: selected_noms.include?(user.nom),
+                                                  class: "fr-checkbox",
+                                                  data: {
+                                                    controleur_filter_target: "checkbox",
+                                                    action: "change->controleur-filter#updateCount"
+                                                  }
+                                                },
+                                                user.nom,
+                                                nil %>
+                                <%= f.label :user_nom_in, user.nom, value: user.nom, class: "fr-label" %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                <% end %>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold">Centre financier</label>
+                    <%= f.search_field :centre_financier_code_cont, class: "fr-input", placeholder: 'Rechercher un acte par centre financier', value: @q_params[:centre_financier_code_cont] %>
+                  </div>
+                  <div class="fr-col-12">
+                    <div class="fr-input-group" data-controller="autocomplete-organisme" data-autocomplete-organisme-url-value="<%= organismes_autocomplete_path %>">
+                      <label class="fr-label fr-text--bold">Organisme</label>
+                      <%= f.search_field :nom_organisme_cont,
+                                         class: "fr-input",
+                                         placeholder: 'Rechercher un acte par organisme',
+                                         value: @q_params[:nom_organisme_cont],
+                                         data: {
+                                           action: "input->autocomplete-organisme#search",
+                                           autocomplete_organisme_target: "input"
+                                         } %>
+                      <div class="autocomplete-results" data-autocomplete-organisme-target="results" hidden>
+                        <!-- Les résultats seront insérés ici par JavaScript -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12">
+                    <span class="fr-label fr-text--bold">Clôture entre</span>
+
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12 fr-col-md-6">
+                        <%= f.label :date_cloture_gteq, 'Du', class: 'fr-label' %>
+                        <%= f.date_field :date_cloture_gteq,
+                                         class: 'fr-input',
+                                         value: @q_params[:date_cloture_gteq],
+                                         data: { date_range_filter_target: "dateFrom" } %>
+                      </div>
+
+                      <div class="fr-col-12 fr-col-md-6">
+                        <%= f.label :date_cloture_lteq, 'Au', class: 'fr-label' %>
+                        <%= f.date_field :date_cloture_lteq,
+                                         class: 'fr-input',
+                                         value: @q_params[:date_cloture_lteq],
+                                         data: { date_range_filter_target: "dateTo" } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-col-12">
+                    <span class="fr-label fr-text--bold">Services votés</span>
+                    <% selected = Array(@q_params[:services_votes_in]).map(&:to_s) %>
+
+                    <ul class="fr-tags-group fr-mt-1w">
+                      <% { 'Oui' => 'true', 'Non' => 'false' }.each do |label, value| %>
+                        <% checked = selected.include?(value) %>
+                        <li>
+                          <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                 data-controller="tag-select"
+                                 data-action="change->tag-select#toggle"
+                                 role="button">
+                            <%= check_box_tag 'q[services_votes_in][]',
+                                              value,
+                                              checked,
+                                              class: "fr-sr-only",
+                                              data: { tag_select_target: "checkbox" } %>
+                            <span><%= label %></span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-modal__footer">
+                <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                  <li>
+                    <%= f.submit 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                  </li>
+                  <li>
+                    <%= link_to tableau_de_bord_ht2_actes_path, class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                      Réinitialiser
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+<% end %>
+

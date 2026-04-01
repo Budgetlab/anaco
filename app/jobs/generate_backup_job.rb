@@ -1,0 +1,122 @@
+class GenerateBackupJob < ApplicationJob
+  queue_as :default
+
+  retry_on StandardError, wait: :exponentially_longer, attempts: 3
+  discard_on ActiveRecord::RecordNotFound
+
+  def perform(backup_export_id)
+    backup = BackupExport.find(backup_export_id)
+
+    Rails.logger.info "Génération backup ##{backup_export_id}"
+
+    filename = "backup_#{Date.today.strftime('%Y%m%d_%H%M%S')}.xlsx"
+    filepath = Rails.root.join('tmp', filename)
+
+    package = Axlsx::Package.new
+    wb = package.workbook
+
+    header_style = wb.styles.add_style(
+      font_name: 'Marianne', sz: 10, b: true,
+      alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+      bg_color: 'dae1f2', fg_color: '161616',
+      border: { style: :thin, color: '000000' }
+    )
+    cell_style = wb.styles.add_style(
+      font_name: 'Marianne', sz: 9,
+      alignment: { vertical: :top, wrap_text: false },
+      border: { style: :thin, color: 'dddddd' }
+    )
+
+    # ── ht2_actes ──────────────────────────────────────────────────────────────
+    wb.add_worksheet(name: 'ht2_actes') do |sheet|
+      headers = %w[
+        id annee type_acte etat perimetre categorie_organisme user_id instructeur valideur
+        numero_formate numero_chorus numero_marche numero_tf numero_utilisateur
+        date_chorus date_limite date_cloture delai_traitement
+        nature nature_categorie_organisme beneficiaire objet ordonnateur destination
+        montant_ae montant_global type_montant type_engagement
+        centre_financier_code groupe_marchandises nomenclature flux
+        activite action sous_action operation_budgetaire
+        nom_organisme categorie
+        proposition_decision decision_finale commentaire_proposition_decision observations
+        type_observations precisions_acte
+        disponibilite_credits imputation_depense consommation_credits programmation programmation_prevue avis_programmation
+        services_votes liste_actes nombre_actes gestion_anticipee pre_instruction renvoie_instruction
+        soutenabilite conformite concordance_recettes_tiers autorisation_tutelle budget_executoire
+        operation_compte_tiers deliberation_ca numero_deliberation_ca date_deliberation_ca observations_deliberation_ca
+        pdf_generation_status sheet_data
+        created_at updated_at
+      ]
+      sheet.add_row headers, style: header_style
+
+      Ht2Acte.order(:id).find_each(batch_size: 500) do |a|
+        sheet.add_row [
+          a.id, a.annee, a.type_acte, a.etat, a.perimetre, a.categorie_organisme, a.user_id, a.instructeur, a.valideur,
+          a.numero_formate, a.numero_chorus, a.numero_marche, a.numero_tf, a.numero_utilisateur,
+          a.date_chorus&.strftime('%d/%m/%Y'), a.date_limite&.strftime('%d/%m/%Y'), a.date_cloture&.strftime('%d/%m/%Y'), a.delai_traitement,
+          a.nature, a.nature_categorie_organisme, a.beneficiaire, a.objet, a.ordonnateur, a.destination,
+          a.montant_ae, a.montant_global, a.type_montant, a.type_engagement,
+          a.centre_financier_code, a.groupe_marchandises, a.nomenclature, a.flux,
+          a.activite, a.action, a.sous_action, a.operation_budgetaire,
+          a.nom_organisme, a.categorie,
+          a.proposition_decision, a.decision_finale, a.commentaire_proposition_decision, a.observations,
+          a.type_observations&.join(', '), a.precisions_acte,
+          a.disponibilite_credits, a.imputation_depense, a.consommation_credits, a.programmation, a.programmation_prevue, a.avis_programmation,
+          a.services_votes, a.liste_actes, a.nombre_actes, a.gestion_anticipee, a.pre_instruction, a.renvoie_instruction,
+          a.soutenabilite, a.conformite, a.concordance_recettes_tiers, a.autorisation_tutelle, a.budget_executoire,
+          a.operation_compte_tiers, a.deliberation_ca, a.numero_deliberation_ca, a.date_deliberation_ca&.strftime('%d/%m/%Y'), a.observations_deliberation_ca,
+          a.pdf_generation_status, a.sheet_data&.to_json,
+          a.created_at&.strftime('%d/%m/%Y %H:%M'), a.updated_at&.strftime('%d/%m/%Y %H:%M')
+        ], style: cell_style
+      end
+    end
+
+    # ── suspensions ────────────────────────────────────────────────────────────
+    wb.add_worksheet(name: 'suspensions') do |sheet|
+      sheet.add_row %w[id ht2_acte_id date_suspension date_reprise motif observations commentaire_reprise created_at updated_at], style: header_style
+      Suspension.order(:id).find_each(batch_size: 500) do |s|
+        sheet.add_row [
+          s.id, s.ht2_acte_id,
+          s.date_suspension&.strftime('%d/%m/%Y'), s.date_reprise&.strftime('%d/%m/%Y'),
+          Array(s.motif).join(', '),
+          s.observations, s.commentaire_reprise,
+          s.created_at&.strftime('%d/%m/%Y %H:%M'), s.updated_at&.strftime('%d/%m/%Y %H:%M')
+        ], style: cell_style
+      end
+    end
+
+    # ── poste_lignes ───────────────────────────────────────────────────────────
+    wb.add_worksheet(name: 'poste_lignes') do |sheet|
+      sheet.add_row %w[id ht2_acte_id numero centre_financier_code montant domaine_fonctionnel fonds compte_budgetaire code_activite axe_ministeriel flux groupe_marchandises numero_tf created_at updated_at], style: header_style
+      PosteLigne.order(:id).find_each(batch_size: 500) do |p|
+        sheet.add_row [
+          p.id, p.ht2_acte_id, p.numero, p.centre_financier_code, p.montant,
+          p.domaine_fonctionnel, p.fonds, p.compte_budgetaire, p.code_activite,
+          p.axe_ministeriel, p.flux, p.groupe_marchandises, p.numero_tf,
+          p.created_at&.strftime('%d/%m/%Y %H:%M'), p.updated_at&.strftime('%d/%m/%Y %H:%M')
+        ], style: cell_style
+      end
+    end
+
+    # ── echeanciers ────────────────────────────────────────────────────────────
+    wb.add_worksheet(name: 'echeanciers') do |sheet|
+      sheet.add_row %w[id ht2_acte_id annee montant_ae montant_cp created_at updated_at], style: header_style
+      Echeancier.order(:id).find_each(batch_size: 500) do |e|
+        sheet.add_row [
+          e.id, e.ht2_acte_id, e.annee, e.montant_ae, e.montant_cp,
+          e.created_at&.strftime('%d/%m/%Y %H:%M'), e.updated_at&.strftime('%d/%m/%Y %H:%M')
+        ], style: cell_style
+      end
+    end
+
+    package.serialize(filepath.to_s)
+
+    backup.update!(status: 'completed', filename: filename)
+    Rails.logger.info "Backup ##{backup_export_id} généré : #{filename}"
+
+  rescue => e
+    Rails.logger.error "Erreur backup ##{backup_export_id} : #{e.class} - #{e.message}"
+    backup.update!(status: 'failed', error_message: e.message)
+    raise e
+  end
+end

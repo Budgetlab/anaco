@@ -46,9 +46,11 @@ class GenerateActePdfJob < ApplicationJob
     # Charger les associations nécessaires pour éviter N+1
     acte = Ht2Acte.find(acte.id)
 
+    partial_name = acte.perimetre == 'organisme' ? 'ht2_actes/acte_organisme_pdf_content' : 'ht2_actes/acte_pdf_content'
+
     # Rendu du partial (contenu uniquement)
     partial_content = ApplicationController.render(
-      partial: 'ht2_actes/acte_pdf_content',
+      partial: partial_name,
       locals: {
         acte: acte,
       },
