@@ -50,7 +50,7 @@ GEM
     active_link_to (1.0.5)
       actionpack
       addressable
-    activeadmin (3.4.0)
+    activeadmin (3.5.1)
       arbre (~> 1.2, >= 1.2.1)
       csv
       formtastic (>= 3.1)
@@ -133,10 +133,10 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     declarative (0.0.20)
-    devise (4.9.4)
+    devise (5.0.3)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
-      railties (>= 4.1.0)
+      railties (>= 7.0)
       responders
       warden (~> 1.2.3)
     digest-crc (0.7.0)
@@ -171,8 +171,8 @@ GEM
     ffi (1.17.3-x86-linux-gnu)
     ffi (1.17.3-x86_64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
-    formtastic (5.0.0)
-      actionpack (>= 6.0.0)
+    formtastic (6.0.0)
+      actionpack (>= 7.2.0)
     formtastic_i18n (0.7.0)
     fugit (1.12.1)
       et-orbi (~> 1.4)
@@ -546,7 +546,7 @@ DEPENDENCIES
   caxlsx
   caxlsx_rails
   debug
-  devise (~> 4.0)
+  devise (>= 5.0.3)
   dotenv-rails (~> 2.7, >= 2.7.6)
   ferrum
   google-cloud-storage
