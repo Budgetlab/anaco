@@ -2,7 +2,7 @@ class Ht2ActesController < ApplicationController
   include Ht2ActesHelper
 
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :authorize_show!, only: [:show]
@@ -959,12 +959,14 @@ class Ht2ActesController < ApplicationController
     @users_stats = User.all.order(:nom).map do |user|
       actes_2024_count = user.ht2_actes.where(annee: 2024).count
       actes_2025_count = user.ht2_actes.where(annee: 2025).count
+      actes_2026_count = user.ht2_actes.where(annee: 2026).count
       {
         user: user,
         actes_2024_count: actes_2024_count,
-        actes_2025_count: actes_2025_count
+        actes_2025_count: actes_2025_count,
+        actes_2026_count: actes_2026_count
       }
-    end.select { |stat| stat[:actes_2024_count] > 0 || stat[:actes_2025_count] > 0 }
+    end.select { |stat| stat[:actes_2024_count] > 0 || stat[:actes_2025_count] > 0 || stat[:actes_2026_count] > 0 }
   end
 
   def delete_user_actes_year
@@ -981,6 +983,20 @@ class Ht2ActesController < ApplicationController
     Ht2Acte.import(params[:file])
     respond_to do |format|
       format.turbo_stream { redirect_to ajout_actes_path }
+    end
+  end
+
+  def import_actes_organismes
+    if params[:file].blank?
+      return redirect_to ajout_actes_path, alert: "Veuillez sélectionner un fichier."
+    end
+
+    begin
+      count = Ht2Acte.import_actes_organismes(params[:file])
+      redirect_to ajout_actes_path, notice: "Import organismes terminé : #{count} acte(s) importé(s)."
+    rescue => e
+      Rails.logger.error "[import_actes_organismes] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      redirect_to ajout_actes_path, alert: "Erreur lors de l'import : #{e.message}"
     end
   end
 

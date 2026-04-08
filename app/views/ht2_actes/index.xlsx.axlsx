@@ -279,7 +279,7 @@ wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
       acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
       acte.montant_ae,
       acte.type_montant,
-      is_depense ? acte.montant_global : "N/A",
+      acte.montant_global,
       acte.deliberation_ca ? "Oui" : "Non",
       acte.numero_deliberation_ca,
       acte.date_deliberation_ca&.strftime('%d/%m/%Y'),

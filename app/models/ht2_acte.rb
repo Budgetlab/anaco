@@ -469,6 +469,109 @@ class Ht2Acte < ApplicationRecord
   end
 
 
+  def self.import_actes_organismes(file)
+    data = Roo::Spreadsheet.open(file.path)
+    headers = data.row(1).map { |h| h.to_s.strip }
+
+    bool     = ->(v) { ['oui', 'true', '1', 't'].include?(v.to_s.downcase.strip) }
+    parse_date = ->(v) {
+      return nil if v.blank?
+      v.is_a?(Date) || v.is_a?(Time) ? v.to_date : Date.strptime(v.to_s.strip, '%d/%m/%Y') rescue nil
+    }
+
+    count = 0
+
+    data.each_with_index do |row, idx|
+      next if idx == 0
+
+      r = Hash[headers.zip(row)]
+
+      # Récupérer l'organisme à partir du nom
+      nom_org = r['nom_organisme'].to_s.strip
+      next if nom_org.blank?
+
+      organisme = Organisme.find_by(nom: nom_org)
+      next unless organisme
+
+      # Construire nom_organisme au format "Acronyme - Nom" ou "Nom"
+      nom_organisme_formate = if organisme.acronyme.present?
+                                "#{organisme.acronyme} - #{organisme.nom}"
+                              else
+                                organisme.nom
+                              end
+
+      # Récupérer l'utilisateur
+      user = User.find_by(nom: r['user_nom'].to_s.strip)
+      next unless user
+
+      acte = Ht2Acte.new(
+        user:                             user,
+        perimetre:                        'organisme',
+        type_acte:                        r['type_acte'].to_s,
+        categorie_organisme:              r['categorie_organisme'].to_s,
+        etat:                             r['etat'].to_s,
+        instructeur:                      r['instructeur'].to_s,
+        nature:                           r['nature'].to_s,
+        type_engagement:                  r['type_engagement'].to_s,
+        operation_budgetaire:             r['operation_budgetaire'].to_s,
+        nature_categorie_organisme:       r['nature_categorie_organisme'].to_s,
+        nom_organisme:                    nom_organisme_formate,
+        montant_ae:                       r['montant_ae'].presence&.to_f,
+        type_montant:                     r['type_montant'].to_s,
+        operation_compte_tiers:           bool.(r['operation_compte_tiers']),
+        budget_executoire:                r['budget_executoire'].blank? ? true : bool.(r['budget_executoire']),
+        annee:                            r['annee'].presence&.to_i,
+        date_chorus:                      parse_date.(r['date_chorus']),
+        services_votes:                   bool.(r['services_votes']),
+        programmation_prevue:             bool.(r['programmation_prevue']),
+        disponibilite_credits:            r['disponibilite_credits'].blank? ? true : bool.(r['disponibilite_credits']),
+        imputation_depense:               r['imputation_depense'].blank? ? true : bool.(r['imputation_depense']),
+        consommation_credits:             r['consommation_credits'].blank? ? true : bool.(r['consommation_credits']),
+        soutenabilite:                    r['soutenabilite'].blank? ? true : bool.(r['soutenabilite']),
+        conformite:                       r['conformite'].blank? ? true : bool.(r['conformite']),
+        deliberation_ca:                  bool.(r['deliberation_ca']),
+        programmation:                    bool.(r['programmation']),
+        proposition_decision:             r['proposition_decision'].to_s,
+        date_cloture:                     parse_date.(r['date_cloture'] || r['Date de cloture']),
+        pre_instruction:                  bool.(r['Présence d\'une pré-instruction hors ANACO']),
+        beneficiaire:                     r['Bénéficiaire'].to_s,
+        objet:                            r['objet'].to_s,
+        ordonnateur:                      r['ordonnateur'].to_s,
+        liste_actes:                      false,
+        destination:                      r['Destination'].to_s,
+        nomenclature:                     r['Nomenclature achat'].to_s,
+        flux:                             r['Flux'].to_s,
+        numero_deliberation_ca:           r['n° de délibération'].to_s,
+        date_deliberation_ca:             parse_date.(r['Date de délibération']),
+        observations_deliberation_ca:     r['Observation sur la délibération en CA'].to_s,
+        commentaire_proposition_decision: r['commentaire_proposition_decision'].to_s,
+        observations:                     r['observations'].to_s,
+        type_observations:                r['type_observations'].present? ? [r['type_observations'].to_s] : [],
+        valideur:                         r['valideur'].to_s,
+        decision_finale:                  r['decision_finale'].to_s,
+        pdf_generation_status:            'none',
+      )
+
+      if acte.save
+        count += 1
+        date_susp = parse_date.(r['date_suspension'])
+        if date_susp.present?
+          motif = r['motif'].blank? ? ['Autre'] : r['motif'].to_s.split(',').map(&:strip).reject(&:blank?)
+          acte.suspensions.create(
+            date_suspension: date_susp,
+            date_reprise:    parse_date.(r['date_reprise']),
+            motif:           motif
+          )
+          acte.recalculate_delai_traitement!
+        end
+      else
+        Rails.logger.warn "[import_actes_organismes] ligne #{idx + 1} : #{acte.errors.full_messages.join(', ')}"
+      end
+    end
+
+    count
+  end
+
   private
 
   def set_etat_acte

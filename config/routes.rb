@@ -111,6 +111,7 @@ Rails.application.routes.draw do
     get 'historique_ht2', to: 'ht2_actes#historique'
     get 'ajout_actes', to: 'ht2_actes#ajout_actes'
     post 'import_actes', to: 'ht2_actes#import'
+    post 'import_actes_organismes', to: 'ht2_actes#import_actes_organismes'
     delete 'delete_user_actes_year', to: 'ht2_actes#delete_user_actes_year', as: 'delete_user_actes_year'
 
     resources :centre_financiers, only: [:new, :destroy]

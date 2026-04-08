@@ -14,6 +14,19 @@
           <div class="fr-my-4w"><%= submit_tag "Transmettre", class: "fr-btn" %></div>
         <% end %>
       </div>
+      <div class="fr-mt-6w">
+        <h2>Import actes périmètre organisme</h2>
+        <%= form_tag import_actes_organismes_path, multipart: true do %>
+          <div class="fr-upload-group">
+            <label class="fr-label" for="file-upload-organismes">Ajouter des fichiers (périmètre organisme)
+              <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : xlsx. </span>
+            </label>
+            <%= file_field_tag :file, accept: '.xlsx', class: "fr-upload", id: "file-upload-organismes" %>
+          </div>
+          <div class="fr-my-4w"><%= submit_tag "Transmettre", class: "fr-btn" %></div>
+        <% end %>
+      </div>
+
       <div class="fr-my-4w"><%= Ht2Acte.count %> actes</div>
 
       <% if @users_stats.present? %>
@@ -32,6 +45,8 @@
                         <th scope="col">Actions 2024</th>
                         <th scope="col">Actes 2025</th>
                         <th scope="col">Actions 2025</th>
+                        <th scope="col">Actes 2026</th>
+                        <th scope="col">Actions 2026</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -60,6 +75,18 @@
                                   data: {
                                     turbo_confirm: "Êtes-vous sûr de vouloir supprimer tous les #{stat[:actes_2025_count]} actes de l'année 2025 pour #{stat[:user].nom} ? Cette action est irréversible."
                                   } %>
+                            <% end %>
+                          </td>
+                          <td><%= stat[:actes_2026_count] %></td>
+                          <td>
+                            <% if stat[:actes_2026_count] > 0 %>
+                              <%= button_to "Supprimer tous les actes 2026",
+                                            delete_user_actes_year_path(user_id: stat[:user].id, year: 2026),
+                                            method: :delete,
+                                            class: "fr-btn fr-btn--secondary fr-btn--sm",
+                                            data: {
+                                              turbo_confirm: "Êtes-vous sûr de vouloir supprimer tous les #{stat[:actes_2026_count]} actes de l'année 2026 pour #{stat[:user].nom} ? Cette action est irréversible."
+                                            } %>
                             <% end %>
                           </td>
                         </tr>
