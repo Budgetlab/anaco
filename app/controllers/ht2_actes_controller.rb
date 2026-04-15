@@ -1121,7 +1121,6 @@ class Ht2ActesController < ApplicationController
         "Conseil",
         "Convention",
         "Décision diverse",
-        "Emprunt autorisé",
         "Intervention",
         "Mandat",
         "Marché à tranches",
@@ -1175,7 +1174,7 @@ class Ht2ActesController < ApplicationController
     if perimetre == 'organisme' && categorie_organisme == 'depense'
       @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Mauvaise évaluation de la consommation des crédits", "Non conformité des pièces", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
     elsif perimetre == 'organisme' && categorie_organisme == 'recette'
-      @liste_motifs_suspension = ["Demande d'éléments complémentaires", "Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine a posteriori", "Autre"]
+      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine a posteriori", "Autre"]
     else
       # Liste pour périmètre état (liste par défaut)
       @liste_motifs_suspension = ["Défaut du circuit d'approbation Chorus", "Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", "Erreur d'imputation", "Erreur dans la construction de l'EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Non conformité des pièces", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
@@ -1201,7 +1200,7 @@ class Ht2ActesController < ApplicationController
       "Convention et contrat en recette",
       "Décision diverse",
       "Dotation en fonds propres",
-      "Emprunt autorisé",
+      "Emprunt",
       "Intervention",
       "Mandat",
       "MAPA à bons de commande",
