@@ -22,7 +22,7 @@ class User < ApplicationRecord
 
       row_data = Hash[[headers, row].transpose]
       user = User.find_or_initialize_by(nom: row_data['nom'].to_s)
-      user.email = user.email
+      user.email = "user#{idx.to_s}@finances.gouv.fr"
       user.statut = row_data['statut'].to_s
       user.nom = row_data['nom'].to_s
       user.password = row_data['Mot de passe'].to_s
