@@ -40,3 +40,7 @@
 #package-lock.json
 # Kamal secrets
 .kamal/secrets
+
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+
