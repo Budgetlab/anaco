@@ -1146,6 +1146,7 @@ class Ht2ActesController < ApplicationController
         "Aliénation immobilière",
         "Cession de participation et retrait d’apport à toute entité",
         "Convention et contrat en recette",
+        "Emprunt",
         "Autre"
       ]
       # Pour organisme recette, pas de @liste_engagements

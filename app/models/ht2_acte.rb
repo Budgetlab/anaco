@@ -550,6 +550,7 @@ class Ht2Acte < ApplicationRecord
         valideur:                         r['valideur'].to_s,
         decision_finale:                  r['decision_finale'].to_s,
         pdf_generation_status:            'none',
+        precisions_acte:                  r['precisions'].to_s,
       )
 
       if acte.save
