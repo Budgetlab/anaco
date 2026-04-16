@@ -78,7 +78,6 @@ class AvisController < ApplicationController
   end
 
   def edit
-    redirect_to remplissage_avis_path and return if @bop.statut == 'inactif'
     @avis = Avi.find(params[:id])
     @annee_a_afficher = @avis.annee
     set_avis_phase(@avis.annee)
