@@ -7,11 +7,8 @@ service: anaco-workers
 # Image Docker
 image: alexandraleschi/anaco-workers
 
-# Rôle principal (pas de rôle web, on utilise workers)
+# Rôle principal (requis par Kamal)
 primary_role: workers
-
-# Timeout de déploiement (défaut: 30s)
-deploy_timeout: 120
 
 # Serveurs de déploiement - VM GCP
 servers:
@@ -20,21 +17,20 @@ servers:
   workers:
     hosts:
       - 34.155.115.62  # IP externe VM GCP anaco-workers
-    cmd: bash -c "bundle exec rails server -p 3000 -e production & exec bin/jobs"
+    cmd: bin/jobs  # Commande pour lancer Solid Queue workers
     labels:
       worker-type: solid-queue
       application: anaco
       environment: production
     options:
+      health-cmd: "pgrep -f 'bin/jobs' || exit 1"
+      health-interval: "10s"
+      health-timeout: "5s"
+      health-retries: 10
+      health-start-period: "90s"
       dns:
-        - 8.8.8.8
-        - 8.8.4.4
-    proxy:
-      app_port: 3000
-      healthcheck:
-        path: /up
-        interval: 10
-        timeout: 5
+        - "8.8.8.8"
+        - "8.8.4.4"
 # Registry Docker Hub
 registry:
   username: alexandraleschi
@@ -47,7 +43,8 @@ builder:
   #remote: ssh://alexandra@34.155.46.127
   # Utiliser Dockerfile.workers au lieu de Dockerfile
   dockerfile: Dockerfile.workers
-  arch: amd64
+  args:
+    platform: linux/amd64
 
 # Variables d'environnement
 env:
@@ -70,6 +67,7 @@ env:
     STORAGE_BUCKET_NAME: anaco-bucket
   secret:
     # Secrets depuis .kamal/secrets (utilisez `kamal envify` ou créez .kamal/secrets)
+    - SECRET_KEY_BASE
     - RAILS_MASTER_KEY
     - PRODUCTION_DB_PASSWORD
     - PRODUCTION_DB_NAME
@@ -88,16 +86,19 @@ volumes:
   - "anaco-logs:/rails/log"
 
 # Configuration du déploiement progressif
-boot:
-  limit: 1
-  wait: 120
+# boot:
+#   limit: 1
+#   wait: 10
 
 # Pas d'accessories (DB est sur Render, pas de Redis local nécessaire)
 # accessories: {}
 
+# Retention des anciennes images (économiser l'espace)
+retain_containers: 1
+
 accessories:
   cloud-sql-proxy:
     image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
-    hosts:
+    hosts:  # Pluriel pour Kamal 2
       - 34.155.115.62
     cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
