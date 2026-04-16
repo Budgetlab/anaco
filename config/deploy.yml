@@ -14,20 +14,19 @@ servers:
   workers:
     hosts:
       - 34.155.115.62  # IP externe VM GCP anaco-workers
-    cmd: bin/jobs  # Commande pour lancer Solid Queue workers
+    cmd: bash -c "bundle exec rails server -p 3000 -e production & exec bin/jobs"
     labels:
       worker-type: solid-queue
       application: anaco
       environment: production
     options:
-      health-cmd: "pgrep -f 'bin/jobs' || exit 1"
-      health-interval: "10s"
-      health-timeout: "5s"
-      health-retries: 10
-      health-start-period: "90s"
-      dns:
-        - "8.8.8.8"
-        - "8.8.4.4"
+      dns: '["8.8.8.8", "8.8.4.4"]'
+    proxy:
+      app_port: 3000
+      healthcheck:
+        path: /up
+        interval: 10
+        timeout: 5
 # Registry Docker Hub
 registry:
   username: alexandraleschi
@@ -87,9 +86,6 @@ boot:
 
 # Pas d'accessories (DB est sur Render, pas de Redis local nécessaire)
 # accessories: {}
-
-# Retention des anciennes images (économiser l'espace)
-retain_containers: 1
 
 accessories:
   cloud-sql-proxy:
