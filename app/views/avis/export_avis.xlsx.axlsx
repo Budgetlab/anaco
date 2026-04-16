@@ -1,0 +1,68 @@
+wb = xlsx_package.workbook
+
+header_style = wb.styles.add_style(
+  bg_color: 'dae1f2', fg_color: '161616', font_name: 'Calibri', sz: 12, b: true,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' }
+)
+cell_style = wb.styles.add_style(
+  font_name: 'Calibri', sz: 11,
+  alignment: { vertical: :top },
+  border: { style: :thin, color: 'dddddd' }
+)
+
+wb.add_worksheet(name: "Avis #{@annee}") do |sheet|
+  sheet.auto_filter = "A1:S1"
+
+  sheet.add_row [
+    'Annee',
+    'BOP',
+    'Contrôleur BOP',
+    'Phase',
+    'Etat',
+    'Statut/Risque',
+    'Date de saisie',
+    'Date reception',
+    'Date avis initial',
+    'Delai',
+    'CRG1 programmé',
+    'Durée prévision',
+    'AE HT2 alloué',
+    'CP HT2 alloué',
+    'AE/CP T2 alloué',
+    'ETPT alloué',
+    'AE HT2 prev',
+    'CP HT2 prev',
+    'AE/CP T2 prev',
+    'ETPT prev',
+    'commentaire'
+  ], style: header_style, height: 30
+
+  @avis.each do |avis|
+    sheet.add_row [
+      avis.annee,
+      avis.bop.code,
+      avis.user.nom,
+      avis.phase,
+      avis.etat,
+      avis.statut,
+      avis.created_at&.strftime('%d/%m/%Y %H:%M'),
+      avis.date_reception&.strftime('%d/%m/%Y'),
+      avis.date_envoi&.strftime('%d/%m/%Y'),
+      avis.is_delai ? 'oui' : 'non',
+      avis.is_crg1 ? 'oui' : 'non',
+      avis.duree_prevision,
+      avis.ae_i,
+      avis.cp_i,
+      avis.t2_i,
+      avis.etpt_i,
+      avis.ae_f,
+      avis.cp_f,
+      avis.t2_f,
+      avis.etpt_f,
+      avis.commentaire
+    ], style: cell_style
+  end
+
+  sheet.column_widths 8, 12, 25, 18, 12, 15, 18, 15, 15, 8, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 30
+end

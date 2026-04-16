@@ -3,7 +3,7 @@
 # controller des Avis
 class AvisController < ApplicationController
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:ajout_avis, :import]
+  before_action :authenticate_admin!, only: [:admin_back_up_avis, :import, :export_avis]
   before_action :redirect_unless_dcb, only: %i[consultation update_etat]
   before_action :set_bop, only: %i[new create edit update]
   before_action :redirect_unless_bop_controller, only: %i[new create edit update]
@@ -127,13 +127,26 @@ class AvisController < ApplicationController
     redirect_to consultation_path, flash: { notice: notice }
   end
 
-  # Page pour importer les avis exécution N-1
-  def ajout_avis; end
+  def admin_back_up_avis
+    @annees = Avi.distinct.pluck(:annee).compact.sort.reverse
+    @counts = Avi.group(:annee).count
+  end
+
+  def export_avis
+    annee = params[:annee].to_i
+    @avis = Avi.where(annee: annee).includes(:bop, :user).order(:phase, :created_at)
+    @annee = annee
+    respond_to do |format|
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"avis_#{annee}_#{Date.today}.xlsx\""
+      end
+    end
+  end
 
   def import
     Avi.import(params[:file])
     respond_to do |format|
-      format.turbo_stream { redirect_to ajout_avis_path }
+      format.turbo_stream { redirect_to admin_back_up_avis_path }
     end
   end
 

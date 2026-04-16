@@ -68,8 +68,9 @@ Rails.application.routes.draw do
     get 'restitutions' => 'avis#restitutions'
     get 'restitutions_perimetre' => 'avis#restitutions_perimetre'
     post 'update_etat', to: 'avis#update_etat'
-    get 'ajout_avis', to: 'avis#ajout_avis'
+    get 'admin_back_up_avis', to: 'avis#admin_back_up_avis'
     post 'import_avis', to: 'avis#import'
+    get 'export_avis', to: 'avis#export_avis'
 
     resources :ht2_actes do
       resources :suspensions do

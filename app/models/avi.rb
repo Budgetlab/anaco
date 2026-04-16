@@ -6,32 +6,31 @@ class Avi < ApplicationRecord
   before_save :set_etat_avis
 
   def self.import(file)
-    Avi.where.not(phase: 'execution').destroy_all
     data = Roo::Spreadsheet.open(file.path)
-    headers = data.row(1) # get header row
+    headers = data.row(1)
     data.each_with_index do |row, idx|
-      next if idx == 0 # skip header
+      next if idx == 0
 
       row_data = Hash[[headers, row].transpose]
       code_bop = row_data['BOP'].to_s
       bop = Bop.find_by(code: code_bop)
       next unless bop
 
-      avis = Avi.new(bop_id: bop.id, user_id: bop.user_id)
-      avis.phase = row_data['Phase']
-      avis.created_at = row_data['Date de saisie'].to_datetime
-      avis.date_reception = row_data['Date reception']&.to_date
-      avis.date_envoi = row_data['Date avis initial']&.to_date
-      avis.is_delai = if row_data['Delai'] == 'oui'
-                        true
-                      elsif row_data['Delai'] == 'non'
-                        false
-                      end
-      avis.is_crg1 = if row_data['CRG1 programmé'] == 'oui'
-                       true
-                     elsif row_data['CRG1 programmé'] == 'non'
-                       false
-                     end
+      annee = row_data['Annee'].to_i
+      phase = row_data['Phase'].to_s
+
+      avis = Avi.find_or_initialize_by(bop_id: bop.id, annee: annee, phase: phase)
+      avis.user_id = bop.user_id
+      avis.phase = phase
+      avis.annee = annee
+      avis.etat = row_data['Etat'].presence || 'Lu'
+      avis.statut = row_data['Statut/Risque']
+      avis.commentaire = row_data['commentaire']
+      avis.duree_prevision = row_data['Durée prévision'].to_i if row_data['Durée prévision'].present?
+      avis.date_reception = parse_date(row_data['Date reception'])
+      avis.date_envoi = parse_date(row_data['Date avis initial'])
+      avis.is_delai = row_data['Delai'].to_s.strip == 'oui'
+      avis.is_crg1 = row_data['CRG1 programmé'].to_s.strip == 'oui'
       avis.ae_i = row_data['AE HT2 alloué']
       avis.cp_i = row_data['CP HT2 alloué']
       avis.t2_i = row_data['AE/CP T2 alloué']
@@ -40,12 +39,20 @@ class Avi < ApplicationRecord
       avis.cp_f = row_data['CP HT2 prev']
       avis.t2_f = row_data['AE/CP T2 prev']
       avis.etpt_f = row_data['ETPT prev']
-      avis.commentaire = row_data['commentaire']
-      avis.annee = row_data['Annee'].to_i
-      avis.statut = row_data['Statut/Risque']
-      avis.etat = 'Lu'
+
+      if row_data['Date de saisie'].present?
+        avis.created_at = parse_date(row_data['Date de saisie'])
+      end
+
       avis.save
     end
+  end
+
+  def self.parse_date(value)
+    return nil if value.blank?
+    value.is_a?(Date) || value.is_a?(DateTime) ? value : Date.strptime(value.to_s, '%d/%m/%Y')
+  rescue ArgumentError
+    nil
   end
   # fonction pour importer les avis d'exécution
   def self.import_execution(file)

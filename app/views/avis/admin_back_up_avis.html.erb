@@ -1,0 +1,73 @@
+<% content_for :title do %>Backup avis | ANACO <% end %>
+
+<div class="fr-container-blue">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--middle fr-py-3w">
+      <div class="fr-col-12">
+        <h1 class="fr-h2 fr-mb-0">Sauvegarde des avis</h1>
+        <p class="fr-text--sm fr-mt-1w fr-mb-0">Export et import de la table avis par année</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fr-container fr-my-4w">
+  <div class="fr-grid-row fr-grid-row--gutters">
+
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-card fr-p-4w">
+        <h2 class="fr-h4">Export par année</h2>
+        <p class="fr-text--sm fr-mb-3w">Télécharger tous les avis d'une année au format xlsx (toutes les colonnes).</p>
+        <div class="fr-table fr-table--sm fr-table--no-caption">
+          <div class="fr-table__wrapper">
+            <div class="fr-table__container">
+              <div class="fr-table__content">
+                <table>
+                  <caption>Export des avis par année</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Année</th>
+                      <th scope="col" class="fr-cell--right">Nombre d'avis</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @annees.each do |annee| %>
+                      <tr>
+                        <td><%= annee %></td>
+                        <td class="fr-cell--right"><%= @counts[annee] || 0 %></td>
+                        <td>
+                          <%= link_to export_avis_path(annee: annee, format: :xlsx),
+                              class: "fr-btn fr-btn--sm fr-btn--secondary fr-icon-download-line fr-btn--icon-left" do %>
+                            Télécharger
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-card fr-p-4w">
+        <h2 class="fr-h4">Import</h2>
+        <p class="fr-text--sm fr-mb-3w">Réimporter un fichier xlsx exporté ci-contre. Les avis sont mis à jour ou créés selon la combinaison BOP / année / phase.</p>
+        <%= form_tag import_avis_path, multipart: true do %>
+          <div class="fr-upload-group fr-mb-2w">
+            <label class="fr-label" for="file-upload">Fichier xlsx
+              <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : xlsx.</span>
+            </label>
+            <%= file_field_tag :file, accept: '.xlsx', class: "fr-upload", id: "file-upload" %>
+          </div>
+          <%= submit_tag "Lancer l'import", class: "fr-btn fr-icon-upload-line fr-btn--icon-left" %>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>
