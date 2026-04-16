@@ -100,5 +100,3 @@ accessories:
     hosts:  # Pluriel pour Kamal 2
       - 34.155.115.62
     cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
-    options:
-      network: kamal
