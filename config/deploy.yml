@@ -84,9 +84,9 @@ volumes:
   - "anaco-logs:/rails/log"
 
 # Configuration du déploiement progressif
-# boot:
-#   limit: 1
-#   wait: 10
+boot:
+  limit: 1
+  wait: 120
 
 # Pas d'accessories (DB est sur Render, pas de Redis local nécessaire)
 # accessories: {}
