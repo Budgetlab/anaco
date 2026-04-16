@@ -23,7 +23,9 @@ servers:
       application: anaco
       environment: production
     options:
-      dns: '["8.8.8.8", "8.8.4.4"]'
+      dns:
+        - 8.8.8.8
+        - 8.8.4.4
     proxy:
       app_port: 3000
       healthcheck:
