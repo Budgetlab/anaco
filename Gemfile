@@ -53,7 +53,7 @@ gem 'activeadmin'
 gem 'caxlsx'
 gem 'caxlsx_rails'
 gem 'devise', '>= 5.0.3'
-gem 'dotenv-rails', '~> 2.7', '>= 2.7.6'
+gem 'dotenv-rails', '~> 3.1'
 gem 'pagy', '~> 43.2'
 gem 'rails_autolink'
 gem 'rails-i18n'
@@ -64,7 +64,7 @@ gem 'google-cloud-storage'
 gem 'groupdate'
 gem 'grover'
 gem 'solid_queue'
-gem 'kamal', require: false
+gem 'kamal', '>= 2.0', require: false
 gem 'rubyzip'
 
 group :development, :test do

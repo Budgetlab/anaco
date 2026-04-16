@@ -43,8 +43,7 @@ builder:
   #remote: ssh://alexandra@34.155.46.127
   # Utiliser Dockerfile.workers au lieu de Dockerfile
   dockerfile: Dockerfile.workers
-  args:
-    platform: linux/amd64
+  arch: amd64
 
 # Variables d'environnement
 env:
@@ -102,3 +101,5 @@ accessories:
     hosts:  # Pluriel pour Kamal 2
       - 34.155.115.62
     cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
+    options:
+      network: kamal
