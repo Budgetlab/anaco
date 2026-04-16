@@ -28,10 +28,7 @@
         <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code %></div>
         <div>
           <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-            <% if @bop.statut == "inactif" %>BOP inactif
-            <% elsif @bop.nil? %>BOP actif
-            <% else %>BOP doté en <%= @bop.dotation %>
-            <% end %>
+            BOP doté en <%= @bop.dotation %>
           </p>
           <% if @phase_form == 'début de gestion' || @phase_form == 'services votés' %>
             <%= link_to edit_bop_path(@bop), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>

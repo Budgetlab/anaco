@@ -1,7 +1,6 @@
 <% content_for :title do %>Formulaire création d'avis | ANACO
 <% end %>
 <main role="main" class="containtAll">
-  <% if @bop.statut != "inactif" %>
     <div class="fr-container">
       <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
         <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
@@ -29,12 +28,9 @@
           <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code %></div>
           <div>
             <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-              <% if @bop.statut == "inactif" %>BOP inactif
-              <% elsif @bop.nil? %>BOP actif
-              <% else %>BOP doté en <%= @bop.dotation %>
-              <% end %>
+              BOP doté en <%= @bop.dotation %>
             </p>
-            <% if @phase_form == 'début de gestion' || @phase_form == 'services votés' %>
+            <% if (@phase_form == 'début de gestion' || @phase_form == 'services votés') && !@is_completed  %>
               <%= link_to edit_bop_path(@bop), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>
                 Modifier
               <% end %>
@@ -51,18 +47,22 @@
       <% end %>
 
       <% if @is_completed %>
-        <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-6w">
+        <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-3w">
           <h3 class="fr-alert__title">Avis/note <%= @phase_form %> transmis avec succès</h3>
           <p>Vous avez déjà rempli le formulaire <%= @phase_form %> pour ce BOP.</p>
         </div>
+        <%= link_to bop_path(@bop), class: "fr-btn fr-btn--secondary fr-mb-6w" do %>
+          Consulter ce BOP et les avis transmis
+        <% end %>
+
       <% elsif @phase_form == "CRG1" && !@avis_debut.is_crg1 %>
-          <div class="fr-container">
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12 fr-col-lg-12">
-                <div class="fr-h3 fr-my-4w">Pas de CRG1 programmé pour ce BOP</div>
-              </div>
-            </div>
-          </div>
+        <div class="fr-alert fr-alert--error">
+          <h3 class="fr-alert__title">Pas de CRG1 programmé pour ce BOP</h3>
+          <p>L'avis de début de gestion indique que le CRG1 n'est pas programmé pour ce BOP.</p>
+        </div>
+        <%= link_to bop_path(@bop), class: "fr-btn fr-btn--secondary fr-mb-6w" do %>
+          Consulter ce BOP et les avis transmis
+        <% end %>
       <% else %>
         <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
         <% if @phase_form == "services votés" %>
@@ -76,5 +76,4 @@
         <% end %>
       <% end %>
     </div>
-  <% end %>
 </main>

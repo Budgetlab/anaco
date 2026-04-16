@@ -23,8 +23,7 @@ class AvisController < ApplicationController
         @pagy, @avis_page = pagy(@avis_all, limit: 15)
       end
       format.xlsx do
-        # @actes_all contient déjà tous les résultats filtrés
-        # Pas besoin de pagination pour l'export
+        response.headers['Content-Disposition'] = "attachment; filename=\"historique_avis_#{Date.today}.xlsx\""
       end
     end
   end
@@ -32,6 +31,7 @@ class AvisController < ApplicationController
   # Page de création d'un nouvel avis
   def new
     @annee_a_afficher = annee_a_afficher
+    redirect_to remplissage_avis_path and return if @bop.statut == 'inactif'
     # Redirection si la dotation du BOP est absente ou vide
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.nil? || @bop.dotation.blank?
 
@@ -65,6 +65,7 @@ class AvisController < ApplicationController
   end
 
   def edit
+    redirect_to remplissage_avis_path and return if @bop.statut == 'inactif'
     @avis = Avi.find(params[:id])
     @annee_a_afficher = @avis.annee
     set_avis_phase(@avis.annee)
