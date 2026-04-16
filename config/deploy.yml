@@ -1,9 +1,6 @@
 # Configuration Kamal pour workers Solid Queue sur GCP
 # Documentation: https://kamal-deploy.org
 
-# Pas de reverse proxy — déploiement workers uniquement
-traefik: false
-
 # Nom du service
 service: anaco-workers
 
