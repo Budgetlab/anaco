@@ -47,12 +47,12 @@
   <div class="fr-tabs fr-mb-2w">
     <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
       <li role="presentation">
-        <button id="tabpanel-1177" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP
+        <button id="tabpanel-1177" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-1177-panel">BOP
           actifs (<%= @bops_actifs.count %>)
         </button>
       </li>
       <li role="presentation">
-        <button id="tabpanel-1178" class="fr-tabs__tab fr-icon-checkbox-circle-line fr-tabs__tab--icon-left" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP
+        <button id="tabpanel-1178" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-1178-panel">BOP
           inactifs (<%= @bops_inactifs.count %>)
         </button>
       </li>
@@ -73,86 +73,15 @@
       </div>
 
       <% @bops_actifs&.each do |bop| %>
-        <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>
-        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-          <div class="fr-col-lg-2 fr-col-12">
-            <ul>
-              <li>
-                <%= link_to bop_path(bop) do %>BOP <%= bop.code %>
-                <% end %>
-              </li>
-            </ul>
-          </div>
-          <% phases = ["début de gestion", "CRG1", "CRG2"] %>
-          <div class="fr-col-lg-7 fr-col-12">
-            <% avis_sv = bop.avis.select { |a| a.phase == "services votés" } %>
-            <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
-              <% if avis_sv.last.nil? %>
-                <p class="fr-badge fr-badge--warning fr-badge--no-icon">
-                  <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= @phase %>
-                </p>
-              <% elsif avis_sv.last.etat == "Brouillon" %>
-                <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-              <% else %>
-                <p class="fr-badge fr-badge--info fr-badge--no-icon">
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= @phase %></p>
-              <% end %>
-            <% end %>
-
-            <% avis_bop.each_with_index do |avis, index| %>
-              <% if avis.nil? %>
-                <% if  (index == 0 && (Date.today >= @date_debut || @annee_a_afficher < @annee)) || (index == 1 && (Date.today >= @date_crg1 || @annee_a_afficher < @annee) && avis_bop.first&.is_crg1?) || (index == 2 && (Date.today >= @date_crg2 || @annee_a_afficher < @annee)) %>
-                  <p class="fr-badge fr-badge--warning fr-badge--no-icon">
-                    <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phases[index] %>
-                  </p>
-                <% elsif (index == 0 && Date.today < @date_debut) || (index == 1 && (avis_bop.first.nil? || avis_bop.first&.is_crg1?)) || index == 2 %>
-                  <p class="fr-badge">
-                    <span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>
-                    <%= phases[index] %>
-                  </p>
-                <% end %>
-              <% elsif avis.etat == "Brouillon" %>
-                <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
-              <% else %>
-                <p class="fr-badge fr-badge--info fr-badge--no-icon">
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= avis.phase %></p>
-              <% end %>
-            <% end %>
-          </div>
-
-
-          <div class="fr-col-lg-3 fr-col-12">
-            <% if @annee_a_afficher == @annee && @phase == 'services votés' %>
-              <% # Récupère le dernier avis en phase 'services votés' pour l'année à afficher %>
-              <% last_avis = bop.avis.where(annee: @annee_a_afficher, phase: 'services votés')&.last %>
-
-              <% # Vérifie si le dernier avis existe et s'il est en état 'Brouillon' %>
-              <% if !last_avis.nil? && last_avis.etat == 'Brouillon' %>
-                <% # Si un avis en 'Brouillon' existe, affiche un lien pour reprendre la modification de ce brouillon %>
-                <%= link_to edit_bop_avi_path(bop_id: bop.id, id: last_avis.id), class: "fr-btn" do %>
-                  Reprendre le brouillon
-                <% end %>
-              <% else  %>
-                <% # Affiche un lien pour créer un nouvel avis si aucun brouillon n'existe %>
-                <% text_button = last_avis.nil? ? 'Rédiger un avis' : 'Créer une nouvelle version' %>
-                <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>
-                  <%= text_button %>
-                <% end %>
-              <% end %>
-            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_debut) && (avis_bop.first.nil? || avis_bop.first.etat == "Brouillon") %>
-              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger l'avis
-              <% end %>
-            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_crg1) && avis_bop.first.is_crg1? && (avis_bop.second.nil? || avis_bop.second.etat == "Brouillon") %>
-              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la
-                note CRG1
-              <% end %>
-            <% elsif (@annee_a_afficher != @annee || Date.today >= @date_crg2) && (avis_bop.last.nil? || avis_bop.last.etat == "Brouillon") %>
-              <%= link_to new_bop_avi_path(bop_id: bop, date: @annee_a_afficher), class: "fr-btn" do %>Rédiger la
-                note CRG2
-              <% end %>
-            <% end %>
-          </div>
-        </div>
+        <%= render 'bop_actif_row',
+              bop: bop,
+              avis_par_bop: @avis_par_bop,
+              annee_affichee: @annee_a_afficher,
+              annee: @annee,
+              phase_courante: @phase,
+              date_debut: @date_debut,
+              date_crg1: @date_crg1,
+              date_crg2: @date_crg2 %>
       <% end %>
     </div>
     <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">

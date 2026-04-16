@@ -92,6 +92,17 @@ class AvisController < ApplicationController
     @avis = Avi.find(params[:id])
   end
 
+  def destroy
+    @avis = Avi.find(params[:id])
+    bop = @avis.bop
+    if @avis.etat == 'Brouillon' && (@avis.user == current_user || current_user.statut == 'admin')
+      @avis.destroy
+      redirect_to bop_path(bop), notice: 'Brouillon supprimé'
+    else
+      redirect_to bop_path(bop), alert: 'Action non autorisée'
+    end
+  end
+
   # Page de consultation des avis pour les DCB
   def consultation
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
@@ -154,8 +165,9 @@ class AvisController < ApplicationController
   def remplissage_avis
     @annee_a_afficher = annee_a_afficher
     @bops_inactifs = current_user.bops_inactifs(@annee_a_afficher).order(code: :asc)
-    @bops_actifs = current_user.bops_actifs(@annee_a_afficher).includes(:avis).order(code: :asc)
-    @avis = current_user.avis.where(annee: @annee_a_afficher)
+    @bops_actifs = current_user.bops_actifs(@annee_a_afficher).order(code: :asc)
+    @avis = current_user.avis.where(annee: @annee_a_afficher).to_a
+    @avis_par_bop = @avis.group_by(&:bop_id)
   end
 
   def suivi_remplissage

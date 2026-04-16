@@ -109,10 +109,16 @@
                                 <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
                               </td>
                               <td>
-                                <% if avis.etat == "Brouillon" && avis.user == current_user %>
-                                  <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn" do %>
-                                    Reprendre
-                                  <% end %>
+                                <% if avis.etat == "Brouillon" && (avis.user == current_user || current_user.statut == 'admin') %>
+                                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn" do %>
+                                      Reprendre
+                                    <% end %>
+                                    <%= link_to bop_avi_path(bop_id: @bop.id, id: avis.id),
+                                          class: "fr-btn fr-btn--secondary fr-icon-delete-line",
+                                          title: "Supprimer le brouillon",
+                                          data: { turbo_method: :delete, turbo_confirm: "Supprimer ce brouillon ?" } do %>Supprimer<% end %>
+                                  </div>
                                 <% elsif avis.etat != "Brouillon" %>
                                   <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
                                     Consulter

@@ -31,7 +31,7 @@ Rails.application.routes.draw do
     get 'suivi_remplissage_schemas', to: 'users#suivi_remplissage_schemas'
 
     resources :bops do
-      resources :avis, only: [:new, :create, :edit, :update]
+      resources :avis, only: [:new, :create, :edit, :update, :destroy]
     end
     post 'import_bops' => 'bops#import'
     get 'export_bops' => 'bops#export'

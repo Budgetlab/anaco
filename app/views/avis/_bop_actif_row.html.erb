@@ -1,0 +1,78 @@
+<% avis_bop_all  = avis_par_bop[bop.id] || [] %>
+<% avis_debut   = avis_bop_all.find { |a| a.phase == 'début de gestion' } %>
+<% avis_crg1    = avis_bop_all.find { |a| a.phase == 'CRG1' } %>
+<% avis_crg2    = avis_bop_all.find { |a| a.phase == 'CRG2' } %>
+<% avis_sv_list = avis_bop_all.select { |a| a.phase == 'services votés' }.sort_by(&:created_at) %>
+<% avis_bop     = [avis_debut, avis_crg1, avis_crg2] %>
+<% phases       = ['début de gestion', 'CRG1', 'CRG2'] %>
+
+<div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+  <div class="fr-col-lg-2 fr-col-12">
+    <ul>
+      <li><%= link_to "BOP #{bop.code}", bop_path(bop) %></li>
+    </ul>
+  </div>
+
+  <div class="fr-col-lg-7 fr-col-12">
+    <%# Badge services votés (uniquement en phase services votés de l'année courante) %>
+    <% if annee_affichee == annee && phase_courante == 'services votés' %>
+      <% last_sv = avis_sv_list.last %>
+      <% if last_sv.nil? %>
+        <p class="fr-badge fr-badge--warning fr-badge--no-icon">
+          <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phase_courante %>
+        </p>
+      <% elsif last_sv.etat == 'Brouillon' %>
+        <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+      <% else %>
+        <p class="fr-badge fr-badge--info fr-badge--no-icon">
+          <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= phase_courante %>
+        </p>
+      <% end %>
+    <% end %>
+
+    <%# Badges début de gestion / CRG1 / CRG2 %>
+    <% avis_bop.each_with_index do |avis, index| %>
+      <% phase_disponible = case index
+         when 0 then annee_affichee < annee || Date.today >= date_debut
+         when 1 then (annee_affichee < annee || Date.today >= date_crg1) && avis_debut&.is_crg1?
+         when 2 then annee_affichee < annee || Date.today >= date_crg2
+         end %>
+      <% if avis.nil? %>
+        <% if phase_disponible %>
+          <p class="fr-badge fr-badge--warning fr-badge--no-icon">
+            <span class="fr-icon-edit-fill fr-icon--sm" aria-hidden="true"></span><%= phases[index] %>
+          </p>
+        <% else %>
+          <p class="fr-badge">
+            <span class="fr-icon-git-repository-private-fill fr-icon--sm" aria-hidden="true"></span>
+            <%= phases[index] %>
+          </p>
+        <% end %>
+      <% elsif avis.etat == 'Brouillon' %>
+        <p class="fr-badge fr-badge--new fr-badge--no-icon">Brouillon</p>
+      <% else %>
+        <p class="fr-badge fr-badge--info fr-badge--no-icon">
+          <span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span><%= avis.phase %>
+        </p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="fr-col-lg-3 fr-col-12">
+    <% last_sv = avis_sv_list.last %>
+    <% if annee_affichee == annee && phase_courante == 'services votés' %>
+      <% if last_sv&.etat == 'Brouillon' %>
+        <%= link_to 'Reprendre le brouillon', edit_bop_avi_path(bop_id: bop.id, id: last_sv.id), class: "fr-btn" %>
+      <% else %>
+        <% label = last_sv.nil? ? 'Rédiger un avis' : 'Créer une nouvelle version' %>
+        <%= link_to label, new_bop_avi_path(bop_id: bop, date: annee_affichee), class: "fr-btn" %>
+      <% end %>
+    <% elsif (annee_affichee < annee || Date.today >= date_debut) && (avis_debut.nil? || avis_debut.etat == 'Brouillon') %>
+      <%= link_to 'Rédiger l\'avis', new_bop_avi_path(bop_id: bop, date: annee_affichee), class: "fr-btn" %>
+    <% elsif (annee_affichee < annee || Date.today >= date_crg1) && avis_debut&.is_crg1? && (avis_crg1.nil? || avis_crg1.etat == 'Brouillon') %>
+      <%= link_to 'Rédiger la note CRG1', new_bop_avi_path(bop_id: bop, date: annee_affichee), class: "fr-btn" %>
+    <% elsif (annee_affichee < annee || Date.today >= date_crg2) && (avis_crg2.nil? || avis_crg2.etat == 'Brouillon') %>
+      <%= link_to 'Rédiger la note CRG2', new_bop_avi_path(bop_id: bop, date: annee_affichee), class: "fr-btn" %>
+    <% end %>
+  </div>
+</div>
