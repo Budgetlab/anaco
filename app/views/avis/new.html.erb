@@ -30,7 +30,7 @@
             <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
               BOP doté en <%= @bop.dotation %>
             </p>
-            <% if (@phase_form == 'début de gestion' || @phase_form == 'services votés') && !@is_completed  %>
+            <% if @phase_form == 'début de gestion' || @phase_form == 'services votés' %>
               <%= link_to edit_bop_path(@bop), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>
                 Modifier
               <% end %>
@@ -46,16 +46,7 @@
         </div>
       <% end %>
 
-      <% if @is_completed %>
-        <div class="fr-alert fr-alert--success fr-mt-4w fr-mb-3w">
-          <h3 class="fr-alert__title">Avis/note <%= @phase_form %> transmis avec succès</h3>
-          <p>Vous avez déjà rempli le formulaire <%= @phase_form %> pour ce BOP.</p>
-        </div>
-        <%= link_to bop_path(@bop), class: "fr-btn fr-btn--secondary fr-mb-6w" do %>
-          Consulter ce BOP et les avis transmis
-        <% end %>
-
-      <% elsif @phase_form == "CRG1" && !@avis_debut.is_crg1 %>
+      <% if @phase_form == "CRG1" && !@avis_debut.is_crg1 %>
         <div class="fr-alert fr-alert--error">
           <h3 class="fr-alert__title">Pas de CRG1 programmé pour ce BOP</h3>
           <p>L'avis de début de gestion indique que le CRG1 n'est pas programmé pour ce BOP.</p>

@@ -43,25 +43,26 @@ class AvisController < ApplicationController
   # Page de création d'un nouvel avis
   def new
     @annee_a_afficher = annee_a_afficher
-    redirect_to remplissage_avis_path and return if @bop.statut == 'inactif'
-    # Redirection si la dotation du BOP est absente ou vide
-    redirect_to edit_bop_path(@bop) and return if @bop.dotation.nil? || @bop.dotation.blank?
+    redirect_to bop_path(@bop) and return if @bop.statut == 'inactif'
+    redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
-    set_avis_phase(@annee_a_afficher) # liste des avis renseignés sur N et N-1 pour les rappels
-    # Définir la phase du formulaire et récupérer le dernier avis
+    set_avis_phase(@annee_a_afficher)
     @phase_form = set_form_phase(@annee_a_afficher)
-    @last_avis_phase = @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form)&.last
-    # Redirection vers edit si le dernier avis est en brouillon
-    if @last_avis_phase&.etat == 'Brouillon'
-      redirect_to edit_bop_avi_path(bop_id: @bop.id, id: @last_avis_phase.id) and return
+    @last_avis_phase = @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form).order(:created_at).last
+
+    if @last_avis_phase.present?
+      # Avis existant non finalisé (brouillon) → reprendre
+      unless ['Lu', 'En attente de lecture'].include?(@last_avis_phase.etat)
+        redirect_to edit_bop_avi_path(bop_id: @bop.id, id: @last_avis_phase.id) and return
+      end
+
+      # Avis déjà finalisé et hors phase services votés → consulter le BOP
+      if @phase != 'services votés'
+        redirect_to bop_path(@bop), notice: 'Un avis a déjà été transmis pour cette phase.' and return
+      end
     end
 
-    # Définir si le formulaire est complété ou créer un nouvel avis
-    if @phase != 'services votés' && ['Lu', 'En attente de lecture'].include?(@last_avis_phase&.etat)
-      @is_completed = true
-    else
-      @avis = @bop.avis.new
-    end
+    @avis = @bop.avis.new
   end
 
   # fonction qui créé un nouvel avis
