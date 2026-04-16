@@ -63,13 +63,13 @@
                       <td>
                         <% if bop.dotation.nil? || bop.dotation.blank? %>
                           Non renseigné
-                        <% elsif bop.dotation == "aucune" %>
+                        <% elsif bop.statut == "inactif" %>
                           inactif
                         <% else %>
                           <%= bop.dotation %>
                         <% end %>
                       </td>
-                      <td><%= bop.numero_programme %> - <%= bop.nom_programme %></td>
+                      <td><%= bop.programme.numero %> - <%= bop.programme.nom %></td>
                       <td><%= bop.user.nom %></td>
                       <td><%= bop.dcb.nom %></td>
                     </tr>

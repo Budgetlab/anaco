@@ -13,7 +13,10 @@
             <% end %>
           </li>
           <li>
-            <%= link_to bops_path, class: "fr-breadcrumb__link" do %> Liste des BOP
+            <% if current_user.statut == 'admin' %>
+              <%= link_to bops_path, class: "fr-breadcrumb__link" do %> Liste des BOP <% end %>
+            <% else %>
+              <%= link_to remplissage_avis_path, class: "fr-breadcrumb__link" do %> Remplissage des avis/notes <% end %>
             <% end %>
           </li>
           <li>
@@ -34,19 +37,19 @@
           <div class="fr-card__start">
             <ul class="fr-badges-group">
               <li>
-                <p class="fr-tag"> Ministere <%= @bop.ministere %></p>
+                <p class="fr-tag"> Ministère <%= @bop.programme.ministere.nom %></p>
               </li>
             </ul>
             <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom %></p>
           </div>
           <h3 class="fr-card__title">BOP n°<%= @bop.code %></h3>
           <div class="fr-card__desc">
-            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.numero_programme %>
-                - <%= @bop.nom_programme %>
+            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.programme.numero %>
+                - <%= @bop.programme.nom %>
               <% end %></p>
             <p>Contrôleur : <%= @bop.user.nom %></p>
             <div><p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-              <% if @bop.dotation == "aucune" %>BOP inactif
+              <% if @bop.statut == "inactif" %>BOP inactif
               <% elsif @bop.dotation.nil? || @bop.dotation.blank? %>Dotation non renseignée
               <% else %>BOP doté en <%= @bop.dotation %>
               <% end %></p>

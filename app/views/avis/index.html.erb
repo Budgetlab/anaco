@@ -60,7 +60,7 @@
 
                       <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
                         <% end %></td>
-                      <td><%= avis.bop.numero_programme %> - <%= avis.bop.nom_programme %> </td>
+                      <td><%= avis.bop.programme.numero %> - <%= avis.bop.programme.nom %> </td>
                       <td><%= avis.statut %></td>
                       <td>
                         <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>

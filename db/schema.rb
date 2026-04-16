@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -121,10 +121,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_000001) do
     t.bigint "dcb_id"
     t.boolean "deconcentre", default: false, null: false
     t.string "dotation"
-    t.string "ministere"
-    t.string "nom_programme"
-    t.integer "numero_programme"
     t.bigint "programme_id"
+    t.string "statut", default: "actif", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["dcb_id"], name: "index_bops_on_dcb_id"

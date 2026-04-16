@@ -97,7 +97,7 @@
         <h3 class="fr-accordion__title">
           <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%= bop.id %>">
             BOP n°<%= bop.code %>
-            <% if bop.dotation == "aucune" %>
+            <% if bop.statut == "inactif" %>
               <p class="fr-badge fr-badge--no-icon fr-ml-2w">BOP inactif</p>
             <% else %>
               <% if last_avis_bop_sv %>

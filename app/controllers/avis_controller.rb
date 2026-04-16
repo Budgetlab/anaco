@@ -16,7 +16,7 @@ class AvisController < ApplicationController
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
     avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
     @q = avis_all.ransack(params[:q])
-    @avis_all = @q.result.includes(:bop, :user)
+    @avis_all = @q.result.includes(bop: :programme, user: [])
     @filtres_count = count_active_filters(params[:q])
     respond_to do |format|
       format.html do
@@ -96,7 +96,7 @@ class AvisController < ApplicationController
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
     avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
     @q = avis_all.ransack(params[:q])
-    @avis_all = @q.result.includes(:bop, :user)
+    @avis_all = @q.result.includes(bop: :programme, user: [])
     @avis_en_attente = @avis_all.where(etat: 'En attente de lecture')
     @avis_lus = @avis_all.where(etat: 'Lu')
     @filtres_count = count_active_filters(params[:q])

@@ -228,7 +228,7 @@ module ApplicationHelper
   end
 
   def bops_actifs(bops, annee)
-    bops.where('created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+    bops.where('created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
   end
 
   def colorful_card_css_class(amount)

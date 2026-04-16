@@ -56,11 +56,11 @@ class User < ApplicationRecord
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(dotation: ['HT2','T2','HT2 et T2','', nil])
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
   end
 
   def bops_inactifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(dotation: 'aucune')
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'inactif')
   end
 
   def avis_a_remplir(annee, phase)

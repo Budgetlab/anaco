@@ -68,7 +68,7 @@ class Programme < ApplicationRecord
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where.not(dotation: 'aucune')
+    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
   end
 
   def self.ransackable_associations(auth_object = nil)

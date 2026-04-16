@@ -1,7 +1,7 @@
 <% content_for :title do %>Formulaire création d'avis | ANACO
 <% end %>
 <main role="main" class="containtAll">
-  <% if @bop.dotation != "aucune" %>
+  <% if @bop.statut != "inactif" %>
     <div class="fr-container">
       <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
         <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
@@ -29,7 +29,7 @@
           <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code %></div>
           <div>
             <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
-              <% if @bop.dotation == "aucune" %>BOP inactif
+              <% if @bop.statut == "inactif" %>BOP inactif
               <% elsif @bop.nil? %>BOP actif
               <% else %>BOP doté en <%= @bop.dotation %>
               <% end %>

@@ -34,6 +34,7 @@ Rails.application.routes.draw do
       resources :avis, only: [:new, :create, :edit, :update]
     end
     post 'import_bops' => 'bops#import'
+    get 'export_bops' => 'bops#export'
     post 'filter_bop', to: 'bops#filter_bop'
 
     resources :missions

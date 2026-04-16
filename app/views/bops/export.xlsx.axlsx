@@ -1,0 +1,42 @@
+wb = xlsx_package.workbook
+
+header_style = wb.styles.add_style(
+  bg_color: 'dae1f2', fg_color: '161616', font_name: 'Calibri', sz: 12, b: true,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' }
+)
+cell_style = wb.styles.add_style(
+  font_name: 'Calibri', sz: 11,
+  alignment: { vertical: :top },
+  border: { style: :thin, color: 'dddddd' }
+)
+
+wb.add_worksheet(name: "BOP") do |sheet|
+  sheet.auto_filter = "A1:H1"
+
+  sheet.add_row [
+    'Code CHORUS du BOP',
+    'N°Programme',
+    'Libellé programme',
+    'Identifiant ANACO Contrôleur BOP',
+    'Identifant DCB Programme ANACO',
+    'Statut',
+    'Dotation',
+    'Déconcentré'
+  ], style: header_style, height: 30
+
+  @bops.each do |bop|
+    sheet.add_row [
+      bop.code,
+      bop.programme.numero,
+      bop.programme.nom,
+      bop.user.nom,
+      bop.dcb.nom,
+      bop.statut,
+      bop.dotation,
+      bop.deconcentre ? 'oui' : 'non'
+    ], style: cell_style
+  end
+
+  sheet.column_widths 20, 15, 40, 35, 35, 12, 15, 15
+end

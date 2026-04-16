@@ -10,7 +10,7 @@ class BopsController < ApplicationController
     @bops = current_user.statut == 'CBR' ? current_user.bops : Bop.all
     @bops = @bops.order(code: :asc)
     @q = @bops.ransack(params[:q])
-    @bops = @q.result.includes(:user)
+    @bops = @q.result.includes(:user, :programme)
     @pagy, @bops_page = pagy(@bops)
   end
 
@@ -29,11 +29,20 @@ class BopsController < ApplicationController
     @bop = Bop.find(params[:id])
     @bop.update(dotation: params[:dotation])
     if @bop.dotation == 'aucune'
-      # détruire avis sur l'année en cours (DG) si existe en brouillon
+      @bop.update(statut: 'inactif')
       @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31), phase: 'début de gestion')&.destroy_all
       redirect_to remplissage_avis_path, flash: { notice: 'suppression' }
     else
       redirect_to new_bop_avi_path(@bop.id)
+    end
+  end
+
+  def export
+    @bops = Bop.includes(:user, :programme, :dcb).order(code: :asc)
+    respond_to do |format|
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"bops_export_#{Date.today}.xlsx\""
+      end
     end
   end
 

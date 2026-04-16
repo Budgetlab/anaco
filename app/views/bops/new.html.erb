@@ -3,6 +3,11 @@
   <div class="fr-container fr-mt-7w">
     <div class="fr-col-lg-10 fr-col-offset-lg-1">
       <h1>Ajouter un nouveau document</h1>
+      <div class="fr-mb-4w">
+        <%= link_to export_bops_path(format: :xlsx), class: "fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left" do %>
+          Exporter les <%= Bop.all.count%> BOP (.xlsx)
+        <% end %>
+      </div>
      <div>
       <%= form_tag import_bops_path, multipart: true do %>
         <div class="fr-upload-group">
@@ -14,10 +19,31 @@
         <div class="fr-my-4w"><%= submit_tag "Transmettre", class:"fr-btn" %></div>
         <% end %>
     </div>
-    <div class="fr-my-4w"><%= Bop.all.count%> bops</div>
-      <% User.all.order(nom: :asc).each do |user| %>
-        <div><%= user.nom %> - <%= user.bops.count %></div>
-      <%end %>
+      <div class="fr-table fr-table--no-caption fr-mt-4w">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption>Répartition des BOP par utilisateur</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Utilisateur</th>
+                    <th scope="col" class="fr-cell--right">Nombre de BOP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% User.all.order(nom: :asc).each do |user| %>
+                    <tr>
+                      <td><%= user.nom %></td>
+                      <td class="fr-cell--right"><%= user.bops.count %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 </div>
 </main>
