@@ -1,5 +1,6 @@
 class Ht2ActesController < ApplicationController
   include Ht2ActesHelper
+  include GcsBackupConcern
 
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
@@ -1044,14 +1045,17 @@ class Ht2ActesController < ApplicationController
 
   def download_backup
     backup = BackupExport.find(params[:id])
-    filepath = Rails.root.join('tmp', backup.filename)
-    send_file filepath, filename: backup.filename, type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', disposition: 'attachment'
+    file = gcs_bucket.file(backup.gcs_path)
+    signed_url = file.signed_url(method: 'GET', expires: 300, query: { 'response-content-disposition' => "attachment; filename=\"#{backup.filename}\"" })
+    redirect_to signed_url, allow_other_host: true
   end
 
   def destroy_backup
     backup = BackupExport.find(params[:id])
-    filepath = Rails.root.join('tmp', backup.filename) if backup.filename.present?
-    File.delete(filepath) if filepath && File.exist?(filepath)
+    if backup.gcs_path.present?
+      file = gcs_bucket.file(backup.gcs_path)
+      file&.delete
+    end
     backup.destroy!
     redirect_to admin_backup_path, notice: "Sauvegarde supprimée."
   end

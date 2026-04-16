@@ -1,4 +1,6 @@
 class GenerateBackupJob < ApplicationJob
+  include GcsBackupConcern
+
   queue_as :default
 
   retry_on StandardError, wait: :exponentially_longer, attempts: 3
@@ -9,8 +11,8 @@ class GenerateBackupJob < ApplicationJob
 
     Rails.logger.info "Génération backup ##{backup_export_id}"
 
-    filename = "backup_#{Date.today.strftime('%Y%m%d_%H%M%S')}.xlsx"
-    filepath = Rails.root.join('tmp', filename)
+    filename = "backup_#{Time.current.strftime('%Y%m%d_%H%M%S')}.xlsx"
+    gcs_path = "backups/#{filename}"
 
     package = Axlsx::Package.new
     wb = package.workbook
@@ -109,10 +111,18 @@ class GenerateBackupJob < ApplicationJob
       end
     end
 
-    package.serialize(filepath.to_s)
+    Tempfile.create(['backup', '.xlsx']) do |tmp|
+      tmp.close
+      package.serialize(tmp.path)
+      gcs_bucket.create_file(
+        tmp.path,
+        gcs_path,
+        content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+    end
 
-    backup.update!(status: 'completed', filename: filename)
-    Rails.logger.info "Backup ##{backup_export_id} généré : #{filename}"
+    backup.update!(status: 'completed', filename: filename, gcs_path: gcs_path)
+    Rails.logger.info "Backup ##{backup_export_id} uploadé sur GCS : #{gcs_path}"
 
   rescue => e
     Rails.logger.error "Erreur backup ##{backup_export_id} : #{e.class} - #{e.message}"
