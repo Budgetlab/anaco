@@ -222,7 +222,7 @@ Two approaches:
 1. **Grover** (server-side) — Renders HTML to PDF via Chromium. Configured in `config/initializers/grover.rb`. Background jobs use `GenerateActePdfJob`.
 2. **jsPDF** (client-side) — Uses `html2canvas` + `jsPDF` via the `pdf_export` Stimulus controller.
 
-### Data Import
+### Data Import/Export
 
 Multiple models support spreadsheet import via the `roo` gem. Import methods follow the pattern:
 
@@ -232,6 +232,10 @@ def self.import(file)
   # Parse rows and create/update records
 end
 ```
+
+**Avis import/export workflow:** The avis module uses a dedicated save/export interface (`admin_back_up_avis`) and XLSX export (`export_avis`). Import is handled via `POST /anaco/import_avis`. The workflow supports CRG1/CRG2 phases and restitution views for reporting.
+
+**Backup exports:** The `BackupExport` model tracks export operations to Google Cloud Storage, storing the `gcs_path`, `status`, and `error_message` for each export.
 
 ### French Locale
 

@@ -105,16 +105,34 @@ Avisbop uses a server-rendered architecture with Rails ERB views enhanced by Sti
 | Template | Purpose |
 |----------|---------|
 | `avis/index.html.erb` | Opinion history with filters |
-| `avis/_form_debut.html.erb` | Initial management opinion form |
-| `avis/_form_services_votes.html.erb` | Voted services opinion form |
-| `avis/_form_execution.html.erb` | Execution phase opinion form |
-| `avis/_rappel_ecart.html.erb` | Execution comparison accordion |
+| `avis/show.html.erb` | Opinion detail view |
+| `avis/new.html.erb` | New opinion form |
+| `avis/edit.html.erb` | Edit opinion form |
+| `avis/consultation.html.erb` | Opinion consultation view |
+| `avis/remplissage_avis.html.erb` | Fill/edit opinion form (main workflow) |
+| `avis/suivi_remplissage.html.erb` | Fill-rate tracking view |
+| `avis/restitutions.html.erb` | Opinion restitutions/reports |
+| `avis/restitutions_perimetre.html.erb` | Perimeter-scoped restitutions |
+| `avis/admin_back_up_avis.html.erb` | Admin backup/save interface for opinions |
+| `avis/_bop_actif_row.html.erb` | Partial: active BOP row display |
+| `avis/_form_debut.html.erb` | Partial: initial management opinion form |
+| `avis/_form_services_votes.html.erb` | Partial: voted services opinion form |
+| `avis/_form_execution.html.erb` | Partial: execution phase opinion form |
+| `avis/_form_crg1.html.erb` | Partial: CRG1 phase form |
+| `avis/_form_crg2.html.erb` | Partial: CRG2 phase form |
+| `avis/_form_chiffres.html.erb` | Partial: financial figures form |
+| `avis/_rappel_ecart.html.erb` | Partial: execution comparison accordion |
+| `avis/_rappel_chiffres.html.erb` | Partial: financial figures reminder |
+| `avis/_synthese_chiffres.html.erb` | Partial: financial figures synthesis |
+| `avis/_success.html.erb` | Partial: success confirmation |
+
+**Excel exports:** `index.xlsx.axlsx`, `consultation.xlsx.axlsx`, `export_avis.xlsx.axlsx`
 
 ### Other Resource Views
 
 | Directory | Templates | Purpose |
 |-----------|-----------|---------|
-| `bops/` | index, show, edit, _form_bop_dotation | BOP management |
+| `bops/` | index, show, new, edit, _form_bop_dotation, _notice | BOP management |
 | `programmes/` | index, show, edit | Program directory |
 | `schemas/` | index, show, edit | Budget planning schemas |
 | `gestion_schemas/` | edit, _form | Schema management forms |

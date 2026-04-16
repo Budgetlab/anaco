@@ -56,10 +56,33 @@ All application routes are nested under `scope '/anaco'`. The root path (`/`) re
 
 | Method | Path | Action | Notes |
 |--------|------|--------|-------|
-| GET | /anaco/avis | index | List all opinions |
-| GET | /anaco/bops/:bop_id/avis/:id/consultation | consultation | View opinion |
-| GET | /anaco/bops/:bop_id/avis/:id/remplissage | remplissage | Fill/edit opinion form |
-| POST | /anaco/avis/import | import | Import from spreadsheet |
+| GET | /anaco/historique | index | Opinion history with filters |
+| GET | /anaco/avis/:id | show | Opinion detail |
+| GET | /anaco/consultation | consultation | View opinion |
+| GET | /anaco/remplissage_avis | remplissage_avis | Fill/edit opinion form (main workflow) |
+| GET | /anaco/suivi_remplissage_avis | suivi_remplissage | Fill-rate tracking |
+| GET | /anaco/restitutions | restitutions | Opinion restitutions/reports |
+| GET | /anaco/restitutions_perimetre | restitutions_perimetre | Perimeter-scoped restitutions |
+| GET | /anaco/admin_back_up_avis | admin_back_up_avis | Admin backup/save interface |
+| GET | /anaco/export_avis | export_avis | Export opinions (XLSX) |
+| POST | /anaco/import_avis | import | Import from spreadsheet |
+| POST | /anaco/update_etat | update_etat | Update opinion state |
+
+**Nested under bops:**
+
+| Method | Path | Action | Notes |
+|--------|------|--------|-------|
+| POST | /anaco/bops/:bop_id/avis | create | Create opinion for BOP |
+| GET | /anaco/bops/:bop_id/avis/new | new | New opinion form |
+| GET | /anaco/bops/:bop_id/avis/:id/edit | edit | Edit opinion form |
+| PATCH | /anaco/bops/:bop_id/avis/:id | update | Update opinion |
+| DELETE | /anaco/bops/:bop_id/avis/:id | destroy | Delete opinion |
+
+**Programme-scoped:**
+
+| Method | Path | Action | Notes |
+|--------|------|--------|-------|
+| GET | /anaco/programmes/:id/avis | show_avis | List opinions for programme |
 
 ### HT2 Actes (Financial Acts)
 

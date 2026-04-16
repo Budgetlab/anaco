@@ -19,7 +19,7 @@ ActiveAdmin.register Ht2Acte do
     "Risque au titre de la RGP",
     "Saisine a posteriori",
     "Saisine en dessous du seuil de soumission au contrôle",
-  ].freeze
+  ].freeze unless defined?(TYPES_OBSERVATIONS)
 
   permit_params :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global,
                 :centre_financier_code, :date_chorus, :numero_chorus, :beneficiaire, :objet,

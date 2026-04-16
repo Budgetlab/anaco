@@ -93,7 +93,7 @@ The application follows the classic Ruby on Rails MVC pattern with Hotwire (Turb
 | File Storage | Active Storage + GCS | latest | Document storage |
 | Background Jobs | Solid Queue | latest | Database-backed queue |
 | Deployment (App) | Cloud Run | - | Auto-scaling containers |
-| Deployment (Workers) | Kamal | latest | Docker on GCP VM |
+| Deployment (Workers) | Kamal 2 | 2.0.0+ | Docker on GCP VM |
 | CI/CD | GitHub Actions + Cloud Build | - | Testing + deployment |
 
 ---
@@ -224,7 +224,7 @@ PDF generation requires Chromium (Puppeteer in development, system Chromium in p
 | Component | Platform | Details |
 |-----------|----------|---------|
 | Web App | Google Cloud Run | Auto-scaling, port 8080 |
-| Workers | GCP VM (Kamal) | 34.163.126.114, Solid Queue |
+| Workers | GCP VM (Kamal 2) | 34.155.115.62, Solid Queue |
 | Database | Google Cloud SQL | PostgreSQL, europe-west1 |
 | Storage | Google Cloud Storage | anaco-bucket |
 | CI/CD (Tests) | GitHub Actions | On push/PR to main |

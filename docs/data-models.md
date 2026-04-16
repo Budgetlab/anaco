@@ -2,9 +2,9 @@
 
 ## Overview
 
-Avisbop uses PostgreSQL with Active Record. The schema contains 28 application tables plus infrastructure tables for Active Storage, Action Text, SolidQueue, and Active Admin. The `unaccent` extension is enabled for accent-insensitive search.
+Avisbop uses PostgreSQL with Active Record. The schema contains 29 application tables plus infrastructure tables for Active Storage, Action Text, SolidQueue, and Active Admin. The `unaccent` extension is enabled for accent-insensitive search.
 
-**Schema Version:** Rails 8.1 (latest migration: `2026_02_02_090257`)
+**Schema Version:** Rails 8.1 (latest migration: `2026_04_16_000004`)
 
 ---
 
@@ -122,16 +122,16 @@ Ministere 1──* Programme *──1 Mission
 | Column | Type | Notes |
 |--------|------|-------|
 | code | string | |
-| ministere | string | |
-| nom_programme | string | |
-| numero_programme | integer | |
 | dotation | string | |
 | deconcentre | boolean | default: false |
+| statut | string | default: "actif", null: false |
 | programme_id | FK | |
 | user_id | FK | |
 | dcb_id | FK | References User (Cabinet Director) |
 
 **Associations:** belongs_to :user, :dcb (User), :programme. has_many :avis, :centre_financiers.
+
+**Scopes:** `actif` (statut: "actif"), `inactif` (statut: "inactif").
 
 **Key Methods:** `import(file)` with complex matching logic.
 
@@ -385,6 +385,19 @@ VALID_ETATS = [
 
 ---
 
+### 17. backup_exports
+
+**Purpose:** Track backup export operations to Google Cloud Storage.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| filename | string | Name of the export file |
+| status | string | Export status |
+| error_message | text | Error details if export failed |
+| gcs_path | string | Google Cloud Storage path |
+
+---
+
 ## Join Tables
 
 | Table | Purpose |
@@ -413,4 +426,7 @@ Models with spreadsheet import: Avi (2 modes), Bop, CentreFinancier, Programme, 
 
 ## Recent Evolution (2026)
 
-Focus on organisms/perimeter management: added Organismes table, perimetre field on ht2_actes, join table for HABTM relationship, deliberation tracking fields, and conformity/soutenabilite checks.
+- Organisms/perimeter management: added Organismes table, perimetre field on ht2_actes, join table for HABTM relationship, deliberation tracking fields, and conformity/soutenabilite checks.
+- BOP model simplification: removed denormalized columns (`ministere`, `numero_programme`, `nom_programme`) — data now accessed via `programme` association. Added `statut` field (actif/inactif) for BOP lifecycle management.
+- Backup exports: added `backup_exports` table for tracking GCS backup operations.
+- Avis workflow: revamped import/export process with save/export interface, CRG1/CRG2 phase support, and restitution views.

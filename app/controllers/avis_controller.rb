@@ -15,9 +15,21 @@ class AvisController < ApplicationController
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
     avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
-    @q = avis_all.ransack(params[:q])
+
+    # On duplique pour ne pas modifier params directement
+    search_params = (params[:q] || {}).dup
+
+    # Par défaut, filtrer sur l'année en cours si aucun filtre n'est spécifié
+    if params[:q].blank?
+      search_params[:annee_in] = [Date.today.year.to_s]
+    end
+
+    # Exposer les params pour l'affichage des filtres dans la vue
+    @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
+
+    @q = avis_all.ransack(search_params)
     @avis_all = @q.result.includes(bop: :programme, user: [])
-    @filtres_count = count_active_filters(params[:q])
+    @filtres_count = count_active_filters(@q_params)
     respond_to do |format|
       format.html do
         @pagy, @avis_page = pagy(@avis_all, limit: 15)
@@ -107,19 +119,30 @@ class AvisController < ApplicationController
   def consultation
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
     avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
-    @q = avis_all.ransack(params[:q])
+
+    # On duplique pour ne pas modifier params directement
+    search_params = (params[:q] || {}).dup
+
+    # Par défaut, filtrer sur l'année en cours si aucun filtre n'est spécifié
+    if params[:q].blank?
+      search_params[:annee_in] = [Date.today.year.to_s]
+    end
+
+    # Exposer les params pour l'affichage des filtres dans la vue
+    @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
+
+    @q = avis_all.ransack(search_params)
     @avis_all = @q.result.includes(bop: :programme, user: [])
     @avis_en_attente = @avis_all.where(etat: 'En attente de lecture')
     @avis_lus = @avis_all.where(etat: 'Lu')
-    @filtres_count = count_active_filters(params[:q])
+    @filtres_count = count_active_filters(@q_params)
     respond_to do |format|
       format.html do
         @pagy_en_attente, @avis_en_attente_page = pagy(@avis_en_attente, page_param: :page_en_attente, limit: 15)
         @pagy_lus, @avis_lus_page = pagy(@avis_lus,page_param: :page_lus, limit: 15)
       end
       format.xlsx do
-        # @actes_all contient déjà tous les résultats filtrés
-        # Pas besoin de pagination pour l'export
+        response.headers['Content-Disposition'] = "attachment; filename=\"avis_lus_#{Date.today}.xlsx\""
       end
     end
   end

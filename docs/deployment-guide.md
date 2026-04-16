@@ -22,7 +22,7 @@
                ▼
 ┌─────────────────────────────────┐
 │      GCP VM (anaco-workers)     │
-│   IP: 34.163.126.114            │
+│   IP: 34.155.115.62             │
 │   Managed by: Kamal             │
 │   Docker containers:            │
 │   - Solid Queue Workers (x4)    │
@@ -101,7 +101,7 @@ Key difference: Workers need Chromium/Puppeteer for PDF generation (Grover).
 
 ---
 
-## Kamal Deployment (Workers)
+## Kamal 2 Deployment (Workers)
 
 ### Configuration
 
@@ -110,17 +110,44 @@ Key difference: Workers need Chromium/Puppeteer for PDF generation (Grover).
 ```yaml
 service: anaco-workers
 image: alexandraleschi/anaco-workers
+
+minimum_version: 2.0.0
+primary_role: workers
+retain_containers: 1
+
 servers:
   workers:
-    hosts: ["34.163.126.114"]
-    cmd: ./bin/jobs
+    hosts:
+      - 34.155.115.62
+    cmd: bin/jobs
+    proxy: false
+    labels:
+      worker-type: solid-queue
+      application: anaco
+      environment: production
+    options:
+      health-cmd: "pgrep -f 'bin/jobs' || exit 1"
+      health-interval: 10s
+      health-timeout: 5s
+      health-retries: 10
+      health-start-period: 90s
 ```
+
+**Kamal 2 specific features:**
+- `minimum_version: 2.0.0` — Enforces Kamal 2 compatibility
+- `primary_role: workers` — Designates worker role as primary deployment target
+- `retain_containers: 1` — Keeps 1 previous container for rollback
+- `proxy: false` — Workers don't need HTTP proxy (no web traffic)
+- `labels` — Docker container metadata for identification
+- `options` — Health check configuration for container monitoring
 
 **Environment variables:**
 - `JOB_CONCURRENCY`: 4
 - `PUPPETEER_EXECUTABLE_PATH`: /usr/bin/chromium
 - `RAILS_ENV`: production
 - `STORAGE_BUCKET_NAME`: anaco-bucket
+- `GOOGLE_PROJECT_ID`: apps-354210
+- `APP_URL`: https://budgetlab.finances.gouv.fr/anaco
 
 ### Deployment Commands
 
@@ -152,8 +179,31 @@ kamal app details
 Located in `.kamal/secrets` (gitignored). Required values:
 - `KAMAL_REGISTRY_PASSWORD` — Docker Hub authentication
 - `SECRET_KEY_BASE` — Rails secret (generate with `rails secret`)
-- `DATABASE_URL` — PostgreSQL connection URL
 - `RAILS_MASTER_KEY` — From `config/master.key`
+- `PRODUCTION_DB_PASSWORD` — PostgreSQL password
+- `PRODUCTION_DB_NAME` — Database name
+- `PRODUCTION_DB_USERNAME` — Database user
+- `CLOUD_SQL_CONNECTION_NAME` — GCP Cloud SQL instance
+
+### Volumes
+
+```yaml
+volumes:
+  - anaco-storage:/rails/storage
+  - anaco-logs:/rails/log
+```
+
+### Accessories
+
+A Cloud SQL Proxy sidecar is deployed as a Kamal accessory:
+
+```yaml
+accessories:
+  cloud-sql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+    hosts:
+      - 34.155.115.62
+```
 
 ---
 
@@ -218,7 +268,7 @@ tail -f log/development.log
 
 ```bash
 # SSH to worker VM
-ssh root@34.163.126.114
+ssh alexandra@34.155.115.62
 
 # Docker stats
 docker stats

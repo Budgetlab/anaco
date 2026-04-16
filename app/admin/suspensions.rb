@@ -15,7 +15,7 @@ ActiveAdmin.register Suspension do
     "Problématique de disponibilité des crédits",
     "Problématique de soutenabilité",
     "Saisine a posteriori",
-  ].freeze
+  ].freeze unless defined?(MOTIFS_SUSPENSION)
 
   permit_params :ht2_acte_id, :date_suspension, :date_reprise, :observations, :commentaire_reprise, motif: []
 
