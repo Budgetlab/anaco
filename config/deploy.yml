@@ -7,9 +7,6 @@ service: anaco-workers
 # Image Docker
 image: alexandraleschi/anaco-workers
 
-# Rôle principal (requis par Kamal)
-primary_role: workers
-
 # Serveurs de déploiement - VM GCP
 servers:
   # PAS de serveur web - on déploie uniquement les workers
