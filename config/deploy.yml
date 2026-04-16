@@ -28,6 +28,7 @@ servers:
         - 8.8.4.4
     proxy:
       app_port: 3000
+      deploy_timeout: 120
       healthcheck:
         path: /up
         interval: 10
@@ -95,6 +96,8 @@ boot:
 accessories:
   cloud-sql-proxy:
     image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
-    hosts:  # Pluriel pour Kamal 2
+    hosts:
       - 34.155.115.62
     cmd: --address 0.0.0.0 --port 5432 apps-354210:europe-west1:budgetlab
+    options:
+      network: kamal
