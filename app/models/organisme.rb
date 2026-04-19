@@ -24,16 +24,24 @@ class Organisme < ApplicationRecord
 
       row_data = Hash[[headers, row].transpose]
 
-      # Find or initialize organisme by nom
-      organisme = Organisme.find_or_initialize_by(nom: row_data['Nom']&.to_s&.strip)
+      user = User.find_by(nom: row_data['Nom ANACO']&.to_s&.strip)
+      next unless user
 
-      # Find user by nom
-      user = User.find_by(nom: row_data['Nom user']&.to_s&.strip) if row_data['Nom user'].present?
+      id_opera = row_data['ID Opera'].present? ? row_data['ID Opera'].to_i : nil
+      statut   = row_data['Statut']&.to_s&.strip
 
+      organisme = Organisme.find_by(id_opera: id_opera) if id_opera
+
+      if organisme.nil?
+        next unless statut&.downcase == 'actif'
+        organisme = Organisme.new(id_opera: id_opera)
+      end
+
+      organisme.user_id = user.id
+      organisme.nom = row_data['Nom']&.to_s&.strip
       organisme.acronyme = row_data['Acronyme']&.to_s&.strip
-      organisme.statut = row_data['Statut']&.to_s&.strip if row_data['Statut'].present?
-      organisme.user_id = user.id if user.present?
-      organisme.id_opera = row_data['Id opera']&.to_i if row_data['Id opera'].present?
+      organisme.statut = statut if statut.present?
+      organisme.nature_controle = row_data['Nature de contrôle']
 
       organisme.save
     end

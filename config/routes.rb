@@ -123,6 +123,7 @@ Rails.application.routes.draw do
 
     resources :organismes, only: [:new, :index]
     post 'import_organismes', to: 'organismes#import'
+    get 'export_organismes', to: 'organismes#export'
     get '/organismes/autocomplete', to: 'organismes#autocomplete'
 
     get '/mentions-legales', to: 'pages#mentions_legales'

@@ -1,0 +1,42 @@
+wb = xlsx_package.workbook
+
+header_style = wb.styles.add_style(
+  bg_color: 'dae1f2', fg_color: '161616', font_name: 'Calibri', sz: 12, b: true,
+  alignment: { horizontal: :center, vertical: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' }
+)
+cell_style = wb.styles.add_style(
+  font_name: 'Calibri', sz: 11,
+  alignment: { vertical: :top },
+  border: { style: :thin, color: 'dddddd' }
+)
+
+wb.add_worksheet(name: "Organismes") do |sheet|
+  sheet.auto_filter = "A1:H1"
+
+  sheet.add_row [
+    'Nom',
+    'Acronyme',
+    'Statut',
+    'Nature de contrôle',
+    'Nom ANACO',
+    'ID Opera',
+    'Nb actes HT2',
+    'Date de création'
+  ], style: header_style, height: 30
+
+  @organismes.each do |organisme|
+    sheet.add_row [
+      organisme.nom,
+      organisme.acronyme,
+      organisme.statut,
+      organisme.nature_controle,
+      organisme.user&.nom,
+      organisme.id_opera,
+      organisme.ht2_actes.size,
+      organisme.created_at&.strftime('%d/%m/%Y')
+    ], style: cell_style
+  end
+
+  sheet.column_widths 40, 20, 12, 25, 30, 12, 15, 15
+end

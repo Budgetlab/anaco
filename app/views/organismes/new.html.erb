@@ -1,8 +1,18 @@
 <% content_for :title do %>Import liste des Organismes | ANACO <% end %>
 <main role="main" class="containtAll">
-  <div class="fr-container fr-mt-7w">
+  <div class="fr-container-blue">
+    <div class="fr-container">
+      <div class="fr-grid-row fr-grid-row--middle fr-py-3w">
+        <div class="fr-col-12">
+          <h1 class="fr-h2 fr-mb-0">Organismes</h1>
+          <p class="fr-text--sm fr-mt-1w fr-mb-0">Import et export de la liste des organismes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-container fr-my-4w">
     <div class="fr-col-lg-10 fr-col-offset-lg-1">
-      <h1>Importer une liste d'organismes</h1>
 
       <% if notice.present? %>
         <div class="fr-alert fr-alert--success fr-mb-4w">
@@ -44,7 +54,12 @@
       </div>
 
       <div class="fr-my-6w">
-        <h2 class="fr-h5">Liste des organismes (<%= Organisme.count %>)</h2>
+        <div class="title-btn fr-mb-3w">
+          <h2 class="fr-h5 fr-mb-0">Liste des organismes (<%= Organisme.count %>)</h2>
+          <%= link_to export_organismes_path(format: :xlsx), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-download-line" do %>
+            Exporter
+          <% end %>
+        </div>
         <% if @organismes.any? %>
           <div class="fr-table">
             <table>
@@ -53,8 +68,10 @@
                   <th>Nom</th>
                   <th>Acronyme</th>
                   <th>Statut</th>
+                  <th>Nature de contrôle</th>
                   <th>Utilisateur</th>
                   <th>ID Opera</th>
+                  <th>Nb actes HT2</th>
                 </tr>
               </thead>
               <tbody>
@@ -63,8 +80,10 @@
                     <td><%= organisme.nom %></td>
                     <td><%= organisme.acronyme %></td>
                     <td><%= organisme.statut %></td>
+                    <td><%= organisme.nature_controle %></td>
                     <td><%= organisme.user.nom if organisme.user %></td>
                     <td><%= organisme.id_opera %></td>
+                    <td><%= organisme.ht2_actes.size %></td>
                   </tr>
                 <% end %>
               </tbody>
@@ -77,3 +96,4 @@
     </div>
   </div>
 </main>
+

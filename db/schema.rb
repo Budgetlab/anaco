@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -310,6 +310,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_000004) do
     t.string "acronyme"
     t.datetime "created_at", null: false
     t.integer "id_opera"
+    t.string "nature_controle"
     t.string "nom", null: false
     t.string "statut"
     t.datetime "updated_at", null: false
