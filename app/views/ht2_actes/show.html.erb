@@ -49,7 +49,7 @@
           </span>
         </h1>
         <% if current_user.statut == "admin" %>
-          <h2><%= @acte.user.nom %></h2>
+          <h2><%= @acte.user&.nom %></h2>
         <% end %>
 
         <div class="fr-tabs">
@@ -72,7 +72,7 @@
                   <% if acte.perimetre == 'organisme' %><%= badge_categorie_organisme(acte) %><%end %>
                   <span class="fr-text--italic">créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
                   <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction" %>
-                    , <%= acte.etat %> le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
+                    , <%= acte.etat %><%= " le #{l(acte.date_cloture, format: '%e/%m/%y')}" if acte.date_cloture.present? %>
                     <% end %>
                   </span>
 
@@ -114,7 +114,7 @@
                               Télécharger la fiche (Excel)
                             <% end %>
 
-                            <% if acte.pdf_attached? && acte.pdf_generation_status == 'completed' %>
+                            <% if acte.pdf_attached? && acte.pdf_generation_status == 'completed' && acte.pdf_files.last.present? %>
                               <%= link_to rails_storage_redirect_path(acte.pdf_files.last, disposition: "attachment"),
                                           class: "fr-btn fr-btn--secondary fr-icon-download-line",
                                           target: "_blank" do %>
