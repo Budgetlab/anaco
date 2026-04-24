@@ -8,7 +8,7 @@ FROM ruby:4.0
 # [END cloudrun_rails_base_image]
 
 # Install Node.js (updated method for Debian Bookworm)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs
 
 # Install Yarn
