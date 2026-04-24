@@ -38,6 +38,9 @@ class Ht2ActesController < ApplicationController
       search_params_current[:delai_traitement_lteq] = 15
     end
 
+    search_params_current[:created_at_lteq] = search_params_current[:created_at_lteq].to_date.end_of_day if search_params_current[:created_at_lteq].present?
+    search_params_current[:updated_at_lteq] = search_params_current[:updated_at_lteq].to_date.end_of_day if search_params_current[:updated_at_lteq].present?
+
     # Gestion du filtre "Avec observations"
     avec_observations_values = Array(search_params_current.delete(:avec_observations_in))
 
@@ -177,6 +180,9 @@ class Ht2ActesController < ApplicationController
 
     # Gestion du filtre "Suspensions"
     suspensions_count_values = Array(search_params.delete(:suspensions_count_in))
+
+    search_params[:created_at_lteq] = search_params[:created_at_lteq].to_date.end_of_day if search_params[:created_at_lteq].present?
+    search_params[:updated_at_lteq] = search_params[:updated_at_lteq].to_date.end_of_day if search_params[:updated_at_lteq].present?
 
     @q = @ht2_actes.ransack(search_params)
     # Gestion du tri
@@ -921,8 +927,8 @@ class Ht2ActesController < ApplicationController
     @selected_perimetre = @q_params[:perimetre_eq].presence
     @selected_type_actes = Array(@q_params[:type_acte_in]).reject(&:blank?)
 
-    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes)
-    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes)
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq])
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq])
   end
 
   def download_attachments
@@ -1243,11 +1249,15 @@ class Ht2ActesController < ApplicationController
     end
   end
 
-  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [])
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [], updated_at_from = nil, updated_at_to = nil, created_at_from = nil, created_at_to = nil)
     users.includes(:ht2_actes).map do |user|
       ht2_actes = year ? user.ht2_actes.where(annee: year) : user.ht2_actes.annee_courante
       ht2_actes = ht2_actes.where(perimetre: perimetre) if perimetre.present?
       ht2_actes = ht2_actes.where(type_acte: type_actes) if type_actes.present?
+      ht2_actes = ht2_actes.where('created_at >= ?', created_at_from.to_date.beginning_of_day) if created_at_from.present?
+      ht2_actes = ht2_actes.where('created_at <= ?', created_at_to.to_date.end_of_day) if created_at_to.present?
+      ht2_actes = ht2_actes.where('updated_at >= ?', updated_at_from.to_date.beginning_of_day) if updated_at_from.present?
+      ht2_actes = ht2_actes.where('updated_at <= ?', updated_at_to.to_date.end_of_day) if updated_at_to.present?
 
       actes_clotures = ht2_actes.clotures
       actes_clotures = actes_clotures.where('date_cloture >= ?', date_cloture_from) if date_cloture_from.present?

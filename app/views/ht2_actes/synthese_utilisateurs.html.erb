@@ -61,9 +61,11 @@
             </div>
             <div class="fr-mb-4w">
               <% has_date_filter = @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+              <% has_created_at_filter = @q_params[:created_at_gteq].present? || @q_params[:created_at_lteq].present? %>
+              <% has_updated_at_filter = @q_params[:updated_at_gteq].present? || @q_params[:updated_at_lteq].present? %>
               <% has_type_acte_filter = @selected_type_actes.present? %>
-              <% has_filters = has_date_filter || has_type_acte_filter %>
-              <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) %>
+              <% has_filters = has_date_filter || has_created_at_filter || has_updated_at_filter || has_type_acte_filter %>
+              <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_created_at_filter ? 1 : 0) + (has_updated_at_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) %>
               <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
               <ul class="fr-tags-group">
                 <li>
@@ -75,6 +77,24 @@
                       Clôture
                       <%= " du #{@q_params[:date_cloture_gteq]}" if @q_params[:date_cloture_gteq].present? %>
                       <%= " au #{@q_params[:date_cloture_lteq]}" if @q_params[:date_cloture_lteq].present? %>
+                    </p>
+                  </li>
+                <% end %>
+                <% if has_created_at_filter %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">
+                      Création
+                      <%= " du #{@q_params[:created_at_gteq]}" if @q_params[:created_at_gteq].present? %>
+                      <%= " au #{@q_params[:created_at_lteq]}" if @q_params[:created_at_lteq].present? %>
+                    </p>
+                  </li>
+                <% end %>
+                <% if has_updated_at_filter %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">
+                      Dernière modification
+                      <%= " du #{@q_params[:updated_at_gteq]}" if @q_params[:updated_at_gteq].present? %>
+                      <%= " au #{@q_params[:updated_at_lteq]}" if @q_params[:updated_at_lteq].present? %>
                     </p>
                   </li>
                 <% end %>
@@ -232,6 +252,30 @@
                     </div>
                     <div class="fr-grid-row fr-grid-row--gutters">
                       <div class="fr-col-12">
+                        <span class="fr-label fr-text--bold">Type d'acte</span>
+                        <% selected_type_actes = Array(@q_params[:type_acte_in]) %>
+                        <ul class="fr-tags-group fr-mt-1w">
+                          <% ['avis', 'visa', 'TF'].each do |t| %>
+                            <% checked = selected_type_actes.include?(t) %>
+                            <li>
+                              <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
+                                     data-controller="tag-select"
+                                     data-action="change->tag-select#toggle"
+                                     role="button">
+                                <%= check_box_tag 'q[type_acte_in][]',
+                                                  t,
+                                                  checked,
+                                                  class: "fr-sr-only",
+                                                  data: { tag_select_target: "checkbox" } %>
+                                <span><%= t %></span>
+                              </label>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12">
                         <span class="fr-label fr-text--bold">Clôture entre</span>
                         <div class="fr-grid-row fr-grid-row--gutters">
                           <div class="fr-col-12 fr-col-md-6">
@@ -253,26 +297,40 @@
                     </div>
                     <div class="fr-grid-row fr-grid-row--gutters">
                       <div class="fr-col-12">
-                        <span class="fr-label fr-text--bold">Type d'acte</span>
-                        <% selected_type_actes = Array(@q_params[:type_acte_in]) %>
-                        <ul class="fr-tags-group fr-mt-1w">
-                          <% ['avis', 'visa', 'TF'].each do |t| %>
-                            <% checked = selected_type_actes.include?(t) %>
-                            <li>
-                              <label class="fr-tag tag-selectable <%= 'is-selected' if checked %>"
-                                     data-controller="tag-select"
-                                     data-action="change->tag-select#toggle"
-                                     role="button">
-                                <%= check_box_tag 'q[type_acte_in][]',
-                                                  t,
-                                                  checked,
-                                                  class: "fr-sr-only",
-                                                  data: { tag_select_target: "checkbox" } %>
-                                <span><%= t %></span>
-                              </label>
-                            </li>
-                          <% end %>
-                        </ul>
+                        <span class="fr-label fr-text--bold">Création entre</span>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="q_created_at_gteq">Du</label>
+                            <input type="date" name="q[created_at_gteq]" id="q_created_at_gteq"
+                                   class="fr-input"
+                                   value="<%= @q_params[:created_at_gteq] %>">
+                          </div>
+                          <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="q_created_at_lteq">Au</label>
+                            <input type="date" name="q[created_at_lteq]" id="q_created_at_lteq"
+                                   class="fr-input"
+                                   value="<%= @q_params[:created_at_lteq] %>">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12">
+                        <span class="fr-label fr-text--bold">Dernière modification entre</span>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="q_updated_at_gteq">Du</label>
+                            <input type="date" name="q[updated_at_gteq]" id="q_updated_at_gteq"
+                                   class="fr-input"
+                                   value="<%= @q_params[:updated_at_gteq] %>">
+                          </div>
+                          <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="q_updated_at_lteq">Au</label>
+                            <input type="date" name="q[updated_at_lteq]" id="q_updated_at_lteq"
+                                   class="fr-input"
+                                   value="<%= @q_params[:updated_at_lteq] %>">
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

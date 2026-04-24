@@ -92,6 +92,8 @@
                 has_montant = q[:montant_ae_gteq].present? || q[:montant_ae_lteq].present?
                 has_cloture = q[:date_cloture_gteq].present? || q[:date_cloture_lteq].present?
                 has_reception = q[:date_chorus_gteq].present? || q[:date_chorus_lteq].present?
+                has_created_at = q[:created_at_gteq].present? || q[:created_at_lteq].present?
+                has_updated_at = q[:updated_at_gteq].present? || q[:updated_at_lteq].present?
 
                 filter_count = [
                   selected_years.any?, selected_type_actes.any?,
@@ -100,7 +102,7 @@
                   selected_hors_delai.any?, selected_suspensions.any?, selected_avec_obs.any?,
                   selected_type_obs.any?, has_numero, has_nature, has_controleur, selected_controleurs.any?, has_profil, has_instructeur,
                   has_cf, has_organisme, has_ordonnateur, has_beneficiaire, has_activite,
-                  has_nature_cat, has_montant, has_cloture, has_reception
+                  has_nature_cat, has_montant, has_cloture, has_reception, has_created_at, has_updated_at
                 ].count(true)
 
                 is_default_only = selected_years == [Date.today.year.to_s] && filter_count == 1
@@ -203,6 +205,16 @@
                 <% if has_reception %>
                   <li>
                     <p class="fr-tag fr-tag--filtres">Réception<%= " du #{q[:date_chorus_gteq]}" if q[:date_chorus_gteq].present? %><%= " au #{q[:date_chorus_lteq]}" if q[:date_chorus_lteq].present? %></p>
+                  </li>
+                <% end %>
+                <% if has_created_at %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">Création<%= " du #{q[:created_at_gteq]}" if q[:created_at_gteq].present? %><%= " au #{q[:created_at_lteq]}" if q[:created_at_lteq].present? %></p>
+                  </li>
+                <% end %>
+                <% if has_updated_at %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">Dernière modification<%= " du #{q[:updated_at_gteq]}" if q[:updated_at_gteq].present? %><%= " au #{q[:updated_at_lteq]}" if q[:updated_at_lteq].present? %></p>
                   </li>
                 <% end %>
                 <% if has_any_filter %>
@@ -830,6 +842,46 @@
                             <%= f.date_field :date_chorus_lteq,
                                              class: 'fr-input',
                                              value: params.dig(:q, :date_chorus_lteq) %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="fr-col-12">
+                        <span class="fr-label fr-text--bold">Création entre</span>
+
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :created_at_gteq, 'Du', class: 'fr-label' %>
+                            <%= f.date_field :created_at_gteq,
+                                             class: 'fr-input',
+                                             value: params.dig(:q, :created_at_gteq) %>
+                          </div>
+
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :created_at_lteq, 'Au', class: 'fr-label' %>
+                            <%= f.date_field :created_at_lteq,
+                                             class: 'fr-input',
+                                             value: params.dig(:q, :created_at_lteq) %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="fr-col-12">
+                        <span class="fr-label fr-text--bold">Dernière modification entre</span>
+
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :updated_at_gteq, 'Du', class: 'fr-label' %>
+                            <%= f.date_field :updated_at_gteq,
+                                             class: 'fr-input',
+                                             value: params.dig(:q, :updated_at_gteq) %>
+                          </div>
+
+                          <div class="fr-col-12 fr-col-md-6">
+                            <%= f.label :updated_at_lteq, 'Au', class: 'fr-label' %>
+                            <%= f.date_field :updated_at_lteq,
+                                             class: 'fr-input',
+                                             value: params.dig(:q, :updated_at_lteq) %>
                           </div>
                         </div>
                       </div>
