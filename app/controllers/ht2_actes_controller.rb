@@ -4,7 +4,7 @@ class Ht2ActesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
-  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :update, :destroy, :acte_actions]
+  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :destroy, :acte_actions]
   before_action :set_acte_ht2, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :authorize_show!, only: [:show]
   before_action :set_variables_form, only: [:edit, :validate_acte]
