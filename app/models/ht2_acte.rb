@@ -39,6 +39,7 @@ class Ht2Acte < ApplicationRecord
   scope :a_cloturer, -> { where(etat: ["à clôturer"]) }
   scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :clotures_seuls, -> { where(etat: 'clôturé') }
+  scope :clotures_apres_pre_instruction, -> { where(etat: 'clôturé après pré-instruction') }
   scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
   scope :perimetre_etat, -> { where(perimetre: 'etat') }
@@ -586,6 +587,13 @@ class Ht2Acte < ApplicationRecord
       update_column(:etat, "en cours d'instruction")
     elsif self.etat == "clôturé" && self.decision_finale.nil?
       update_column(:decision_finale, self.proposition_decision)
+    end
+    if self.etat == "clôturé" && self.valideur.blank?
+      update_column(:valideur, self.instructeur)
+    end
+    if self.etat == "clôturé après pré-instruction"
+      update_column(:valideur, self.instructeur) if self.valideur.blank?
+      update_column(:decision_finale, self.proposition_decision) if self.decision_finale.nil?
     end
   end
 

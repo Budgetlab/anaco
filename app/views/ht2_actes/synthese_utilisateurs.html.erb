@@ -64,8 +64,9 @@
               <% has_created_at_filter = @q_params[:created_at_gteq].present? || @q_params[:created_at_lteq].present? %>
               <% has_updated_at_filter = @q_params[:updated_at_gteq].present? || @q_params[:updated_at_lteq].present? %>
               <% has_type_acte_filter = @selected_type_actes.present? %>
-              <% has_filters = has_date_filter || has_created_at_filter || has_updated_at_filter || has_type_acte_filter %>
-              <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_created_at_filter ? 1 : 0) + (has_updated_at_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) %>
+              <% has_type_cloture_filter = @q_params[:type_cloture].present? %>
+              <% has_filters = has_date_filter || has_created_at_filter || has_updated_at_filter || has_type_acte_filter || has_type_cloture_filter %>
+              <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_created_at_filter ? 1 : 0) + (has_updated_at_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) + (has_type_cloture_filter ? 1 : 0) %>
               <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
               <ul class="fr-tags-group">
                 <li>
@@ -104,6 +105,14 @@
                       <p class="fr-tag fr-tag--filtres"><%= t %></p>
                     </li>
                   <% end %>
+                <% end %>
+                <% if has_type_cloture_filter %>
+                  <li>
+                    <p class="fr-tag fr-tag--filtres">
+                      <% label = @q_params[:type_cloture] == 'cloture_seule' ? 'Clôturés' : 'Clôturés après pré-instruction' %>
+                      <%= label %>
+                    </p>
+                  </li>
                 <% end %>
                 <% if has_filters %>
                   <li>
@@ -272,6 +281,18 @@
                             </li>
                           <% end %>
                         </ul>
+                      </div>
+                    </div>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                      <div class="fr-col-12">
+                        <label class="fr-label fr-text--bold" for="q_type_cloture">Actes clôturés</label>
+                        <%= select_tag "q[type_cloture]",
+                                       options_for_select(
+                                         [['Clôturés et Clôturés après pré-instruction', ''], ['Clôturés', 'cloture_seule'], ['Clôturés après pré-instruction', 'cloture_apres_pre_instruction']],
+                                         @q_params[:type_cloture].to_s
+                                       ),
+                                       id: "q_type_cloture",
+                                       class: "fr-select" %>
                       </div>
                     </div>
                     <div class="fr-grid-row fr-grid-row--gutters">
