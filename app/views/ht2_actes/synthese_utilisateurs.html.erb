@@ -66,11 +66,19 @@
               <% has_type_acte_filter = @selected_type_actes.present? %>
               <% has_type_cloture_filter = @q_params[:type_cloture].present? %>
               <% has_filters = has_date_filter || has_created_at_filter || has_updated_at_filter || has_type_acte_filter || has_type_cloture_filter %>
-              <% filter_count = 1 + (has_date_filter ? 1 : 0) + (has_created_at_filter ? 1 : 0) + (has_updated_at_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) + (has_type_cloture_filter ? 1 : 0) %>
+              <% filter_count = 2 + (has_date_filter ? 1 : 0) + (has_created_at_filter ? 1 : 0) + (has_updated_at_filter ? 1 : 0) + (has_type_acte_filter ? 1 : 0) %>
               <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
               <ul class="fr-tags-group">
                 <li>
                   <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
+                </li>
+                <li>
+                  <% type_cloture_label = case @q_params[:type_cloture]
+                                          when 'cloture_seule' then 'Clôturés'
+                                          when 'cloture_apres_pre_instruction' then 'Clôturés après pré-instruction'
+                                          else 'Clôturés et Clôturés après pré-instruction'
+                                          end %>
+                  <p class="fr-tag fr-tag--filtres"><%= type_cloture_label %></p>
                 </li>
                 <% if has_date_filter %>
                   <li>
@@ -105,14 +113,6 @@
                       <p class="fr-tag fr-tag--filtres"><%= t %></p>
                     </li>
                   <% end %>
-                <% end %>
-                <% if has_type_cloture_filter %>
-                  <li>
-                    <p class="fr-tag fr-tag--filtres">
-                      <% label = @q_params[:type_cloture] == 'cloture_seule' ? 'Clôturés' : 'Clôturés après pré-instruction' %>
-                      <%= label %>
-                    </p>
-                  </li>
                 <% end %>
                 <% if has_filters %>
                   <li>
@@ -183,6 +183,13 @@
                   </div>
                 </div>
               </div>
+              <div class="fr-mt-4w"
+                   data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="bar"
+                   data-highcharts-actes-title-value="Actes clôturés par CBR"
+                   data-highcharts-actes-data-value="<%= @stats_cbr.map { |s| { name: s[:user].nom, y: s[:actes_clotures_count] } }.to_json %>">
+                <div data-highcharts-actes-target="chart"></div>
+              </div>
             </div>
             <div id="storybook-tab-21-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="storybook-tab-21" tabindex="0">
               <div class="fr-table--lg fr-table fr-table--no-caption fr-table--bordered">
@@ -225,6 +232,13 @@
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="fr-mt-4w"
+                   data-controller="highcharts-actes"
+                   data-highcharts-actes-type-value="bar"
+                   data-highcharts-actes-title-value="Actes clôturés par DCB"
+                   data-highcharts-actes-data-value="<%= @stats_dcb.map { |s| { name: s[:user].nom, y: s[:actes_clotures_count] } }.to_json %>">
+                <div data-highcharts-actes-target="chart"></div>
               </div>
             </div>
           </div>
