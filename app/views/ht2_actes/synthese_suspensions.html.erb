@@ -70,14 +70,22 @@
         </div>
         <div class="fr-grid-row">
           <div class="fr-col-12">
-            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? %>
+            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? || @q_params[:annee_eq].to_i != Date.today.year || @selected_type_cloture.present? %>
             <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
             <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], @q_params[:nom_organisme_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count %>
             <div>
-              <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
+              <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 2 %>)</h6>
               <ul class="fr-tags-group">
                 <li>
                   <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
+                </li>
+                <li>
+                  <% type_cloture_label = case @selected_type_cloture
+                                          when 'cloture_seule' then 'Clôturés'
+                                          when 'cloture_apres_pre_instruction' then 'Clôturés en pré-instruction'
+                                          else 'Clôturés et Clôturés en pré-instruction'
+                                          end %>
+                  <p class="fr-tag fr-tag--filtres"><%= type_cloture_label %></p>
                 </li>
                 <% if @q_params[:user_statut_eq].present? %>
                   <li>
@@ -435,6 +443,18 @@
                   </div>
 
                 <% end %>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold" for="q_type_cloture_suspensions">Actes clôturés</label>
+                    <%= select_tag "q[type_cloture]",
+                                   options_for_select(
+                                     [['Clôturés et Clôturés en pré-instruction', ''], ['Clôturés', 'cloture_seule'], ['Clôturés en pré-instruction', 'cloture_apres_pre_instruction']],
+                                     @selected_type_cloture.to_s
+                                   ),
+                                   id: "q_type_cloture_suspensions",
+                                   class: "fr-select" %>
+                  </div>
+                </div>
                 <div class="fr-grid-row fr-grid-row--gutters">
                   <div class="fr-col-12">
                     <label class="fr-label fr-text--bold">Centre financier</label>

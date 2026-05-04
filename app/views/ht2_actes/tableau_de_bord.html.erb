@@ -72,15 +72,23 @@
         </div>
         <div class="fr-grid-row">
           <div class="fr-col-12">
-            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? || @q_params[:services_votes_in].present? %>
+            <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:centre_financier_code_cont].present? || @q_params[:nom_organisme_cont].present? || @q_params[:date_cloture_gteq].present? || @q_params[:date_cloture_lteq].present? || @q_params[:services_votes_in].present? || @q_params[:annee_eq].to_i != Date.today.year || @selected_type_cloture.present? %>
             <% controleurs_count = @q_params[:user_nom_in].present? ? Array(@q_params[:user_nom_in]).count : 0 %>
             <% services_votes_count = @q_params[:services_votes_in].present? ? Array(@q_params[:services_votes_in]).reject(&:blank?).count : 0 %>
             <% filter_count = [@q_params[:user_statut_eq], @q_params[:centre_financier_code_cont], @q_params[:nom_organisme_cont], (@q_params[:date_cloture_gteq] || @q_params[:date_cloture_lteq])].compact.reject(&:blank?).count + controleurs_count + (services_votes_count > 0 ? 1 : 0) %>
             <div>
-              <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 1 %>)</h6>
+              <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count + 2 %>)</h6>
               <ul class="fr-tags-group">
                 <li>
                   <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] || Date.today.year %></p>
+                </li>
+                <li>
+                  <% type_cloture_label = case @selected_type_cloture
+                                          when 'cloture_seule' then 'Clôturés'
+                                          when 'cloture_apres_pre_instruction' then 'Clôturés en pré-instruction'
+                                          else 'Clôturés et Clôturés en pré-instruction'
+                                          end %>
+                  <p class="fr-tag fr-tag--filtres"><%= type_cloture_label %></p>
                 </li>
                 <% if @q_params[:user_statut_eq].present? %>
                   <li>
@@ -325,21 +333,21 @@
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @decisions_data.to_json %>"
-                       data-highcharts-actes-title-value="Répartition des actes par Décision"></div>
+                       data-highcharts-actes-data-value="<%= @preinstruction_data.to_json %>"
+                       data-highcharts-actes-title-value="Suivi de la pré-instruction"></div>
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-decisions">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-preinstruction">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-decisions">
+                    <div class="fr-collapse" id="accordion-preinstruction">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
                             <div class="fr-table__content">
                               <table>
-                                <caption>Répartition des décisions</caption>
+                                <caption>Pré-instruction</caption>
                                 <thead>
                                 <tr>
                                   <th> Nature</th>
@@ -348,12 +356,11 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% return_variable('decision').each do |type| %>
-                                  <% value = @decisions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
+                                <% @preinstruction_data.each do |item| %>
                                   <tr>
-                                    <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
-                                    <td> <%= value %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(value, @total_actes) %></td>
+                                    <td class="fr-cell--multiline"> <%= item[:name] %> </td>
+                                    <td> <%= item[:y] %> </td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(item[:y], @total_actes) %></td>
                                   </tr>
                                 <% end %>
                                 <tr class="fr-table--total">
@@ -369,7 +376,6 @@
                       </div>
                     </div>
                   </section>
-
                 </div>
               </div>
             </div>
@@ -444,21 +450,21 @@
                 <div class='fr-card fr-p-2w'>
                   <div data-controller="highcharts-actes"
                        data-highcharts-actes-target="chart"
-                       data-highcharts-actes-data-value="<%= @preinstruction_data.to_json %>"
-                       data-highcharts-actes-title-value="Suivi de la pré-instruction"></div>
+                       data-highcharts-actes-data-value="<%= @decisions_data.to_json %>"
+                       data-highcharts-actes-title-value="Répartition des actes par Décision"></div>
                   <section class="fr-accordion">
                     <h3 class="fr-accordion__title">
-                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-preinstruction">Tableau
+                      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-decisions">Tableau
                         des données
                       </button>
                     </h3>
-                    <div class="fr-collapse" id="accordion-preinstruction">
+                    <div class="fr-collapse" id="accordion-decisions">
                       <div class="fr-table">
                         <div class="fr-table__wrapper">
                           <div class="fr-table__container">
                             <div class="fr-table__content">
                               <table>
-                                <caption>Pré-instruction</caption>
+                                <caption>Répartition des décisions</caption>
                                 <thead>
                                 <tr>
                                   <th> Nature</th>
@@ -467,11 +473,20 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% @preinstruction_data.each do |item| %>
+                                <% return_variable('decision').each do |type| %>
+                                  <% value = @decisions_data.find { |h| h[:name] == type }&.dig(:y) || 0 %>
                                   <tr>
-                                    <td class="fr-cell--multiline"> <%= item[:name] %> </td>
-                                    <td> <%= item[:y] %> </td>
-                                    <td class="fr-cell--multiline"><%= percentage_of(item[:y], @total_actes) %></td>
+                                    <td class='fr-capitalize fr-cell--multiline'> <%= type %> </td>
+                                    <td> <%= value %> </td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(value, @total_actes) %></td>
+                                  </tr>
+                                <% end %>
+                                <% non_renseigne = @decisions_data.find { |h| h[:name] == 'Non renseigné' } %>
+                                <% if non_renseigne %>
+                                  <tr>
+                                    <td class="fr-cell--multiline">Non renseigné</td>
+                                    <td><%= non_renseigne[:y] %></td>
+                                    <td class="fr-cell--multiline"><%= percentage_of(non_renseigne[:y], @total_actes) %></td>
                                   </tr>
                                 <% end %>
                                 <tr class="fr-table--total">
@@ -487,6 +502,7 @@
                       </div>
                     </div>
                   </section>
+
                 </div>
               </div>
             </div>
@@ -847,6 +863,18 @@
                   </div>
 
                 <% end %>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold" for="q_type_cloture">Actes clôturés</label>
+                    <%= select_tag "q[type_cloture]",
+                                   options_for_select(
+                                     [['Clôturés et Clôturés en pré-instruction', ''], ['Clôturés', 'cloture_seule'], ['Clôturés en pré-instruction', 'cloture_apres_pre_instruction']],
+                                     @selected_type_cloture.to_s
+                                   ),
+                                   id: "q_type_cloture",
+                                   class: "fr-select" %>
+                  </div>
+                </div>
                 <div class="fr-grid-row fr-grid-row--gutters">
                   <div class="fr-col-12">
                     <label class="fr-label fr-text--bold">Centre financier</label>

@@ -75,8 +75,8 @@
                 <li>
                   <% type_cloture_label = case @q_params[:type_cloture]
                                           when 'cloture_seule' then 'Clôturés'
-                                          when 'cloture_apres_pre_instruction' then 'Clôturés après pré-instruction'
-                                          else 'Clôturés et Clôturés après pré-instruction'
+                                          when 'cloture_apres_pre_instruction' then 'Clôturés en pré-instruction'
+                                          else 'Clôturés et Clôturés en pré-instruction'
                                           end %>
                   <p class="fr-tag fr-tag--filtres"><%= type_cloture_label %></p>
                 </li>
@@ -302,7 +302,7 @@
                         <label class="fr-label fr-text--bold" for="q_type_cloture">Actes clôturés</label>
                         <%= select_tag "q[type_cloture]",
                                        options_for_select(
-                                         [['Clôturés et Clôturés après pré-instruction', ''], ['Clôturés', 'cloture_seule'], ['Clôturés après pré-instruction', 'cloture_apres_pre_instruction']],
+                                         [['Clôturés et Clôturés en pré-instruction', ''], ['Clôturés', 'cloture_seule'], ['Clôturés en pré-instruction', 'cloture_apres_pre_instruction']],
                                          @q_params[:type_cloture].to_s
                                        ),
                                        id: "q_type_cloture",

@@ -425,15 +425,21 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
+    @selected_type_cloture = @q_params[:type_cloture].presence
+
     @q = @ht2_actes.clotures.ransack(@q_params)
-    @actes_filtered = @q.result(distinct: true) #pour graphes pre instruction
-    @actes_cloture = @actes_filtered.clotures_seuls
+    @actes_filtered = @q.result(distinct: true)
+    @actes_cloture = case @selected_type_cloture
+                     when 'cloture_seule' then @actes_filtered.clotures_seuls
+                     when 'cloture_apres_pre_instruction' then @actes_filtered.clotures_apres_pre_instruction
+                     else @actes_filtered.clotures
+                     end
     @total_actes = @actes_cloture.count
 
     # Données pour le graphique pie
     @type_actes = @actes_cloture.group_by(&:type_acte).transform_values(&:count).map { |type, count| { name: type || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
     @perimetre_data = @actes_cloture.group_by(&:perimetre).transform_values(&:count).map { |perimetre, count| { name: perimetre&.capitalize || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
-    @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision.presence || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @natures_data = @actes_cloture.group_by(&:nature).transform_values(&:count).map { |nature, count| { name: nature || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     @ordonnateurs_data = @actes_cloture.group_by(&:ordonnateur).transform_values(&:count).map { |ordonnateur, count| { name: ordonnateur || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
     # Données pour le graphique des programmes
@@ -489,7 +495,12 @@ class Ht2ActesController < ApplicationController
 
     # Créer un scope pour @evolution_par_annee sans les filtres annee_eq et dates de clôture
     q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
-    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
+    evolution_scope = case @selected_type_cloture
+                      when 'cloture_seule' then @ht2_actes.clotures_seuls
+                      when 'cloture_apres_pre_instruction' then @ht2_actes.clotures_apres_pre_instruction
+                      else @ht2_actes.clotures
+                      end
+    @q_evolution = evolution_scope.ransack(q_params_evolution)
     actes_for_evolution = @q_evolution.result(distinct: true)
 
     # Regrouper par année et type_acte
@@ -521,7 +532,14 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @ht2_actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @ht2_actes.clotures_apres_pre_instruction
+                    else @ht2_actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
     @actes_filtered = @q.result(distinct: true)
 
     year = @q_params[:annee_eq].to_i
@@ -647,7 +665,14 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @ht2_actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @ht2_actes.clotures_apres_pre_instruction
+                    else @ht2_actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
     @actes_filtered = @q.result(distinct: true).includes(:suspensions)
     @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
     @suspensions_all_count = @suspensions_all.count
@@ -693,7 +718,7 @@ class Ht2ActesController < ApplicationController
     # Calcul de l'évolution pluriannuelle des suspensions
     # Créer un scope pour @evolution_suspensions_dataset sans les filtres annee_eq et dates de clôture
     q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
-    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
+    @q_evolution = cloture_scope.ransack(q_params_evolution)
     actes_for_evolution = @q_evolution.result(distinct: true)
 
     years = (2024..Date.today.year).to_a
@@ -748,7 +773,14 @@ class Ht2ActesController < ApplicationController
       @q_params[:annee_eq] = Date.today.year
     end
 
-    @q = @ht2_actes.clotures_seuls.ransack(@q_params)
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @ht2_actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @ht2_actes.clotures_apres_pre_instruction
+                    else @ht2_actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
     @actes_filtered = @q.result(distinct: true)
 
     # Données pour les observations - Utilise unnest de PostgreSQL
@@ -770,7 +802,7 @@ class Ht2ActesController < ApplicationController
     # Calcul de l'évolution pluriannuelle des observations
     # Créer un scope pour @evolution_observations_dataset sans les filtres annee_eq et dates de clôture
     q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
-    @q_evolution = @ht2_actes.clotures_seuls.ransack(q_params_evolution)
+    @q_evolution = cloture_scope.ransack(q_params_evolution)
     actes_for_evolution = @q_evolution.result(distinct: true)
 
     years = (2024..Date.today.year).to_a
