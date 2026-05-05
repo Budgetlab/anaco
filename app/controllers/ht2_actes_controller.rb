@@ -344,7 +344,7 @@ class Ht2ActesController < ApplicationController
   def modal_pre_instruction; end
 
   def cloture_pre_instruction
-    @acte.update(etat: "clôturé après pré-instruction")
+    @acte.update(etat: "clôturé en pré-instruction")
     notice = update_acte_notice(@acte.etat, 0, @acte.type_acte)
     redirect_to ht2_acte_path(@acte), notice: notice
   end
@@ -455,7 +455,7 @@ class Ht2ActesController < ApplicationController
     @preinstruction_data = [
       { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
       { name: "Clôturé avec pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: true).count },
-      { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé après pré-instruction").count }
+      { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé en pré-instruction").count }
     ]
 
     # Répartition des actes programmés

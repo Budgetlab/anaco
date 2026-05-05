@@ -204,7 +204,7 @@
 
 
     </div>
-  <% elsif @acte.etat == "clôturé après pré-instruction" %>
+  <% elsif @acte.etat == "clôturé en pré-instruction" %>
     <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
       <li>
         <%= form_with(model: @acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>

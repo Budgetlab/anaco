@@ -39,7 +39,7 @@ module Ht2ActesHelper
       'fr-badge fr-badge--pink-tuile'
     when 'clôturé'
       'fr-badge fr-badge--success fr-badge--no-icon'
-    when 'clôturé après pré-instruction'
+    when 'clôturé en pré-instruction'
       'fr-badge fr-badge--yellow-tournesol'
     else
       'fr-badge'
@@ -94,8 +94,8 @@ module Ht2ActesHelper
       "Acte à suspendre par le valideur."
     elsif etat == 'à suspendre' && type_acte != 'avis'
       "Acte à interrompre par le valideur."
-    elsif etat == "clôturé après pré-instruction"
-      "Acte clôturé après pré-instruction avec succès."
+    elsif etat == "clôturé en pré-instruction"
+      "Acte clôturé en pré-instruction avec succès."
     elsif etape == 7
       "Acte renvoyé en pré-instruction avec succès."
     elsif etape == 8

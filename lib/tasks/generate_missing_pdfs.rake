@@ -8,7 +8,7 @@ namespace :ht2_actes do
 
     # Trouver tous les actes clôturés ou clôturés après pré-instruction sans PDF
     # Trier par date de clôture décroissante pour avoir les plus récents en premier
-    tous_actes_clotures = Ht2Acte.where(etat: ['clôturé', 'clôturé après pré-instruction'])
+    tous_actes_clotures = Ht2Acte.where(etat: ['clôturé', 'clôturé en pré-instruction'])
                                   .order(date_cloture: :desc)
 
     actes_sans_pdf = tous_actes_clotures.select { |acte| !acte.pdf_attached? }

@@ -11,7 +11,7 @@
       <div class="fr-text--italic fr-mb-1w">
         Acte n°<%= acte.numero_formate %>, saisine n°<%= acte.numero_saisine %>, créé
         le <%= l(acte.created_at, format: "%e/%m/%y") %>
-        <% if acte.etat == "clôturé" || acte.etat == "clôturé après pré-instruction" %>, <%= acte.etat %>
+        <% if acte.etat == "clôturé" || acte.etat == "clôturé en pré-instruction" %>, <%= acte.etat %>
           le <%= l(acte.date_cloture, format: "%e/%m/%y") %>
         <% end %>
       </div>
@@ -107,7 +107,7 @@
               <td><%= acte.annee %></td>
               <td> <%= format_date_text(acte.date_chorus) %></td>
               <td>
-                <% if ['clôturé', 'clôturé après pré-instruction'].include?(acte.etat) %>
+                <% if ['clôturé', 'clôturé en pré-instruction'].include?(acte.etat) %>
                   <span class="<%= 'cwarning' if acte.delai_traitement.to_i > 15 %>"><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %></span>
                 <% else %>
                   <%= etat_acte(acte) %>

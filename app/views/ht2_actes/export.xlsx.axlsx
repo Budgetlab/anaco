@@ -154,7 +154,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      info_headers += ["Date de saisine", "Délai de traitement"]
      sheet.add_row info_headers.reject(&:blank?), style: header_style
 
-     delai = ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat) ?
+     delai = ['clôturé', 'clôturé en pré-instruction'].include?(@acte.etat) ?
              "#{@acte.delai_traitement.to_i} jour#{'s' if @acte.delai_traitement.to_i != 1}" :
              etat_acte(@acte)
 
@@ -194,7 +194,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
      type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
      delai =
-       if ['clôturé', 'clôturé après pré-instruction'].include?(@acte.etat)
+       if ['clôturé', 'clôturé en pré-instruction'].include?(@acte.etat)
          n = @acte.delai_traitement.to_i
          "#{n} jour#{'s' if n != 1}"
        else

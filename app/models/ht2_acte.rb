@@ -37,10 +37,10 @@ class Ht2Acte < ApplicationRecord
   scope :en_pre_instruction, -> { where(etat: ["en pré-instruction"]) }
   scope :suspendus, -> { where(etat: ["suspendu"]) }
   scope :a_cloturer, -> { where(etat: ["à clôturer"]) }
-  scope :clotures, -> { where(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :clotures, -> { where(etat: ['clôturé', 'clôturé en pré-instruction']) }
   scope :clotures_seuls, -> { where(etat: 'clôturé') }
-  scope :clotures_apres_pre_instruction, -> { where(etat: 'clôturé après pré-instruction') }
-  scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé après pré-instruction']) }
+  scope :clotures_apres_pre_instruction, -> { where(etat: 'clôturé en pré-instruction') }
+  scope :non_clotures, -> { where.not(etat: ['clôturé', 'clôturé en pré-instruction']) }
   scope :annee_courante, -> { where(annee: Date.current.year) }
   scope :perimetre_etat, -> { where(perimetre: 'etat') }
   scope :perimetre_organisme, -> { where(perimetre: 'organisme') }
@@ -82,7 +82,7 @@ class Ht2Acte < ApplicationRecord
     "à suspendre",
     "à valider",
     "à clôturer",
-    "clôturé après pré-instruction",
+    "clôturé en pré-instruction",
     "clôturé"
   ].freeze
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir
@@ -427,7 +427,7 @@ class Ht2Acte < ApplicationRecord
         numero_chorus: row_data["numero_chorus"].to_s,
         beneficiaire: row_data["beneficiaire"],
         objet: row_data["objet"],
-        etat: row_data["decision_finale"].present? ? "clôturé" : "clôturé après pré-instruction",
+        etat: row_data["decision_finale"].present? ? "clôturé" : "clôturé en pré-instruction",
         numero_tf: row_data["numero_tf"].to_s,
         numero_marche: row_data["numero_marche"].to_s,
         user: user,
@@ -591,7 +591,7 @@ class Ht2Acte < ApplicationRecord
     if self.etat == "clôturé" && self.valideur.blank?
       update_column(:valideur, self.instructeur)
     end
-    if self.etat == "clôturé après pré-instruction"
+    if self.etat == "clôturé en pré-instruction"
       update_column(:valideur, self.instructeur) if self.valideur.blank?
       update_column(:decision_finale, self.proposition_decision) if self.decision_finale.nil?
     end
@@ -720,7 +720,7 @@ class Ht2Acte < ApplicationRecord
     case etat
     when 'clôturé'
       calculate_delai_traitement if saved_change_to_etat? || date_cloture.blank?
-    when 'clôturé après pré-instruction'
+    when 'clôturé en pré-instruction'
       calculate_delai_traitement_pre_instruction if saved_change_to_etat?
     when 'en pré-instruction', 'en cours d\'instruction'
       # renvoie en pré-instruction, instruction
@@ -768,7 +768,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def calculate_delai_traitement_pre_instruction
-    return unless etat == 'clôturé après pré-instruction'
+    return unless etat == 'clôturé en pré-instruction'
 
     update_columns(
       date_cloture: Date.today,
