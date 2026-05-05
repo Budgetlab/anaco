@@ -255,9 +255,16 @@ export default class extends Controller {
     }
     getLegendPieConfig() {
         return {
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            padding: 6,
+            itemMarginTop: 2,
+            itemMarginBottom: 2,
             itemStyle: {
                 color: 'var(--text-title-grey)',
-                fontSize: '11px' // Réduire la taille si nécessaire
+                fontSize: '10px',
+                fontWeight: 'normal',
             },
         };
     }
