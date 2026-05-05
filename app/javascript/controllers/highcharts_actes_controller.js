@@ -257,13 +257,13 @@ export default class extends Controller {
         return {
             align: 'center',
             verticalAlign: 'bottom',
-            layout: 'horizontal',
-            padding: 6,
+            layout: 'vertical',
+            maxHeight: 150,
             itemMarginTop: 2,
             itemMarginBottom: 2,
             itemStyle: {
                 color: 'var(--text-title-grey)',
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 'normal',
             },
         };
