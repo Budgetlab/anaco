@@ -7,6 +7,10 @@ minimum_version: 2.0.0
 primary_role: workers
 retain_containers: 1
 
+deploy_timeout: 180
+readiness_delay: 10
+drain_timeout: 30
+
 servers:
   workers:
     hosts:
@@ -18,7 +22,7 @@ servers:
       application: anaco
       environment: production
     options:
-      health-cmd: "pgrep -f 'bin/jobs' || exit 1"
+      health-cmd: "pgrep -f bin/jobs"
       health-interval: 10s
       health-timeout: 5s
       health-retries: 10

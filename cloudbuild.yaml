@@ -22,10 +22,10 @@ steps:
 
 substitutions:
   _REGION: europe-west1
-  _SERVICE_NAME: anaco-test
+  _SERVICE_NAME: anaco
   _INSTANCE_NAME: budgetlab
   _SECRET_NAME: anaco-secret
-  _PRODUCTION_DB_NAME: anaco-test
+  _PRODUCTION_DB_NAME: anaco
   _PRODUCTION_DB_USERNAME: postgres
   _CLOUD_SQL_CONNECTION_NAME: apps-354210:europe-west1:budgetlab
 
