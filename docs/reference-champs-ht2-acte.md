@@ -50,7 +50,7 @@ Ces deux champs déterminent la configuration complète du formulaire.
 | `'à suspendre'` | Mise en attente de suspension | — |
 | `'à valider'` | En attente de validation | — |
 | `'à clôturer'` | En attente de clôture | — |
-| `'clôturé après pré-instruction'` | Clôturé en pré-instruction | → `date_cloture = today`, `delai_traitement = today - created_at` |
+| `'clôturé en pré-instruction'` | Clôturé en pré-instruction | → `date_cloture = today`, `delai_traitement = today - created_at` |
 | `'clôturé'` | Clôturé | → copie `proposition_decision` dans `decision_finale` si vide, calcule `delai_traitement` |
 
 > **Édition bloquée** si `etat` n'est pas dans : `'en cours d'instruction'`, `'suspendu'`, `'en pré-instruction'`, `'à suspendre'`.
@@ -61,29 +61,29 @@ Ces deux champs déterminent la configuration complète du formulaire.
 
 | Champ | Type BDD | Obligatoire | Format / Contraintes | Défaut | Conditionne d'autres champs |
 |---|---|---|---|---|---|
-| `date_chorus` | date | ⚠️ Conditionnel | Date (JJ/MM/AAAA). Requis pour le calcul de `date_limite` et `delai_traitement` | NULL | **Oui** — déclenche le calcul de `date_limite` (date_chorus + 15 jours + ajustements suspensions) |
+| `date_saisine` | date | ⚠️ Conditionnel | Date (JJ/MM/AAAA). Requis pour le calcul de `date_limite` et `delai_traitement` | NULL | **Oui** — déclenche le calcul de `date_limite` (date_saisine + 15 jours + ajustements suspensions) |
 | `date_limite` | date | ❌ Non | Calculée automatiquement. `NULL` si `etat='suspendu'` | NULL | Non |
-| `date_cloture` | date | ⚠️ Conditionnel | Requis pour calculer `delai_traitement` si `etat='clôturé'`. Mis à `today` automatiquement si `etat='clôturé après pré-instruction'` | NULL | Non |
+| `date_cloture` | date | ⚠️ Conditionnel | Requis pour calculer `delai_traitement` si `etat='clôturé'`. Mis à `today` automatiquement si `etat='clôturé en pré-instruction'` | NULL | Non |
 | `date_deliberation_ca` | date | ⚠️ Conditionnel | Requis si `deliberation_ca = true` | NULL | Non |
 
 ### Calcul de `date_limite`
 
-Actif uniquement si `etat` ∈ `['en cours d'instruction', 'suspendu', 'à valider']` et `date_chorus` présente.
+Actif uniquement si `etat` ∈ `['en cours d'instruction', 'suspendu', 'à valider']` et `date_saisine` présente.
 
 | `type_acte` | Formule |
 |---|---|
-| `avis` | `date_chorus + 15 jours + somme des durées de suspension` |
-| `visa` / `TF` | Si dernière suspension a une reprise : `date_reprise + 15 jours`. Sinon : `date_chorus + 15 jours` |
+| `avis` | `date_saisine + 15 jours + somme des durées de suspension` |
+| `visa` / `TF` | Si dernière suspension a une reprise : `date_reprise + 15 jours`. Sinon : `date_saisine + 15 jours` |
 | Si `etat='suspendu'` | `NULL` |
 
 ### Calcul de `delai_traitement` (en jours, pour `etat='clôturé'`)
 
 | `type_acte` | Formule |
 |---|---|
-| Aucune suspension | `date_cloture − date_chorus` |
-| `avis` avec suspensions | `(date_cloture − date_chorus) − somme des durées de suspension` |
+| Aucune suspension | `date_cloture − date_saisine` |
+| `avis` avec suspensions | `(date_cloture − date_saisine) − somme des durées de suspension` |
 | `visa` / `TF` avec suspensions | `date_cloture − date_reprise_dernière_suspension` |
-| `clôturé après pré-instruction` | `today − created_at` |
+| `clôturé en pré-instruction` | `today − created_at` |
 
 ---
 
@@ -120,7 +120,6 @@ Ces champs sont principalement pertinents pour `perimetre='etat'`.
 |---|---|---|---|---|---|
 | `centre_financier_code` | string | ❌ Non | Code en majuscules (normalisé automatiquement). Espaces en début/fin supprimés. Déclenche association avec `CentreFinancier` | NULL | **Oui** — associe automatiquement un `CentreFinancier` (créé avec statut `'non valide'` si inconnu) |
 | `action` | string | ❌ Non | Texte libre | NULL | Non |
-| `sous_action` | string | ❌ Non | Texte libre | NULL | Non |
 | `activite` | string | ❌ Non | Texte libre | NULL | Non |
 | `categorie` | string | ❌ Non | Valeur parmi : `'23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73'` | NULL | Non |
 | `groupe_marchandises` | string | ❌ Non | Texte libre | NULL | Non |
@@ -295,12 +294,38 @@ Détail de l'imputation budgétaire. Rejeté si `centre_financier_code` est vide
 
 ---
 
+## 15. Critères de contrôle — Conditions d'affichage
+
+> **Légende couleur** (selon le formulaire de saisie)
+> - **Violet** : périmètre **État** uniquement
+> - **Rouge** : périmètre **Organisme** uniquement
+> - **Noir** : commun aux deux périmètres
+
+Les colonnes du tableau représentent les configurations possibles. Les `x` indiquent que le critère est affiché et saisissable dans cette configuration. Les cellules vides indiquent que le critère n'apparaît pas (N/A dans l'export).
+
+| Critère (champ BDD) | Programmation initiale transmise : OUI (`avis_programmation=true`) | Programmation initiale transmise : NON (`avis_programmation=false`) | Opération pour compte de tiers : OUI (`operation_compte_tiers=true`) | Opération pour compte de tiers : NON (`operation_compte_tiers=false`) | Budget exécutoire : OUI (`budget_executoire=true`) | Budget exécutoire : NON (`budget_executoire=false`) | Dépenses (`categorie_organisme='depense'`) | Recettes (`categorie_organisme='recette'`) | Services votés : OUI (`services_votes=true`) | Services votés : NON (`services_votes=false`) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| L'acte figure dans le dernier document de programmation / dernier budget (`programmation_prevue`) | x | x | x | x | x | x | x | x | x | x |
+| Disponibilité des crédits / des fonds au sein de la trésorerie (`disponibilite_credits`) | x | x | x | x | x | x | x |   | x | x |
+| Compatibilité avec la programmation annuelle et pluriannuelle (`programmation`) — *violet : État uniquement* | x |   |   |   |   |   |   |   |   | x |
+| Imputation de la dépense / recette (`imputation_depense`) | x | x |   | x | x | x | x | x | x | x |
+| Exactitude de l'évaluation de la consommation des crédits (`consommation_credits`) | x | x | x | x | x | x | x |   | x | x |
+| Compatibilité avec le caractère soutenable de la gestion / Caractère soutenable des engagements financiers exigés en contrepartie de la recette (`soutenabilite`) — *rouge : Organisme uniquement* |   |   |   | x | x | x | x | x | x | x |
+| Conformité au seuil de contrôle (`conformite`) — *rouge : Organisme uniquement* |   |   | x | x | x | x | x | x | x | x |
+| Opération autorisée par les autorités de tutelle dans l'attente du vote du BI (`autorisation_tutelle`) — *rouge : Organisme uniquement* |   |   | x | x |   | x | x | x | x | x |
+| Concordance entre les recettes encaissées pour compte de tiers et les reversements correspondants (`concordance_recettes_tiers`) — *rouge : Organisme uniquement* |   |   | x |   | x | x |   | x | x | x |
+| Acte éligible à la gestion des services votés / Engagement éligible à la gestion des services votés (`programmation`) | x | x | x | x | x | x | x |   | x |   |
+
+> **Note :** Les colonnes "Programmation initiale transmise" et "Services votés" sont propres au **périmètre État** (`_form_criteres`). Les colonnes "Opération compte tiers", "Budget exécutoire", "Dépenses/Recettes" sont propres au **périmètre Organisme** (`_form_criteres_organisme`). Un critère marqué violet n'apparaît que dans `_form_criteres` ; un critère rouge que dans `_form_criteres_organisme`.
+
+---
+
 ## 15. Divers
 
 | Champ | Type BDD | Obligatoire | Format / Contraintes | Défaut | Notes |
 |---|---|---|---|---|---|
 | `sheet_data` | jsonb NOT NULL | ❌ Non | JSON : `{"data": [...]}` | `{"data": []}` | Données de la feuille de calcul intégrée (jspreadsheet) |
-| `delai_traitement` | integer | ❌ Non | En jours. Calculé automatiquement. Remis à `NULL` si état repasse en instruction | NULL | Calculé seulement pour `etat='clôturé'` ou `'clôturé après pré-instruction'` |
+| `delai_traitement` | integer | ❌ Non | En jours. Calculé automatiquement. Remis à `NULL` si état repasse en instruction | NULL | Calculé seulement pour `etat='clôturé'` ou `'clôturé en pré-instruction'` |
 | `created_at` | datetime NOT NULL | Auto | — | Auto | Non modifiable |
 | `updated_at` | datetime NOT NULL | Auto | — | Auto | Non modifiable |
 
@@ -338,7 +363,7 @@ Détail de l'imputation budgétaire. Rejeté si `centre_financier_code` est vide
 
 | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Validation | Validation | Validation | Validation | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `type_acte` | `instructeur` | `nature` | `type_engagement` | `centre_financier_code` | `montant_ae` | `montant_global` | `annee` | `date_chorus` | `numero_chorus` | `beneficiaire` | `numero_tf` | `objet` | `ordonnateur` | `gestion_anticipee` | `pre_instruction` | `liste_actes` | `nombre_actes` | `precisions_acte` | `categorie` | `action` | `activite` | `numero_marche` | `groupe_marchandises` | `services_votes` | `avis_programmation` | `programmation_prevue` | `disponibilite_credits` | `imputation_depense` | `consommation_credits` | `programmation` | `proposition_decision` | `date_cloture` | `commentaire_proposition_decision` | `observations` | `type_observations` | `valideur` | `decision_finale` | `commentaire_proposition_decision` | `date_cloture` | `etat` | `numero_formate` | `date_limite` | `delai_traitement` | `numero_utilisateur` |
+| `type_acte` | `instructeur` | `nature` | `type_engagement` | `centre_financier_code` | `montant_ae` | `montant_global` | `annee` | `date_saisine` | `numero_chorus` | `beneficiaire` | `numero_tf` | `objet` | `ordonnateur` | `gestion_anticipee` | `pre_instruction` | `liste_actes` | `nombre_actes` | `precisions_acte` | `categorie` | `action` | `activite` | `numero_marche` | `groupe_marchandises` | `services_votes` | `avis_programmation` | `programmation_prevue` | `disponibilite_credits` | `imputation_depense` | `consommation_credits` | `programmation` | `proposition_decision` | `date_cloture` | `commentaire_proposition_decision` | `observations` | `type_observations` | `valideur` | `decision_finale` | `commentaire_proposition_decision` | `date_cloture` | `etat` | `numero_formate` | `date_limite` | `delai_traitement` | `numero_utilisateur` |
 | Type d'acte | Initiales de l'instructeur | Nature de l'acte | Type d'engagement / Type d'affectation | Centre financier | Montant de l'acte (AE) | Montant estimatif global (AE) | Exercice | Date de saisine | N° Chorus | Bénéficiaire / SIRET | N° d'affectation | Objet / Opération d'investissement | Ordonnateur | Acte en gestion anticipée | Préinstruction | Cette instruction concerne une liste d'actes | Nombre d'actes | Précisions sur l'acte | Titre / Catégorie | Action / Sous-action | Code activité | Numéro de marché | Groupe de marchandises | Cet acte a été réalisé en période de services votés | Programmation initiale transmise | L'acte figure dans le dernier document de programmation | Disponibilité des crédits | Imputation de la dépense | Exactitude de l'évaluation de la consommation des crédits | Compatibilité avec la programmation / Éligibilité gestion services votés | Proposition de décision de contrôle | Date de clôture | Commentaire interne sur la décision | Propositions d'observations à l'ordonnateur | Type d'observations | Initiales du valideur | Décision finale de contrôle | Commentaire interne sur la décision | Date de clôture | État | Numéro formaté | Date limite | Délai de traitement (jours) | Numéro utilisateur |
 | `'avis'`, `'visa'`, `'TF'` | Texte libre | Liste selon `type_acte` (§13) · absent pour TF | Liste selon `type_acte` (§13) | Majuscules, espaces supprimés | Décimal ≥ 0 | Décimal | Entier ex. `2024` | Date JJ/MM/AAAA · absent si pré-instruction | Texte libre · pour TF : doit commencer par TF | Texte libre · absent pour TF | Texte libre · TF uniquement (N° d'affectation, commence par 30, 10 car.) · avis/visa uniquement (Numéro Chorus de la TF, commence par TF, 8 car.) | Texte libre | Texte libre | Oui / Non · défaut Non | Oui / Non | Oui / Non · défaut Non | Entier · si liste_actes=Oui | Texte libre | Parmi 23 valeurs (§7) | Texte libre | Texte libre | Texte libre · absent pour TF | Texte libre · absent pour TF | Oui / Non · défaut Oui si phase="services votés", sinon Non | Oui / Non · défaut Oui · masqué si services_votés=Oui | Oui / Non · défaut Non | Oui / Non | Oui / Non | Oui / Non | Oui / Non · libellé varie si services_votes=Oui | Liste selon `type_acte` (§11) | Date JJ/MM/AAAA | Texte libre | Texte libre | Valeurs multiples (§13) | Texte libre | Liste selon `type_acte` (§11) | Texte libre | Date JJ/MM/AAAA | Voir §3 | Format `AA-NNNN` | Date JJ/MM/AAAA | Entier | Entier |
 | ✅ | ✅ | ✅ si présent (absent pour TF) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ si présent (absent si pré-instruction) | ❌ | ❌ si présent (absent pour TF) | ❌ si présent · visible pour TF (N° affectation) ET pour avis/visa (N° Chorus TF) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ si présent (si liste_actes=Oui) | ❌ | ❌ | ❌ | ❌ | ❌ si présent (absent pour TF) | ❌ si présent (absent pour TF) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ si présent (si services_votes=Oui) | ⚠️ si etat=en cours d'instruction | ✅ si présent (si clôture) | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ si présent (si clôture) | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 |
@@ -354,7 +379,7 @@ Détail de l'imputation budgétaire. Rejeté si `centre_financier_code` est vide
 
 | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Informations | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 1 — Infos complémentaires | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 2 — Critères | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Étape 3 — Décision | Validation | Validation | Validation | Validation | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé | 🔒 Calculé |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `type_acte` | `categorie_organisme` | `instructeur` | `nature` | `type_engagement` | `nom_organisme` | `annee` | `date_chorus` | `montant_ae` | `type_montant` | `montant_global` | `operation_compte_tiers` | `operation_budgetaire` | `nature_categorie_organisme` | `budget_executoire` | `numero_chorus` | `beneficiaire` | `objet` | `ordonnateur` | `pre_instruction` | `liste_actes` | `nombre_actes` | `precisions_acte` | `deliberation_ca` | `numero_deliberation_ca` | `date_deliberation_ca` | `observations_deliberation_ca` | `destination` | `nomenclature` | `flux` | `services_votes` | `programmation_prevue` | `disponibilite_credits` | `imputation_depense` | `consommation_credits` | `soutenabilite` | `conformite` | `concordance_recettes_tiers` | `programmation` | `autorisation_tutelle` | `proposition_decision` | `date_cloture` | `commentaire_proposition_decision` | `observations` | `type_observations` | `valideur` | `decision_finale` | `commentaire_proposition_decision` | `date_cloture` | `etat` | `numero_formate` | `date_limite` | `delai_traitement` | `numero_utilisateur` |
+| `type_acte` | `categorie_organisme` | `instructeur` | `nature` | `type_engagement` | `nom_organisme` | `annee` | `date_saisine` | `montant_ae` | `type_montant` | `montant_global` | `operation_compte_tiers` | `operation_budgetaire` | `nature_categorie_organisme` | `budget_executoire` | `numero_chorus` | `beneficiaire` | `objet` | `ordonnateur` | `pre_instruction` | `liste_actes` | `nombre_actes` | `precisions_acte` | `deliberation_ca` | `numero_deliberation_ca` | `date_deliberation_ca` | `observations_deliberation_ca` | `destination` | `nomenclature` | `flux` | `services_votes` | `programmation_prevue` | `disponibilite_credits` | `imputation_depense` | `consommation_credits` | `soutenabilite` | `conformite` | `concordance_recettes_tiers` | `programmation` | `autorisation_tutelle` | `proposition_decision` | `date_cloture` | `commentaire_proposition_decision` | `observations` | `type_observations` | `valideur` | `decision_finale` | `commentaire_proposition_decision` | `date_cloture` | `etat` | `numero_formate` | `date_limite` | `delai_traitement` | `numero_utilisateur` |
 | Type d'acte | Catégorie organisme | Initiales de l'instructeur | Nature de l'acte | Type d'engagement | Nom de l'organisme | Exercice | Date de saisine | Montant de l'acte (AE) | Type de montant | Montant total | Opération pour compte de tiers | Opération budgétaire | Nature de la dépense / Affectation de la recette | Budget exécutoire | N° de l'acte interne à l'organisme | Bénéficiaire / SIRET / Partie versante | Objet de la dépense / recette | Service ordonnateur | Préinstruction | Cette instruction concerne une liste d'actes | Nombre d'actes | Précisions sur l'acte | Délibération en CA nécessaire | N° délibération | Date délibération | Observations sur la délibération | Destination | Nomenclature achat / recette | Flux | Cet acte a été réalisé en période de services votés | L'acte figure dans le dernier budget | Disponibilité des fonds / crédits | Imputation de la dépense / recette | Exactitude de l'évaluation de la consommation des crédits | Caractère soutenable de la gestion | Conformité au seuil de contrôle | Concordance recettes encaissées pour compte de tiers et reversements | Engagement éligible à la gestion des services votés | Opération autorisée par les autorités de tutelle | Proposition de décision de contrôle | Date de clôture | Commentaire interne sur la décision | Propositions d'observations à l'ordonnateur | Type d'observations | Initiales du valideur | Décision finale de contrôle | Commentaire interne sur la décision | Date de clôture | État | Numéro formaté | Date limite | Délai de traitement (jours) | Numéro utilisateur |
 | `'avis'`, `'visa'`, `'TF'` | `'depense'` ou `'recette'` | Texte libre | Liste selon categorie_organisme (§13) | Liste selon categorie_organisme + type_acte (§13) · absent si recette | Format `"Acronyme - Nom"` ou `"Nom"` | Entier ex. `2024` | Date JJ/MM/AAAA · absent si pré-instruction | Décimal ≥ 0 | `'TTC'` ou `'HT'` · défaut TTC | Décimal · si depense | Oui / Non · défaut Non | `'Globalisée'` ou `'Fléchée'` · masqué si operation_compte_tiers=Oui | `'Investissement'`, `'Fonctionnement'`, `'Intervention'`, `'Mixte'` · masqué si operation_compte_tiers=Oui | Oui / Non · défaut Oui | Texte libre | Texte libre | Texte libre | Texte libre · si depense | Oui / Non | Oui / Non · défaut Non | Entier · si liste_actes=Oui | Texte libre | Oui / Non · défaut Non | Texte libre · si deliberation_ca=Oui | Date JJ/MM/AAAA · si deliberation_ca=Oui | Texte libre · si deliberation_ca=Oui | Texte libre · si depense | Texte libre | Texte libre · si depense | Oui / Non · défaut Oui si phase="services votés", sinon Non | Oui / Non · défaut Non | Oui / Non · défaut Oui · si depense | Oui / Non · défaut Oui · masqué si operation_compte_tiers=Oui (depense et recette) | Oui / Non · défaut Oui · si depense | Oui / Non · défaut Oui · masqué si operation_compte_tiers=Oui | Oui / Non · défaut Oui | Oui / Non · défaut Oui · si recette et compte_tiers=Oui | Oui / Non · si depense et services_votes=Oui | Oui / Non · si budget_executoire=Non | Liste selon type_acte (§11) | Date JJ/MM/AAAA | Texte libre | Texte libre | Valeurs multiples (§13) | Texte libre | Liste selon type_acte (§11) | Texte libre | Date JJ/MM/AAAA | Voir §3 | Format `AA-NNNN` | Date JJ/MM/AAAA | Entier | Entier |
 | ✅ | ✅ | ✅ | ✅ | ✅ si présent (absent si recette) | ✅ | ✅ | ✅ si présent (absent si pré-instruction) | ✅ | ✅ | ❌ si présent (si depense) | ✅ | ❌ si présent (sauf si operation_compte_tiers=Oui) | ❌ si présent (sauf si operation_compte_tiers=Oui) | ✅ | ❌ | ❌ | ❌ | ❌ si présent (si depense) | ❌ | ❌ | ✅ si présent (si liste_actes=Oui) | ❌ | ❌ | ❌ si présent (si deliberation_ca=Oui) | ❌ si présent (si deliberation_ca=Oui) | ❌ | ❌ si présent (si depense) | ❌ | ❌ si présent (si depense) | ❌ | ❌ | ✅ si présent (si depense) | ✅ si présent (sauf si compte_tiers=Oui) | ✅ si présent (si depense) | ✅ si présent (sauf si compte_tiers=Oui) | ✅ | ✅ si présent (si recette et compte_tiers=Oui) | ✅ si présent (si depense et services_votes=Oui) | ✅ si présent (si budget_executoire=Non) | ⚠️ si etat=en cours d'instruction | ✅ si présent (si clôture) | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ si présent (si clôture) | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 |

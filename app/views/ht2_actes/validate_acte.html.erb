@@ -85,14 +85,14 @@
             <div class="fr-col-12 fr-col-lg-6">
               <div class="fr-select-group">
                 <label for="date_cloture" class="fr-label">Date de clôture*<span class="fr-hint-text">Renseigner une date pour clôturer l'acte directement à cette étape.</span></label>
-                <% min_date_cloture = @acte.last_suspension_date_reprise.presence || @acte.date_chorus %>
+                <% min_date_cloture = @acte.last_suspension_date_reprise.presence || @acte.date_saisine %>
                 <%= f.text_field :date_cloture, class: "fr-select", id: "date_cloture", placeholder: "jj/mm/aaaa", data: {
                   controller: "flatpickr",
                   flatpickr_min_date: format_date(min_date_cloture),
                   action: "change->acte-form#checkDateCloture input->acte-form#checkDateCloture",
                   "acte-form-target": "dateCloture",
                   "min-date-cloture": format_date(min_date_cloture),
-                  "date-chorus": format_date(@acte.date_chorus),
+                  "date-saisine": format_date(@acte.date_saisine),
                   "type-acte": @acte.type_acte,
                   "suspensions": @acte.suspensions.map { |s| { ds: format_date(s.date_suspension), dr: format_date(s.date_reprise) } }.to_json
                 } %>

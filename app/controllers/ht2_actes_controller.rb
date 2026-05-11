@@ -262,7 +262,7 @@ class Ht2ActesController < ApplicationController
         @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'ht2_acte_id'))
       end
     elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
-      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_chorus', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
+      @acte = current_user.ht2_actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_saisine', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
       @acte.etat = "en cours d'instruction"
       @acte.annee = Date.today.year
       @saisine = true
@@ -470,8 +470,8 @@ class Ht2ActesController < ApplicationController
 
     # 1) Comptages bruts par mois
     recus_raw = @actes_cloture
-                  .where(date_chorus: start_date..end_date)
-                  .group("EXTRACT(MONTH FROM date_chorus)")
+                  .where(date_saisine: start_date..end_date)
+                  .group("EXTRACT(MONTH FROM date_saisine)")
                   .count
     recus_by_month = recus_raw.transform_keys(&:to_i)
 
@@ -1126,8 +1126,8 @@ class Ht2ActesController < ApplicationController
     end
 
     params.require(:ht2_acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
-                                     :date_chorus, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
-                                     :pre_instruction, :action, :sous_action, :activite, :numero_tf, :date_limite,
+                                     :date_saisine, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
+                                     :pre_instruction, :action, :activite, :numero_tf, :date_limite,
                                      :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
                                      :proposition_decision, :commentaire_proposition_decision, :observations,
                                      :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,

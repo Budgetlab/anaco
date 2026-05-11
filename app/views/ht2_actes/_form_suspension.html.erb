@@ -3,7 +3,7 @@
     <div class="fr-col-12 fr-col-lg-6">
       <div class="fr-select-group">
         <label for="date_suspension" class="fr-label">Date début <%= type_suspension %>*</label>
-        <% min_date_suspension = @acte.last_suspension_date_reprise.presence || @acte.date_chorus %>
+        <% min_date_suspension = @acte.last_suspension_date_reprise.presence || @acte.date_saisine %>
         <%= f.text_field :date_suspension, class: "fr-select", data: {
           controller: "flatpickr",
           flatpickr_min_date: format_date(min_date_suspension),

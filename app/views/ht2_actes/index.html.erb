@@ -1254,17 +1254,17 @@
 
                       <div class="fr-grid-row fr-grid-row--gutters">
                         <div class="fr-col-12 fr-col-md-6">
-                          <%= f.label :date_chorus_gteq, 'Du', class: 'fr-label' %>
-                          <%= f.date_field :date_chorus_gteq,
+                          <%= f.label :date_saisine_gteq, 'Du', class: 'fr-label' %>
+                          <%= f.date_field :date_saisine_gteq,
                                            class: 'fr-input',
-                                           value: params.dig(:q_current, :date_chorus_gteq) %>
+                                           value: params.dig(:q_current, :date_saisine_gteq) %>
                         </div>
 
                         <div class="fr-col-12 fr-col-md-6">
-                          <%= f.label :date_chorus_lteq, 'Au', class: 'fr-label' %>
-                          <%= f.date_field :date_chorus_lteq,
+                          <%= f.label :date_saisine_lteq, 'Au', class: 'fr-label' %>
+                          <%= f.date_field :date_saisine_lteq,
                                            class: 'fr-input',
-                                           value: params.dig(:q_current, :date_chorus_lteq) %>
+                                           value: params.dig(:q_current, :date_saisine_lteq) %>
                         </div>
                       </div>
                     </div>
@@ -1317,8 +1317,8 @@
                                        ['Par défaut (dernière modification)', 'updated_at desc'],
                                        ['Date de clôture croissante', 'date_cloture asc'],
                                        ['Date de clôture décroissante', 'date_cloture desc'],
-                                       ['Date de réception croissante', 'date_chorus asc'],
-                                       ['Date de réception décroissante', 'date_chorus desc']
+                                       ['Date de réception croissante', 'date_saisine asc'],
+                                       ['Date de réception décroissante', 'date_saisine desc']
                                      ],
                                      params.dig(:q_current, :s)
                                    ),

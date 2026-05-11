@@ -63,7 +63,7 @@ class Ht2Acte < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["action", "activite", "annee", "autorisation_tutelle", "avis_programmation", "beneficiaire", "budget_executoire", "categorie", "categorie_organisme", "centre_financier_code", "commentaire_proposition_decision", "concordance_recettes_tiers", "conformite", "consommation_credits", "created_at", "date_chorus", "date_cloture", "date_deliberation_ca", "date_limite", "decision_finale", "delai_traitement", "deliberation_ca", "destination", "disponibilite_credits", "etat", "flux", "gestion_anticipee", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nature_categorie_organisme", "nombre_actes", "nom_organisme", "nomenclature", "numero_chorus", "numero_deliberation_ca", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "observations_deliberation_ca", "operation_budgetaire", "operation_compte_tiers", "ordonnateur", "pdf_generation_status", "perimetre", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "sous_action", "soutenabilite", "type_acte", "type_engagement", "type_montant", "type_observations", "updated_at", "user_id", "valideur"]
+    ["action", "activite", "annee", "autorisation_tutelle", "avis_programmation", "beneficiaire", "budget_executoire", "categorie", "categorie_organisme", "centre_financier_code", "commentaire_proposition_decision", "concordance_recettes_tiers", "conformite", "consommation_credits", "created_at", "date_saisine", "date_cloture", "date_deliberation_ca", "date_limite", "decision_finale", "delai_traitement", "deliberation_ca", "destination", "disponibilite_credits", "etat", "flux", "gestion_anticipee", "groupe_marchandises", "id", "id_value", "imputation_depense", "instructeur", "liste_actes", "montant_ae", "montant_global", "nature", "nature_categorie_organisme", "nombre_actes", "nom_organisme", "nomenclature", "numero_chorus", "numero_deliberation_ca", "numero_formate", "numero_marche", "numero_tf", "numero_utilisateur", "objet", "observations", "observations_deliberation_ca", "operation_budgetaire", "operation_compte_tiers", "ordonnateur", "pdf_generation_status", "perimetre", "pre_instruction", "precisions_acte", "programmation", "programmation_prevue", "proposition_decision", "renvoie_instruction", "services_votes", "sheet_data", "soutenabilite", "type_acte", "type_engagement", "type_montant", "type_observations", "updated_at", "user_id", "valideur"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["centre_financier_principal", "centre_financiers", "echeanciers", "organismes", "poste_lignes", "rich_text_commentaire_disponibilite_credits", "suspensions", "user"]
@@ -186,8 +186,8 @@ class Ht2Acte < ApplicationRecord
   end
 
   def duree_total
-    return nil if date_cloture.nil? || date_chorus.nil?
-    (date_cloture - date_chorus).to_i
+    return nil if date_cloture.nil? || date_saisine.nil?
+    (date_cloture - date_saisine).to_i
   end
 
   def self.duree_total_moyenne
@@ -270,7 +270,7 @@ class Ht2Acte < ApplicationRecord
         numero_marche:                    r['numero_marche'].to_s,
         numero_tf:                        r['numero_tf'].to_s,
         # numero_utilisateur : recalculé par set_numero_utilisateur (after_save)
-        date_chorus:                      parse_date.(r['date_chorus']),
+        date_saisine:                      parse_date.(r['date_saisine']),
         date_limite:                      parse_date.(r['date_limite']),
         date_cloture:                     parse_date.(r['date_cloture']),
         # delai_traitement : recalculé par calculate_delai_traitement_if_needed (after_save)
@@ -290,7 +290,6 @@ class Ht2Acte < ApplicationRecord
         flux:                             r['flux'],
         activite:                         r['activite'],
         action:                           r['action'],
-        sous_action:                      r['sous_action'],
         operation_budgetaire:             r['operation_budgetaire'],
         nom_organisme:                    r['nom_organisme'],
         categorie:                        r['categorie'],
@@ -421,7 +420,7 @@ class Ht2Acte < ApplicationRecord
         montant_ae: row_data["montant_ae"].to_f,
         montant_global: ["Engagement initial", "Affectation initiale"].include?(row_data["type_engagement"]) ? row_data["montant_ae"].presence&.to_f : row_data["montant_global"].presence&.to_f,
         centre_financier_code: row_data["centre_financier_code"],
-        date_chorus: row_data["date_chorus"].is_a?(Date) ? row_data["date_chorus"] : nil,
+        date_saisine: row_data["date_saisine"].is_a?(Date) ? row_data["date_saisine"] : nil,
         date_cloture: row_data["date_cloture"].is_a?(Date) ? row_data["date_cloture"] : nil,
         date_limite: row_data["date_limite"].is_a?(Date) ? row_data["date_limite"] : nil,
         numero_chorus: row_data["numero_chorus"].to_s,
@@ -524,7 +523,7 @@ class Ht2Acte < ApplicationRecord
         operation_compte_tiers:           bool.(r['operation_compte_tiers']),
         budget_executoire:                r['budget_executoire'].blank? ? true : bool.(r['budget_executoire']),
         annee:                            r['annee'].presence&.to_i,
-        date_chorus:                      parse_date.(r['date_chorus']),
+        date_saisine:                      parse_date.(r['date_saisine']),
         services_votes:                   bool.(r['services_votes']),
         programmation_prevue:             bool.(r['programmation_prevue']),
         disponibilite_credits:            r['disponibilite_credits'].blank? ? true : bool.(r['disponibilite_credits']),
@@ -617,7 +616,7 @@ class Ht2Acte < ApplicationRecord
 
   # Methode pour mettre à jour la date limite
   def calculate_date_limite_if_needed
-    return unless ['en cours d\'instruction', 'suspendu', 'à valider'].include?(etat) && date_chorus.present?
+    return unless ['en cours d\'instruction', 'suspendu', 'à valider'].include?(etat) && date_saisine.present?
 
     new_date_limite = if etat == 'suspendu'
                         nil
@@ -631,9 +630,9 @@ class Ht2Acte < ApplicationRecord
   end
 
   def calculate_date_limite_value
-    return nil unless date_chorus.present?
+    return nil unless date_saisine.present?
 
-    base_date = date_chorus + 15.days
+    base_date = date_saisine + 15.days
 
     return base_date unless suspensions.exists?
 
@@ -736,9 +735,9 @@ class Ht2Acte < ApplicationRecord
   end
 
   def calculate_delai_traitement
-    return unless etat == 'clôturé' && date_chorus.present? && date_cloture.present?
+    return unless etat == 'clôturé' && date_saisine.present? && date_cloture.present?
 
-    delai_total = (date_cloture.to_date - date_chorus.to_date).to_i
+    delai_total = (date_cloture.to_date - date_saisine.to_date).to_i
 
     delai_final = if suspensions.empty?
                     delai_total

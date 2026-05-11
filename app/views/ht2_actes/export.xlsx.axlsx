@@ -180,7 +180,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        row_data << 'Oui'
        row_styles << cell_style
      end
-     row_data += [@acte.date_chorus&.strftime('%d/%m/%Y'), delai]
+     row_data += [@acte.date_saisine&.strftime('%d/%m/%Y'), delai]
      row_styles += [cell_style, cell_style]
 
      sheet.add_row row_data, style: row_styles
@@ -212,7 +212,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        etat_data << 'Oui'
        etat_styles << cell_style
      end
-     etat_data += [@acte.date_chorus&.strftime('%d/%m/%Y'), delai]
+     etat_data += [@acte.date_saisine&.strftime('%d/%m/%Y'), delai]
      etat_styles += [cell_style, cell_style]
      sheet.add_row etat_data, style: etat_styles
    end

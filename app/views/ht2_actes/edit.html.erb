@@ -7,10 +7,10 @@
         <div class="title-btn">
           <% if @acte.numero_saisine > 1 %>
             <h1>Saisine n°<%= @acte.numero_saisine %> - <%= @acte.type_acte %> HT2 CHORUS
-              n°<%= @acte.numero_chorus %></h1>
+              n°<%= @acte.numero_chorus %> <%= badge_perimetre(@acte) %></h1>
           <% else %>
             <h1>Formulaire <%= @acte.type_acte %> HT2
-              <%= badge_perimetre_organisme(@acte) %>
+              <%= badge_perimetre(@acte) %>
               <%= badge_categorie_organisme(@acte) %>
             </h1>
           <% end %>

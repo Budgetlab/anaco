@@ -146,10 +146,14 @@ module Ht2ActesHelper
     ].sort
   end
 
-  def badge_perimetre_organisme(acte)
-    return '' unless acte.perimetre == 'organisme'
-
-    content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--purple-glycine')
+  def badge_perimetre(acte)
+    if acte.perimetre == 'organisme'
+      content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--purple-glycine')
+    elsif acte.perimetre == 'etat'
+      content_tag(:span, acte.perimetre.capitalize, class: 'fr-badge fr-badge--green-menthe')
+    else
+      ''
+    end
   end
 
   def format_categorie_organisme(categorie)

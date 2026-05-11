@@ -91,7 +91,7 @@
                 has_nature_cat = q[:nature_categorie_organisme_eq].present?
                 has_montant = q[:montant_ae_gteq].present? || q[:montant_ae_lteq].present?
                 has_cloture = q[:date_cloture_gteq].present? || q[:date_cloture_lteq].present?
-                has_reception = q[:date_chorus_gteq].present? || q[:date_chorus_lteq].present?
+                has_reception = q[:date_saisine_gteq].present? || q[:date_saisine_lteq].present?
                 has_created_at = q[:created_at_gteq].present? || q[:created_at_lteq].present?
                 has_updated_at = q[:updated_at_gteq].present? || q[:updated_at_lteq].present?
 
@@ -204,7 +204,7 @@
                 <% end %>
                 <% if has_reception %>
                   <li>
-                    <p class="fr-tag fr-tag--filtres">Réception<%= " du #{q[:date_chorus_gteq]}" if q[:date_chorus_gteq].present? %><%= " au #{q[:date_chorus_lteq]}" if q[:date_chorus_lteq].present? %></p>
+                    <p class="fr-tag fr-tag--filtres">Réception<%= " du #{q[:date_saisine_gteq]}" if q[:date_saisine_gteq].present? %><%= " au #{q[:date_saisine_lteq]}" if q[:date_saisine_lteq].present? %></p>
                   </li>
                 <% end %>
                 <% if has_created_at %>
@@ -831,17 +831,17 @@
 
                         <div class="fr-grid-row fr-grid-row--gutters">
                           <div class="fr-col-12 fr-col-md-6">
-                            <%= f.label :date_chorus_gteq, 'Du', class: 'fr-label' %>
-                            <%= f.date_field :date_chorus_gteq,
+                            <%= f.label :date_saisine_gteq, 'Du', class: 'fr-label' %>
+                            <%= f.date_field :date_saisine_gteq,
                                              class: 'fr-input',
-                                             value: params.dig(:q, :date_chorus_gteq) %>
+                                             value: params.dig(:q, :date_saisine_gteq) %>
                           </div>
 
                           <div class="fr-col-12 fr-col-md-6">
-                            <%= f.label :date_chorus_lteq, 'Au', class: 'fr-label' %>
-                            <%= f.date_field :date_chorus_lteq,
+                            <%= f.label :date_saisine_lteq, 'Au', class: 'fr-label' %>
+                            <%= f.date_field :date_saisine_lteq,
                                              class: 'fr-input',
-                                             value: params.dig(:q, :date_chorus_lteq) %>
+                                             value: params.dig(:q, :date_saisine_lteq) %>
                           </div>
                         </div>
                       </div>
@@ -894,8 +894,8 @@
                                          ['Par défaut (dernière modification)', 'updated_at desc'],
                                          ['Date de clôture croissante', 'date_cloture asc'],
                                          ['Date de clôture décroissante', 'date_cloture desc'],
-                                         ['Date de réception croissante', 'date_chorus asc'],
-                                         ['Date de réception décroissante', 'date_chorus desc']
+                                         ['Date de réception croissante', 'date_saisine asc'],
+                                         ['Date de réception décroissante', 'date_saisine desc']
                                        ],
                                        params.dig(:q, :s)
                                      ),

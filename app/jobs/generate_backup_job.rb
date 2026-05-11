@@ -34,11 +34,11 @@ class GenerateBackupJob < ApplicationJob
       headers = %w[
         id annee type_acte etat perimetre categorie_organisme user_id instructeur valideur
         numero_formate numero_chorus numero_marche numero_tf numero_utilisateur
-        date_chorus date_limite date_cloture delai_traitement
+        date_saisine date_limite date_cloture delai_traitement
         nature nature_categorie_organisme beneficiaire objet ordonnateur destination
         montant_ae montant_global type_montant type_engagement
         centre_financier_code groupe_marchandises nomenclature flux
-        activite action sous_action operation_budgetaire
+        activite action operation_budgetaire
         nom_organisme categorie
         proposition_decision decision_finale commentaire_proposition_decision observations
         type_observations precisions_acte
@@ -55,11 +55,11 @@ class GenerateBackupJob < ApplicationJob
         sheet.add_row [
           a.id, a.annee, a.type_acte, a.etat, a.perimetre, a.categorie_organisme, a.user_id, a.instructeur, a.valideur,
           a.numero_formate, a.numero_chorus, a.numero_marche, a.numero_tf, a.numero_utilisateur,
-          a.date_chorus&.strftime('%d/%m/%Y'), a.date_limite&.strftime('%d/%m/%Y'), a.date_cloture&.strftime('%d/%m/%Y'), a.delai_traitement,
+          a.date_saisine&.strftime('%d/%m/%Y'), a.date_limite&.strftime('%d/%m/%Y'), a.date_cloture&.strftime('%d/%m/%Y'), a.delai_traitement,
           a.nature, a.nature_categorie_organisme, a.beneficiaire, a.objet, a.ordonnateur, a.destination,
           a.montant_ae, a.montant_global, a.type_montant, a.type_engagement,
           a.centre_financier_code, a.groupe_marchandises, a.nomenclature, a.flux,
-          a.activite, a.action, a.sous_action, a.operation_budgetaire,
+          a.activite, a.action, a.operation_budgetaire,
           a.nom_organisme, a.categorie,
           a.proposition_decision, a.decision_finale, a.commentaire_proposition_decision, a.observations,
           a.type_observations&.join(', '), a.precisions_acte,

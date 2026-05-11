@@ -23,8 +23,8 @@
             <%= form_with model: @acte, data: { turbo_frame: "_top"} do |f| %>
               <%= f.hidden_field :etat, value: "en cours d'instruction" %>
               <div class="fr-select-group">
-                <label for="date_chorus" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_chorus_info" } %></label>
-                <%= f.date_field :date_chorus, class: "fr-select", id: "date_chorus", placeholder: "jj/mm/aaaa", required: true %>
+                <label for="date_saisine" class="fr-label">Date de saisine* <%= render partial: "ht2_actes/tooltip", locals: { name: "date_saisine_info" } %></label>
+                <%= f.date_field :date_saisine, class: "fr-select", id: "date_saisine", placeholder: "jj/mm/aaaa", required: true %>
               </div>
               <ul class="fr-btns-group">
                 <li>

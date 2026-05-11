@@ -545,7 +545,7 @@ export default class extends Controller {
 
             // Calcul du délai de traitement
             if (infoEl) {
-                const dateChorus = parseDate(input.dataset.dateChorus)
+                const dateSaisine = parseDate(input.dataset.dateSaisine)
                 const typeActe = input.dataset.typeActe || ''
                 let suspensions = []
                 try { suspensions = JSON.parse(input.dataset.suspensions || '[]') } catch(e) {}
@@ -553,12 +553,12 @@ export default class extends Controller {
                 const diffJours = (d1, d2) => Math.round((d1 - d2) / (1000 * 60 * 60 * 24))
 
                 let delai
-                if (!dateChorus) {
+                if (!dateSaisine) {
                     delai = null
                 } else if (suspensions.length === 0) {
-                    delai = diffJours(dateCloture, dateChorus)
+                    delai = diffJours(dateCloture, dateSaisine)
                 } else if (typeActe === 'avis') {
-                    const dureeTotal = diffJours(dateCloture, dateChorus)
+                    const dureeTotal = diffJours(dateCloture, dateSaisine)
                     const dureeSuspensions = suspensions.reduce((acc, s) => {
                         const ds = parseDate(s.ds)
                         const dr = parseDate(s.dr)
@@ -570,12 +570,12 @@ export default class extends Controller {
                     if (suspsWithReprise.length > 0) {
                         const derniere = suspsWithReprise[suspsWithReprise.length - 1]
                         const dateReprise = parseDate(derniere.dr)
-                        delai = dateReprise ? diffJours(dateCloture, dateReprise) : diffJours(dateCloture, dateChorus)
+                        delai = dateReprise ? diffJours(dateCloture, dateReprise) : diffJours(dateCloture, dateSaisine)
                     } else {
-                        delai = diffJours(dateCloture, dateChorus)
+                        delai = diffJours(dateCloture, dateSaisine)
                     }
                 } else {
-                    delai = diffJours(dateCloture, dateChorus)
+                    delai = diffJours(dateCloture, dateSaisine)
                 }
 
                 if (delai !== null) {
@@ -678,22 +678,22 @@ export default class extends Controller {
     }
 
     checkDateChorusFuture() {
-        const dateChorusInput = document.getElementById('date_chorus')
-        const alert = document.getElementById('alert-date-chorus-future')
-        if (!dateChorusInput || !alert) return
+        const dateSaisineInput = document.getElementById('date_saisine')
+        const alert = document.getElementById('alert-date-saisine-future')
+        if (!dateSaisineInput || !alert) return
 
-        const parts = dateChorusInput.value.split('/')
-        if (parts.length !== 3) { dateChorusInput.setCustomValidity(''); alert.classList.add('fr-hidden'); return }
+        const parts = dateSaisineInput.value.split('/')
+        if (parts.length !== 3) { dateSaisineInput.setCustomValidity(''); alert.classList.add('fr-hidden'); return }
 
-        const dateChorus = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+        const dateSaisine = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
         const today = new Date()
         today.setHours(0, 0, 0, 0)
 
-        if (dateChorus > today) {
-            dateChorusInput.setCustomValidity('La date de saisine ne peut pas être postérieure à la date du jour.')
+        if (dateSaisine > today) {
+            dateSaisineInput.setCustomValidity('La date de saisine ne peut pas être postérieure à la date du jour.')
             alert.classList.remove('fr-hidden')
         } else {
-            dateChorusInput.setCustomValidity('')
+            dateSaisineInput.setCustomValidity('')
             alert.classList.add('fr-hidden')
         }
     }
@@ -710,29 +710,29 @@ export default class extends Controller {
 
     validateYears() {
         const anneeSelect = document.getElementById('annee')
-        const dateChorusInput = document.getElementById('date_chorus')
-        const alert = document.getElementById('alert-date-chorus')
+        const dateSaisineInput = document.getElementById('date_saisine')
+        const alert = document.getElementById('alert-date-saisine')
 
-        if (!anneeSelect || !dateChorusInput) return
+        if (!anneeSelect || !dateSaisineInput) return
 
         const selectedYear = parseInt(anneeSelect.value)
-        const dateChorusValue = dateChorusInput.value
+        const dateSaisineValue = dateSaisineInput.value
 
-        if (!selectedYear || !dateChorusValue) {
+        if (!selectedYear || !dateSaisineValue) {
             alert.classList.add('fr-hidden')
             return
         }
 
         // Parse la date au format français (dd/mm/yyyy)
-        const dateParts = dateChorusValue.split('/')
+        const dateParts = dateSaisineValue.split('/')
         if (dateParts.length !== 3) {
             alert.classList.add('fr-hidden')
             return
         }
 
-        const dateChorusYear = parseInt(dateParts[2])
+        const dateSaisineYear = parseInt(dateParts[2])
 
-        if (selectedYear !== dateChorusYear) {
+        if (selectedYear !== dateSaisineYear) {
             alert.classList.remove('fr-hidden')
         } else {
             alert.classList.add('fr-hidden')

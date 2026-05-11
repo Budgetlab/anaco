@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -221,10 +221,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
     t.boolean "conformite", default: true
     t.boolean "consommation_credits"
     t.datetime "created_at", null: false
-    t.date "date_chorus"
     t.date "date_cloture"
     t.date "date_deliberation_ca"
     t.date "date_limite"
+    t.date "date_saisine"
     t.string "decision_finale"
     t.integer "delai_traitement"
     t.boolean "deliberation_ca", default: false
@@ -266,7 +266,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
     t.boolean "renvoie_instruction", default: false
     t.boolean "services_votes", default: false
     t.jsonb "sheet_data", default: {"data" => []}
-    t.string "sous_action"
     t.boolean "soutenabilite", default: true
     t.string "type_acte", null: false
     t.string "type_engagement"

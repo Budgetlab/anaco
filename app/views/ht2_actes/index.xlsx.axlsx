@@ -1,19 +1,29 @@
 wb = xlsx_package.workbook
 
-# Styles communs
-header_style = wb.styles.add_style(
+header_common_style = wb.styles.add_style(
   bg_color: "dae1f2",
   fg_color: "161616",
   b: true,
-  alignment: { horizontal: :center },
+  alignment: { horizontal: :center, wrap_text: true },
   border: { style: :thin, color: "000000" },
   font_name: 'Calibri',
 )
 
-date_style = wb.styles.add_style(
-  format_code: "dd/mm/yyyy",
-  border: { style: :thin, color: "000000" },
+header_etat_style = wb.styles.add_style(
+  bg_color: "c6efce",
   fg_color: "161616",
+  b: true,
+  alignment: { horizontal: :center, wrap_text: true },
+  border: { style: :thin, color: "000000" },
+  font_name: 'Calibri',
+)
+
+header_organisme_style = wb.styles.add_style(
+  bg_color: "fce4d6",
+  fg_color: "161616",
+  b: true,
+  alignment: { horizontal: :center, wrap_text: true },
+  border: { style: :thin, color: "000000" },
   font_name: 'Calibri',
 )
 
@@ -37,307 +47,259 @@ text_style = wb.styles.add_style(
   format_code: '@'
 )
 
+# [libellé, périmètre (:common, :etat, :organisme)]
+columns = [
+  ['Périmètre',                                       :common],     # A  1
+  ['Type Acte',                                       :common],     # B  2
+  ['Exercice',                                        :common],     # C  3
+  ['Numéro Acte',                                     :common],     # D  4
+  ['Etat',                                            :common],     # E  5
+  ['Pré-instruction',                                 :common],     # F  6
+  ['Catégorie',                                       :organisme],  # G  7
+  ['Nom organisme',                                   :organisme],  # H  8
+  ['Programme',                                       :etat],       # I  9
+  ['Centre financier',                                :etat],       # J  10
+  ['Instructeur',                                     :common],     # K  11
+  ['Nature',                                          :common],     # L  12
+  ["Type d'engagement",                               :common],     # M  13
+  ['Ordonnateur / Service ordonnateur',               :common],     # N  14
+  ['Numéro Chorus / N° acte interne',                :common],     # O  15
+  ['Objet',                                           :common],     # P  16
+  ['Bénéficiaire',                                    :common],     # Q  17
+  ["Nombre d'actes",                                  :common],     # R  18
+  ['Montant au contrôle',                             :common],     # S  19
+  ['Type de montant',                                 :organisme],  # T  20
+  ['Montant total',                                   :common],     # U  21
+  ['Titre/Catégorie',                                 :etat],       # V  22
+  ['Action/Sous-action',                              :etat],       # W  23
+  ['Code activité',                                   :etat],       # X  24
+  ['Numéro Marché',                                   :etat],       # Y  25
+  ['Numéro TF / Affectation',                         :etat],       # Z  26
+  ['Groupe de marchandises',                          :etat],       # AA 27
+  ['Opération compte tiers',                          :organisme],  # AB 28
+  ['Opération budgétaire',                            :organisme],  # AC 29
+  ['Nature dépense / Affectation recette',            :organisme],  # AD 30
+  ['Budget exécutoire',                               :organisme],  # AE 31
+  ['Délibération CA',                                 :organisme],  # AF 32
+  ['N° délibération',                                 :organisme],  # AG 33
+  ['Date délibération',                               :organisme],  # AH 34
+  ['Observations délibération',                       :organisme],  # AI 35
+  ['Destination',                                     :organisme],  # AJ 36
+  ['Nomenclature',                                    :organisme],  # AK 37
+  ['Flux',                                            :organisme],  # AL 38
+  ['Date création',                                   :common],     # AM 39
+  ['Date de saisine',                                 :common],     # AN 40
+  ['Suspension',                                      :common],     # AO 41
+  ['Date de suspension',                              :common],     # AP 42
+  ['Date fin de suspension',                          :common],     # AQ 43
+  ['Motif suspension',                                :common],     # AR 44
+  ['Date limite de réponse',                          :common],     # AS 45
+  ['Proposition décision',                            :common],     # AT 46
+  ['Décision finale',                                 :common],     # AU 47
+  ['Valideur',                                        :common],     # AV 48
+  ['Date clôture',                                    :common],     # AW 49
+  ['Délai de traitement',                             :common],     # AX 50
+  ['Type observations',                               :common],     # AY 51
+  ['Observations',                                    :common],     # AZ 52
+  ['Commentaire interne',                             :common],     # BA 53
+  ['Gestion anticipée',                               :etat],       # BB 54
+  ['Services votés',                                  :common],     # BC 55
+  ['Engagement éligible à la gestion des SV',         :common],     # BD 56
+  ['Acte programmé',                                  :common],     # BE 57
+  ['Programmation initiale transmise',                :etat],       # BF 58
+  ['Compatibilité avec programmation',                :etat],       # BG 59
+  ['Autorisation tutelle',                            :organisme],  # BH 60
+  ['Disponibilité crédits / fonds',                   :common],     # BI 61
+  ['Imputation dépense / recette',                    :common],     # BJ 62
+  ['Consommation crédits',                            :common],     # BK 63
+  ['Soutenabilité',                                   :organisme],  # BL 64
+  ['Conformité au seuil de contrôle',                 :organisme],  # BM 65
+  ['Concordance recette/tiers',                       :organisme],  # BN 66
+]
 
+bool = ->(val) { val ? "Oui" : "Non" }
 
-# Onglet 1 : Actes HT2 ETAT
-wb.add_worksheet(name: "Actes HT2 ETAT") do |sheet|
-  # En-têtes pour les visas
-  headers = [
-    'Type Acte',
-    'Exercice',
-    'Numéro Acte',
-    'Etat',
-    'Instructeur',
-    'Ordonnateur',
-    'Programme',
-    'Centre financier',
-    'Titre/Catégorie',
-    'Action/Sous-action',
-    'Code activité',
-    'Numéro Chorus',
-    'Numéro Marché',
-    'Numéro TF / Affectation',
-    'Groupe de marchandises',
-    'Nature',
-    "Nombre d'actes",
-    "Type d'engagement ou d'affectaction",
-    "Objet ou Opération d'investissement",
-    'Bénéficiaire',
-    'Montant au contrôle',
-    'Montant total',
-    'Services votés',
-    'Gestion anticipée',
-    'Acte programmé',
-    'Pré-instruction',
-    'Date création',
-    'Date de saisine',
-    'Suspension',
-    'Date de suspension',
-    'Date fin de suspension',
-    'Date limite de réponse',
-    'Motif suspension',
-    'Proposition décision de contrôle',
-    'Décision finale',
-    'Date clôture',
-    'Type observations',
-    'Délai de traitement',
-    'Disponibilité crédits',
-    'Imputation dépense',
-    'Consommation crédits',
-    'Programmation',
-    'Observations pour ordonnateur',
-    'Valideur final',
-    'Commentaire interne',
-  ]
+wb.add_worksheet(name: "HT2 ETAT + ORGANISME") do |sheet|
+  headers = columns.map { |(label, _)| label }
 
-  sheet.add_row headers, style: header_style
-
-  # Données pour les actes état uniquement
-  @actes.where(perimetre: 'etat').each do |acte|
-      # ---- Dernière suspension (par date_suspension si présente, sinon created_at) ----
-          last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
-
-          last_susp_date        = last_susp&.date_suspension
-          last_susp_end_date    = last_susp&.date_reprise
-          last_susp_motif       = Array(last_susp&.motif).join(", ")
-          has_suspension        = last_susp.present? ? "Oui" : "Non"
-    row_data = [
-      acte.type_acte,
-      acte.annee,
-      acte.numero_formate,
-      etat_acte(acte),
-      acte.instructeur,
-      acte.ordonnateur,
-      acte.programme_principal&.numero,
-      acte.centre_financier_code,
-      acte.categorie,
-      acte.action,
-      acte.activite,
-      acte.numero_chorus.to_s,
-      acte.numero_marche.to_s,
-      acte.numero_tf.to_s,
-      acte.groupe_marchandises,
-      acte.nature,
-      acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
-      acte.type_engagement,
-      acte.objet,
-      acte.beneficiaire,
-      acte.montant_ae,
-      acte.montant_global,
-      acte.services_votes ? "Oui" : "Non",
-      acte.gestion_anticipee ? "Oui" : "Non",
-      acte.programmation_prevue ? "Oui" : "Non",
-      acte.pre_instruction ? "Oui" : "Non",
-      acte.created_at&.strftime('%d/%m/%Y'),
-      acte.date_chorus&.strftime('%d/%m/%Y'),
-      has_suspension,
-      last_susp_date&.strftime('%d/%m/%Y'),
-      last_susp_end_date&.strftime('%d/%m/%Y'),
-      acte.date_limite&.strftime('%d/%m/%Y'),
-      last_susp_motif,
-      acte.proposition_decision,
-      acte.decision_finale,
-      acte.date_cloture&.strftime('%d/%m/%Y'),
-      (acte.type_observations&.join(", ") if acte.type_observations.present?),
-      acte.delai_traitement,
-      acte.disponibilite_credits ? "Oui" : "Non",
-      acte.imputation_depense ? "Oui" : "Non",
-      acte.consommation_credits ? "Oui" : "Non",
-      acte.programmation ? "Oui" : "Non",
-      acte.observations,
-      acte.valideur,
-      acte.commentaire_proposition_decision
-
-    ]
-
-    # Styles spécifiques pour certaines colonnes
-    styles = Array.new(headers.count, cell_style)
-    styles[11] = text_style  # Numéro Chorus
-    styles[12] = text_style  # Numéro Marché
-    styles[13] = text_style  # Numéro TF
-    styles[20] = number_style  # Montant AE
-    styles[21] = number_style  # Montant global
-
-    # Types pour forcer le format texte sur les numéros
-    types = Array.new(headers.count, :string)
-    types[1] = :integer   # Exercice
-    types[6] = :integer   # Numéro programme
-    types[8] = :integer   # Categorie
-    types[16] = :integer  # Nombre d'actes
-    types[20] = :float    # Montant AE
-    types[21] = :float    # Montant global
-    types[37] = :integer  # Délai traitement
-
-    sheet.add_row row_data, style: styles, types: types
+  header_styles = columns.map do |(_, perimetre)|
+    case perimetre
+    when :etat      then header_etat_style
+    when :organisme then header_organisme_style
+    else                 header_common_style
+    end
   end
 
-  # Définir une largeur fixe de 15 pour toutes les colonnes
-  column_widths = Array.new(headers.count, 15)
-  sheet.column_widths *column_widths
+  sheet.add_row headers, style: header_styles
 
-  #sheet.auto_filter = "A1:#{('A'.ord + headers.count - 3).chr}1"
-  last_col = Axlsx::col_ref(headers.size - 3) # ex: 28 -> "AD" - 2 car pas besoin des 2 dernières
-  sheet.auto_filter = "A1:#{last_col}1"
-end
-
-# Onglet 2 : Actes HT2 ORGANISME
-wb.add_worksheet(name: "Actes HT2 ORGANISME") do |sheet|
-  # En-têtes pour les actes organisme (dépense + recette)
-  headers = [
-    'Type Acte',
-    'Exercice',
-    'Numéro Acte',
-    'Catégorie',
-    'Etat',
-    'Instructeur',
-    'Nom organisme',
-    'Nature de l\'acte',
-    "Type d'engagement",
-    "N° acte interne organisme",
-    'Opération pour compte de tiers',
-    'Opération budgétaire',
-    'Nature dépense / Affectation recette',
-    'Budget exécutoire',
-    'Bénéficiaire / Partie versante',
-    'Objet',
-    'Service ordonnateur',
-    "Nombre d'actes",
-    'Montant de l\'acte',
-    'Type de montant',
-    'Montant total',
-    'Délibération CA',
-    'N° délibération',
-    'Date délibération',
-    'Observations délibération',
-    'Destination',
-    'Nomenclature achat ou recette',
-    'Flux',
-    'Services votés',
-    'Gestion anticipée',
-    'Acte programmé',
-    'Pré-instruction',
-    'Date création',
-    'Date de saisine',
-    'Suspension',
-    'Date de suspension',
-    'Date fin de suspension',
-    'Date limite de réponse',
-    'Motif suspension',
-    'Proposition décision de contrôle',
-    'Décision finale',
-    'Date clôture',
-    'Type observations',
-    'Délai de traitement',
-    'Disponibilité crédits',
-    'Imputation',
-    'Consommation crédits',
-    'Soutenabilité',
-    'Conformité au seuil de contrôle',
-    'Concordance recettes/reversements',
-    'Engagement éligible à la gestion des services votés',
-    'Opération autorisée par les autorités de tutelle dans l\'attente du vote du BI',
-    'Observations',
-    'Valideur final',
-    'Commentaire interne',
-  ]
-
-  sheet.add_row headers, style: header_style
-
-  # Données pour les actes organisme uniquement
-  @actes.where(perimetre: 'organisme').each do |acte|
-    # ---- Dernière suspension ----
+  @actes.each do |acte|
     last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
+    last_susp_date     = last_susp&.date_suspension
+    last_susp_end_date = last_susp&.date_reprise
+    last_susp_motif    = Array(last_susp&.motif).join(", ")
+    has_suspension     = last_susp.present? ? "Oui" : "Non"
 
-    last_susp_date        = last_susp&.date_suspension
-    last_susp_end_date    = last_susp&.date_reprise
-    last_susp_motif       = last_susp&.motif
-    has_suspension        = last_susp.present? ? "Oui" : "Non"
-
-    # Définir les valeurs N/A selon la catégorie
-    is_depense = acte.categorie_organisme == 'depense'
-    is_recette = acte.categorie_organisme == 'recette'
-    is_recette_tiers = is_recette && acte.operation_compte_tiers == true
+    is_etat      = acte.perimetre == 'etat'
+    is_organisme = acte.perimetre == 'organisme'
+    is_depense   = acte.categorie_organisme == 'depense'
+    is_recette   = acte.categorie_organisme == 'recette'
+    is_tiers     = acte.operation_compte_tiers == true
 
     row_data = [
+      # A  1  Périmètre
+      acte.perimetre&.capitalize,
+      # B  2  Type Acte
       acte.type_acte,
+      # C  3  Exercice
       acte.annee,
+      # D  4  Numéro Acte
       acte.numero_formate,
-      format_categorie_organisme(acte.categorie_organisme),
+      # E  5  Etat
       etat_acte(acte),
+      # F  6  Pré-instruction
+      bool.(acte.pre_instruction),
+      # G  7  Catégorie  (organisme only)
+      is_etat ? "N/A" : format_categorie_organisme(acte.categorie_organisme),
+      # H  8  Nom organisme  (organisme only)
+      is_etat ? "N/A" : acte.nom_organisme,
+      # I  9  Programme  (état only)
+      is_organisme ? "N/A" : acte.programme_principal&.numero,
+      # J  10 Centre financier  (état only)
+      is_organisme ? "N/A" : acte.centre_financier_code,
+      # K  11 Instructeur
       acte.instructeur,
-      acte.nom_organisme,
+      # L  12 Nature
       acte.nature,
-      is_depense ? acte.type_engagement : "N/A",
+      # M  13 Type d'engagement  (N/A si recette organisme)
+      (is_organisme && is_recette) ? "N/A" : acte.type_engagement,
+      # N  14 Ordonnateur / Service ordonnateur  (N/A si recette organisme)
+      (is_organisme && is_recette) ? "N/A" : acte.ordonnateur,
+      # O  15 Numéro Chorus / N° acte interne
       acte.numero_chorus.to_s,
-      acte.operation_compte_tiers ? "Oui" : "Non",
-      acte.operation_compte_tiers ? "N/A" : (acte.operation_budgetaire || "N/A"),
-      acte.operation_compte_tiers ? "N/A" : (acte.nature_categorie_organisme || "N/A"),
-      acte.budget_executoire ? "Oui" : "Non",
-      acte.beneficiaire,
+      # P  16 Objet
       acte.objet,
-      is_depense ? acte.ordonnateur : "N/A",
+      # Q  17 Bénéficiaire
+      acte.beneficiaire,
+      # R  18 Nombre d'actes
       acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
+      # S  19 Montant au contrôle
       acte.montant_ae,
-      acte.type_montant,
+      # T  20 Type de montant  (organisme only)
+      is_etat ? "N/A" : acte.type_montant,
+      # U  21 Montant total
       acte.montant_global,
-      acte.deliberation_ca ? "Oui" : "Non",
-      acte.numero_deliberation_ca,
-      acte.date_deliberation_ca&.strftime('%d/%m/%Y'),
-      acte.observations_deliberation_ca,
-      is_depense ? acte.destination : "N/A",
-      acte.nomenclature,
-      is_depense ? acte.flux : "N/A",
-      acte.services_votes ? "Oui" : "Non",
-      acte.gestion_anticipee ? "Oui" : "Non",
-      acte.programmation_prevue ? "Oui" : "Non",
-      acte.pre_instruction ? "Oui" : "Non",
+      # V  22 Titre/Catégorie  (état only)
+      is_organisme ? "N/A" : acte.categorie,
+      # W  23 Action/Sous-action  (état only)
+      is_organisme ? "N/A" : acte.action,
+      # X  24 Code activité  (état only)
+      is_organisme ? "N/A" : acte.activite,
+      # Y  25 Numéro Marché  (état only)
+      is_organisme ? "N/A" : acte.numero_marche.to_s,
+      # Z  26 Numéro TF / Affectation  (état only)
+      is_organisme ? "N/A" : acte.numero_tf.to_s,
+      # AA 27 Groupe de marchandises  (état only)
+      is_organisme ? "N/A" : acte.groupe_marchandises,
+      # AB 28 Opération compte tiers  (organisme only)
+      is_etat ? "N/A" : bool.(acte.operation_compte_tiers),
+      # AC 29 Opération budgétaire  (organisme only, N/A si compte tiers)
+      is_etat ? "N/A" : (is_tiers ? "N/A" : acte.operation_budgetaire),
+      # AD 30 Nature dépense / Affectation recette  (organisme only, N/A si compte tiers)
+      is_etat ? "N/A" : (is_tiers ? "N/A" : acte.nature_categorie_organisme),
+      # AE 31 Budget exécutoire  (organisme only)
+      is_etat ? "N/A" : bool.(acte.budget_executoire),
+      # AF 32 Délibération CA  (organisme only)
+      is_etat ? "N/A" : bool.(acte.deliberation_ca),
+      # AG 33 N° délibération  (organisme only)
+      is_etat ? "N/A" : acte.numero_deliberation_ca,
+      # AH 34 Date délibération  (organisme only)
+      is_etat ? "N/A" : acte.date_deliberation_ca&.strftime('%d/%m/%Y'),
+      # AI 35 Observations délibération  (organisme only)
+      is_etat ? "N/A" : acte.observations_deliberation_ca,
+      # AJ 36 Destination  (organisme only, N/A si recette)
+      is_etat ? "N/A" : (is_recette ? "N/A" : acte.destination),
+      # AK 37 Nomenclature  (organisme only)
+      is_etat ? "N/A" : acte.nomenclature,
+      # AL 38 Flux  (organisme only, N/A si recette)
+      is_etat ? "N/A" : (is_recette ? "N/A" : acte.flux),
+      # AM 39 Date création
       acte.created_at&.strftime('%d/%m/%Y'),
-      acte.date_chorus&.strftime('%d/%m/%Y'),
+      # AN 40 Date de saisine
+      acte.date_saisine&.strftime('%d/%m/%Y'),
+      # AO 41 Suspension
       has_suspension,
+      # AP 42 Date de suspension
       last_susp_date&.strftime('%d/%m/%Y'),
+      # AQ 43 Date fin de suspension
       last_susp_end_date&.strftime('%d/%m/%Y'),
-      acte.date_limite&.strftime('%d/%m/%Y'),
+      # AR 44 Motif suspension
       last_susp_motif,
+      # AS 45 Date limite de réponse
+      acte.date_limite&.strftime('%d/%m/%Y'),
+      # AT 46 Proposition décision
       acte.proposition_decision,
+      # AU 47 Décision finale
       acte.decision_finale,
-      acte.date_cloture&.strftime('%d/%m/%Y'),
-      (acte.type_observations&.join(", ") if acte.type_observations.present?),
-      acte.delai_traitement,
-      is_depense ? (acte.disponibilite_credits ? "Oui" : "Non") : "N/A",
-      (is_recette && is_recette_tiers) ? "N/A" : (acte.imputation_depense ? "Oui" : "Non"),
-      is_depense ? (acte.consommation_credits ? "Oui" : "Non") : "N/A",
-      is_recette_tiers ? "N/A" : (acte.soutenabilite ? "Oui" : "Non"),
-      acte.conformite ? "Oui" : "Non",
-      is_recette_tiers ? (acte.concordance_recettes_tiers ? "Oui" : "Non") : "N/A",
-      (is_depense && acte.services_votes) ? (acte.programmation ? "Oui" : "Non") : "N/A",
-      (acte.budget_executoire == false) ? (acte.autorisation_tutelle ? "Oui" : "Non") : "N/A",
-      acte.observations,
+      # AV 48 Valideur
       acte.valideur,
-      acte.commentaire_proposition_decision
+      # AW 49 Date clôture
+      acte.date_cloture&.strftime('%d/%m/%Y'),
+      # AX 50 Délai de traitement
+      acte.delai_traitement,
+      # AY 51 Type observations
+      (acte.type_observations&.join(", ") if acte.type_observations.present?),
+      # AZ 52 Observations
+      acte.observations,
+      # BA 53 Commentaire interne
+      acte.commentaire_proposition_decision,
+      # BB 54 Gestion anticipée  (état only)
+      is_organisme ? "N/A" : bool.(acte.gestion_anticipee),
+      # BC 55 Services votés
+      bool.(acte.services_votes),
+      # BD 56 Engagement éligible gestion SV  (N/A si recette organisme ou services_votes false)
+      (is_organisme && is_recette) ? "N/A" : (acte.services_votes ? bool.(acte.programmation) : "N/A"),
+      # BE 57 Acte programmé
+      bool.(acte.programmation_prevue),
+      # BF 58 Programmation initiale transmise  (état only)
+      is_organisme ? "N/A" : bool.(acte.avis_programmation),
+      # BG 59 Compatibilité avec programmation  (état only, N/A si avis_programmation false)
+      is_organisme ? "N/A" : (acte.avis_programmation ? bool.(acte.programmation) : "N/A"),
+      # BH 60 Autorisation tutelle  (organisme only, N/A si budget_executoire true)
+      is_etat ? "N/A" : (acte.budget_executoire ? "N/A" : bool.(acte.autorisation_tutelle)),
+      # BI 61 Disponibilité crédits  (N/A si recette organisme)
+      (is_organisme && is_recette) ? "N/A" : bool.(acte.disponibilite_credits),
+      # BJ 62 Imputation dépense  (N/A si compte tiers)
+      is_tiers ? "N/A" : bool.(acte.imputation_depense),
+      # BK 63 Consommation crédits  (N/A si recette organisme)
+      (is_organisme && is_recette) ? "N/A" : bool.(acte.consommation_credits),
+      # BL 64 Soutenabilité  (organisme only, N/A si compte tiers)
+      is_etat ? "N/A" : (is_tiers ? "N/A" : bool.(acte.soutenabilite)),
+      # BM 65 Conformité au seuil  (organisme only)
+      is_etat ? "N/A" : bool.(acte.conformite),
+      # BN 66 Concordance recette/tiers  (organisme + recette + tiers uniquement)
+      (is_organisme && is_recette && is_tiers) ? bool.(acte.concordance_recettes_tiers) : "N/A",
     ]
 
-    # Styles spécifiques pour certaines colonnes
-    styles = Array.new(headers.count, cell_style)
-    styles[9]  = text_style    # N° acte interne
-    styles[18] = number_style  # Montant de l'acte
-    styles[20] = number_style  # Montant total
+    col_count = row_data.length
+    styles = Array.new(col_count, cell_style)
+    types  = Array.new(col_count, :string)
 
-    # Types pour forcer le format texte sur les numéros
-    types = Array.new(headers.count, :string)
-    types[1]  = :integer  # Exercice
-    types[17] = :integer  # Nombre d'actes
-    types[18] = :float    # Montant de l'acte
-    types[20] = :float    # Montant total
-    types[43] = :integer  # Délai traitement
+    styles[18] = number_style  # S  Montant au contrôle
+    styles[20] = number_style  # U  Montant total
+    styles[14] = text_style    # O  Numéro Chorus / N° acte interne
+    styles[24] = text_style    # Y  Numéro Marché
+    styles[25] = text_style    # Z  Numéro TF
+
+    types[2]  = :integer  # C  Exercice
+    types[17] = :integer  # R  Nombre d'actes
+    types[18] = :float    # S  Montant au contrôle
+    types[20] = :float    # U  Montant total
+    types[49] = :integer  # AX Délai de traitement
 
     sheet.add_row row_data, style: styles, types: types
   end
 
-  # Définir une largeur fixe de 15 pour toutes les colonnes
-  column_widths = Array.new(headers.count, 15)
-  sheet.column_widths *column_widths
-
-  # Auto-filtre
+  sheet.column_widths *Array.new(headers.length, 15)
   last_col = Axlsx::col_ref(headers.size - 3)
   sheet.auto_filter = "A1:#{last_col}1"
 end

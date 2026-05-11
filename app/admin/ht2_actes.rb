@@ -22,8 +22,8 @@ ActiveAdmin.register Ht2Acte do
   ].freeze unless defined?(TYPES_OBSERVATIONS)
 
   permit_params :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global,
-                :centre_financier_code, :date_chorus, :numero_chorus, :beneficiaire, :objet,
-                :ordonnateur, :precisions_acte, :pre_instruction, :action, :sous_action,
+                :centre_financier_code, :date_saisine, :numero_chorus, :beneficiaire, :objet,
+                :ordonnateur, :precisions_acte, :pre_instruction, :action,
                 :activite, :numero_tf, :date_limite, :disponibilite_credits, :imputation_depense,
                 :consommation_credits, :programmation, :proposition_decision,
                 :commentaire_proposition_decision, :observations, :user_id,
@@ -51,7 +51,7 @@ ActiveAdmin.register Ht2Acte do
     column(:user) { |a| a.user_id }
     column :nature
     column :montant_ae
-    column :date_chorus
+    column :date_saisine
     column :perimetre
     column :annee
     column :created_at
@@ -68,7 +68,7 @@ ActiveAdmin.register Ht2Acte do
   filter :nature
   filter :decision_finale
   filter :annee
-  filter :date_chorus
+  filter :date_saisine
   filter :date_cloture
   filter :montant_ae
   filter :beneficiaire
@@ -93,7 +93,7 @@ ActiveAdmin.register Ht2Acte do
       row :numero_chorus
       row :numero_tf
       row :numero_marche
-      row :date_chorus
+      row :date_saisine
       row :date_limite
       row :date_cloture
       row :delai_traitement
@@ -113,7 +113,6 @@ ActiveAdmin.register Ht2Acte do
       row :centre_financier_code
       row :nom_organisme
       row :action
-      row :sous_action
       row :activite
       row :categorie
       row :groupe_marchandises
@@ -217,7 +216,7 @@ ActiveAdmin.register Ht2Acte do
     end
 
     f.inputs 'Dates' do
-      f.input :date_chorus, as: :datepicker
+      f.input :date_saisine, as: :datepicker
       f.input :date_limite, as: :datepicker
       f.input :date_cloture, as: :datepicker
       f.input :date_deliberation_ca, as: :datepicker
@@ -245,7 +244,6 @@ ActiveAdmin.register Ht2Acte do
 
     f.inputs 'Imputation budgétaire' do
       f.input :action
-      f.input :sous_action
       f.input :activite
       f.input :categorie
       f.input :groupe_marchandises
