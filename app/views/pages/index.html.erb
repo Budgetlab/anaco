@@ -188,7 +188,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'validation') do %>
+                              <%= link_to actes_path(tab: 'validation') do %>
                                 <%= pluralize(@ht2_en_attente_validation, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -207,7 +207,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'preinstruction') do %>
+                              <%= link_to actes_path(tab: 'preinstruction') do %>
                                 <%= pluralize(@ht2_pre_instruction, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -223,7 +223,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'instruction') do %>
+                              <%= link_to actes_path(tab: 'instruction') do %>
                                 <%= pluralize(@ht2_en_cours, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -239,7 +239,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'suspendu') do %>
+                              <%= link_to actes_path(tab: 'suspendu') do %>
                                 <%= pluralize(@ht2_suspendu, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -255,7 +255,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'cloture') do %>
+                              <%= link_to actes_path(tab: 'cloture') do %>
                                 <%= pluralize(@ht2_cloture, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -296,7 +296,7 @@
                       <div class="fr-tile__body">
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
-                            <%= link_to historique_ht2_path do %>
+                            <%= link_to actes_historique_path do %>
                               Accéder à l'historique
                             <% end %>
                           </h3>
@@ -310,7 +310,7 @@
                       <div class="fr-tile__body">
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
-                            <%= link_to tableau_de_bord_ht2_actes_path do %>
+                            <%= link_to tableau_de_bord_actes_path do %>
                               Accéder au tableau de bord
                             <% end %>
                           </h3>

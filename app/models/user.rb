@@ -10,7 +10,7 @@ class User < ApplicationRecord
   has_many :programmes
   has_many :gestion_schemas
   has_many :schemas
-  has_many :ht2_actes
+  has_many :actes
   has_many :organismes
 
   # fonction d'import des utilisateurs dans la bdd
@@ -36,7 +36,7 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avis", "bops", "consulted_bops", "gestion_schemas", "ht2_actes", "organismes", "programmes", "schemas"]
+    ["actes", "avis", "bops", "consulted_bops", "gestion_schemas", "organismes", "programmes", "schemas"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

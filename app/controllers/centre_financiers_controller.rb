@@ -21,7 +21,7 @@ class CentreFinanciersController < ApplicationController
 
   def destroy
     @cf = CentreFinancier.find(params[:id])
-    if @cf.ht2_actes.empty?
+    if @cf.actes.empty?
       code = @cf.code
       @cf.destroy
       redirect_to new_centre_financier_path, notice: "CF #{code} supprimé."

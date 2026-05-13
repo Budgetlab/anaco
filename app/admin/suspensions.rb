@@ -17,7 +17,7 @@ ActiveAdmin.register Suspension do
     "Saisine a posteriori",
   ].freeze unless defined?(MOTIFS_SUSPENSION)
 
-  permit_params :ht2_acte_id, :date_suspension, :date_reprise, :observations, :commentaire_reprise, motif: []
+  permit_params :acte_id, :date_suspension, :date_reprise, :observations, :commentaire_reprise, motif: []
 
   before_action only: [:create, :update] do
     params[:suspension][:motif]&.reject!(&:blank?)
@@ -26,7 +26,7 @@ ActiveAdmin.register Suspension do
   index do
     selectable_column
     id_column
-    column :ht2_acte
+    column :acte
     column :date_suspension
     column :date_reprise
     column :motif do |s|
@@ -42,7 +42,7 @@ ActiveAdmin.register Suspension do
   show do
     attributes_table do
       row :id
-      row :ht2_acte
+      row :acte
       row :date_suspension
       row :date_reprise
       row :motif do |s|
@@ -57,7 +57,7 @@ ActiveAdmin.register Suspension do
 
   form do |f|
     f.inputs do
-      f.input :ht2_acte, as: :select, collection: Ht2Acte.order(:id).map { |a| [a.id, a.id] }
+      f.input :acte, as: :select, collection: Acte.order(:id).map { |a| [a.id, a.id] }
       f.input :date_suspension, as: :datepicker
       f.input :date_reprise, as: :datepicker
       f.input :motif, as: :check_boxes, collection: MOTIFS_SUSPENSION, multiple: true

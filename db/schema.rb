@@ -10,10 +10,107 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_12_092104) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
+
+  create_table "actes", force: :cascade do |t|
+    t.string "action"
+    t.string "activite"
+    t.integer "annee"
+    t.boolean "autorisation_tutelle"
+    t.boolean "avis_programmation", default: true
+    t.string "beneficiaire"
+    t.boolean "budget_executoire", default: true
+    t.string "categorie"
+    t.string "categorie_organisme"
+    t.string "categorie_t2"
+    t.string "centre_financier_code"
+    t.text "commentaire_proposition_decision"
+    t.boolean "concordance_recettes_tiers", default: true
+    t.boolean "conformite", default: true
+    t.boolean "consommation_credits"
+    t.datetime "created_at", null: false
+    t.date "date_cloture"
+    t.date "date_deliberation_ca"
+    t.date "date_limite"
+    t.date "date_saisine"
+    t.string "decision_finale"
+    t.integer "delai_traitement"
+    t.boolean "deliberation_ca", default: false
+    t.string "destination"
+    t.boolean "disponibilite_credits"
+    t.string "etat"
+    t.string "flux"
+    t.boolean "gestion_anticipee", default: false
+    t.string "groupe_marchandises"
+    t.boolean "imputation_depense"
+    t.string "instructeur"
+    t.boolean "liste_actes", default: false
+    t.float "montant_ae"
+    t.float "montant_global"
+    t.string "nature"
+    t.string "nature_categorie_organisme"
+    t.string "nom_organisme"
+    t.integer "nombre_actes"
+    t.string "nomenclature"
+    t.string "numero_chorus"
+    t.string "numero_deliberation_ca"
+    t.string "numero_formate"
+    t.string "numero_marche"
+    t.string "numero_tf"
+    t.integer "numero_utilisateur"
+    t.string "objet"
+    t.text "observations"
+    t.text "observations_deliberation_ca"
+    t.string "operation_budgetaire"
+    t.boolean "operation_compte_tiers", default: false
+    t.string "ordonnateur"
+    t.string "pdf_generation_status", default: "none"
+    t.string "perimetre", default: "etat", null: false
+    t.boolean "pre_instruction"
+    t.text "precisions_acte"
+    t.boolean "programmation"
+    t.boolean "programmation_prevue", default: false
+    t.string "proposition_decision"
+    t.boolean "renvoie_instruction", default: false
+    t.boolean "services_votes", default: false
+    t.jsonb "sheet_data", default: {"data" => []}
+    t.boolean "soutenabilite", default: true
+    t.string "titre", default: "HT2", null: false
+    t.string "type_acte", null: false
+    t.string "type_engagement"
+    t.string "type_montant", default: "TTC"
+    t.string "type_observations", default: [], array: true
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "valideur"
+    t.index ["annee"], name: "index_actes_on_annee"
+    t.index ["date_limite"], name: "index_actes_on_date_limite"
+    t.index ["delai_traitement"], name: "index_actes_on_delai_traitement"
+    t.index ["numero_formate"], name: "index_actes_on_numero_formate"
+    t.index ["numero_utilisateur"], name: "index_actes_on_numero_utilisateur"
+    t.index ["perimetre"], name: "index_actes_on_perimetre"
+    t.index ["user_id", "date_cloture", "annee"], name: "index_actes_on_user_cloture_annee"
+    t.index ["user_id", "etat"], name: "index_actes_on_user_etat"
+    t.index ["user_id", "updated_at"], name: "index_actes_on_user_updated_at"
+    t.index ["user_id"], name: "index_actes_on_user_id"
+  end
+
+  create_table "actes_centre_financiers", id: false, force: :cascade do |t|
+    t.bigint "acte_id", null: false
+    t.bigint "centre_financier_id", null: false
+    t.index ["acte_id", "centre_financier_id"], name: "idx_on_acte_id_centre_financier_id_fd97ea495a"
+    t.index ["centre_financier_id", "acte_id"], name: "idx_on_centre_financier_id_acte_id_bf92177a7a"
+  end
+
+  create_table "actes_organismes", id: false, force: :cascade do |t|
+    t.bigint "acte_id", null: false
+    t.bigint "organisme_id", null: false
+    t.index ["acte_id", "organisme_id"], name: "index_actes_organismes_on_acte_id_and_organisme_id"
+    t.index ["organisme_id", "acte_id"], name: "index_actes_organismes_on_organisme_id_and_acte_id"
+  end
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
@@ -145,21 +242,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
     t.index ["statut"], name: "index_centre_financiers_on_statut"
   end
 
-  create_table "centre_financiers_ht2_actes", id: false, force: :cascade do |t|
-    t.bigint "centre_financier_id", null: false
-    t.bigint "ht2_acte_id", null: false
-    t.index ["centre_financier_id", "ht2_acte_id"], name: "idx_on_centre_financier_id_ht2_acte_id_434d7f4a17"
-    t.index ["ht2_acte_id", "centre_financier_id"], name: "idx_on_ht2_acte_id_centre_financier_id_ab5984b1f7"
-  end
-
   create_table "echeanciers", force: :cascade do |t|
+    t.bigint "acte_id", null: false
     t.integer "annee"
     t.datetime "created_at", null: false
-    t.bigint "ht2_acte_id", null: false
     t.float "montant_ae"
     t.float "montant_cp"
     t.datetime "updated_at", null: false
-    t.index ["ht2_acte_id"], name: "index_echeanciers_on_ht2_acte_id"
+    t.index ["acte_id"], name: "index_echeanciers_on_acte_id"
   end
 
   create_table "gestion_schemas", force: :cascade do |t|
@@ -205,94 +295,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
     t.index ["user_id"], name: "index_gestion_schemas_on_user_id"
   end
 
-  create_table "ht2_actes", force: :cascade do |t|
-    t.string "action"
-    t.string "activite"
-    t.integer "annee"
-    t.boolean "autorisation_tutelle"
-    t.boolean "avis_programmation", default: true
-    t.string "beneficiaire"
-    t.boolean "budget_executoire", default: true
-    t.string "categorie"
-    t.string "categorie_organisme"
-    t.string "centre_financier_code"
-    t.text "commentaire_proposition_decision"
-    t.boolean "concordance_recettes_tiers", default: true
-    t.boolean "conformite", default: true
-    t.boolean "consommation_credits"
-    t.datetime "created_at", null: false
-    t.date "date_cloture"
-    t.date "date_deliberation_ca"
-    t.date "date_limite"
-    t.date "date_saisine"
-    t.string "decision_finale"
-    t.integer "delai_traitement"
-    t.boolean "deliberation_ca", default: false
-    t.string "destination"
-    t.boolean "disponibilite_credits"
-    t.string "etat"
-    t.string "flux"
-    t.boolean "gestion_anticipee", default: false
-    t.string "groupe_marchandises"
-    t.boolean "imputation_depense"
-    t.string "instructeur"
-    t.boolean "liste_actes", default: false
-    t.float "montant_ae"
-    t.float "montant_global"
-    t.string "nature"
-    t.string "nature_categorie_organisme"
-    t.string "nom_organisme"
-    t.integer "nombre_actes"
-    t.string "nomenclature"
-    t.string "numero_chorus"
-    t.string "numero_deliberation_ca"
-    t.string "numero_formate"
-    t.string "numero_marche"
-    t.string "numero_tf"
-    t.integer "numero_utilisateur"
-    t.string "objet"
-    t.text "observations"
-    t.text "observations_deliberation_ca"
-    t.string "operation_budgetaire"
-    t.boolean "operation_compte_tiers", default: false
-    t.string "ordonnateur"
-    t.string "pdf_generation_status", default: "none"
-    t.string "perimetre", default: "etat", null: false
-    t.boolean "pre_instruction"
-    t.text "precisions_acte"
-    t.boolean "programmation"
-    t.boolean "programmation_prevue", default: false
-    t.string "proposition_decision"
-    t.boolean "renvoie_instruction", default: false
-    t.boolean "services_votes", default: false
-    t.jsonb "sheet_data", default: {"data" => []}
-    t.boolean "soutenabilite", default: true
-    t.string "type_acte", null: false
-    t.string "type_engagement"
-    t.string "type_montant", default: "TTC"
-    t.string "type_observations", default: [], array: true
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.string "valideur"
-    t.index ["annee"], name: "index_ht2_actes_on_annee"
-    t.index ["date_limite"], name: "index_ht2_actes_on_date_limite"
-    t.index ["delai_traitement"], name: "index_ht2_actes_on_delai_traitement"
-    t.index ["numero_formate"], name: "index_ht2_actes_on_numero_formate"
-    t.index ["numero_utilisateur"], name: "index_ht2_actes_on_numero_utilisateur"
-    t.index ["perimetre"], name: "index_ht2_actes_on_perimetre"
-    t.index ["user_id", "date_cloture", "annee"], name: "index_ht2_actes_on_user_cloture_annee"
-    t.index ["user_id", "etat"], name: "index_ht2_actes_on_user_etat"
-    t.index ["user_id", "updated_at"], name: "index_ht2_actes_on_user_updated_at"
-    t.index ["user_id"], name: "index_ht2_actes_on_user_id"
-  end
-
-  create_table "ht2_actes_organismes", id: false, force: :cascade do |t|
-    t.bigint "ht2_acte_id", null: false
-    t.bigint "organisme_id", null: false
-    t.index ["ht2_acte_id", "organisme_id"], name: "index_ht2_actes_organismes_on_ht2_acte_id_and_organisme_id"
-    t.index ["organisme_id", "ht2_acte_id"], name: "index_ht2_actes_organismes_on_organisme_id_and_ht2_acte_id"
-  end
-
   create_table "ministeres", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "nom"
@@ -320,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
   end
 
   create_table "poste_lignes", force: :cascade do |t|
+    t.bigint "acte_id", null: false
     t.string "axe_ministeriel"
     t.string "centre_financier_code"
     t.string "code_activite"
@@ -329,12 +332,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
     t.string "flux"
     t.string "fonds"
     t.string "groupe_marchandises"
-    t.bigint "ht2_acte_id", null: false
     t.float "montant"
     t.string "numero"
     t.string "numero_tf"
     t.datetime "updated_at", null: false
-    t.index ["ht2_acte_id"], name: "index_poste_lignes_on_ht2_acte_id"
+    t.index ["acte_id"], name: "index_poste_lignes_on_acte_id"
   end
 
   create_table "programmes", force: :cascade do |t|
@@ -487,15 +489,58 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
   end
 
   create_table "suspensions", force: :cascade do |t|
+    t.bigint "acte_id", null: false
     t.string "commentaire_reprise"
     t.datetime "created_at", null: false
     t.date "date_reprise"
     t.date "date_suspension"
-    t.bigint "ht2_acte_id", null: false
     t.string "motif", default: [], array: true
     t.text "observations"
     t.datetime "updated_at", null: false
-    t.index ["ht2_acte_id"], name: "index_suspensions_on_ht2_acte_id"
+    t.index ["acte_id"], name: "index_suspensions_on_acte_id"
+  end
+
+  create_table "t2_details", force: :cascade do |t|
+    t.boolean "accord_rffim"
+    t.bigint "acte_id", null: false
+    t.boolean "avis_cbcm"
+    t.boolean "controle_modalites"
+    t.string "corps"
+    t.datetime "created_at", null: false
+    t.date "date_arrete_concours"
+    t.string "date_effet_acte"
+    t.float "effectifs"
+    t.float "effectifs_complementaire"
+    t.string "enveloppe_abondee"
+    t.boolean "fa_technique"
+    t.string "grade", default: [], array: true
+    t.boolean "impact_autre_cbcm"
+    t.decimal "impact_financier_n1"
+    t.decimal "impact_maximal_sans_enveloppe"
+    t.boolean "impact_schema_emplois"
+    t.boolean "inscription_pap"
+    t.boolean "isp_cercle1"
+    t.decimal "isp_cercle1_consommation"
+    t.decimal "isp_cercle1_enveloppe_sgg"
+    t.decimal "isp_cercle1_montant"
+    t.string "isp_cercle1_natures", default: [], array: true
+    t.boolean "isp_cercle2"
+    t.decimal "isp_cercle2_consommation"
+    t.decimal "isp_cercle2_enveloppe_sgg"
+    t.decimal "isp_cercle2_montant"
+    t.string "isp_cercle2_natures", default: [], array: true
+    t.decimal "montant_enveloppe_n1"
+    t.string "origine_financement", default: [], array: true
+    t.string "perimetre_mesure", default: [], array: true
+    t.string "referentiel_type"
+    t.boolean "respect_enveloppe"
+    t.boolean "respect_plafond_emplois"
+    t.boolean "respect_schema_emplois"
+    t.boolean "risque_reconventionnel"
+    t.string "sollicitation_db"
+    t.string "statut_agents"
+    t.datetime "updated_at", null: false
+    t.index ["acte_id"], name: "index_t2_details_on_acte_id", unique: true
   end
 
   create_table "transferts", force: :cascade do |t|
@@ -524,6 +569,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "actes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "avis", "bops"
@@ -533,13 +579,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
   add_foreign_key "bops", "users", column: "dcb_id"
   add_foreign_key "centre_financiers", "bops"
   add_foreign_key "centre_financiers", "programmes"
-  add_foreign_key "echeanciers", "ht2_actes"
+  add_foreign_key "echeanciers", "actes"
   add_foreign_key "gestion_schemas", "programmes"
   add_foreign_key "gestion_schemas", "schemas"
   add_foreign_key "gestion_schemas", "users"
-  add_foreign_key "ht2_actes", "users"
   add_foreign_key "organismes", "users"
-  add_foreign_key "poste_lignes", "ht2_actes"
+  add_foreign_key "poste_lignes", "actes"
   add_foreign_key "programmes", "ministeres"
   add_foreign_key "programmes", "missions"
   add_foreign_key "programmes", "users"
@@ -551,7 +596,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_134519) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "suspensions", "ht2_actes"
+  add_foreign_key "suspensions", "actes"
+  add_foreign_key "t2_details", "actes"
   add_foreign_key "transferts", "gestion_schemas"
   add_foreign_key "transferts", "programmes"
 end

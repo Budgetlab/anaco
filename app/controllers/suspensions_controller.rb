@@ -9,7 +9,7 @@ class SuspensionsController < ApplicationController
     # reprise de l'acte en cours d'instruction, fin de la suspension
     if @suspension.update(suspension_params)
       @acte.update!(etat: "en cours d'instruction")
-      redirect_to edit_ht2_acte_path(@acte, etape: 2)
+      redirect_to edit_acte_path(@acte, etape: 2)
     else
       render :edit, status: :unprocessable_entity
     end
@@ -17,7 +17,7 @@ class SuspensionsController < ApplicationController
 
   def destroy
     @suspension.destroy
-    redirect_to edit_ht2_acte_path(@acte, etape: 3)
+    redirect_to edit_acte_path(@acte, etape: 3)
   end
 
   def refus_suspension
@@ -25,9 +25,9 @@ class SuspensionsController < ApplicationController
     @acte.update!(
       etat: "en cours d'instruction",
       renvoie_instruction: true,
-      commentaire_proposition_decision: params[:ht2_acte][:commentaire_proposition_decision]
+      commentaire_proposition_decision: params[:acte][:commentaire_proposition_decision]
     )
-    redirect_to ht2_acte_path(@acte), notice: "Acte renvoyé en instruction."
+    redirect_to acte_path(@acte), notice: "Acte renvoyé en instruction."
   end
 
   def modal_delete; end
@@ -46,6 +46,6 @@ class SuspensionsController < ApplicationController
   end
 
   def set_acte
-    @acte = @suspension.ht2_acte
+    @acte = @suspension.acte
   end
 end

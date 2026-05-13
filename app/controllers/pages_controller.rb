@@ -26,11 +26,11 @@ class PagesController < ApplicationController
       @date_fermeture = @date_debut.prev_day
     end
 
-    @ht2_actes = @statut_user == 'admin' ? Ht2Acte.all : current_user.ht2_actes
-    counts = @ht2_actes.group(:etat).count
+    @actes = @statut_user == 'admin' ? Acte.all : current_user.actes
+    counts = @actes.group(:etat).count
     # Précalculer les valeurs utilisées plusieurs fois dans la vue
-    @ht2_echeance_courte = @ht2_actes.echeance_courte
-    @ht2_long_delay = @ht2_actes.count_current_with_long_delay
+    @ht2_echeance_courte = @actes.echeance_courte
+    @ht2_long_delay = @actes.count_current_with_long_delay
     @ht2_en_attente_validation = counts["à valider"] || 0
     @ht2_en_attente_validation +=  counts["à suspendre"] || 0
     @ht2_cloture = counts["à clôturer"] || 0

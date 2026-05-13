@@ -48,9 +48,9 @@
                       <tr>
                         <td><%= cf.code %></td>
 
-                        <td><%= cf.ht2_actes.map(&:id).join(", ") %></td>
+                        <td><%= cf.actes.map(&:id).join(", ") %></td>
                         <td>
-                          <% if cf.ht2_actes.empty? %>
+                          <% if cf.actes.empty? %>
                             <%= button_to "Supprimer", centre_financier_path(cf), method: :delete,
                                   data: { turbo_confirm: "Supprimer le CF #{cf.code} ?", turbo_frame: "cf-liste" },
                                   class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line fr-btn--icon-left" %>

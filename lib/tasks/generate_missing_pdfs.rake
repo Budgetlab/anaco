@@ -1,5 +1,5 @@
-namespace :ht2_actes do
-  desc "Génère les PDFs manquants pour tous les actes clôturés (usage: rails ht2_actes:generate_missing_pdfs[10] pour limiter à 10 actes)"
+namespace :actes do
+  desc "Génère les PDFs manquants pour tous les actes clôturés (usage: rails actes:generate_missing_pdfs[10] pour limiter à 10 actes)"
   task :generate_missing_pdfs, [:limit] => :environment do |t, args|
     # Par défaut, pas de limite (tous les actes)
     limit = args[:limit].to_i if args[:limit].present?
@@ -8,7 +8,7 @@ namespace :ht2_actes do
 
     # Trouver tous les actes clôturés ou clôturés après pré-instruction sans PDF
     # Trier par date de clôture décroissante pour avoir les plus récents en premier
-    tous_actes_clotures = Ht2Acte.where(etat: ['clôturé', 'clôturé en pré-instruction'])
+    tous_actes_clotures = Acte.where(etat: ['clôturé', 'clôturé en pré-instruction'])
                                   .order(date_cloture: :desc)
 
     actes_sans_pdf = tous_actes_clotures.select { |acte| !acte.pdf_attached? }

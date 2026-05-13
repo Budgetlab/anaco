@@ -8,7 +8,7 @@ class GenerateActePdfJob < ApplicationJob
   discard_on ActiveRecord::RecordNotFound
 
   def perform(acte_id)
-    acte = Ht2Acte.find(acte_id)
+    acte = Acte.find(acte_id)
 
     # Log de début
     Rails.logger.info "Génération PDF pour acte ##{acte_id}"
@@ -44,9 +44,9 @@ class GenerateActePdfJob < ApplicationJob
 
   def generate_pdf(acte)
     # Charger les associations nécessaires pour éviter N+1
-    acte = Ht2Acte.find(acte.id)
+    acte = Acte.find(acte.id)
 
-    partial_name = acte.perimetre == 'organisme' ? 'ht2_actes/acte_organisme_pdf_content' : 'ht2_actes/acte_pdf_content'
+    partial_name = acte.perimetre == 'organisme' ? 'actes/acte_organisme_pdf_content' : 'actes/acte_pdf_content'
 
     # Rendu du partial (contenu uniquement)
     partial_content = ApplicationController.render(

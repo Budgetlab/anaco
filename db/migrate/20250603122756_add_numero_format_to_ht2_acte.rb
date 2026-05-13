@@ -5,7 +5,10 @@ class AddNumeroFormatToHt2Acte < ActiveRecord::Migration[7.2]
     add_index :ht2_actes, :numero_formate
 
     # Mettre à jour les données existantes
-    Ht2Acte.find_each do |acte|
+    # Story 1.1 a renommé Ht2Acte → Acte ; Story 1.4 a supprimé l'alias.
+    # On résout la classe dynamiquement pour rester rejouable sur une DB vierge.
+    model = Object.const_defined?(:Ht2Acte) ? Ht2Acte : Acte
+    model.find_each do |acte|
       next if acte.numero_formate.present?
 
       # Déterminer l'année à partir de created_at ou utiliser l'année courante

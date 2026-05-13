@@ -29,8 +29,8 @@ class GenerateBackupJob < ApplicationJob
       border: { style: :thin, color: 'dddddd' }
     )
 
-    # ── ht2_actes ──────────────────────────────────────────────────────────────
-    wb.add_worksheet(name: 'ht2_actes') do |sheet|
+    # ── actes ──────────────────────────────────────────────────────────────────
+    wb.add_worksheet(name: 'actes') do |sheet|
       headers = %w[
         id annee type_acte etat perimetre categorie_organisme user_id instructeur valideur
         numero_formate numero_chorus numero_marche numero_tf numero_utilisateur
@@ -51,7 +51,7 @@ class GenerateBackupJob < ApplicationJob
       ]
       sheet.add_row headers, style: header_style
 
-      Ht2Acte.order(:id).find_each(batch_size: 500) do |a|
+      Acte.order(:id).find_each(batch_size: 500) do |a|
         sheet.add_row [
           a.id, a.annee, a.type_acte, a.etat, a.perimetre, a.categorie_organisme, a.user_id, a.instructeur, a.valideur,
           a.numero_formate, a.numero_chorus, a.numero_marche, a.numero_tf, a.numero_utilisateur,
@@ -75,10 +75,10 @@ class GenerateBackupJob < ApplicationJob
 
     # ── suspensions ────────────────────────────────────────────────────────────
     wb.add_worksheet(name: 'suspensions') do |sheet|
-      sheet.add_row %w[id ht2_acte_id date_suspension date_reprise motif observations commentaire_reprise created_at updated_at], style: header_style
+      sheet.add_row %w[id acte_id date_suspension date_reprise motif observations commentaire_reprise created_at updated_at], style: header_style
       Suspension.order(:id).find_each(batch_size: 500) do |s|
         sheet.add_row [
-          s.id, s.ht2_acte_id,
+          s.id, s.acte_id,
           s.date_suspension&.strftime('%d/%m/%Y'), s.date_reprise&.strftime('%d/%m/%Y'),
           Array(s.motif).join(', '),
           s.observations, s.commentaire_reprise,
@@ -89,10 +89,10 @@ class GenerateBackupJob < ApplicationJob
 
     # ── poste_lignes ───────────────────────────────────────────────────────────
     wb.add_worksheet(name: 'poste_lignes') do |sheet|
-      sheet.add_row %w[id ht2_acte_id numero centre_financier_code montant domaine_fonctionnel fonds compte_budgetaire code_activite axe_ministeriel flux groupe_marchandises numero_tf created_at updated_at], style: header_style
+      sheet.add_row %w[id acte_id numero centre_financier_code montant domaine_fonctionnel fonds compte_budgetaire code_activite axe_ministeriel flux groupe_marchandises numero_tf created_at updated_at], style: header_style
       PosteLigne.order(:id).find_each(batch_size: 500) do |p|
         sheet.add_row [
-          p.id, p.ht2_acte_id, p.numero, p.centre_financier_code, p.montant,
+          p.id, p.acte_id, p.numero, p.centre_financier_code, p.montant,
           p.domaine_fonctionnel, p.fonds, p.compte_budgetaire, p.code_activite,
           p.axe_ministeriel, p.flux, p.groupe_marchandises, p.numero_tf,
           p.created_at&.strftime('%d/%m/%Y %H:%M'), p.updated_at&.strftime('%d/%m/%Y %H:%M')
@@ -102,10 +102,10 @@ class GenerateBackupJob < ApplicationJob
 
     # ── echeanciers ────────────────────────────────────────────────────────────
     wb.add_worksheet(name: 'echeanciers') do |sheet|
-      sheet.add_row %w[id ht2_acte_id annee montant_ae montant_cp created_at updated_at], style: header_style
+      sheet.add_row %w[id acte_id annee montant_ae montant_cp created_at updated_at], style: header_style
       Echeancier.order(:id).find_each(batch_size: 500) do |e|
         sheet.add_row [
-          e.id, e.ht2_acte_id, e.annee, e.montant_ae, e.montant_cp,
+          e.id, e.acte_id, e.annee, e.montant_ae, e.montant_cp,
           e.created_at&.strftime('%d/%m/%Y %H:%M'), e.updated_at&.strftime('%d/%m/%Y %H:%M')
         ], style: cell_style
       end

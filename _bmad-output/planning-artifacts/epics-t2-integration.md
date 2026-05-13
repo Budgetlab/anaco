@@ -95,21 +95,28 @@ NFR5: Le formulaire T2 doit suivre le même standard d'accessibilité DSFR que l
 
 Mettre en place la structure de données et le modèle Rails pour supporter les actes T2, sans régression sur les actes HT2 existants.
 
-### Story 1.1: Renommer la table `ht2_actes` en `actes`
+### Story 1.1: Renommage complet HT2 → Acte (table, colonnes FK, classe modèle, associations)
+
+> **Note de découpage** : cette story a été étendue pour inclure le renommage **complet** côté Ruby — table, colonnes FK (`ht2_acte_id` → `acte_id` dans 5 tables), classe `Ht2Acte` → `Acte`, associations sur tous les modèles dépendants. Le renommage du controller / routes / vues / params HTTP reste en Story 1.4 (boundary HTTP).
 
 En tant que développeuse,
-Je veux renommer la table `ht2_actes` en `actes` et ajouter les colonnes `titre` et `categorie`,
-Afin que la table puisse accueillir à la fois les actes HT2 et T2.
+Je veux renommer la table `ht2_actes` en `actes`, renommer toutes les colonnes FK `ht2_acte_id` en `acte_id`, renommer la classe `Ht2Acte` en `Acte` et toutes ses associations sur les modèles dépendants, et ajouter les colonnes `titre` / `categorie_t2`,
+Afin que toute la couche Ruby/BDD soit cohérente et que les stories suivantes puissent s'appuyer sur un nommage uniforme.
 
 **Acceptance Criteria:**
 
-**Given** la table `ht2_actes` existe avec des données
-**When** la migration est exécutée
-**Then** la table est renommée `actes`
-**And** une colonne `titre` string est ajoutée avec valeur par défaut `'HT2'`
-**And** une colonne `categorie_t2` string est ajoutée (nullable, pour T2 uniquement : 'contrat' | 'hors_contrat') — nommée `categorie_t2` pour ne pas entrer en conflit avec la colonne `categorie` déjà existante
+**Given** la table `ht2_actes` existe avec ses données, ses 2 join tables et 3 tables référençant `ht2_acte_id` (echeanciers, poste_lignes, suspensions)
+**When** la migration est exécutée et le code Ruby renommé
+**Then** la table est renommée `actes` ; les 2 join tables deviennent `centre_financiers_actes` et `actes_organismes` ; les 5 colonnes `ht2_acte_id` deviennent `acte_id` ; les 3 indexes correspondants sont renommés
+**And** une colonne `titre` string (default `'HT2'`, null: false) et une colonne `categorie_t2` string (nullable) sont ajoutées sur `actes` — `categorie_t2` est distincte de la colonne `categorie` HT2 existante
 **And** tous les enregistrements HT2 existants ont `titre = 'HT2'` et `categorie_t2 = NULL`
+**And** la classe `Ht2Acte` est renommée `Acte` (`app/models/ht2_acte.rb` → `app/models/acte.rb`) avec un alias transitoire `Ht2Acte = Acte` (supprimé en Story 1.4)
+**And** les associations sur les modèles dépendants sont renommées : `belongs_to :ht2_acte` → `belongs_to :acte` (sur Suspension, Echeancier, PosteLigne) et inverses sur CentreFinancier / Organisme / Programme / User
+**And** toutes les références `Ht2Acte` dans les jobs, helpers, ActiveAdmin (`register Acte, as: "Ht2Acte"` pour conserver les URLs admin), lib/tasks sont mises à jour
+**And** les fichiers `app/helpers/ht2_actes_helper.rb`, `test/models/ht2_acte_test.rb`, `test/fixtures/ht2_actes.yml` sont renommés (git mv)
+**And** le controller `Ht2ActesController`, les routes `/ht2_actes/...`, les vues `app/views/ht2_actes/` et les params HTTP restent inchangés (Story 1.4)
 **And** `db:rollback` remet l'état initial sans perte de données
+**And** la suite de tests `bin/rails test` est verte
 
 ---
 
@@ -176,31 +183,34 @@ Afin de stocker les données métier propres aux différentes natures T2.
 - `respect_plafond_emplois` (boolean)
 - `respect_schema_emplois` (boolean)
 - `controle_modalites` (boolean)
-- `consommation_credits` (boolean) — réutilise la sémantique du critère HT2 "Exactitude de l'évaluation de la consommation des crédits"
 - `respect_enveloppe` (boolean)
 - `risque_reconventionnel` (boolean)
+
+Note : `consommation_credits` est réutilisé depuis la table `actes` (colonne HT2 existante) — pas de doublon dans `t2_details`
 
 **And** un index unique sur `acte_id` est créé
 
 ---
 
-### Story 1.3: Mettre à jour le modèle `Acte` (renommé depuis `Ht2Acte`)
+### Story 1.3: Enrichir le modèle `Acte` avec l'association T2 et les validations T2
+
+> **Note de découpage** : le renommage de classe `Ht2Acte` → `Acte` (et le rename de toutes les associations / call sites Ruby) a été déplacé dans la Story 1.1 pour atomicité. La Story 1.3 se concentre désormais sur les ajouts T2-spécifiques au modèle `Acte`, et **dépend de la Story 1.2** (table `t2_details` créée).
 
 En tant que développeuse,
-Je veux renommer le modèle `Ht2Acte` en `Acte` avec toutes ses associations et validations,
-Afin que le code Rails reflète la nouvelle structure.
+Je veux ajouter au modèle `Acte` l'association vers `T2Detail` et les validations sur `titre` / `categorie_t2`,
+Afin que la couche modèle reflète les contraintes métier des actes T2.
 
 **Acceptance Criteria:**
 
-**Given** le modèle `Ht2Acte` existe dans `app/models/ht2_acte.rb`
-**When** le refactoring est effectué
-**Then** le fichier est renommé `app/models/acte.rb` avec la classe `Acte`
-**And** le modèle a `has_one :t2_detail, dependent: :destroy`
-**And** la validation `titre` accepte uniquement `['HT2', 'T2']`
-**And** la validation `categorie_t2` accepte `['contrat', 'hors_contrat', nil]`
-**And** toutes les associations existantes (`suspensions`, `echeanciers`, `poste_lignes`, `user`, etc.) sont préservées
-**And** un alias `Ht2Acte = Acte` est ajouté pour compatibilité temporaire avec ActiveAdmin
-**And** les specs du modèle passent sans modification (ou sont mis à jour)
+**Given** la Story 1.1 a renommé la classe en `Acte` et la Story 1.2 a créé la table `t2_details` avec le modèle `T2Detail`
+**When** le modèle `Acte` est enrichi
+**Then** `app/models/acte.rb` déclare `has_one :t2_detail, dependent: :destroy`
+**And** la validation `titre` accepte uniquement `['HT2', 'T2']` (présence requise)
+**And** la validation `categorie_t2` accepte `['contrat', 'hors_contrat', nil]` (présence non requise — nullable pour HT2)
+**And** une validation conditionnelle exige `categorie_t2` non-nil quand `titre == 'T2'`
+**And** un test vérifie qu'un acte HT2 ne peut PAS avoir de `t2_detail` associé (validation au niveau modèle ou contrainte logique)
+**And** l'alias transitoire `Ht2Acte = Acte` (introduit en Story 1.1) reste en place — il sera supprimé en Story 1.4 avec le renommage du controller
+**And** les specs du modèle passent
 
 ---
 
@@ -464,7 +474,7 @@ Afin de documenter mon analyse avant de proposer une décision.
 | Respect du plafond d'emplois | `respect_plafond_emplois` (`t2_details`) | nature = Annexe financière |
 | Respect du schéma d'emplois | `respect_schema_emplois` (`t2_details`) | nature = Annexe financière **ET** `impact_schema_emplois` = true (coché en étape 1) |
 | Contrôle des modalités de mise en œuvre | `controle_modalites` (`t2_details`) | nature = Fongibilité asymétrique **ET** périmètre = État **ET** profil user = DCB |
-| Exactitude de l'évaluation de la consommation des crédits | `consommation_credits` (`t2_details`) | nature ∈ {Fongibilité asymétrique, Marché, Mesure transversale} |
+| Exactitude de l'évaluation de la consommation des crédits | `consommation_credits` (`actes`) ¹ | nature ∈ {Fongibilité asymétrique, Marché, Mesure transversale} |
 | Respect de l'enveloppe notifiée | `respect_enveloppe` (`t2_details`) | nature = ISP |
 | Risque d'effet reconventionnel | `risque_reconventionnel` (`t2_details`) | nature ∈ {Mesure transversale, Référentiel} |
 | L'acte figure dans le dernier document de programmation | `programmation_prevue` (`actes`) | nature ∉ {ISP} **ET** NOT (nature = Fongibilité asymétrique **ET** périmètre = Organisme) |
@@ -474,8 +484,10 @@ Afin de documenter mon analyse avant de proposer une décision.
 | Soutenabilité des crédits | `soutenabilite` (`actes`) | nature ≠ Annexe financière |
 | Acte éligible à la gestion des services votés | `programmation` (`actes`) | `services_votes` = true |
 
-**And** les critères sauvegardés dans `t2_details` sont : `inscription_pap`, `respect_plafond_emplois`, `respect_schema_emplois`, `controle_modalites`, `consommation_credits`, `respect_enveloppe`, `risque_reconventionnel`
-**And** les critères sauvegardés dans `actes` réutilisent les colonnes HT2 existantes : `programmation_prevue`, `autorisation_tutelle`, `avis_programmation`, `programmation`, `soutenabilite`
+**And** les critères sauvegardés dans `t2_details` sont : `inscription_pap`, `respect_plafond_emplois`, `respect_schema_emplois`, `controle_modalites`, `respect_enveloppe`, `risque_reconventionnel`
+**And** les critères sauvegardés dans `actes` réutilisent les colonnes HT2 existantes : `consommation_credits`, `programmation_prevue`, `autorisation_tutelle`, `avis_programmation`, `programmation`, `soutenabilite`
+
+> ¹ `consommation_credits` est dans `actes` (colonne HT2 réutilisée), **pas** dans `t2_details`. Le tableau ci-dessus mentionne `actes` pour ce champ — ne pas créer de doublon dans `t2_details` (décision validée Story 1.2).
 **And** un champ "Observations et pièces justificatives" (texte + PJ) est disponible
 **And** un champ "Tableur" (upload fichier) est disponible
 

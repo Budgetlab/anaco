@@ -21,7 +21,7 @@ wb.add_worksheet(name: "Organismes") do |sheet|
     'Nature de contrôle',
     'Nom ANACO',
     'ID Opera',
-    'Nb actes HT2',
+    'Nb actes',
     'Date de création'
   ], style: header_style, height: 30
 
@@ -33,7 +33,7 @@ wb.add_worksheet(name: "Organismes") do |sheet|
       organisme.nature_controle,
       organisme.user&.nom,
       organisme.id_opera,
-      organisme.ht2_actes.size,
+      organisme.actes.size,
       organisme.created_at&.strftime('%d/%m/%Y')
     ], style: cell_style
   end

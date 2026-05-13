@@ -1,13 +1,13 @@
 ActiveAdmin.register PosteLigne do
 
-  permit_params :ht2_acte_id, :numero, :centre_financier_code, :numero_tf, :montant,
+  permit_params :acte_id, :numero, :centre_financier_code, :numero_tf, :montant,
                 :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite,
                 :axe_ministeriel, :groupe_marchandises, :flux
 
   index do
     selectable_column
     id_column
-    column(:ht2_acte) { |p| p.ht2_acte_id }
+    column(:acte) { |p| p.acte_id }
     column :numero
     column :centre_financier_code
     column :numero_tf
@@ -26,7 +26,7 @@ ActiveAdmin.register PosteLigne do
   show do
     attributes_table do
       row :id
-      row(:ht2_acte) { |p| p.ht2_acte_id }
+      row(:acte) { |p| p.acte_id }
       row :numero
       row :centre_financier_code
       row :numero_tf
@@ -45,8 +45,8 @@ ActiveAdmin.register PosteLigne do
 
   form do |f|
     f.inputs do
-      f.input :ht2_acte, as: :select,
-              collection: Ht2Acte.order(:id).map { |a| [a.id, a.id] }
+      f.input :acte, as: :select,
+              collection: Acte.order(:id).map { |a| [a.id, a.id] }
       f.input :numero
       f.input :centre_financier_code
       f.input :numero_tf

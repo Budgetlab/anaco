@@ -72,7 +72,7 @@ Rails.application.routes.draw do
     post 'import_avis', to: 'avis#import'
     get 'export_avis', to: 'avis#export_avis'
 
-    resources :ht2_actes do
+    resources :actes do
       resources :suspensions do
         post :refus_suspension
         get :modal_delete
@@ -80,11 +80,11 @@ Rails.application.routes.draw do
       end
       collection do
         post :bulk_cloture
-        get 'tableau_de_bord', to: 'ht2_actes#tableau_de_bord'
-        get 'synthese_temporelle', to: 'ht2_actes#synthese_temporelle'
-        get 'synthese_anomalies', to: 'ht2_actes#synthese_anomalies'
-        get 'synthese_suspensions', to: 'ht2_actes#synthese_suspensions'
-        get 'pdf_en_cours', to: 'ht2_actes#pdf_en_cours'
+        get 'tableau_de_bord', to: 'actes#tableau_de_bord'
+        get 'synthese_temporelle', to: 'actes#synthese_temporelle'
+        get 'synthese_anomalies', to: 'actes#synthese_anomalies'
+        get 'synthese_suspensions', to: 'actes#synthese_suspensions'
+        get 'pdf_en_cours', to: 'actes#pdf_en_cours'
       end
       member do
         post :generate_pdf
@@ -92,29 +92,29 @@ Rails.application.routes.draw do
         get :download_attachments
       end
     end
-    get 'new_modal_acte', to: 'ht2_actes#new_modal', as: 'new_modal_acte'
-    get 'show_modal_acte/:id', to: 'ht2_actes#show_modal', as: 'show_modal_acte'
-    get 'modal_delete_acte/:id', to: 'ht2_actes#modal_delete', as: 'modal_delete_acte'
-    get 'modal_pre_instruction/:id', to: 'ht2_actes#modal_pre_instruction', as: 'modal_pre_instruction'
-    get 'modal_cloture_preinstruction_acte/:id', to: 'ht2_actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
-    get 'renvoie_instruction/:id', to: 'ht2_actes#renvoie_instruction', as: 'renvoie_instruction'
-    get 'modal_renvoie_validation/:id', to: 'ht2_actes#modal_renvoie_validation', as: 'modal_renvoie_validation'
-    get 'validate_acte/:id', to: 'ht2_actes#validate_acte', as: 'validate_acte'
-    get 'acte_actions/:id', to: 'ht2_actes#acte_actions', as: 'acte_actions'
-    post 'cloture_pre_instruction/:id', to: 'ht2_actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
-    get 'check_chorus_number', to: 'ht2_actes#check_chorus_number'
-    get 'synthese_users_ht2_actes', to: 'ht2_actes#synthese_utilisateurs'
-    get 'admin_backup', to: 'ht2_actes#admin_backup', as: 'admin_backup'
-    post 'admin_backup/generate', to: 'ht2_actes#generate_backup', as: 'generate_backup'
-    get 'admin_backup/:id/download', to: 'ht2_actes#download_backup', as: 'download_backup'
-    delete 'admin_backup/:id', to: 'ht2_actes#destroy_backup', as: 'destroy_backup'
-    get 'admin_backup/export_organisme_2026', to: 'ht2_actes#export_organisme_2026', as: 'export_organisme_2026'
-    post 'admin_backup/import_from_backup', to: 'ht2_actes#import_from_backup', as: 'import_from_backup'
-    get 'historique_ht2', to: 'ht2_actes#historique'
-    get 'ajout_actes', to: 'ht2_actes#ajout_actes'
-    post 'import_actes', to: 'ht2_actes#import'
-    post 'import_actes_organismes', to: 'ht2_actes#import_actes_organismes'
-    delete 'delete_user_actes_year', to: 'ht2_actes#delete_user_actes_year', as: 'delete_user_actes_year'
+    get 'new_modal_acte', to: 'actes#new_modal', as: 'new_modal_acte'
+    get 'show_modal_acte/:id', to: 'actes#show_modal', as: 'show_modal_acte'
+    get 'modal_delete_acte/:id', to: 'actes#modal_delete', as: 'modal_delete_acte'
+    get 'modal_pre_instruction/:id', to: 'actes#modal_pre_instruction', as: 'modal_pre_instruction'
+    get 'modal_cloture_preinstruction_acte/:id', to: 'actes#modal_cloture_preinstruction', as: 'modal_cloture_preinstruction_acte'
+    get 'renvoie_instruction/:id', to: 'actes#renvoie_instruction', as: 'renvoie_instruction'
+    get 'modal_renvoie_validation/:id', to: 'actes#modal_renvoie_validation', as: 'modal_renvoie_validation'
+    get 'validate_acte/:id', to: 'actes#validate_acte', as: 'validate_acte'
+    get 'acte_actions/:id', to: 'actes#acte_actions', as: 'acte_actions'
+    post 'cloture_pre_instruction/:id', to: 'actes#cloture_pre_instruction', as: 'cloture_pre_instruction'
+    get 'check_chorus_number', to: 'actes#check_chorus_number'
+    get 'synthese_users_actes', to: 'actes#synthese_utilisateurs'
+    get 'admin_backup', to: 'actes#admin_backup', as: 'admin_backup'
+    post 'admin_backup/generate', to: 'actes#generate_backup', as: 'generate_backup'
+    get 'admin_backup/:id/download', to: 'actes#download_backup', as: 'download_backup'
+    delete 'admin_backup/:id', to: 'actes#destroy_backup', as: 'destroy_backup'
+    get 'admin_backup/export_organisme_2026', to: 'actes#export_organisme_2026', as: 'export_organisme_2026'
+    post 'admin_backup/import_from_backup', to: 'actes#import_from_backup', as: 'import_from_backup'
+    get 'actes_historique', to: 'actes#historique'
+    get 'ajout_actes', to: 'actes#ajout_actes'
+    post 'import_actes', to: 'actes#import'
+    post 'import_actes_organismes', to: 'actes#import_actes_organismes'
+    delete 'delete_user_actes_year', to: 'actes#delete_user_actes_year', as: 'delete_user_actes_year'
 
     resources :centre_financiers, only: [:new, :destroy]
     post 'import_cf', to: 'centre_financiers#import'

@@ -133,27 +133,27 @@
             <% end %>
 
             <li class="fr-nav__item">
-              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(ht2_actes_path) || current_page?(historique_ht2_path) || current_page?(tableau_de_bord_ht2_actes_path) || current_page?(synthese_users_ht2_actes_path) ? 'aria-current="true"' : '' %>>Actes <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></button>
+              <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-actes" <%= current_page?(actes_path) || current_page?(actes_historique_path) || current_page?(tableau_de_bord_actes_path) || current_page?(synthese_users_actes_path) ? 'aria-current="true"' : '' %>>Actes <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></button>
               <div class="fr-collapse fr-menu" id="menu-actes">
                 <ul class="fr-menu__list">
                   <% if ['CBR', 'DCB'].include?(current_user.statut) %>
                     <li>
-                      <%= active_link_to ht2_actes_path, class: "fr-nav__link", target: "_self", active: :exact do %>Liste de travail - Actes HT2
+                      <%= active_link_to actes_path, class: "fr-nav__link", target: "_self", active: :exact do %>Liste de travail
                       <% end %>
                     </li>
                   <% end %>
                   <li>
-                    <%= active_link_to historique_ht2_path, class: "fr-nav__link", target: "_self" do %>Historique Actes HT2
+                    <%= active_link_to actes_historique_path, class: "fr-nav__link", target: "_self" do %>Historique des actes
                     <% end %>
                   </li>
                   <li>
-                    <%= active_link_to tableau_de_bord_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>Tableau de
+                    <%= active_link_to tableau_de_bord_actes_path, class: "fr-nav__link", target: "_self" do %>Tableau de
                       bord
                     <% end %>
                   </li>
                   <% if current_user.statut == "admin" %>
                     <li>
-                      <%= active_link_to synthese_users_ht2_actes_path, class: "fr-nav__link", target: "_self" do %>
+                      <%= active_link_to synthese_users_actes_path, class: "fr-nav__link", target: "_self" do %>
                         Suivi du remplissage
                       <% end %>
                     </li>
