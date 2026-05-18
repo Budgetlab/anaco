@@ -110,7 +110,7 @@
   <%# — T2 nature-specific details section — %>
   <% td = acte.t2_detail %>
 
-  <div class="fr-h6 fr-my-3w">Détails <%= @acte.nature %></div>
+  <div class="fr-h6 fr-my-3w">Détails <%= acte.nature %></div>
   <% case acte.nature %>
   <% when 'Annexe financière' %>
     <%= render 'actes/t2_sections/show_annexe_financiere', acte: acte, td: td %>

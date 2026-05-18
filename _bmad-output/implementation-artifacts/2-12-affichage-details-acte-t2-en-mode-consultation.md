@@ -1,6 +1,6 @@
 # Story 2.12: Affichage des détails d'un acte T2 en mode consultation
 
-Status: review
+Status: done
 
 ## Story
 

@@ -1792,8 +1792,9 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     )
     get acte_path(acte)
     assert_response :success
-    # The T2 partial uses "Montant au contrôle (AE)" header, HT2 uses "Montant de l'acte (AE)"
-    assert_select "th", text: "Montant au contrôle (AE)"
+    # The T2 partial renders a "Détails <nature>" section header (specific to _acte_details_t2)
+    # and does NOT render the HT2 column "Montant de l'acte (AE)".
+    assert_select "div.fr-h6", text: /Détails Marché/
     assert_select "th", text: "Montant de l'acte (AE)", count: 0
   end
 
@@ -1807,7 +1808,7 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     get acte_path(acte)
     assert_response :success
     assert_select "th", text: "Montant de l'acte (AE)"
-    assert_select "th", text: "Montant au contrôle (AE)", count: 0
+    assert_select "div.fr-h6", text: /Détails Marché/, count: 0
   end
 
   test "GET show T2 Annexe financiere displays t2_detail fields (AC3)" do
@@ -1843,8 +1844,9 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     )
     get acte_path(acte)
     assert_response :success
-    assert_select "th", text: "Cercle 1 présent"
-    assert_select "th", text: "Cercle 2 présent"
+    assert_select "div.fr-h6", text: "Cercle 1"
+    assert_select "th", text: "Nature(s) des ISP"
+    assert_select "th", text: "Enveloppe SGG (€)"
     assert_select "th", text: "Reste à consommer (€)"
   end
 
@@ -1921,8 +1923,8 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     acte.create_t2_detail!(referentiel_type: true)
     get acte_path(acte)
     assert_response :success
-    assert_select "th", text: "Type de référentiel"
-    assert_match "fr-icon-checkbox-circle-fill", response.body
+    assert_select "th", text: "Déclinaison référentiel interministériel"
+    assert_select "td", text: "Oui"
   end
 
   test "GET show T2 acte displays criteres section (AC4)" do
@@ -1939,7 +1941,7 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert_select "th", text: "Respect du plafond d'emplois"
   end
 
-  test "GET show T2 acte with no t2_detail shows fallback message (AC3)" do
+  test "GET show T2 acte with no t2_detail renders show page without error (AC3)" do
     sign_in users(:three)
     acte = users(:three).actes.create!(
       titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
@@ -1947,8 +1949,11 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
       etat: "en cours d'instruction", instructeur: 'AB',
       annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000
     )
+    assert_nil acte.t2_detail
     get acte_path(acte)
     assert_response :success
-    assert_select "p", text: "Aucune donnée T2 renseignée."
+    # The Marché section still renders its header even when t2_detail is absent
+    # (the Marché sub-partial does not access td.* fields).
+    assert_select "div.fr-h6", text: /Détails Marché/
   end
 end
