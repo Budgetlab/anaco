@@ -1,0 +1,114 @@
+<%# locals: (acte:, td:) %>
+<div class="fr-table fr-table--no-caption">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>Enveloppe limitative</caption>
+          <thead>
+            <tr class="fr-cell--multiline">
+              <th>Date d'effet</th>
+              <% if acte.perimetre == 'etat' %>
+                <th>Origine de financement</th>
+              <% end %>
+              <th>Périmètre de mesure</th>
+              <th>Catégorie</th>
+              <th>Corps</th>
+              <th>Effectifs N</th>
+              <th>Effectifs N+1</th>
+              <th>Statut d'agents</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="fr-cell--multiline">
+              <td><%= format_value(td.date_effet_acte) %></td>
+              <% if acte.perimetre == 'etat' %>
+                <td><%= Array(td.origine_financement).join(', ').presence || 'Non renseigné' %></td>
+              <% end %>
+              <td><%= Array(td.perimetre_mesure).join(', ').presence || 'Non renseigné' %></td>
+              <td><%= Array(td.grade).join(', ').presence || 'Non renseigné' %></td>
+              <td><%= format_value(td.corps) %></td>
+              <td><%= format_value(td.effectifs) %></td>
+              <td><%= format_value(td.effectifs_complementaire) %></td>
+              <td><%= format_value(td.statut_agents) %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fr-table fr-table--no-caption fr-table--no-scroll">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>Enveloppe limitative</caption>
+          <thead>
+          <tr class="fr-cell--multiline">
+            <th>Montant au contrôle (€)</th>
+            <th>Montant enveloppe N-1 (€)</th>
+            <th>Impact maximal sans enveloppe (€)</th>
+            <th>Effet de l'enveloppe (%)</th>
+
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="fr-cell--multiline">
+            <td><%= format_value(number_to_currency(acte.montant_ae, unit: "€", format: "%n %u")) %></td>
+            <td><%= format_value(number_to_currency(td.montant_enveloppe_n1, unit: "€", format: "%n %u")) %></td>
+            <td><%= format_value(number_to_currency(td.impact_maximal_sans_enveloppe, unit: "€", format: "%n %u")) %></td>
+            <td>
+              <% if td.montant_enveloppe_n1.to_f > 0 %>
+                <%= number_to_percentage((td.impact_maximal_sans_enveloppe.to_f / td.montant_enveloppe_n1.to_f) * 100, precision: 1) %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if acte.perimetre == 'organisme' %>
+  <div class="fr-table fr-table--no-caption fr-table--no-scroll">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>Budget et délibération</caption>
+            <thead>
+              <tr class="fr-cell--multiline">
+                <th>Budget exécutoire</th>
+                <th>Opération budgétaire</th>
+                <th>Délibération en CA nécessaire</th>
+                <% if acte.deliberation_ca == true %>
+                  <th>N° de délibération</th>
+                  <th>Date de délibération</th>
+                  <th>Observations sur la délibération</th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="fr-cell--multiline">
+                <td><%= acte.budget_executoire ? 'Oui' : 'Non' %></td>
+                <td><%= format_value(acte.operation_budgetaire) %></td>
+                <td><%= acte.deliberation_ca ? 'Oui' : 'Non' %></td>
+                <% if acte.deliberation_ca == true %>
+                  <td><%= format_value(acte.numero_deliberation_ca) %></td>
+                  <td><%= format_date_text(acte.date_deliberation_ca) %></td>
+                  <td><%= format_value(acte.observations_deliberation_ca) %></td>
+                <% end %>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

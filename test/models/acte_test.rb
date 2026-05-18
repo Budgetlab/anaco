@@ -68,7 +68,7 @@ class ActeTest < ActiveSupport::TestCase
   end
 
   test "titre T2 is valid value" do
-    acte = Acte.new(titre: 'T2', categorie_t2: 'hors_contrat')
+    acte = Acte.new(titre: 'T2', categorie_t2: 'hors contrat')
     acte.valid?
     refute_includes acte.errors[:titre], "n'est pas inclus(e) dans la liste"
   end
@@ -91,8 +91,8 @@ class ActeTest < ActiveSupport::TestCase
     assert_includes acte.errors[:categorie_t2], "n'est pas inclus(e) dans la liste"
   end
 
-  test "categorie_t2 accepts contrat and hors_contrat" do
-    %w[contrat hors_contrat].each do |val|
+  test "categorie_t2 accepts contrat and hors contrat" do
+    ['contrat', 'hors contrat'].each do |val|
       acte = Acte.new(titre: 'T2', categorie_t2: val)
       acte.valid?
       refute_includes acte.errors[:categorie_t2], "n'est pas inclus(e) dans la liste"
@@ -119,7 +119,7 @@ class ActeTest < ActiveSupport::TestCase
       annee: 2026,
       type_acte: 'avis',
       titre: 'T2',
-      categorie_t2: 'hors_contrat',
+      categorie_t2: 'hors contrat',
       perimetre: 'etat'
     )
     T2Detail.create!(acte: acte)

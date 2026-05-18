@@ -1,7 +1,7 @@
 <%= turbo_frame_tag :new_modal, target: "_top" do %>
   <div class="fr-container fr-container--fluid fr-container-md">
     <div class="fr-grid-row fr-grid-row--center">
-      <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+      <div class="fr-col-12 fr-col-md-8 fr-col-lg-8">
         <div class="fr-modal__body">
           <div class="fr-modal__header">
             <button class="fr-btn--close fr-btn" aria-controls="nouvel-acte-modal" title="Fermer">
@@ -16,6 +16,25 @@
               </div>
             <% end %>
             <%= form_with url: new_acte_path, method: :get, data: { turbo_frame: "_top", turbo: false } do |f| %>
+
+              <!-- Choix du titre (HT2 / T2) -->
+              <fieldset class="fr-fieldset" aria-labelledby="titre-legend">
+                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="titre-legend">
+                  Choisissez un titre*
+                </legend>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :titre, "HT2", id: "titre_ht2", required: true, checked: true, data: { "acte-form-target": "titreRadio", action: "change->acte-form#toggleTitre" } %>
+                    <label class="fr-label" for="titre_ht2">HT2 - Hors actes de personnel</label>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :titre, "T2", id: "titre_t2", data: { "acte-form-target": "titreRadio", action: "change->acte-form#toggleTitre" } %>
+                    <label class="fr-label" for="titre_t2">T2 - Actes de personnel</label>
+                  </div>
+                </div>
+              </fieldset>
 
               <!-- Choix du périmètre -->
               <fieldset class="fr-fieldset" aria-labelledby="perimetre-legend">
@@ -36,10 +55,10 @@
                 </div>
               </fieldset>
 
-              <!-- Choix du type d'acte -->
+              <!-- Choix du type de contrôle -->
               <fieldset class="fr-fieldset" aria-labelledby="type-acte-legend">
                 <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="type-acte-legend">
-                  Choisissez un type d'acte*
+                  Choisissez un type de contrôle*
                 </legend>
                 <div class="fr-fieldset__element fr-fieldset__element--inline">
                   <div class="fr-radio-group fr-radio-rich">
@@ -62,7 +81,8 @@
                 <div class="fr-messages-group" id="storybook-form-messages" aria-live="polite">
                 </div>
               </fieldset>
-              <!-- Choix de la catégorie (visible seulement pour Organisme) -->
+
+              <!-- Choix de la catégorie organisme (visible seulement pour HT2 + Organisme) -->
               <fieldset class="fr-fieldset fr-hidden" id="categorie-organisme-block" aria-labelledby="categorie-organisme-legend" data-acte-form-target="categorieBlock">
                 <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="categorie-organisme-legend">
                   Choisissez une catégorie*
@@ -81,6 +101,25 @@
                 </div>
               </fieldset>
 
+              <!-- Choix de la catégorie T2 (visible seulement pour T2) -->
+              <fieldset class="fr-fieldset fr-hidden" id="categorie-t2-block" aria-labelledby="categorie-t2-legend" data-acte-form-target="categorieT2Block">
+                <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="categorie-t2-legend">
+                  Choisissez une catégorie*
+                </legend>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :categorie_t2, "contrat", id: "categorie_t2_contrat", disabled: true %>
+                    <label class="fr-label fr-label--disabled" for="categorie_t2_contrat">Contrat</label>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-radio-group fr-radio-rich">
+                    <%= f.radio_button :categorie_t2, "hors contrat", id: "categorie_t2_hors_contrat", required: true, data: { "acte-form-target": "categorieT2Radio" } %>
+                    <label class="fr-label" for="categorie_t2_hors_contrat">Hors contrat</label>
+                  </div>
+                </div>
+              </fieldset>
+
               <fieldset class="fr-fieldset" id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
                 <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend"> Précisez
                   l'état de l'acte*
@@ -90,7 +129,7 @@
                     <%= f.radio_button :etat, "en cours d'instruction", id: "etat_1", required: true, data: { "acte-form-target": "etatRadio", action: "change->acte-form#togglePreInstruction" } %>
                     <label class="fr-label" for="etat_1">
                       <p class="fr-badge fr-badge--green-archipel">En instruction</p>
-                      <span class="fr-hint-text">Traitement standard d’un acte</span></label>
+                      <span class="fr-hint-text">Traitement standard d'un acte</span></label>
                   </div>
 
 
@@ -98,7 +137,7 @@
                   <div id="pre-instruction-block" class="fr-mt-2w fr-ml-2w" hidden>
                     <fieldset class="fr-fieldset" aria-labelledby="legend-pre-inst">
                       <legend id="legend-pre-inst" class="fr-fieldset__legend--regular fr-fieldset__legend">
-                        Cet acte a-t-il fait l’objet d’une pré-instruction antérieure ?*
+                        Cet acte a-t-il fait l'objet d'une pré-instruction antérieure ?*
                       </legend>
 
                       <div class="fr-fieldset__element fr-fieldset__element--inline">

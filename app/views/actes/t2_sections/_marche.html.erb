@@ -1,0 +1,80 @@
+<%# locals: (f:, td:, acte:) %>
+<% is_organisme = acte.perimetre == 'organisme' %>
+
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="montant_ae" class="fr-label">Montant au contrôle*</label>
+      <%= f.text_field :montant_ae, value: acte.montant_ae, id: "montant_ae", class: "fr-input",
+                         required: true,
+                         data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="acte_beneficiaire" class="fr-label">Bénéficiaire</label>
+      <%= f.text_field :beneficiaire, id: "acte_beneficiaire", class: "fr-input", value: acte.beneficiaire %>
+    </div>
+  </div>
+
+
+  <% if is_organisme %>
+    <div class="fr-col-12 fr-col-lg-4">
+      <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="budget-executoire-marche-legend">
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="budget-executoire-marche-legend">
+          Budget exécutoire*
+        </legend>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :budget_executoire, true, id: "budget_executoire_marche_oui",
+                               checked: acte.budget_executoire == true || acte.budget_executoire.nil? %>
+            <label class="fr-label" for="budget_executoire_marche_oui">Oui</label>
+          </div>
+        </div>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :budget_executoire, false, id: "budget_executoire_marche_non" %>
+            <label class="fr-label" for="budget_executoire_marche_non">Non</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="acte_operation_budgetaire" class="fr-label">Opération budgétaire</label>
+        <%= f.select :operation_budgetaire,
+                     options_for_select(
+                       [['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']],
+                       acte.operation_budgetaire
+                     ),
+                     { prompt: 'Sélectionner une option' },
+                     { id: "acte_operation_budgetaire", class: "fr-select" } %>
+      </div>
+    </div>
+  <% end %>
+</div>
+<% if is_organisme %>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-4">
+      <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="deliberation-ca-marche-legend">
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="deliberation-ca-marche-legend">
+          Délibération en CA nécessaire
+        </legend>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :deliberation_ca, true, id: "deliberation_ca_marche_oui" %>
+            <label class="fr-label" for="deliberation_ca_marche_oui">Oui</label>
+          </div>
+        </div>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :deliberation_ca, false, id: "deliberation_ca_marche_non",
+                               checked: acte.deliberation_ca == false || acte.deliberation_ca.nil? %>
+            <label class="fr-label" for="deliberation_ca_marche_non">Non</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+<% end %>

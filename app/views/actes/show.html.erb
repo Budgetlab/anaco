@@ -1,4 +1,5 @@
-<% content_for :title do %>Consultation de l'acte HT2 | ANACO
+<% content_for :title do %>Consultation de l'acte
+  <% @acte.titre %> | ANACO
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
@@ -22,7 +23,7 @@
             <% end %>
           </li>
           <li>
-            <a class="fr-breadcrumb__link" aria-current="page">Consultation <%= @acte.type_acte %> HT2</a>
+            <a class="fr-breadcrumb__link" aria-current="page">Consultation <%= @acte.type_acte %> <%= @acte.titre %></a>
           </li>
         </ol>
       </div>
@@ -35,15 +36,19 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">
-          <span class="fr-capitalize">Acte HT2
-            <% if @acte.perimetre == 'organisme' %>
-              <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
-              <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
-              <% end %>
+          <span class="fr-capitalize">Acte <%= @acte.titre %>
+            <% if @acte.titre == "T2" %>
+              n°<%= @acte.numero_formate %>
             <% else %>
+              <% if @acte.perimetre == 'organisme' %>
+                <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
+                <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
+                <% end %>
+              <% else %>
 
-              <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
-              <% else %>n°<%= @acte.numero_formate %>
+                <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+                <% else %>n°<%= @acte.numero_formate %>
+                <% end %>
               <% end %>
             <% end %>
           </span>
@@ -69,10 +74,11 @@
                 <div class="fr-mb-1w">
                   <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                     n°<%= acte.numero_formate %></p>
-                  <% if acte.perimetre == 'organisme' %><%= badge_categorie_organisme(acte) %><%end %>
+                  <% if acte.perimetre == 'organisme' %><%= badge_categorie_organisme(acte) %>
+                  <% end %>
                   <span class="fr-text--italic">créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
-                  <% if acte.etat == "clôturé" || acte.etat == "clôturé en pré-instruction" %>
-                    , <%= acte.etat %><%= " le #{l(acte.date_cloture, format: '%e/%m/%y')}" if acte.date_cloture.present? %>
+                    <% if acte.etat == "clôturé" || acte.etat == "clôturé en pré-instruction" %>
+                      , <%= acte.etat %><%= " le #{l(acte.date_cloture, format: '%e/%m/%y')}" if acte.date_cloture.present? %>
                     <% end %>
                   </span>
 
@@ -88,7 +94,9 @@
                   </button>
                 </div>
               </div>
-              <% if acte.perimetre == 'organisme' %>
+              <% if acte.titre == 'T2' %>
+                <%= render 'acte_details_t2', acte: acte %>
+              <% elsif acte.perimetre == 'organisme' %>
                 <%= render 'acte_details_organisme', acte: acte %>
               <% else %>
                 <%= render 'acte_details', acte: acte %>

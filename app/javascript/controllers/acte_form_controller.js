@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 // Connects to data-controller="form-submit"
 export default class extends Controller {
-    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension", "programmationBlock"]
+    static targets = ["submitButton", "fieldRequire", "submitAction", "form", "message", "totalMontant", 'totalMontantEcheancierAE', 'totalMontantEcheancierCP', 'etatRadio', 'preRadio', 'decision', 'typeEngagement', 'montantAe', 'etatClotureRadio', "toggleSuspensionButton", "perimetreRadio", "categorieRadio", "categorieBlock", "tfOption", "dateCloture", "submitCloture", "dateSuspension", "programmationBlock", "titreRadio", "categorieT2Block", "categorieT2Radio", "natureT2Select", "natureT2Section"]
     static values = { prefixes: Object }
     connect() {
 
@@ -28,6 +28,15 @@ export default class extends Controller {
             // modal nouvel acte - choix périmètre
             this.togglePerimetre()
         }
+        if (this.hasTitreRadioTarget){
+            // modal nouvel acte - choix titre HT2/T2
+            this.toggleTitre()
+        }
+        if (this.hasNatureT2SelectTarget){
+            // formulaire T2 étape 1 - restaure la section nature au chargement
+            this.toggleNatureT2()
+        }
+        this.calculateEffetEnveloppe()
     }
     setValidation(event) {
         this.submitActionTarget.value = "à valider"
@@ -380,49 +389,93 @@ export default class extends Controller {
         }
     }
 
-    // Modal affichage choix catégorie et type d'acte selon périmètre
-    togglePerimetre(event){
-        const selected = this.perimetreRadioTargets.find(r => r.checked)?.value
-        const isOrganisme = selected === "organisme"
+    // Helpers partagés pour la visibilité des blocs conditionnels (titre × périmètre)
+    _currentTitre() {
+        return this.hasTitreRadioTarget
+            ? (this.titreRadioTargets.find(r => r.checked)?.value || 'HT2')
+            : 'HT2'
+    }
 
-        // Afficher/cacher le bloc catégorie (visible seulement pour Organisme)
-        if (this.hasCategorieBlockTarget) {
-            if (isOrganisme) {
-                this.categorieBlockTarget.classList.remove('fr-hidden')
-            } else {
-                this.categorieBlockTarget.classList.add('fr-hidden')
+    _currentPerimetre() {
+        return this.hasPerimetreRadioTarget
+            ? (this.perimetreRadioTargets.find(r => r.checked)?.value || 'etat')
+            : 'etat'
+    }
+
+    _updateTfVisibility() {
+        if (!this.hasTfOptionTarget) return
+        const showTf = this._currentTitre() === 'HT2' && this._currentPerimetre() === 'etat'
+        const tfRadio = document.getElementById('TF')
+        if (showTf) {
+            this.tfOptionTarget.classList.remove('fr-hidden')
+            if (tfRadio) tfRadio.disabled = false
+        } else {
+            this.tfOptionTarget.classList.add('fr-hidden')
+            if (tfRadio) {
+                if (tfRadio.checked) {
+                    tfRadio.checked = false
+                    const avisRadio = document.getElementById('avis')
+                    if (avisRadio) avisRadio.checked = true
+                }
+                tfRadio.disabled = true
             }
+        }
+    }
 
-            // Gérer le required sur les champs de catégorie
+    _updateCategorieOrganismeVisibility() {
+        if (!this.hasCategorieBlockTarget) return
+        const showCatOrg = this._currentTitre() === 'HT2' && this._currentPerimetre() === 'organisme'
+        if (showCatOrg) {
+            this.categorieBlockTarget.classList.remove('fr-hidden')
+        } else {
+            this.categorieBlockTarget.classList.add('fr-hidden')
             if (this.hasCategorieRadioTarget) {
                 this.categorieRadioTargets.forEach((el) => {
-                    if (!isOrganisme) {
-                        el.checked = false
-                        el.required = false
-                    } else {
-                        el.required = true
+                    el.checked = false
+                    el.required = false
+                })
+            }
+        }
+        if (showCatOrg && this.hasCategorieRadioTarget) {
+            this.categorieRadioTargets.forEach((el) => { el.required = true })
+        }
+    }
+
+    // Modal affichage choix catégorie et type d'acte selon périmètre
+    togglePerimetre(event){
+        this._updateCategorieOrganismeVisibility()
+        this._updateTfVisibility()
+    }
+
+    // Modal affichage selon le titre choisi (HT2 / T2)
+    toggleTitre(event){
+        const isT2 = this._currentTitre() === 'T2'
+
+        // Catégorie T2 : visible seulement si T2
+        if (this.hasCategorieT2BlockTarget) {
+            if (isT2) {
+                this.categorieT2BlockTarget.classList.remove('fr-hidden')
+                // Auto-sélectionner "Hors contrat" si rien n'est coché
+                if (this.hasCategorieT2RadioTarget) {
+                    this.categorieT2RadioTargets.forEach((el) => { el.required = true })
+                    if (!this.categorieT2RadioTargets.some(r => r.checked)) {
+                        const horsContrat = this.categorieT2RadioTargets.find(r => r.value === 'hors contrat')
+                        if (horsContrat) horsContrat.checked = true
                     }
+                }
+            } else {
+                this.categorieT2BlockTarget.classList.add('fr-hidden')
+                // Reset large : couvre aussi le radio "contrat" disabled (pas un target)
+                this.categorieT2BlockTarget.querySelectorAll('input[type="radio"]').forEach((el) => {
+                    el.checked = false
+                    el.required = false
                 })
             }
         }
 
-        // Afficher/cacher l'option TF (visible seulement pour État)
-        if (this.hasTfOptionTarget) {
-            if (isOrganisme) {
-                this.tfOptionTarget.classList.add('fr-hidden')
-            } else {
-                this.tfOptionTarget.classList.remove('fr-hidden')
-            }
-
-            // Si on passe à Organisme et que TF est sélectionné, décocher
-            const tfRadio = document.getElementById('TF')
-            if (isOrganisme && tfRadio && tfRadio.checked) {
-                tfRadio.checked = false
-                // Sélectionner Avis par défaut
-                const avisRadio = document.getElementById('avis')
-                if (avisRadio) avisRadio.checked = true
-            }
-        }
+        // Catégorie organisme et TF : dépendent de titre ET périmètre
+        this._updateCategorieOrganismeVisibility()
+        this._updateTfVisibility()
     }
 
     toggleCloture(event){
@@ -757,6 +810,125 @@ export default class extends Controller {
 
         if (alertPrefix) alertPrefix.classList.toggle('fr-hidden', value === '' || value.toUpperCase().startsWith('TF'))
         if (alertLength) alertLength.classList.toggle('fr-hidden', value === '' || value.length === 8)
+    }
+
+    resetIspCercle(event) {
+        const cercle = event.target.dataset.ispCercle
+        if (!cercle) return
+
+        const montant    = document.getElementById(`isp_cercle${cercle}_montant`)
+        const enveloppe  = document.getElementById(`isp_cercle${cercle}_enveloppe_sgg`)
+        const consom     = document.getElementById(`isp_cercle${cercle}_consommation`)
+        const isOui = event.target.value === 'true'
+        if (montant)   montant.required   = isOui
+        if (enveloppe) enveloppe.required = isOui
+
+        if (event.target.value !== 'false') return
+
+        const fields = [montant, enveloppe, consom]
+        fields.forEach(f => { if (f) f.value = '' })
+
+        const natures = document.getElementById(`isp_cercle${cercle}_natures_hidden`)
+        if (natures) {
+            natures.value = ''
+            const dropdownEl = natures.closest('[data-controller~="checkbox-dropdown"]')
+            if (dropdownEl) {
+                dropdownEl.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false })
+                const label = dropdownEl.querySelector('[data-checkbox-dropdown-target="label"]')
+                if (label) label.textContent = label.dataset.placeholder
+            }
+        }
+
+        const reste = document.getElementById(`isp_cercle${cercle}_reste`)
+        if (reste) reste.textContent = '--€'
+    }
+
+    calculateIspReste(event) {
+        const cercle = event.target.dataset.ispCercle
+        if (!cercle) return
+
+        const enveloppeFld = document.getElementById(`isp_cercle${cercle}_enveloppe_sgg`)
+        const consomFld    = document.getElementById(`isp_cercle${cercle}_consommation`)
+        const resteEl      = document.getElementById(`isp_cercle${cercle}_reste`)
+        if (!resteEl) return
+
+        const envVal  = enveloppeFld?.value || ''
+        const consoVal = consomFld?.value   || ''
+
+        if (!envVal && !consoVal) {
+            resteEl.textContent = '--€'
+            return
+        }
+
+        const env   = isNaN(this.numberFormat(envVal))  ? 0 : (this.numberFormat(envVal)  || 0)
+        const conso = isNaN(this.numberFormat(consoVal)) ? 0 : (this.numberFormat(consoVal) || 0)
+        const reste = env - conso
+        resteEl.textContent = reste.toLocaleString('fr-FR') + ' €'
+    }
+
+    toggleNatureT2(event) {
+        const NATURE_T2_SLUGS = {
+            'Annexe financière':       't2-section-annexe-financiere',
+            'Enveloppe limitative':    't2-section-enveloppe-limitative',
+            'Fongibilité asymétrique': 't2-section-fongibilite-asymetrique',
+            'ISP':                     't2-section-isp',
+            'Marché':                  't2-section-marche',
+            'Mesure transversale':     't2-section-mesure-transversale',
+            'Référentiel':             't2-section-referentiel'
+        }
+
+        const selectedNature = this.natureT2SelectTarget.value
+
+        this.natureT2SectionTargets.forEach(section => {
+            section.classList.add('fr-hidden')
+            this._disableSectionFields(section)
+        })
+
+        if (selectedNature && NATURE_T2_SLUGS[selectedNature]) {
+            const targetId = NATURE_T2_SLUGS[selectedNature]
+            const section = document.getElementById(targetId)
+            if (section) {
+                section.classList.remove('fr-hidden')
+                this._enableSectionFields(section)
+            }
+        }
+
+        const cfField = document.getElementById('centre_financier_code')
+        if (cfField) {
+            const cfRequired = selectedNature === 'Fongibilité asymétrique'
+            cfField.required = cfRequired
+            const cfLabel = document.querySelector('label[for="centre_financier_code"]')
+            if (cfLabel) cfLabel.textContent = 'Centre financier' + (cfRequired ? '*' : '')
+        }
+    }
+
+    calculateEffetEnveloppe() {
+        const montantEl = document.getElementById('el_montant_ae')
+        const impactEl = document.getElementById('el_impact_maximal_sans_enveloppe')
+        const effetEl = document.getElementById('el_effet_enveloppe')
+        if (!montantEl || !impactEl || !effetEl) return
+        const montant = this.numberFormat(montantEl.value)
+        const impact = this.numberFormat(impactEl.value)
+        if (!impact || impact === 0 || isNaN(montant)) {
+            effetEl.textContent = '--%'
+            return
+        }
+        const effet = Math.round(montant / impact * 100)
+        effetEl.textContent = effet + '%'
+    }
+
+    _disableSectionFields(section) {
+        section.querySelectorAll('input, select, textarea').forEach(el => {
+            el.disabled = true
+            if (el.type === 'radio') el.checked = false
+        })
+    }
+
+    _enableSectionFields(section) {
+        section.querySelectorAll('input, select, textarea').forEach(el => {
+            el.disabled = false
+            if (el.type === 'radio') el.checked = el.defaultChecked
+        })
     }
 
 }

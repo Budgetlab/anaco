@@ -1,0 +1,87 @@
+<%# locals: (acte:, td:) %>
+<div class="fr-table fr-table--no-caption">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>Annexe financière</caption>
+
+          <thead>
+            <tr class="fr-cell--multiline">
+              <th>Type d'acte</th>
+              <th>Date d'effet</th>
+              <th>Effectifs (liste principale)</th>
+              <th>Effectifs (liste complémentaire)</th>
+              <th>Catégorie</th>
+              <th>Corps</th>
+              <th>Date arrêté concours</th>
+              <th>Impact schéma d'emplois</th>
+              <th><%= acte.perimetre == 'organisme' ? "Impact autre CBR" : "Impact autre CBCM" %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="fr-cell--multiline">
+              <td><%= format_value(td.type_acte_t2) %></td>
+              <td><%= format_value(td.date_effet_acte) %></td>
+              <td><%= format_value(td.effectifs) %></td>
+              <td><%= format_value(td.effectifs_complementaire) %></td>
+              <td><%= Array(td.grade).join(', ').presence || 'Non renseigné' %></td>
+              <td><%= format_value(td.corps) %></td>
+              <td><%= format_date_text(td.date_arrete_concours) %></td>
+              <td>
+                <% if td.impact_schema_emplois == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %>
+                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+              <td>
+                <% if td.impact_autre_cbcm == true %>
+                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
+                <% else %>
+                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
+                <% end %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if acte.perimetre == 'organisme' %>
+  <div class="fr-table fr-table--no-caption fr-table--no-scroll">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>Budget et délibération</caption>
+            <thead>
+              <tr class="fr-cell--multiline">
+                <th>Budget exécutoire</th>
+                <th>Délibération en CA nécessaire</th>
+                <% if acte.deliberation_ca == true %>
+                  <th>N° de délibération</th>
+                  <th>Date de délibération</th>
+                  <th>Observations sur la délibération</th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="fr-cell--multiline">
+                <td><%= acte.budget_executoire ? 'Oui' : 'Non' %></td>
+                <td><%= acte.deliberation_ca ? 'Oui' : 'Non' %></td>
+                <% if acte.deliberation_ca == true %>
+                  <td><%= format_value(acte.numero_deliberation_ca) %></td>
+                  <td><%= format_date_text(acte.date_deliberation_ca) %></td>
+                  <td><%= format_value(acte.observations_deliberation_ca) %></td>
+                <% end %>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

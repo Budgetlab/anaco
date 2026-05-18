@@ -47,18 +47,19 @@ development_status:
   1-4-mettre-a-jour-le-controller-les-routes-et-les-vues: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-etendre-le-modal-nouvel-acte-avec-le-selecteur-t2: backlog
-  2-2-formulaire-t2-etape-1-champs-communs: backlog
-  2-3-section-specifique-nature-annexe-financiere: backlog
-  2-4-section-specifique-nature-isp: backlog
-  2-5-section-specifique-nature-fongibilite-asymetrique: backlog
-  2-6-section-specifique-nature-marche-psc: backlog
-  2-7-section-specifique-nature-mesure-transversale: backlog
-  2-8-sections-specifiques-natures-enveloppe-limitative-et-referentiel: backlog
-  2-9-formulaire-t2-etape-2-criteres-de-controle: backlog
-  2-10-formulaire-t2-etape-3-decision: backlog
-  2-11-suspension-et-reprise-d-un-acte-t2: backlog
+  epic-2: in-progress
+  2-1-etendre-le-modal-nouvel-acte-avec-le-selecteur-t2: done
+  2-2-formulaire-t2-etape-1-champs-communs: done
+  2-3-section-specifique-nature-annexe-financiere: done
+  2-4-section-specifique-nature-isp: done
+  2-5-section-specifique-nature-fongibilite-asymetrique: done
+  2-6-section-specifique-nature-marche-psc: done
+  2-7-section-specifique-nature-mesure-transversale: done
+  2-8-sections-specifiques-natures-enveloppe-limitative-et-referentiel: done
+  2-9-formulaire-t2-etape-2-criteres-de-controle: done
+  2-10-formulaire-t2-etape-3-decision: done
+  2-11-suspension-et-reprise-d-un-acte-t2: done
+  2-12-affichage-details-acte-t2-en-mode-consultation: review
   epic-2-retrospective: optional
 
   epic-3: backlog

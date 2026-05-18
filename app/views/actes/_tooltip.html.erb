@@ -98,5 +98,33 @@ La pluriannualité s’apprécie à travers la communication d’une chronique d
     Délai réglementaire de traitement prenant en compte les interruptions et suspensions.
   <% elsif name == "duree_moyenne_traitement_info" %>
     Durée globale de traitement de la date initiale à la validation dans Chorus.
+  <% elsif name == "impact_schema_emplois_info" %>
+    Sont concernés les concours avec effet en année N.
+  <% elsif name == "impact_autre_cbcm_info" %>
+    Certains concours peuvent concerner plusieurs périmètres ministériels. Il convient alors de s'assurer que le(s) contrôleur(s) impactés est favorable.
+  <% elsif name == "fa_technique_info" %>
+    Généralement prévue dès la budgétisation, la FA technique prend acte du fait qu'une dépense de personnel ne s'effectuera pas in fine sur le titre 2.
+    La FA non technique correspond à un effort de gestion permettant de couvrir des dépenses HT2.
+  <% elsif name == "controle_modalites_info" %>
+    Vérifier la compatibilité avec les instructions données par la DB (exemple : période au cours de la gestion, positionnement en centrale/déconcentré, répartition des crédits CAS/HCAS).
+  <% elsif name == "programmation_t2_fa_info" %>
+    La FA doit notamment être compatible avec la prévision d'atterrissage de fin de gestion.
+  <% elsif name == "programmation_t2_info" %>
+    En fonction du dernier document de programmation disponible (DPGECP/CRG).
+  <% elsif name == "accord_rffim_info" %>
+    Cet accord préalable est obligatoire (RRCBE).
+  <% elsif name == "sollicitation_db_info" %>
+    Cet accord préalable n'est pas obligatoire.
+  <% elsif name == "sollicitation_cbcm_info" %>
+    Cet accord préalable est obligatoire (RRCBE), sauf règle de gestion spécifique demandée par le CBCM.
+  <% elsif name == "isp_cercle1_consommation_info" || name == "isp_cercle2_consommation_info" %>
+    Information transmise par l'ordonnateur, pouvant tenir compte des remboursements d'indus.
+  <% elsif name == "impact_maximal_sans_enveloppe_info" %>
+    L'enveloppe permet d'encadrer la consommation des crédits. Ce champ indique le montant théorique des dépenses potentielles maximum, sans limitation par l'enveloppe.
+  <% elsif name == "effet_enveloppe_info" %>
+    L'enveloppe permet d'encadrer la consommation des crédits. Ce champ calcule le rapport entre:<br>
+    - le montant plafonné (dépenses réelles encadrées par l'enveloppe)<br>
+    - le montant théorique (dépenses potentielles maximum, sans limitation par l'enveloppe)<br>
+    Ainsi, ce champ indique le niveau de compression des crédits opéré par l'enveloppe. Un ration >1 reflète une économie grâce au plafonnement.
   <% end %>
 </span>

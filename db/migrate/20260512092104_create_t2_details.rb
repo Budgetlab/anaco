@@ -5,6 +5,7 @@ class CreateT2Details < ActiveRecord::Migration[8.1]
       t.references :acte, null: false, foreign_key: true, index: { unique: true }
 
       # Section Annexe financière / RH
+      t.string  :type_acte_t2
       t.float   :effectifs
       t.float   :effectifs_complementaire
       t.string  :corps
@@ -46,7 +47,7 @@ class CreateT2Details < ActiveRecord::Migration[8.1]
       t.decimal :impact_maximal_sans_enveloppe
 
       # Section Référentiel
-      t.string  :referentiel_type
+      t.boolean :referentiel_type, default: false
 
       # Contrôles RH communs T2 (étape 2)
       t.boolean :inscription_pap

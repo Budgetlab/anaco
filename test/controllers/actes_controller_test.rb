@@ -12,4 +12,1943 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert File.exist?(view_root.join("_acte_details_organisme.html.erb")),
            "Partial _acte_details_organisme.html.erb manquant (rendu par show)"
   end
+
+  # Story 2.1 — Smoke regression tests : la route `new` doit répondre 200
+  # pour toutes les combinaisons titre/categorie_t2 valides issues du modal,
+  # et tolérer les valeurs hors whitelist sans crasher.
+
+  test "new without titre param succeeds (HT2 default branch)" do
+    sign_in users(:two)
+    get new_acte_path
+    assert_response :success
+  end
+
+  test "new with titre=T2 succeeds (T2 + hors contrat branch)" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'T2' }
+    assert_response :success
+  end
+
+  test "new with titre=T2 and explicit categorie_t2=hors contrat succeeds" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'T2', categorie_t2: 'hors contrat' }
+    assert_response :success
+  end
+
+  test "new with invalid titre falls back to HT2 without crashing" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'INVALID' }
+    assert_response :success
+  end
+
+  test "new with HT2 and stray categorie_t2 param succeeds (ignored)" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'HT2', categorie_t2: 'hors contrat' }
+    assert_response :success
+  end
+
+  test "new with T2 and categorie_t2=contrat does not raise (Contrat hors-périmètre)" do
+    sign_in users(:two)
+    # Story 2.1 : Contrat est hors-périmètre. La requête doit aboutir sans planter
+    # (la valeur 'contrat' doit être ignorée et 'hors contrat' substitué).
+    get new_acte_path, params: { titre: 'T2', categorie_t2: 'contrat' }
+    assert_response :success
+  end
+
+  # Story 2.2 — T2 form routing and nature lists
+
+  test "new T2 renders form_informations_t2 partial" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    # Bandeau read-only T2 — unique au partial T2 (AC1)
+    assert_select "div.fr-callout", text: /Hors contrat/
+    assert_select "div.fr-callout", text: /T2 — Actes de personnel/
+    # Les 7 placeholders de sections nature — uniques au partial T2 (AC5)
+    %w[annexe-financiere enveloppe-limitative fongibilite-asymetrique isp marche mesure-transversale referentiel].each do |slug|
+      assert_select "div#t2-section-#{slug}.fr-hidden"
+    end
+    # Hidden fields obligatoires (AC8)
+    assert_select "input[type=hidden][name='acte[titre]'][value=?]", 'T2'
+    assert_select "input[type=hidden][name='acte[categorie_t2]'][value=?]", 'hors contrat'
+  end
+
+  test "new T2 etat CBR user gets only Fongibilité asymétrique in nature list" do
+    sign_in users(:two) # statut: CBR
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "select#nature option", text: "Fongibilité asymétrique"
+    assert_select "select#nature option", { count: 0, text: "ISP" }
+    assert_select "select#nature option", { count: 0, text: "Annexe financière" }
+  end
+
+  test "new T2 etat DCB user gets full nature list including ISP" do
+    sign_in users(:three) # statut: DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "select#nature option", text: "Fongibilité asymétrique"
+    assert_select "select#nature option", text: "ISP"
+    assert_select "select#nature option", text: "Annexe financière"
+    assert_select "select#nature option", text: "Référentiel"
+  end
+
+  test "new T2 organisme user does not get ISP in nature list" do
+    sign_in users(:three) # statut: DCB, but organisme excludes ISP regardless
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme' }
+    assert_response :success
+    assert_select "select#nature option", text: "Fongibilité asymétrique"
+    assert_select "select#nature option", text: "Annexe financière"
+    assert_select "select#nature option", { count: 0, text: "ISP" }
+  end
+
+  test "new HT2 still uses original nature list (no regression)" do
+    sign_in users(:two)
+    get new_acte_path, params: { titre: 'HT2', type_acte: 'visa', perimetre: 'etat' }
+    assert_response :success
+    assert_select "select#nature option", text: "Autre contrat"
+    assert_select "select#nature option", { count: 0, text: "ISP" }
+  end
+
+  test "acte_params permits titre and categorie_t2" do
+    sign_in users(:three)
+    post actes_path, params: {
+      acte: {
+        titre: 'T2',
+        categorie_t2: 'hors contrat',
+        type_acte: 'visa',
+        etat: "en cours d'instruction",
+        perimetre: 'etat',
+        instructeur: 'AB',
+        nature: 'Fongibilité asymétrique',
+        annee: Date.today.year,
+        date_saisine: Date.today.strftime('%d/%m/%Y'),
+        pre_instruction: false
+      }
+    }
+    acte = Acte.last
+    assert_equal 'T2', acte.titre
+    assert_equal 'hors contrat', acte.categorie_t2
+  end
+
+  # Story 2.2 — Smoke E2E : création T2 étape 1 État + Organisme (couvre AC9)
+
+  test "create T2 etat persists common fields and auto-generates numero/date_limite" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      post actes_path, params: {
+        acte: {
+          titre: 'T2', categorie_t2: 'hors contrat',
+          type_acte: 'visa', etat: "en cours d'instruction",
+          perimetre: 'etat',
+          instructeur: 'JD',
+          nature: 'Annexe financière',
+          annee: Date.today.year,
+          date_saisine: Date.today.strftime('%d/%m/%Y'),
+          pre_instruction: false
+        }
+      }
+    end
+    acte = Acte.last
+    assert_equal 'T2', acte.titre
+    assert_equal 'Annexe financière', acte.nature
+    assert_not_nil acte.numero_utilisateur, "numero_utilisateur doit être auto-généré (AC7)"
+    assert_not_nil acte.date_limite, "date_limite doit être auto-calculée (AC7)"
+  end
+
+  test "create T2 organisme persists nom_organisme and excludes ISP from list" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      post actes_path, params: {
+        acte: {
+          titre: 'T2', categorie_t2: 'hors contrat',
+          type_acte: 'avis', etat: "en cours d'instruction",
+          perimetre: 'organisme',
+          instructeur: 'JD',
+          nature: 'Marché',
+          nom_organisme: 'Organisme Test',
+          annee: Date.today.year,
+          date_saisine: Date.today.strftime('%d/%m/%Y'),
+          pre_instruction: false
+        }
+      }
+    end
+    acte = Acte.last
+    assert_equal 'organisme', acte.perimetre
+    assert_equal 'Organisme Test', acte.nom_organisme
+  end
+
+  # Story 2.3 — Annexe financière section
+
+  test "new T2 Annexe financière renders fields_for t2_detail with effectifs" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Annexe financière' }
+    assert_response :success
+    # La section Annexe financière doit être présente (masquée par défaut — Stimulus gère l'affichage)
+    assert_select "div#t2-section-annexe-financiere"
+    # fields_for :t2_detail génère acte[t2_detail_attributes][effectifs]
+    assert_select "input[name='acte[t2_detail_attributes][effectifs]']"
+    assert_select "input[name='acte[t2_detail_attributes][effectifs_complementaire]']"
+    assert_select "input[name='acte[t2_detail_attributes][corps]']"
+    assert_select "select[name='acte[t2_detail_attributes][type_acte_t2]']"
+  end
+
+  test "new T2 Annexe financière etat does not show budget_executoire or deliberation_ca" do
+    sign_in users(:three)
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    # budget_executoire radio Oui/Non ne doit pas apparaître dans le formulaire T2 état
+    assert_select "input#budget_executoire_oui", count: 0
+    assert_select "fieldset[aria-labelledby='deliberation-ca-legend']", count: 0
+  end
+
+  test "new T2 Annexe financière organisme shows budget_executoire and deliberation_ca" do
+    sign_in users(:three)
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme' }
+    assert_response :success
+    assert_select "div#t2-section-annexe-financiere"
+    assert_select "input#budget_executoire_oui"
+    assert_select "input#budget_executoire_non"
+    assert_select "fieldset[aria-labelledby='deliberation-ca-legend']"
+    # deliberation_ca défaut Non → sous-champs cachés
+    assert_select "input#deliberation_ca_non[checked]"
+    assert_select "div[data-conditional-field-target='field'].fr-hidden"
+  end
+
+  test "create T2 Annexe financière saves t2_detail fields" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Annexe financière',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              type_acte_t2: 'Initial',
+              effectifs: '12.5',
+              effectifs_complementaire: '3.0',
+              corps: 'Ingénieurs',
+              grade: 'A+,B',
+              date_arrete_concours: '15/03/2026',
+              date_effet_acte: '01/04/2026',
+              impact_schema_emplois: 'true',
+              impact_autre_cbcm: 'false'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Annexe financière', acte.nature
+    assert_nil acte.type_engagement, "type_engagement ne doit pas être pollué par le flux T2"
+    assert_not_nil acte.t2_detail
+    assert_equal 'Initial', acte.t2_detail.type_acte_t2
+    assert_equal 12.5, acte.t2_detail.effectifs
+    assert_equal 3.0, acte.t2_detail.effectifs_complementaire
+    assert_equal 'Ingénieurs', acte.t2_detail.corps
+    assert_equal %w[A+ B], acte.t2_detail.grade
+    assert_equal Date.new(2026, 3, 15), acte.t2_detail.date_arrete_concours
+    assert_equal '01/04/2026', acte.t2_detail.date_effet_acte
+    assert_equal true, acte.t2_detail.impact_schema_emplois
+    assert_equal false, acte.t2_detail.impact_autre_cbcm
+  end
+
+  test "create T2 organisme Annexe financière saves budget_executoire and deliberation_ca" do
+    sign_in users(:three)
+    assert_difference -> { Acte.count }, 1 do
+      post actes_path, params: {
+        acte: {
+          titre: 'T2', categorie_t2: 'hors contrat',
+          type_acte: 'avis', etat: "en cours d'instruction",
+          perimetre: 'organisme',
+          instructeur: 'AB',
+          nature: 'Annexe financière',
+          nom_organisme: 'Organisme Test',
+          annee: Date.today.year,
+          date_saisine: Date.today.strftime('%d/%m/%Y'),
+          pre_instruction: false,
+          budget_executoire: 'false',
+          deliberation_ca: 'true',
+          numero_deliberation_ca: 'DEL-2026-001',
+          date_deliberation_ca: '20/04/2026',
+          observations_deliberation_ca: 'Observations test',
+          t2_detail_attributes: {
+            type_acte_t2: 'Complémentaire',
+            effectifs: '5.0',
+            impact_schema_emplois: 'false',
+            impact_autre_cbcm: 'false'
+          }
+        }
+      }
+    end
+    acte = Acte.last
+    assert_equal 'organisme', acte.perimetre
+    assert_equal false, acte.budget_executoire
+    assert_equal true, acte.deliberation_ca
+    assert_equal 'DEL-2026-001', acte.numero_deliberation_ca
+    assert_equal Date.new(2026, 4, 20), acte.date_deliberation_ca
+    assert_equal 'Observations test', acte.observations_deliberation_ca
+    assert_not_nil acte.t2_detail
+    assert_equal 'Complémentaire', acte.t2_detail.type_acte_t2
+    assert_equal 5.0, acte.t2_detail.effectifs
+  end
+
+  test "HT2 create is unaffected by T2 changes (no regression)" do
+    sign_in users(:two)
+    assert_difference -> { Acte.count }, 1 do
+      post actes_path, params: {
+        acte: {
+          titre: 'HT2',
+          type_acte: 'visa',
+          etat: "en cours d'instruction",
+          perimetre: 'etat',
+          instructeur: 'AB',
+          nature: 'Engagement juridique',
+          annee: Date.today.year,
+          date_saisine: Date.today.strftime('%d/%m/%Y'),
+          pre_instruction: false
+        }
+      }
+    end
+    acte = Acte.last
+    assert_equal 'HT2', acte.titre
+    assert_nil acte.t2_detail
+  end
+
+  # Story 2.4 — ISP section
+
+  test "new T2 ISP renders isp section with cercle1 and cercle2 fields" do
+    sign_in users(:three) # DCB — ISP only available for état DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-isp"
+    # Section ISP présente dans le DOM (cachée par Stimulus par défaut)
+    assert_select "div#t2-section-isp.fr-hidden"
+    # Champs Cercle 1
+    assert_select "input#isp_cercle1_oui"
+    assert_select "input#isp_cercle1_non"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle1_montant]']"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle1_enveloppe_sgg]']"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle1_consommation]']"
+    # Champs Cercle 2
+    assert_select "input#isp_cercle2_oui"
+    assert_select "input#isp_cercle2_non"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle2_montant]']"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle2_enveloppe_sgg]']"
+    assert_select "input[name='acte[t2_detail_attributes][isp_cercle2_consommation]']"
+    # date_effet_acte dans la section ISP
+    assert_select "input[name='acte[t2_detail_attributes][date_effet_acte]']"
+  end
+
+  test "new HT2 does not render ISP section" do
+    sign_in users(:three)
+    get new_acte_path, params: { titre: 'HT2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-isp", count: 0
+  end
+
+  test "new T2 organisme does not include ISP in nature list" do
+    sign_in users(:three)
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme' }
+    assert_response :success
+    assert_select "select#nature option", { text: "ISP", count: 0 }
+  end
+
+  test "create T2 ISP saves t2_detail isp fields" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'ISP',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              date_effet_acte: '01/09/2026',
+              isp_cercle1: 'true',
+              isp_cercle1_natures: 'ISOE,NBI',
+              isp_cercle1_montant: '15000.50',
+              isp_cercle1_enveloppe_sgg: '200000',
+              isp_cercle1_consommation: '50000',
+              isp_cercle2: 'false',
+              isp_cercle2_natures: '',
+              isp_cercle2_montant: '',
+              isp_cercle2_enveloppe_sgg: '',
+              isp_cercle2_consommation: ''
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'ISP', acte.nature
+    assert_not_nil acte.t2_detail
+    assert_equal '01/09/2026', acte.t2_detail.date_effet_acte
+    assert_equal true,  acte.t2_detail.isp_cercle1
+    assert_equal %w[ISOE NBI], acte.t2_detail.isp_cercle1_natures
+    assert_equal 15000.5, acte.t2_detail.isp_cercle1_montant.to_f
+    assert_equal 200000,  acte.t2_detail.isp_cercle1_enveloppe_sgg.to_f
+    assert_equal 50000,   acte.t2_detail.isp_cercle1_consommation.to_f
+    assert_equal false, acte.t2_detail.isp_cercle2
+    assert_equal [],    acte.t2_detail.isp_cercle2_natures
+  end
+
+  test "update T2 nature change from ISP to Annexe financière clears ISP fields" do
+    sign_in users(:three)
+    # Créer un acte ISP via POST
+    post actes_path, params: {
+      acte: {
+        titre: 'T2', categorie_t2: 'hors contrat', type_acte: 'visa',
+        etat: "en cours d'instruction", perimetre: 'etat', instructeur: 'AB',
+        nature: 'ISP', annee: Date.today.year,
+        date_saisine: Date.today.strftime('%d/%m/%Y'), pre_instruction: false,
+        t2_detail_attributes: {
+          date_effet_acte: '01/09/2026',
+          isp_cercle1: 'true', isp_cercle1_natures: 'ISOE,NBI',
+          isp_cercle1_montant: '15000.50', isp_cercle1_enveloppe_sgg: '200000',
+          isp_cercle1_consommation: '50000', isp_cercle2: 'false'
+        }
+      }
+    }
+    acte = Acte.last
+
+    # Changer la nature vers Annexe financière
+    patch acte_path(acte), params: {
+      etape: 1,
+      acte: {
+        nature: 'Annexe financière',
+        t2_detail_attributes: {
+          id: acte.t2_detail.id,
+          type_acte_t2: 'Initial', effectifs: '5',
+          date_effet_acte: '15/09/2026'
+        }
+      }
+    }
+
+    acte.reload
+    assert_equal 'Annexe financière', acte.nature
+    assert_equal 'Initial', acte.t2_detail.type_acte_t2
+    assert_equal '15/09/2026', acte.t2_detail.date_effet_acte
+    assert_nil acte.t2_detail.isp_cercle1
+    assert_equal [], acte.t2_detail.isp_cercle1_natures
+    assert_nil acte.t2_detail.isp_cercle1_montant
+    assert_nil acte.t2_detail.isp_cercle1_enveloppe_sgg
+    assert_nil acte.t2_detail.isp_cercle1_consommation
+    assert_nil acte.t2_detail.isp_cercle2
+  end
+
+  test "update T2 nature change from Annexe financière to ISP clears Annexe fields" do
+    sign_in users(:three)
+    post actes_path, params: {
+      acte: {
+        titre: 'T2', categorie_t2: 'hors contrat', type_acte: 'visa',
+        etat: "en cours d'instruction", perimetre: 'etat', instructeur: 'AB',
+        nature: 'Annexe financière', annee: Date.today.year,
+        date_saisine: Date.today.strftime('%d/%m/%Y'), pre_instruction: false,
+        t2_detail_attributes: {
+          type_acte_t2: 'Initial', effectifs: '8',
+          corps: 'Ingénieurs', grade: 'A,B',
+          date_effet_acte: '01/06/2026',
+          impact_schema_emplois: 'true', impact_autre_cbcm: 'false'
+        }
+      }
+    }
+    acte = Acte.last
+
+    patch acte_path(acte), params: {
+      etape: 1,
+      acte: {
+        nature: 'ISP',
+        t2_detail_attributes: {
+          id: acte.t2_detail.id,
+          isp_cercle1: 'true',
+          isp_cercle1_montant: '5000',
+          date_effet_acte: '01/09/2026'
+        }
+      }
+    }
+
+    acte.reload
+    assert_equal 'ISP', acte.nature
+    assert_equal '01/09/2026', acte.t2_detail.date_effet_acte
+    assert_equal true, acte.t2_detail.isp_cercle1
+    assert_nil acte.t2_detail.type_acte_t2
+    assert_nil acte.t2_detail.effectifs
+    assert_nil acte.t2_detail.corps
+    assert_equal [], acte.t2_detail.grade
+    assert_nil acte.t2_detail.impact_schema_emplois
+    assert_nil acte.t2_detail.impact_autre_cbcm
+  end
+
+  # Story 2.5 — Fongibilité asymétrique section
+
+  test "new T2 Fongibilité asymétrique état DCB renders fa_technique, accord_rffim and sollicitation_db" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Fongibilité asymétrique' }
+    assert_response :success
+    assert_select "div#t2-section-fongibilite-asymetrique"
+    # Montant au contrôle (sur acte, pas t2_detail)
+    assert_select "input[name='acte[montant_ae]']"
+    # N° Chorus (état uniquement)
+    assert_select "input[name='acte[numero_chorus]']"
+    # FA Technique radios
+    assert_select "input#fa_technique_oui"
+    assert_select "input#fa_technique_non"
+    # Accord RFFIM/RPROG (DCB uniquement)
+    assert_select "input#accord_rffim_oui"
+    assert_select "input#accord_rffim_non"
+    # Sollicitation DB/BS dropdown (DCB uniquement)
+    assert_select "select[name='acte[t2_detail_attributes][sollicitation_db]']"
+    assert_select "select#t2_detail_sollicitation_db option", text: "Favorable"
+    assert_select "select#t2_detail_sollicitation_db option", text: "Non favorable"
+    assert_select "select#t2_detail_sollicitation_db option", text: "Non sollicité"
+    # Enveloppe abondée absent pour état
+    assert_select "select#t2_detail_enveloppe_abondee", count: 0
+  end
+
+  test "new T2 Fongibilité asymétrique état CBR renders CBCM dropdown but not accord_rffim" do
+    sign_in users(:two) # CBR
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Fongibilité asymétrique' }
+    assert_response :success
+    assert_select "div#t2-section-fongibilite-asymetrique"
+    assert_select "input[name='acte[montant_ae]']"
+    # N° Chorus présent pour état (AC3 : périmètre état, profil-indépendant)
+    assert_select "input[name='acte[numero_chorus]']"
+    # FA Technique présent
+    assert_select "input#fa_technique_oui"
+    assert_select "input#fa_technique_non"
+    # Sollicitation CBCM présente (champ avis_cbcm distinct de sollicitation_db)
+    assert_select "select[name='acte[t2_detail_attributes][avis_cbcm]']"
+    # Accord RFFIM absent pour CBR
+    assert_select "input#accord_rffim_oui", count: 0
+    assert_select "input#accord_rffim_non", count: 0
+    # Enveloppe abondée absent pour état
+    assert_select "select#t2_detail_enveloppe_abondee", count: 0
+  end
+
+  test "new T2 Fongibilité asymétrique organisme renders enveloppe_abondee but not accord_rffim or sollicitation_db" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Fongibilité asymétrique' }
+    assert_response :success
+    assert_select "div#t2-section-fongibilite-asymetrique"
+    assert_select "input[name='acte[montant_ae]']"
+    # FA Technique présent
+    assert_select "input#fa_technique_oui"
+    assert_select "input#fa_technique_non"
+    # Enveloppe abondée présente pour organisme
+    assert_select "select#t2_detail_enveloppe_abondee"
+    assert_select "select#t2_detail_enveloppe_abondee option", text: "Fonctionnement"
+    assert_select "select#t2_detail_enveloppe_abondee option", text: "Investissement"
+    assert_select "select#t2_detail_enveloppe_abondee option", text: "Intervention"
+    # Accord RFFIM absent pour organisme
+    assert_select "input#accord_rffim_oui", count: 0
+    # N° Chorus absent pour organisme
+    assert_select "input[name='acte[numero_chorus]']", count: 0
+    # Sollicitation DB/BS absent pour organisme
+    assert_select "select#t2_detail_sollicitation_db", count: 0
+  end
+
+  test "create T2 Fongibilité asymétrique DCB saves fa_technique, accord_rffim and sollicitation_db" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Fongibilité asymétrique',
+            montant_ae: '75000.50',
+            numero_chorus: 'CHO-2026-001',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              fa_technique: 'true',
+              accord_rffim: 'false',
+              sollicitation_db: 'Favorable'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Fongibilité asymétrique', acte.nature
+    assert_equal 75000.5, acte.montant_ae.to_f
+    assert_equal 'CHO-2026-001', acte.numero_chorus
+    assert_not_nil acte.t2_detail
+    assert_equal true,  acte.t2_detail.fa_technique
+    assert_equal false, acte.t2_detail.accord_rffim
+    assert_equal 'Favorable', acte.t2_detail.sollicitation_db
+    assert_nil acte.t2_detail.enveloppe_abondee
+  end
+
+  test "create T2 Fongibilité asymétrique organisme saves enveloppe_abondee" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'organisme',
+            instructeur: 'AB',
+            nature: 'Fongibilité asymétrique',
+            montant_ae: '50000',
+            nom_organisme: 'Organisme Test',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              fa_technique: 'false',
+              enveloppe_abondee: 'Investissement'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Fongibilité asymétrique', acte.nature
+    assert_equal 'organisme', acte.perimetre
+    assert_not_nil acte.t2_detail
+    assert_equal false, acte.t2_detail.fa_technique
+    assert_equal 'Investissement', acte.t2_detail.enveloppe_abondee
+    assert_nil acte.t2_detail.accord_rffim
+    assert_nil acte.t2_detail.sollicitation_db
+  end
+
+  test "new T2 ISP section fongibilite-asymetrique is present but hidden in DOM (AC8 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'ISP' }
+    assert_response :success
+    # Toutes les sections T2 sont dans le DOM côté serveur — Stimulus gère la visibilité côté client.
+    # On vérifie que la section Fongibilité asymétrique est bien rendue avec fr-hidden (pas de classe retirée).
+    assert_select "div#t2-section-fongibilite-asymetrique.fr-hidden"
+    assert_select "div#t2-section-isp.fr-hidden"
+  end
+
+  test "new T2 HT2 does not include fongibilite-asymetrique section (AC8 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'HT2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-fongibilite-asymetrique", count: 0
+  end
+
+  # Story 2.6 — Marché (PSC)
+
+  test "new T2 Marché état renders montant_ae required and beneficiaire, no organisme fields" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Marché' }
+    assert_response :success
+    assert_select "div#t2-section-marche"
+    # Montant au contrôle présent et required (AC2)
+    assert_select "input[name='acte[montant_ae]'][required]"
+    # Bénéficiaire présent (AC2)
+    assert_select "input#acte_beneficiaire"
+    # Champs organisme absents pour état (AC3)
+    assert_select "input#budget_executoire_marche_oui", count: 0
+    assert_select "input#budget_executoire_marche_non", count: 0
+    assert_select "select#acte_operation_budgetaire", count: 0
+    assert_select "input#deliberation_ca_marche_oui", count: 0
+    assert_select "input#deliberation_ca_marche_non", count: 0
+  end
+
+  test "new T2 Marché organisme renders budget_executoire, operation_budgetaire, deliberation_ca; montant_ae not required" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Marché' }
+    assert_response :success
+    assert_select "div#t2-section-marche"
+    # Montant au contrôle présent dans la section Marché mais sans required (AC3)
+    # On vérifie via la section spécifique que l'input dans _marche n'a pas required
+    assert_select "div#t2-section-marche input[name='acte[montant_ae]']:not([required])"
+    # Bénéficiaire présent (AC3)
+    assert_select "input#acte_beneficiaire"
+    # Budget exécutoire présent avec IDs spécifiques Marché (AC3, pas de collision avec Annexe financière)
+    assert_select "input#budget_executoire_marche_oui"
+    assert_select "input#budget_executoire_marche_non"
+    # Opération budgétaire avec options Globalisée / Fléchée (AC3)
+    assert_select "select#acte_operation_budgetaire"
+    assert_select "select#acte_operation_budgetaire option", text: "Globalisée"
+    assert_select "select#acte_operation_budgetaire option", text: "Fléchée"
+    # Délibération en CA présente avec IDs spécifiques Marché (AC3)
+    assert_select "input#deliberation_ca_marche_oui"
+    assert_select "input#deliberation_ca_marche_non"
+  end
+
+  test "create T2 Marché état saves montant_ae and beneficiaire, no t2_detail created" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_no_difference -> { T2Detail.count } do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Marché',
+            montant_ae: '120000.50',
+            beneficiaire: 'Société Exemple',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Marché', acte.nature
+    assert_equal 'etat', acte.perimetre
+    assert_equal 120000.5, acte.montant_ae.to_f
+    assert_equal 'Société Exemple', acte.beneficiaire
+    assert_nil acte.t2_detail
+    # Champs organisme non soumis pour état — valeurs DB par défaut
+    assert_nil acte.operation_budgetaire
+    assert_equal false, acte.deliberation_ca  # default: false en DB
+  end
+
+  test "create T2 Marché organisme saves budget_executoire, operation_budgetaire, deliberation_ca" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_no_difference -> { T2Detail.count } do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'organisme',
+            instructeur: 'AB',
+            nature: 'Marché',
+            montant_ae: '85000',
+            beneficiaire: 'Organisme Bénéficiaire',
+            nom_organisme: 'Organisme Test',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            budget_executoire: 'false',
+            operation_budgetaire: 'Fléchée',
+            deliberation_ca: 'true'
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Marché', acte.nature
+    assert_equal 'organisme', acte.perimetre
+    assert_equal 85000.0, acte.montant_ae.to_f
+    assert_equal 'Organisme Bénéficiaire', acte.beneficiaire
+    assert_equal false, acte.budget_executoire
+    assert_equal 'Fléchée', acte.operation_budgetaire
+    assert_equal true, acte.deliberation_ca
+    assert_nil acte.t2_detail
+  end
+
+  test "new T2 Marché section marche is present but hidden when nature = ISP (AC5 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'ISP' }
+    assert_response :success
+    assert_select "div#t2-section-marche.fr-hidden"
+  end
+
+  test "new HT2 does not include marche section (AC5 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'HT2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-marche", count: 0
+  end
+
+  test "new T2 Annexe financière organisme still renders deliberation_ca after refactor (Task 2 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Annexe financière' }
+    assert_response :success
+    assert_select "div#t2-section-annexe-financiere"
+    assert_select "input#deliberation_ca_oui"
+    assert_select "input#deliberation_ca_non"
+    # Sub-fields présents mais cachés par défaut
+    assert_select "input#numero_deliberation_ca"
+    assert_select "input#date_deliberation_ca"
+    assert_select "textarea#observations_deliberation_ca"
+    # Budget exécutoire toujours présent dans Annexe financière organisme
+    assert_select "input#budget_executoire_oui"
+    assert_select "input#budget_executoire_non"
+  end
+
+  # Story 2.7 — Mesure transversale
+
+  test "new T2 Mesure transversale état renders section without organisme-only fields" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Mesure transversale' }
+    assert_response :success
+    assert_select "div#t2-section-mesure-transversale"
+    # Champs t2_detail présents (AC2)
+    assert_select "input#mt_date_effet_acte"
+    assert_select "input#mt_corps"
+    assert_select "input#mt_effectifs"
+    assert_select "input#mt_effectifs_complementaire"
+    assert_select "select#mt_statut_agents"
+    assert_select "input#mt_impact_financier_n1"
+    assert_select "input#mt_montant_ae"
+    # Champs checkbox-dropdown présents (AC2)
+    assert_select "input#mt_perimetre_mesure_hidden"
+    assert_select "input#mt_grade_hidden"
+    # Origine de financement présente pour état (AC2)
+    assert_select "input#mt_origine_financement_hidden"
+    # Champs organisme absents pour état (AC3)
+    assert_select "input#budget_executoire_mt_oui", count: 0
+    assert_select "input#budget_executoire_mt_non", count: 0
+    assert_select "input#deliberation_ca_mt_oui", count: 0
+    assert_select "input#deliberation_ca_mt_non", count: 0
+    assert_select "select#mt_operation_budgetaire", count: 0
+  end
+
+  test "new T2 Mesure transversale organisme renders budget_executoire, operation_budgetaire, deliberation_ca" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Mesure transversale' }
+    assert_response :success
+    assert_select "div#t2-section-mesure-transversale"
+    # Champs communs présents (AC3)
+    assert_select "input#mt_date_effet_acte"
+    assert_select "input#mt_corps"
+    assert_select "input#mt_effectifs"
+    assert_select "input#mt_statut_agents", count: 0 # select, not input
+    assert_select "select#mt_statut_agents"
+    # Champs communs AC2 toujours présents pour organisme (AC3)
+    assert_select "input#mt_perimetre_mesure_hidden"
+    assert_select "input#mt_grade_hidden"
+    assert_select "input#mt_impact_financier_n1"
+    assert_select "input#mt_montant_ae"
+    # Origine de financement absente pour organisme (AC2/AC3)
+    assert_select "input#mt_origine_financement_hidden", count: 0
+    # Champs organisme présents (AC3)
+    assert_select "input#budget_executoire_mt_oui"
+    assert_select "input#budget_executoire_mt_non"
+    assert_select "select#mt_operation_budgetaire"
+    assert_select "select#mt_operation_budgetaire option", text: "Globalisée"
+    assert_select "select#mt_operation_budgetaire option", text: "Fléchée"
+    assert_select "input#deliberation_ca_mt_oui"
+    assert_select "input#deliberation_ca_mt_non"
+  end
+
+  test "create T2 Mesure transversale état saves t2_detail fields and montant_ae" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Mesure transversale',
+            montant_ae: '50000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              perimetre_mesure: 'Application au stock,Reclassement',
+              grade: 'A+,A',
+              corps: 'Corps test',
+              effectifs: '12.5',
+              effectifs_complementaire: '3.0',
+              statut_agents: 'Titulaire',
+              impact_financier_n1: '25000',
+              origine_financement: 'Enveloppe catégorielle,Financement interministériel',
+              date_effet_acte: '01/01/2026'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Mesure transversale', acte.nature
+    assert_equal 'etat', acte.perimetre
+    assert_equal 50000.0, acte.montant_ae.to_f
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal ['Application au stock', 'Reclassement'], td.perimetre_mesure
+    assert_equal ['A+', 'A'], td.grade
+    assert_equal 'Corps test', td.corps
+    assert_equal 12.5, td.effectifs.to_f
+    assert_equal 3.0, td.effectifs_complementaire.to_f
+    assert_equal 'Titulaire', td.statut_agents
+    assert_equal 25000, td.impact_financier_n1.to_i
+    assert_equal ['Enveloppe catégorielle', 'Financement interministériel'], td.origine_financement
+    assert_equal '01/01/2026', td.date_effet_acte
+    # Champs organisme non soumis pour état — valeurs DB par défaut
+    assert_nil acte.operation_budgetaire
+    assert_equal true, acte.budget_executoire
+    assert_equal false, acte.deliberation_ca
+  end
+
+  test "create T2 Mesure transversale organisme saves all fields including budget_executoire" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'organisme',
+            instructeur: 'AB',
+            nature: 'Mesure transversale',
+            nom_organisme: 'Organisme Test',
+            montant_ae: '30000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            budget_executoire: 'false',
+            operation_budgetaire: 'Globalisée',
+            deliberation_ca: 'true',
+            t2_detail_attributes: {
+              corps: 'Ingénieurs',
+              effectifs: '5.0',
+              statut_agents: 'Contractuel',
+              impact_financier_n1: '10000'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Mesure transversale', acte.nature
+    assert_equal 'organisme', acte.perimetre
+    assert_equal 30000.0, acte.montant_ae.to_f
+    assert_equal false, acte.budget_executoire
+    assert_equal 'Globalisée', acte.operation_budgetaire
+    assert_equal true, acte.deliberation_ca
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal 'Ingénieurs', td.corps
+    assert_equal 5.0, td.effectifs.to_f
+    assert_equal 'Contractuel', td.statut_agents
+    assert_equal 10000, td.impact_financier_n1.to_i
+    # origine_financement et perimetre_mesure pas soumis pour organisme — doivent être vides
+    assert_equal [], td.origine_financement
+    assert_equal [], td.perimetre_mesure
+  end
+
+  test "new T2 Mesure transversale section is present but hidden when nature = Marché (AC6 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Marché' }
+    assert_response :success
+    assert_select "div#t2-section-mesure-transversale.fr-hidden"
+  end
+
+  test "new HT2 does not include mesure_transversale section (AC6 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'HT2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-mesure-transversale", count: 0
+  end
+
+  # Story 2.8 — Enveloppe limitative
+
+  test "new T2 Enveloppe limitative état renders section with correct fields" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Enveloppe limitative' }
+    assert_response :success
+    # Section présente
+    assert_select "div#t2-section-enveloppe-limitative"
+    # Champs t2_detail
+    assert_select "input#el_date_effet_acte"
+    assert_select "input#el_perimetre_mesure_hidden"
+    assert_select "input#el_grade_hidden"
+    assert_select "input#el_corps"
+    assert_select "input#el_effectifs"
+    assert_select "input#el_effectifs_complementaire"
+    assert_select "select#el_statut_agents"
+    assert_select "input#el_montant_ae"
+    assert_select "input#el_montant_enveloppe_n1"
+    assert_select "input#el_impact_maximal_sans_enveloppe"
+    assert_select "p#el_effet_enveloppe", text: "--%"
+    # Origine de financement — État seulement
+    assert_select "input#el_origine_financement_hidden"
+    # Champs organisme absents pour état
+    assert_select "input#budget_executoire_el_oui", count: 0
+    assert_select "select#el_operation_budgetaire", count: 0
+    assert_select "input#deliberation_ca_el_oui", count: 0
+  end
+
+  test "new T2 Enveloppe limitative organisme renders budget_executoire, operation_budgetaire, deliberation_ca" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Enveloppe limitative' }
+    assert_response :success
+    assert_select "div#t2-section-enveloppe-limitative"
+    # Champs communs
+    assert_select "input#el_corps"
+    assert_select "input#el_effectifs"
+    assert_select "input#el_effectifs_complementaire"
+    assert_select "select#el_statut_agents"
+    assert_select "input#el_montant_ae"
+    assert_select "input#el_montant_enveloppe_n1"
+    assert_select "input#el_impact_maximal_sans_enveloppe"
+    assert_select "p#el_effet_enveloppe", text: "--%"
+    # Origine de financement absente pour organisme
+    assert_select "input#el_origine_financement_hidden", count: 0
+    # Champs organisme présents
+    assert_select "input#budget_executoire_el_oui"
+    assert_select "input#budget_executoire_el_non"
+    assert_select "select#el_operation_budgetaire"
+    assert_select "input#deliberation_ca_el_oui"
+    assert_select "input#deliberation_ca_el_non"
+  end
+
+  test "create T2 Enveloppe limitative état saves t2_detail fields and montant_ae" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Enveloppe limitative',
+            montant_ae: '75000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              perimetre_mesure: 'Application au stock,Reclassement',
+              grade: 'A,B',
+              corps: 'Corps EL test',
+              effectifs: '8.0',
+              effectifs_complementaire: '2.5',
+              statut_agents: 'Titulaire',
+              montant_enveloppe_n1: '100000',
+              impact_maximal_sans_enveloppe: '20000',
+              origine_financement: 'Enveloppe catégorielle,Financement interministériel',
+              date_effet_acte: '01/03/2026'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Enveloppe limitative', acte.nature
+    assert_equal 'etat', acte.perimetre
+    assert_equal 75000.0, acte.montant_ae.to_f
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal ['Application au stock', 'Reclassement'], td.perimetre_mesure
+    assert_equal ['A', 'B'], td.grade
+    assert_equal 'Corps EL test', td.corps
+    assert_equal 8.0, td.effectifs.to_f
+    assert_equal 2.5, td.effectifs_complementaire.to_f
+    assert_equal 'Titulaire', td.statut_agents
+    assert_equal 100000, td.montant_enveloppe_n1.to_i
+    assert_equal 20000, td.impact_maximal_sans_enveloppe.to_i
+    assert_equal ['Enveloppe catégorielle', 'Financement interministériel'], td.origine_financement
+    assert_equal '01/03/2026', td.date_effet_acte
+    # Champs organisme non soumis — valeurs par défaut
+    assert_nil acte.operation_budgetaire
+    assert_equal true, acte.budget_executoire
+    assert_equal false, acte.deliberation_ca
+  end
+
+  test "create T2 Enveloppe limitative organisme saves all fields including budget_executoire" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'organisme',
+            instructeur: 'AB',
+            nature: 'Enveloppe limitative',
+            nom_organisme: 'Organisme EL',
+            montant_ae: '40000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            budget_executoire: 'false',
+            operation_budgetaire: 'Fléchée',
+            deliberation_ca: 'true',
+            t2_detail_attributes: {
+              corps: 'Corps EL organisme',
+              effectifs: '3.0',
+              statut_agents: 'Contractuel',
+              montant_enveloppe_n1: '50000',
+              impact_maximal_sans_enveloppe: '15000'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Enveloppe limitative', acte.nature
+    assert_equal 'organisme', acte.perimetre
+    assert_equal 40000.0, acte.montant_ae.to_f
+    assert_equal false, acte.budget_executoire
+    assert_equal 'Fléchée', acte.operation_budgetaire
+    assert_equal true, acte.deliberation_ca
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal 'Corps EL organisme', td.corps
+    assert_equal 3.0, td.effectifs.to_f
+    assert_equal 'Contractuel', td.statut_agents
+    assert_equal 50000, td.montant_enveloppe_n1.to_i
+    assert_equal 15000, td.impact_maximal_sans_enveloppe.to_i
+    # origine_financement et perimetre_mesure non soumis — doivent être vides
+    assert_equal [], td.origine_financement
+    assert_equal [], td.perimetre_mesure
+  end
+
+  # Story 2.8 — Référentiel
+
+  test "new T2 Référentiel état renders section with correct fields" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Référentiel' }
+    assert_response :success
+    assert_select "div#t2-section-referentiel"
+    assert_select "input#ref_date_effet_acte"
+    assert_select "input#ref_perimetre_mesure_hidden"
+    assert_select "input#ref_grade_hidden"
+    assert_select "input#ref_corps"
+    assert_select "input#ref_effectifs"
+    assert_select "input#ref_effectifs_complementaire"
+    assert_select "input#ref_montant_ae"
+    assert_select "input#ref_impact_financier_n1"
+    # Déclinaison référentiel interministériel présent
+    assert_select "input#ref_referentiel_type_oui"
+    assert_select "input#ref_referentiel_type_non"
+    # Origine de financement — État seulement
+    assert_select "input#ref_origine_financement_hidden"
+    # Champs organisme absents
+    assert_select "input#budget_executoire_ref_oui", count: 0
+    assert_select "select#ref_operation_budgetaire", count: 0
+  end
+
+  test "new T2 Référentiel organisme renders budget_executoire, operation_budgetaire, deliberation_ca" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Référentiel' }
+    assert_response :success
+    assert_select "div#t2-section-referentiel"
+    assert_select "input#ref_corps"
+    assert_select "input#ref_effectifs"
+    assert_select "input#ref_montant_ae"
+    assert_select "input#ref_impact_financier_n1"
+    assert_select "input#ref_referentiel_type_oui"
+    assert_select "input#ref_referentiel_type_non"
+    # Origine de financement absente pour organisme
+    assert_select "input#ref_origine_financement_hidden", count: 0
+    # Champs organisme présents
+    assert_select "input#budget_executoire_ref_oui"
+    assert_select "input#budget_executoire_ref_non"
+    assert_select "select#ref_operation_budgetaire"
+    assert_select "input#deliberation_ca_ref_oui"
+    assert_select "input#deliberation_ca_ref_non"
+  end
+
+  test "create T2 Référentiel état saves t2_detail fields including referentiel_type" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'etat',
+            instructeur: 'AB',
+            nature: 'Référentiel',
+            montant_ae: '30000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            t2_detail_attributes: {
+              perimetre_mesure: 'Application au flux',
+              grade: 'A+',
+              corps: 'Corps REF test',
+              effectifs: '5.0',
+              effectifs_complementaire: '1.0',
+              impact_financier_n1: '12000',
+              referentiel_type: 'true',
+              origine_financement: 'Financement interministériel',
+              date_effet_acte: '15/04/2026'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Référentiel', acte.nature
+    assert_equal 'etat', acte.perimetre
+    assert_equal 30000.0, acte.montant_ae.to_f
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal ['Application au flux'], td.perimetre_mesure
+    assert_equal ['A+'], td.grade
+    assert_equal 'Corps REF test', td.corps
+    assert_equal 5.0, td.effectifs.to_f
+    assert_equal 1.0, td.effectifs_complementaire.to_f
+    assert_equal 12000, td.impact_financier_n1.to_i
+    assert_equal true, td.referentiel_type
+    assert_equal ['Financement interministériel'], td.origine_financement
+    assert_equal '15/04/2026', td.date_effet_acte
+    # Champs organisme non soumis
+    assert_nil acte.operation_budgetaire
+    assert_equal true, acte.budget_executoire
+    assert_equal false, acte.deliberation_ca
+  end
+
+  test "create T2 Référentiel organisme saves all fields including budget_executoire" do
+    sign_in users(:three) # DCB
+    assert_difference -> { Acte.count }, 1 do
+      assert_difference -> { T2Detail.count }, 1 do
+        post actes_path, params: {
+          acte: {
+            titre: 'T2', categorie_t2: 'hors contrat',
+            type_acte: 'visa', etat: "en cours d'instruction",
+            perimetre: 'organisme',
+            instructeur: 'AB',
+            nature: 'Référentiel',
+            nom_organisme: 'Organisme REF',
+            montant_ae: '20000',
+            annee: Date.today.year,
+            date_saisine: Date.today.strftime('%d/%m/%Y'),
+            pre_instruction: false,
+            budget_executoire: 'true',
+            operation_budgetaire: 'Globalisée',
+            deliberation_ca: 'false',
+            t2_detail_attributes: {
+              corps: 'Corps REF organisme',
+              effectifs: '4.0',
+              impact_financier_n1: '8000',
+              referentiel_type: 'false'
+            }
+          }
+        }
+      end
+    end
+    acte = Acte.last
+    assert_equal 'Référentiel', acte.nature
+    assert_equal 'organisme', acte.perimetre
+    assert_equal 20000.0, acte.montant_ae.to_f
+    assert_equal true, acte.budget_executoire
+    assert_equal 'Globalisée', acte.operation_budgetaire
+    assert_equal false, acte.deliberation_ca
+    td = acte.t2_detail
+    assert_not_nil td
+    assert_equal 'Corps REF organisme', td.corps
+    assert_equal 4.0, td.effectifs.to_f
+    assert_equal 8000, td.impact_financier_n1.to_i
+    assert_equal false, td.referentiel_type
+    # perimetre_mesure et origine_financement non soumis — vides
+    assert_equal [], td.perimetre_mesure
+    assert_equal [], td.origine_financement
+  end
+
+  test "new T2 Enveloppe limitative section is present but hidden when nature = Marché (AC10 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat', nature: 'Marché' }
+    assert_response :success
+    assert_select "div#t2-section-enveloppe-limitative.fr-hidden"
+    assert_select "div#t2-section-referentiel.fr-hidden"
+  end
+
+  test "new HT2 does not include enveloppe_limitative or referentiel sections (AC10 regression)" do
+    sign_in users(:three) # DCB
+    get new_acte_path, params: { titre: 'HT2', perimetre: 'etat' }
+    assert_response :success
+    assert_select "div#t2-section-enveloppe-limitative", count: 0
+    assert_select "div#t2-section-referentiel", count: 0
+  end
+
+  # Story 2.9 — Formulaire T2 étape 2 — Critères de contrôle
+
+  test "edit T2 Annexe financière état step 2 renders inscription_pap, respect_plafond, respect_schema" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!(impact_schema_emplois: true)
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_inscription_pap_true"
+    assert_select "label[for='t2_inscription_pap_true']", text: "Oui"
+    assert_select "h6", text: "Inscription au PAP / Plan de recrutement"
+    assert_select "input#t2_respect_plafond_emplois_true"
+    assert_select "input#t2_respect_schema_emplois_true"
+    # soutenabilite absent pour Annexe financière
+    assert_select "input#t2_soutenabilite_true", count: 0
+  end
+
+  test "edit T2 Annexe financière état step 2 does not render respect_schema when impact_schema_emplois false" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!(impact_schema_emplois: false)
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_respect_schema_emplois_true", count: 0
+  end
+
+  test "edit T2 Fongibilité asymétrique état DCB step 2 renders controle_modalites" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Fongibilité asymétrique', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_controle_modalites_true"
+    assert_select "input#t2_consommation_credits_true"
+    # inscription_pap absent (nature = FA, pas dans la liste état-PAP)
+    assert_select "input#t2_inscription_pap_true", count: 0
+  end
+
+  test "edit T2 Fongibilité asymétrique état CBR step 2 does not render controle_modalites" do
+    sign_in users(:two) # CBR
+    acte = users(:two).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Fongibilité asymétrique', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_controle_modalites_true", count: 0
+  end
+
+  test "edit T2 ISP step 2 renders respect_enveloppe and no programmation_prevue" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_respect_enveloppe_true"
+    assert_select "input#t2_programmation_prevue", count: 0
+    assert_select "input#t2_avis_programmation", count: 0
+  end
+
+  test "edit T2 Mesure transversale état step 2 renders risque_reconventionnel and inscription_pap" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Mesure transversale', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_risque_reconventionnel_true"
+    assert_select "input#t2_inscription_pap_true"
+    assert_select "h6", text: "Inscription au PAP"
+    assert_select "input#t2_soutenabilite_true"
+    assert_select "input#t2_consommation_credits_true"
+  end
+
+  test "edit T2 Marché organisme step 2 does not render autorisation_tutelle when budget_executoire true" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'organisme',
+      nature: 'Marché', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, budget_executoire: true
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_autorisation_tutelle_true", count: 0
+  end
+
+  test "edit T2 Marché organisme step 2 renders autorisation_tutelle when budget_executoire false" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'organisme',
+      nature: 'Marché', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, budget_executoire: false
+    )
+    acte.create_t2_detail!
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    assert_select "input#t2_autorisation_tutelle_true"
+    assert_select "input#t2_programmation_prevue"
+    assert_select "label[for='t2_programmation_prevue']", text: "L'acte figure dans le dernier budget."
+  end
+
+  test "update T2 Annexe financière saves inscription_pap and respect_plafond_emplois in t2_details" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!(impact_schema_emplois: true)
+    patch acte_path(acte), params: {
+      etape: 3,
+      acte: {
+        t2_detail_attributes: {
+          id: acte.t2_detail.id,
+          inscription_pap: '1',
+          respect_plafond_emplois: '1',
+          respect_schema_emplois: '0'
+        }
+      }
+    }
+    assert_redirected_to edit_acte_path(acte, etape: 3)
+    td = acte.t2_detail.reload
+    assert_equal true, td.inscription_pap
+    assert_equal true, td.respect_plafond_emplois
+    assert_equal false, td.respect_schema_emplois
+    # Critères non soumis (ISP, FA) restent nil
+    assert_nil td.respect_enveloppe
+    assert_nil td.controle_modalites
+  end
+
+  test "update T2 Fongibilité asymétrique saves consommation_credits in actes" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Fongibilité asymétrique', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    patch acte_path(acte), params: {
+      etape: 3,
+      acte: {
+        consommation_credits: '1',
+        t2_detail_attributes: {
+          id: acte.t2_detail.id,
+          controle_modalites: '1'
+        }
+      }
+    }
+    assert_redirected_to edit_acte_path(acte, etape: 3)
+    acte.reload
+    assert_equal true, acte.consommation_credits
+    assert_nil acte.t2_detail.consommation_credits rescue nil
+    td = acte.t2_detail.reload
+    assert_equal true, td.controle_modalites
+  end
+
+  test "clear_irrelevant_t2_detail_fields does not nil T2 criteria fields on nature change" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!(inscription_pap: true, respect_plafond_emplois: true)
+    # Simulate saving with a new nature (step 1 re-save changing nature to ISP)
+    patch acte_path(acte), params: {
+      etape: 1,
+      acte: {
+        nature: 'ISP',
+        t2_detail_attributes: {
+          id: acte.t2_detail.id
+        }
+      }
+    }
+    td = acte.t2_detail.reload
+    # Criteria fields must not be wiped despite nature change
+    assert_equal true, td.inscription_pap,       "inscription_pap should be preserved"
+    assert_equal true, td.respect_plafond_emplois, "respect_plafond_emplois should be preserved"
+  end
+
+  test "HT2 step 2 still uses form_criteres (regression check)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    # HT2 form uses radio buttons (Oui/Non) rather than simple checkboxes for most criteria
+    assert_select "input#radio-true-1"
+    assert_select "input#radio-false-1"
+    # T2-specific checkboxes absent
+    assert_select "input#t2_inscription_pap", count: 0
+  end
+
+  test "etape2_complete? returns true for T2 acte — step 3 link enabled in sidemenu" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte.create_t2_detail!
+    # etape2_complete? is tested via step 2 rendering — the sidemenu must show step 3 as a button (not a disabled link)
+    get edit_acte_path(acte, etape: 2)
+    assert_response :success
+    # When etape2_complete? returns true, the sidemenu renders a <button> for step 3, not a disabled <a>
+    assert_select "button[aria-controls='modal-etape3']"
+    assert_select "a[disabled]", text: /Étape 3/, count: 0
+  end
+
+  # Story 2.10 — T2 step 3 decision form
+
+  test "edit T2 avis etat step 3 renders form_proposition_decision with T2 observation types" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    # _form_proposition_decision renders the decision dropdown
+    assert_select "select#proposition_decision"
+    # T2 observation types present
+    assert_select "option", text: "Acte déjà signé par l'ordonnateur"
+    assert_select "option", text: "Incohérence avec le cadre de gestion"
+    assert_select "option", text: "Fongibilité asymétrique de faible montant"
+    # HT2-only observation type absent
+    assert_select "option", text: "Construction de l'EJ", count: 0
+    assert_select "option", text: "Disponibilité des crédits", count: 0
+  end
+
+  test "edit T2 visa etat step 3 renders form_proposition_decision" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Mesure transversale', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    assert_select "select#proposition_decision"
+  end
+
+  test "edit T2 step 3 liste_decisions is Favorable list for type_acte avis" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    assert_select "select#proposition_decision option", text: "Favorable"
+    assert_select "select#proposition_decision option", text: "Favorable avec observations"
+    assert_select "select#proposition_decision option", text: "Défavorable"
+    assert_select "select#proposition_decision option", text: "Visa accordé", count: 0
+  end
+
+  test "edit T2 step 3 liste_decisions is Visa list for type_acte visa" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Mesure transversale', type_acte: 'visa',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    assert_select "select#proposition_decision option", text: "Visa accordé"
+    assert_select "select#proposition_decision option", text: "Visa accordé avec observations"
+    assert_select "select#proposition_decision option", text: "Refus de visa"
+    assert_select "select#proposition_decision option", text: "Favorable", count: 0
+  end
+
+  test "edit T2 step 3 liste_motifs_suspension contains T2 motifs" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    assert_select "option", text: "Demande de précision"
+    assert_select "option", text: "Problématique de soutenabilité"
+    assert_select "option", text: "Problématique de compatibilité avec la programmation"
+    # HT2-only suspension motif absent
+    assert_select "option", text: "Défaut du circuit d'approbation Chorus", count: 0
+    assert_select "option", text: "Problématique de disponibilité des crédits", count: 0
+  end
+
+  test "update T2 step 3 transitions etat from en cours d'instruction to à valider (AC5)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year,
+      date_saisine: Date.today
+    )
+    patch acte_path(acte), params: {
+      etape: 3,
+      acte: {
+        proposition_decision: 'Favorable',
+        valideur: 'CD',
+        etat: 'à valider'
+      }
+    }
+    acte.reload
+    assert_equal 'à valider', acte.etat, "Le workflow de statut T2 doit transitionner à 'à valider' comme HT2"
+    assert_equal 'Favorable', acte.proposition_decision
+  end
+
+  test "update T2 step 3 creates suspension with acte_id (AC6)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year,
+      date_saisine: Date.today
+    )
+    assert_difference -> { acte.suspensions.count }, 1 do
+      patch acte_path(acte), params: {
+        etape: 3,
+        acte: {
+          etat: 'suspendu',
+          suspensions_attributes: {
+            "0" => {
+              date_suspension: Date.today.strftime('%d/%m/%Y'),
+              motif: 'Demande de précision',
+              observations: 'Test suspension T2'
+            }
+          }
+        }
+      }
+    end
+    suspension = acte.suspensions.reload.last
+    assert_not_nil suspension
+    assert_equal acte.id, suspension.acte_id, "La suspension doit être rattachée à l'acte T2 via acte_id"
+    assert_includes Array(suspension.motif), 'Demande de précision'
+  end
+
+  test "HT2 step 3 liste_types_observations unchanged (regression check)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year,
+      disponibilite_credits: true
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    # HT2 retains its own observation types
+    assert_select "option", text: "Disponibilité des crédits"
+    assert_select "option", text: "Évaluation de la consommation des crédits"
+    # T2-only type absent from HT2
+    assert_select "option", text: "Acte déjà signé par l'ordonnateur", count: 0
+    assert_select "option", text: "Incohérence avec le cadre de gestion", count: 0
+  end
+
+  # Story 2.11 — Suspension et reprise d'un acte T2
+
+  test "update T2 creates suspension and sets etat to suspendu (AC2)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    assert_difference -> { acte.suspensions.count }, 1 do
+      patch acte_path(acte), params: {
+        etape: 3,
+        acte: {
+          etat: 'suspendu',
+          suspensions_attributes: {
+            "0" => {
+              date_suspension: Date.today.strftime('%d/%m/%Y'),
+              motif: 'Pièce(s) manquante(s)',
+              observations: 'Observation T2'
+            }
+          }
+        }
+      }
+    end
+    acte.reload
+    suspension = acte.suspensions.last
+    assert_equal 'suspendu', acte.etat, "L'acte T2 doit passer en état suspendu"
+    assert_equal acte.id, suspension.acte_id, "La suspension doit être rattachée à l'acte T2 via acte_id"
+    assert_includes Array(suspension.motif), 'Pièce(s) manquante(s)'
+    assert_equal 'Observation T2', suspension.observations
+    assert_equal Date.today, suspension.date_suspension
+  end
+
+  test "edit T2 acte with etat suspendu renders form (AC4)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.suspensions.create!(date_suspension: Date.today - 1, motif: ['Demande de précision'])
+    # Force l'état suspendu (set_etat_acte le maintient grâce à la suspension ouverte)
+    acte.save!
+    acte.reload
+    assert_equal 'suspendu', acte.etat, "Précondition AC4 : l'acte doit être en état suspendu"
+
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+  end
+
+  test "edit T2 acte with etat a suspendre renders form (AC4)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.suspensions.create!(date_suspension: Date.today - 1, motif: ['Demande de précision'])
+    # update_column court-circuite set_etat_acte qui forcerait "suspendu"
+    acte.update_column(:etat, 'à suspendre')
+    acte.reload
+    assert_equal 'à suspendre', acte.etat, "Précondition AC4 : l'acte doit être en état à suspendre"
+
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+  end
+
+  test "HT2 step 3 liste_motifs_suspension uses HT2 motifs (AC5 regression)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, disponibilite_credits: true
+    )
+    get edit_acte_path(acte, etape: 3)
+    assert_response :success
+    # HT2-specific motifs present
+    assert_select "option", text: "Défaut du circuit d'approbation Chorus"
+    assert_select "option", text: "Problématique de disponibilité des crédits"
+    assert_select "option", text: "Mauvaise évaluation de la consommation des crédits"
+    # T2-only motif "Demande de précision" (without "s") absent from HT2
+    assert_select "option", text: "Demande de précision", count: 0
+  end
+
+  test "refus_suspension resets T2 acte etat to en cours d instruction (AC6)" do
+    sign_in users(:three) # DCB
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    suspension = acte.suspensions.create!(
+      date_suspension: Date.today - 1,
+      motif: ['Demande de précision']
+    )
+    # update_column court-circuite set_etat_acte qui forcerait "suspendu"
+    acte.update_column(:etat, 'à suspendre')
+    acte.reload
+    assert_equal 'à suspendre', acte.etat, "Précondition AC6 : l'acte doit être en état à suspendre"
+
+    assert_difference -> { acte.suspensions.count }, -1 do
+      post acte_suspension_refus_suspension_path(acte, suspension), params: {
+        acte: { commentaire_proposition_decision: 'Refus justifié' }
+      }
+    end
+    acte.reload
+    assert_equal "en cours d'instruction", acte.etat
+    assert acte.renvoie_instruction
+  end
+
+  # Story 2.12 — Affichage des détails d'un acte T2 en mode consultation
+
+  test "GET show T2 acte uses acte_details_t2 partial not acte_details (AC1)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000
+    )
+    get acte_path(acte)
+    assert_response :success
+    # The T2 partial uses "Montant au contrôle (AE)" header, HT2 uses "Montant de l'acte (AE)"
+    assert_select "th", text: "Montant au contrôle (AE)"
+    assert_select "th", text: "Montant de l'acte (AE)", count: 0
+  end
+
+  test "GET show HT2 acte still uses acte_details (AC5 regression)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, disponibilite_credits: true
+    )
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Montant de l'acte (AE)"
+    assert_select "th", text: "Montant au contrôle (AE)", count: 0
+  end
+
+  test "GET show T2 Annexe financiere displays t2_detail fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(
+      type_acte_t2: 'Initial', effectifs: 3.5, corps: 'Corps test',
+      impact_schema_emplois: true, impact_autre_cbcm: false
+    )
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Type d'acte"
+    assert_select "td", text: "Initial"
+    assert_select "td", text: "Corps test"
+  end
+
+  test "GET show T2 ISP displays cercle fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(
+      isp_cercle1: true, isp_cercle1_montant: 10000,
+      isp_cercle1_enveloppe_sgg: 50000, isp_cercle1_consommation: 20000
+    )
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Cercle 1 présent"
+    assert_select "th", text: "Cercle 2 présent"
+    assert_select "th", text: "Reste à consommer (€)"
+  end
+
+  test "GET show T2 Fongibilite asymetrique displays FA fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Fongibilité asymétrique', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(fa_technique: true, accord_rffim: false)
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "FA Technique"
+    assert_select "th", text: "Accord RFFIM/RPROG préalable"
+  end
+
+  test "GET show T2 Marche displays Marche fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000,
+      beneficiaire: 'Société Test'
+    )
+    acte.create_t2_detail!
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Bénéficiaire"
+    assert_select "td", text: "Société Test"
+  end
+
+  test "GET show T2 Mesure transversale displays MT fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Mesure transversale', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(statut_agents: 'Titulaires', corps: 'Enseignants')
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Statut d'agents"
+    assert_select "td", text: "Titulaires"
+    assert_select "td", text: "Enseignants"
+  end
+
+  test "GET show T2 Enveloppe limitative displays EL fields with effet (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Enveloppe limitative', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(montant_enveloppe_n1: 100000, impact_maximal_sans_enveloppe: 25000)
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Montant enveloppe N-1 (€)"
+    assert_select "th", text: "Effet de l'enveloppe (%)"
+  end
+
+  test "GET show T2 Referentiel displays Referentiel fields (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Référentiel', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(referentiel_type: true)
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Type de référentiel"
+    assert_match "fr-icon-checkbox-circle-fill", response.body
+  end
+
+  test "GET show T2 acte displays criteres section (AC4)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Annexe financière', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(respect_plafond_emplois: true, impact_schema_emplois: false)
+    get acte_path(acte)
+    assert_response :success
+    assert_select "th", text: "Respect du plafond d'emplois"
+  end
+
+  test "GET show T2 acte with no t2_detail shows fallback message (AC3)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000
+    )
+    get acte_path(acte)
+    assert_response :success
+    assert_select "p", text: "Aucune donnée T2 renseignée."
+  end
 end

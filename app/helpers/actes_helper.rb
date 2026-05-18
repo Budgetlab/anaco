@@ -174,7 +174,16 @@ module ActesHelper
     content_tag(:span, format_categorie_organisme(acte.categorie_organisme), class: "fr-badge #{badge_color}")
   end
 
+  def badge_categorie_t2(acte)
+    return '' unless acte.titre == 'T2' && acte.categorie_t2.present?
+
+    badge_color = acte.categorie_t2 == 'hors contrat' ? 'fr-badge--beige-gris-galet' : ''
+    content_tag(:span, acte.categorie_t2.capitalize, class: "fr-badge #{badge_color}".strip)
+  end
+
   def etape2_complete?(acte)
+    return true if acte.titre == 'T2'
+
     if acte.perimetre == 'organisme'
       if acte.categorie_organisme == 'depense'
         !acte.disponibilite_credits.nil?

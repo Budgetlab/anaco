@@ -1,0 +1,355 @@
+<h2>Contrôle des critères</h2>
+<div data-controller="acte-form">
+  <%= form_with(model: @acte) do |f| %>
+    <%= hidden_field_tag :etape, 3 %>
+
+    <%# --- Programmation initiale transmise (avis_programmation) ---
+        Condition: nature ≠ ISP AND périmètre = État et hors SV %>
+    <% if @acte.nature != 'ISP' && @acte.perimetre == 'etat' && @acte.services_votes == false %>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-12">
+          <div class="fr-checkbox-group fr-mb-2w">
+            <%= f.check_box :avis_programmation, id: "t2_avis_programmation",
+                            data: { action: "change->acte-form#toggleAvisProgrammation" } %>
+            <label class="fr-label" for="t2_avis_programmation">Programmation initiale transmise</label>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# --- L'acte figure dans le dernier document de programmation / le dernier budget ---
+        Condition: nature ∉ {ISP} AND NOT (nature = FA AND périmètre = Organisme) %>
+    <% unless @acte.nature == 'ISP' || (@acte.nature == 'Fongibilité asymétrique' && @acte.perimetre == 'organisme') %>
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12 fr-col-lg-12">
+          <div class="fr-checkbox-group fr-mb-2w">
+            <% prog_prevue_label = @acte.perimetre == 'organisme' ? "L'acte figure dans le dernier budget." : "L'acte figure dans le dernier document de programmation." %>
+            <%= f.check_box :programmation_prevue, id: "t2_programmation_prevue" %>
+            <label class="fr-label" for="t2_programmation_prevue"><%= prog_prevue_label %></label>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <%# --- Compatibilité avec la programmation / Acte éligible à la gestion des services votés ---
+        Condition: nature ∉ {ISP} AND NOT (FA AND organisme)
+        Then:
+          - services_votes = true → label SV, always show
+          - services_votes = false AND (état → avis_programmation cochée ; organisme → budget_executoire = true) → label programmation %>
+      <% show_programmation_compat = !@acte.services_votes &&
+                                     !(@acte.nature == 'ISP') &&
+                                     !(@acte.nature == 'Fongibilité asymétrique' && @acte.perimetre == 'organisme') &&
+                                     (@acte.perimetre == 'etat' ? @acte.avis_programmation != false : @acte.budget_executoire != false) %>
+
+      <% if show_programmation_compat %>
+        <div class="fr-col-12 fr-col-lg-6 <%= 'fr-hidden' unless @acte.services_votes == true || @acte.avis_programmation != false %>"
+             data-acte-form-target="programmationBlock">
+          <% programmation_tooltip = @acte.nature == 'Fongibilité asymétrique' ? 'programmation_t2_fa_info' : 'programmation_t2_info' %>
+          <h6 class="fr-my-1w">Compatibilité avec la programmation annuelle et
+            pluriannuelle <%= render 'tooltip', name: programmation_tooltip %></h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :programmation, true, id: "t2_programmation_true", checked: @acte.programmation.nil? || @acte.programmation == true %>
+                <label class="fr-label" for="t2_programmation_true">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :programmation, false, id: "t2_programmation_false", checked: @acte.programmation == false %>
+                <label class="fr-label" for="t2_programmation_false">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+
+
+      <%# --- Opération autorisée par les autorités de tutelle ---
+        Condition: nature ∉ {ISP, FA} AND périmètre = Organisme AND budget_executoire = false %>
+      <% if !['ISP', 'Fongibilité asymétrique'].include?(@acte.nature) && @acte.perimetre == 'organisme' && @acte.budget_executoire == false %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <h6 class="fr-my-1w">Opération autorisée par les autorités de tutelle dans l'attente du vote du BI</h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :autorisation_tutelle, true, id: "t2_autorisation_tutelle_true", checked: @acte.autorisation_tutelle.nil? || @acte.autorisation_tutelle == true %>
+                <label class="fr-label" for="t2_autorisation_tutelle_true">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :autorisation_tutelle, false, id: "t2_autorisation_tutelle_false", checked: @acte.autorisation_tutelle == false %>
+                <label class="fr-label" for="t2_autorisation_tutelle_false">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+
+      <%# --- Soutenabilité des crédits ---
+        Condition: nature ≠ Annexe financière %>
+      <% if @acte.nature != 'Annexe financière' %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <h6 class="fr-my-1w">Soutenabilité/Disponibilité des crédits</h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :soutenabilite, true, id: "t2_soutenabilite_true", checked: @acte.soutenabilite.nil? || @acte.soutenabilite == true %>
+                <label class="fr-label" for="t2_soutenabilite_true">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :soutenabilite, false, id: "t2_soutenabilite_false", checked: @acte.soutenabilite == false %>
+                <label class="fr-label" for="t2_soutenabilite_false">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+
+      <%# --- Exactitude de l'évaluation budgétaire (consommation_credits in actes) ---
+        Condition: nature ∈ {Fongibilité asymétrique, Marché, Mesure transversale} %>
+      <% if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(@acte.nature) %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <h6 class="fr-my-1w">Exactitude de l'évaluation budgétaire</h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :consommation_credits, true, id: "t2_consommation_credits_true", checked: @acte.consommation_credits.nil? || @acte.consommation_credits == true %>
+                <label class="fr-label" for="t2_consommation_credits_true">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :consommation_credits, false, id: "t2_consommation_credits_false", checked: @acte.consommation_credits == false %>
+                <label class="fr-label" for="t2_consommation_credits_false">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+
+
+      <%= f.fields_for :t2_detail_attributes, (@acte.t2_detail || @acte.build_t2_detail) do |td| %>
+
+        <%# --- Inscription au PAP / Plan de recrutement ---
+          Condition: périmètre = État AND nature ∈ {Annexe financière, Mesure transversale, Référentiel} %>
+        <% if @acte.perimetre == 'etat' && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(@acte.nature) %>
+          <% inscription_pap_label = @acte.nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP" %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w"><%= inscription_pap_label %></h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :inscription_pap, true, id: "t2_inscription_pap_true", checked: @acte.t2_detail&.inscription_pap.nil? || @acte.t2_detail&.inscription_pap == true %>
+                  <label class="fr-label" for="t2_inscription_pap_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :inscription_pap, false, id: "t2_inscription_pap_false", checked: @acte.t2_detail&.inscription_pap == false %>
+                  <label class="fr-label" for="t2_inscription_pap_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <%# --- Respect du plafond d'emplois ---
+          Condition: nature = Annexe financière %>
+        <% if @acte.nature == 'Annexe financière' %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w">Respect du plafond d'emplois</h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_plafond_emplois, true, id: "t2_respect_plafond_emplois_true", checked: @acte.t2_detail&.respect_plafond_emplois.nil? || @acte.t2_detail&.respect_plafond_emplois == true %>
+                  <label class="fr-label" for="t2_respect_plafond_emplois_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_plafond_emplois, false, id: "t2_respect_plafond_emplois_false", checked: @acte.t2_detail&.respect_plafond_emplois == false %>
+                  <label class="fr-label" for="t2_respect_plafond_emplois_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <%# --- Respect du schéma d'emplois ---
+          Condition: nature = Annexe financière AND impact_schema_emplois = true %>
+        <% if @acte.nature == 'Annexe financière' && @acte.t2_detail&.impact_schema_emplois == true %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w">Respect du schéma d'emplois</h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_schema_emplois, true, id: "t2_respect_schema_emplois_true", checked: @acte.t2_detail&.respect_schema_emplois.nil? || @acte.t2_detail&.respect_schema_emplois == true %>
+                  <label class="fr-label" for="t2_respect_schema_emplois_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_schema_emplois, false, id: "t2_respect_schema_emplois_false", checked: @acte.t2_detail&.respect_schema_emplois == false %>
+                  <label class="fr-label" for="t2_respect_schema_emplois_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <%# --- Contrôle des modalités de mise en œuvre ---
+          Condition: nature = Fongibilité asymétrique AND périmètre = État AND statut = DCB %>
+        <% if @acte.nature == 'Fongibilité asymétrique' && @acte.perimetre == 'etat' && (current_user.statut == 'DCB' || current_user.statut == 'admin') %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w">Contrôle des modalités de mise en
+              œuvre <%= render 'tooltip', name: 'controle_modalites_info' %></h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :controle_modalites, true, id: "t2_controle_modalites_true", checked: @acte.t2_detail&.controle_modalites.nil? || @acte.t2_detail&.controle_modalites == true %>
+                  <label class="fr-label" for="t2_controle_modalites_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :controle_modalites, false, id: "t2_controle_modalites_false", checked: @acte.t2_detail&.controle_modalites == false %>
+                  <label class="fr-label" for="t2_controle_modalites_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <%# --- Respect de l'enveloppe notifiée ---
+          Condition: nature = ISP %>
+        <% if @acte.nature == 'ISP' %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w">Respect de l'enveloppe notifiée</h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_enveloppe, true, id: "t2_respect_enveloppe_true", checked: @acte.t2_detail&.respect_enveloppe.nil? || @acte.t2_detail&.respect_enveloppe == true %>
+                  <label class="fr-label" for="t2_respect_enveloppe_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :respect_enveloppe, false, id: "t2_respect_enveloppe_false", checked: @acte.t2_detail&.respect_enveloppe == false %>
+                  <label class="fr-label" for="t2_respect_enveloppe_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <%# --- Risque d'effet reconventionnel ---
+          Condition: nature ∈ {Mesure transversale, Référentiel} %>
+        <% if ['Mesure transversale', 'Référentiel'].include?(@acte.nature) %>
+          <div class="fr-col-12 fr-col-lg-6">
+            <h6 class="fr-my-1w">Risque d'effet reconventionnel</h6>
+            <fieldset class="fr-fieldset fr-mb-3w">
+              <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+              </legend>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :risque_reconventionnel, true, id: "t2_risque_reconventionnel_true", checked: @acte.t2_detail&.risque_reconventionnel.nil? || @acte.t2_detail&.risque_reconventionnel == true %>
+                  <label class="fr-label" for="t2_risque_reconventionnel_true">Oui</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+                <div class="fr-radio-group">
+                  <%= td.radio_button :risque_reconventionnel, false, id: "t2_risque_reconventionnel_false", checked: @acte.t2_detail&.risque_reconventionnel == false %>
+                  <label class="fr-label" for="t2_risque_reconventionnel_false">Non</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        <% end %>
+
+        <% end %><%# end fields_for t2_detail_attributes %>
+
+
+
+      <% if @acte.services_votes == true %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <h6 class="fr-my-1w">Acte éligible à la gestion des services votés <%= render partial: "actes/tooltip", locals: { name: "critere_sv" } %></h6>
+          <fieldset class="fr-fieldset fr-mb-3w">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-mb-1w">Le critère est-il validé ?*
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :programmation, true, id: "t2_programmation_sv_true", checked: @acte.programmation.nil? || @acte.programmation == true %>
+                <label class="fr-label" for="t2_programmation_sv_true">Oui</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fr-mb-0">
+              <div class="fr-radio-group">
+                <%= f.radio_button :programmation, false, id: "t2_programmation_sv_false", checked: @acte.programmation == false %>
+                <label class="fr-label" for="t2_programmation_sv_false">Non</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      <% end %>
+    </div>
+    <div class="mt-4">
+      <label class="form-label">Tableur</label>
+
+      <%= f.hidden_field :sheet_data, id: dom_id(@acte, :sheet_data) %>
+      <div class="sheet-scroll">
+        <div
+          data-controller="sheet"
+          data-sheet-input-id-value="<%= dom_id(@acte, :sheet_data) %>"
+          data-sheet-initial-value='<%= (@acte.sheet_data || { data: [] }).to_json %>'
+          data-sheet-min-cols-value="6"
+          data-sheet-min-rows-value="10"
+        ></div>
+      </div>
+
+      <p class="fr-hint-text mt-2">
+        Clic droit pour insérer/supprimer des lignes/colonnes.
+      </p>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12">
+        <div class="fr-input-group" data-controller="trix">
+          <label for="commentaire_disponibilite_credits" class="fr-label">Observations
+            <span class="fr-hint-text">Pour les pièces jointes, seules les images, captures d'écran sont autorisées. Taille maximale autorisée par fichier: 1Mo</span>
+          </label>
+          <%= f.rich_text_area :commentaire_disponibilite_credits, direct_upload: true, class: 'trix-content-form' %>
+        </div>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-12 fr-my-2w">
+        <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
+          <li><%= f.submit "Enregistrer et continuer", class: 'fr-btn' %></li>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -276,21 +276,26 @@ class ActesController < ApplicationController
         @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'acte_id'))
       end
     else
+      titre = params[:titre].present? && %w[HT2 T2].include?(params[:titre]) ? params[:titre] : 'HT2'
       type_acte = params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte]) ? params[:type_acte] : 'visa'
       etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
       type_engagement = type_acte == "TF" ? 'Affectation initiale' : 'Engagement initial'
       pre_instruction = params[:pre_instruction] == 'true'
       perimetre = params[:perimetre].present? && ['etat', 'organisme'].include?(params[:perimetre]) ? params[:perimetre] : 'etat'
       categorie_organisme = params[:categorie_organisme].present? && ['depense', 'recette'].include?(params[:categorie_organisme]) ? params[:categorie_organisme] : nil
-      @acte = current_user.actes.new(type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction, perimetre: perimetre, categorie_organisme: categorie_organisme)
+      categorie_t2 = titre == 'T2' ? 'hors contrat' : nil
+      @acte = current_user.actes.new(titre: titre, type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction, perimetre: perimetre, categorie_organisme: categorie_organisme, categorie_t2: categorie_t2)
+      @acte.build_t2_detail if titre == 'T2'
     end
     set_variables_form
+    @acte.nature = @liste_natures.first if @acte.titre == 'T2' && @acte.nature.blank? && @liste_natures&.size == 1
   end
 
   def create
     @acte = current_user.actes.new(acte_params)
     @acte.nature = "TF" if @acte.type_acte == "TF"
     if @acte.save
+      clear_irrelevant_t2_detail_fields(@acte)
       # Association du centre financier dans model after save
       redirect_to edit_acte_path(@acte, etape: 2)
     else
@@ -298,11 +303,13 @@ class ActesController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+    @acte.build_t2_detail if @acte.titre == 'T2' && @acte.t2_detail.nil?
+  end
 
   def update
     @etape = params[:etape].to_i || 1
-    if @acte.update(acte_params)
+    if @acte.update(acte_params) && clear_irrelevant_t2_detail_fields(@acte)
       # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
       if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction", "à suspendre"].include?(@acte.etat)
         redirect_to edit_acte_path(@acte, etape: @etape)
@@ -328,7 +335,7 @@ class ActesController < ApplicationController
   end
 
   def show
-    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes).order(annee: :asc, created_at: :asc) : [@acte]
+    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes, :t2_detail).order(annee: :asc, created_at: :asc) : [@acte]
     @acte_courant = @acte
   end
 
@@ -1117,6 +1124,47 @@ class ActesController < ApplicationController
     end
   end
 
+  T2_DETAIL_FIELDS_BY_NATURE = {
+    'Annexe financière' => %i[
+      type_acte_t2 effectifs effectifs_complementaire corps grade
+      date_arrete_concours date_effet_acte impact_schema_emplois impact_autre_cbcm
+    ],
+    'ISP' => %i[
+      date_effet_acte
+      isp_cercle1 isp_cercle1_natures isp_cercle1_montant isp_cercle1_enveloppe_sgg isp_cercle1_consommation
+      isp_cercle2 isp_cercle2_natures isp_cercle2_montant isp_cercle2_enveloppe_sgg isp_cercle2_consommation
+    ],
+    'Enveloppe limitative'    => %i[perimetre_mesure grade corps effectifs effectifs_complementaire statut_agents montant_enveloppe_n1 impact_maximal_sans_enveloppe origine_financement date_effet_acte],
+    'Fongibilité asymétrique' => %i[fa_technique accord_rffim sollicitation_db avis_cbcm enveloppe_abondee],
+    'Marché'                  => [],
+    'Mesure transversale'     => %i[perimetre_mesure grade corps effectifs effectifs_complementaire statut_agents impact_financier_n1 origine_financement date_effet_acte],
+    'Référentiel'             => %i[perimetre_mesure grade corps effectifs effectifs_complementaire impact_financier_n1 referentiel_type origine_financement date_effet_acte]
+  }.freeze
+
+  ALL_T2_DETAIL_NATURE_FIELDS = T2_DETAIL_FIELDS_BY_NATURE.values.flatten.uniq.freeze
+
+  # Step-2 criteria fields — not nature-dependent, must not be wiped on step-1 saves
+  T2_CRITERIA_FIELDS = %i[
+    inscription_pap respect_plafond_emplois respect_schema_emplois
+    controle_modalites respect_enveloppe risque_reconventionnel
+  ].freeze
+
+  def clear_irrelevant_t2_detail_fields(acte)
+    return true unless acte.titre == 'T2' && acte.t2_detail.present?
+
+    allowed = T2_DETAIL_FIELDS_BY_NATURE.fetch(acte.nature, [])
+    fields_to_nil = ALL_T2_DETAIL_NATURE_FIELDS - allowed - T2_CRITERIA_FIELDS
+
+    return true if fields_to_nil.empty?
+
+    updates = fields_to_nil.each_with_object({}) do |field, h|
+      default = acte.t2_detail.class.columns_hash[field.to_s]&.default
+      h[field] = default.nil? ? nil : default
+    end
+
+    acte.t2_detail.update_columns(updates)
+  end
+
   def acte_params
     params[:acte][:type_observations] = params[:acte][:type_observations]&.split(',') if params[:acte][:type_observations].is_a?(String)
 
@@ -1124,7 +1172,16 @@ class ActesController < ApplicationController
       susp[:motif] = susp[:motif].split(',') if susp[:motif].is_a?(String)
     end
 
-    params.require(:acte).permit(:type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
+    t2 = params.dig(:acte, :t2_detail_attributes)
+    if t2
+      t2[:grade] = t2[:grade].split(',').map(&:strip).reject(&:blank?) if t2[:grade].is_a?(String)
+      t2[:isp_cercle1_natures] = t2[:isp_cercle1_natures].split(',').map(&:strip).reject(&:blank?) if t2[:isp_cercle1_natures].is_a?(String)
+      t2[:isp_cercle2_natures] = t2[:isp_cercle2_natures].split(',').map(&:strip).reject(&:blank?) if t2[:isp_cercle2_natures].is_a?(String)
+      t2[:perimetre_mesure] = t2[:perimetre_mesure].split(',').map(&:strip).reject(&:blank?) if t2[:perimetre_mesure].is_a?(String)
+      t2[:origine_financement] = t2[:origine_financement].split(',').map(&:strip).reject(&:blank?) if t2[:origine_financement].is_a?(String)
+    end
+
+    params.require(:acte).permit(:titre, :categorie_t2, :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
                                  :date_saisine, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
                                  :pre_instruction, :action, :activite, :numero_tf, :date_limite,
                                  :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
@@ -1138,7 +1195,19 @@ class ActesController < ApplicationController
                                  :soutenabilite, :conformite, :concordance_recettes_tiers, :autorisation_tutelle, type_observations: [],
                                  suspensions_attributes: [:id, :_destroy, :date_suspension, :observations, motif: []],
                                  echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
-                                 poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf])
+                                 poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf],
+                                 t2_detail_attributes: [:id,
+                                                        :type_acte_t2, :effectifs, :effectifs_complementaire, :corps, :date_arrete_concours,
+                                                        :date_effet_acte, :impact_schema_emplois, :impact_autre_cbcm,
+                                                        :isp_cercle1, :isp_cercle1_montant, :isp_cercle1_enveloppe_sgg, :isp_cercle1_consommation,
+                                                        :isp_cercle2, :isp_cercle2_montant, :isp_cercle2_enveloppe_sgg, :isp_cercle2_consommation,
+                                                        :fa_technique, :accord_rffim, :sollicitation_db, :avis_cbcm, :enveloppe_abondee,
+                                                        :statut_agents, :impact_financier_n1,
+                                                        :montant_enveloppe_n1, :impact_maximal_sans_enveloppe, :referentiel_type,
+                                                        :inscription_pap, :respect_plafond_emplois, :respect_schema_emplois,
+                                                        :controle_modalites, :respect_enveloppe, :risque_reconventionnel,
+                                                        grade: [], isp_cercle1_natures: [], isp_cercle2_natures: [],
+                                                        perimetre_mesure: [], origine_financement: []])
   end
 
   def set_acte
@@ -1150,6 +1219,49 @@ class ActesController < ApplicationController
     perimetre = params[:perimetre] || @acte&.perimetre
     categorie_organisme = params[:categorie_organisme] || @acte&.categorie_organisme
     type_acte = params[:type_acte] || @acte&.type_acte
+    titre = @acte&.titre || params[:titre]
+
+    if titre == 'T2'
+      perimetre_t2 = @acte&.perimetre || params[:perimetre]
+      if perimetre_t2 == 'etat'
+        if current_user.statut == 'DCB'
+          @liste_natures = ['Annexe financière', 'Enveloppe limitative', 'Fongibilité asymétrique', 'ISP', 'Marché', 'Mesure transversale', 'Référentiel']
+        else
+          @liste_natures = ['Fongibilité asymétrique']
+        end
+      else
+        @liste_natures = ['Annexe financière', 'Enveloppe limitative', 'Fongibilité asymétrique', 'Marché', 'Mesure transversale', 'Référentiel']
+      end
+
+      @liste_types_observations = [
+        "Acte déjà signé par l'ordonnateur",
+        "Compatibilité avec la programmation",
+        "Evaluation de la consommation des crédits",
+        "Fondement juridique",
+        "Fongibilité asymétrique de faible montant",
+        "Hors périmètre du CBR/DCB",
+        "Incohérence avec le cadre de gestion",
+        "Pièce(s) manquante(s)",
+        "Risque au titre de la RGP",
+        "Saisine a posteriori",
+        "Saisine en dessous du seuil de soumission au contrôle",
+        "Autre"
+      ]
+
+      @liste_decisions = liste_decisions_for(type_acte)
+
+      @liste_motifs_suspension = [
+        "Demande de précision",
+        "Pièce(s) manquante(s)",
+        "Problématique de compatibilité avec la programmation",
+        "Problématique de soutenabilité",
+        "Saisine a posteriori",
+        "Autre"
+      ]
+
+      @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
+      return
+    end
 
     if perimetre == 'organisme' && categorie_organisme == 'depense'
       @liste_natures = [
@@ -1205,12 +1317,7 @@ class ActesController < ApplicationController
       @liste_engagements = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
     end
 
-    # @liste_decisions définie uniquement en fonction du type_acte
-    if type_acte == 'avis'
-      @liste_decisions = ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
-    else
-      @liste_decisions = ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
-    end
+    @liste_decisions = liste_decisions_for(type_acte)
 
     # @liste_motifs_suspension définie en fonction du périmètre
     if perimetre == 'organisme' && categorie_organisme == 'depense'
@@ -1222,6 +1329,14 @@ class ActesController < ApplicationController
       @liste_motifs_suspension = ["Défaut du circuit d'approbation Chorus", "Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", "Erreur d'imputation", "Erreur dans la construction de l'EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Non conformité des pièces", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
     end
     @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
+  end
+
+  def liste_decisions_for(type_acte)
+    if type_acte == 'avis'
+      ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    else
+      ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    end
   end
 
   def set_variables_filtres

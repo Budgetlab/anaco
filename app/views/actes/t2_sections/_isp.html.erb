@@ -1,0 +1,247 @@
+<%# locals: (f:, td:, acte:) %>
+
+<%# Row 1 — Date d'effet de l'acte (commune à plusieurs natures) %>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="isp_date_effet_acte" class="fr-label">Date d'effet de l'acte</label>
+      <%= td.text_field :date_effet_acte, id: "isp_date_effet_acte", class: "fr-input", value: td.object.date_effet_acte %>
+    </div>
+  </div>
+</div>
+
+<%# ── Cercle 1 ─────────────────────────────────────────────────────── %>
+<div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+
+  <%# Cercle 1 — radio Oui/Non (default Oui) %>
+  <div class="fr-col-12 fr-col-lg-4">
+    <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="cercle1-legend">
+      <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="cercle1-legend">
+        <strong>Cercle 1</strong>
+      </legend>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :isp_cercle1, true, id: "isp_cercle1_oui",
+              checked: td.object.isp_cercle1 == true || td.object.isp_cercle1.nil?,
+              data: { action: "change->conditional-field#toggle change->acte-form#resetIspCercle",
+                      conditional_field_target: "checkbox", isp_cercle: "1" } %>
+          <label class="fr-label" for="isp_cercle1_oui">Oui</label>
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :isp_cercle1, false, id: "isp_cercle1_non",
+              data: { action: "change->conditional-field#toggle change->acte-form#resetIspCercle",
+                      conditional_field_target: "checkbox", isp_cercle: "1" } %>
+          <label class="fr-label" for="isp_cercle1_non">Non</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <%# Cercle 1 — Nature des ISP (checkbox-dropdown) %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
+       data-conditional-field-target="field"
+       style="position: relative;"
+       data-controller="checkbox-dropdown">
+    <label class="fr-label">Nature des ISP</label>
+    <%= td.hidden_field :isp_cercle1_natures, id: "isp_cercle1_natures_hidden",
+        data: { checkbox_dropdown_target: "hidden" },
+        value: td.object.isp_cercle1_natures&.join(",") %>
+    <button type="button" class="fr-select text-left w-100 fr-mt-1w"
+            style="text-align: left; cursor: pointer;"
+            data-action="click->checkbox-dropdown#toggle"
+            aria-haspopup="listbox" aria-expanded="false">
+      <span data-checkbox-dropdown-target="label"
+            data-placeholder="Sélectionner une option">
+        <%= td.object.isp_cercle1_natures.present? ? td.object.isp_cercle1_natures.join(", ") : "Sélectionner une option" %>
+      </span>
+    </button>
+    <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
+         data-checkbox-dropdown-target="menu">
+      <% [["ISOE", "ISOE"], ["NBI", "NBI"], ["SFT", "SFT"], ["Indemnité de résidence", "Indemnité de résidence"], ["Indemnité de technicité", "Indemnité de technicité"]].each do |label, value| %>
+        <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
+          <input type="checkbox" id="isp_cercle1_nature_<%= value.parameterize %>"
+                 value="<%= value %>"
+                 data-checkbox-dropdown-target="checkbox"
+                 data-action="change->checkbox-dropdown#change"
+                 <%= "checked" if td.object.isp_cercle1_natures&.include?(value) %>>
+          <label class="fr-label" for="isp_cercle1_nature_<%= value.parameterize %>"><%= label %></label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Cercle 1 — Montant au contrôle %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle1_montant" class="fr-label">Montant au contrôle*</label>
+      <%= td.text_field :isp_cercle1_montant, id: "isp_cercle1_montant", class: "fr-input",
+          value: td.object.isp_cercle1_montant,
+          required: td.object.isp_cercle1 == true || td.object.isp_cercle1.nil?,
+          data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+    </div>
+  </div>
+
+  <%# Cercle 1 — Enveloppe SGG %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle1_enveloppe_sgg" class="fr-label">Montant annuel de l'enveloppe SGG*</label>
+      <%= td.text_field :isp_cercle1_enveloppe_sgg, id: "isp_cercle1_enveloppe_sgg", class: "fr-input",
+          value: td.object.isp_cercle1_enveloppe_sgg,
+          required: td.object.isp_cercle1 == true || td.object.isp_cercle1.nil?,
+          data: { action: "input->acte-form#changeNumber input->acte-form#calculateIspReste",
+                  acte_form_number_field: true, isp_cercle: "1" } %>
+    </div>
+  </div>
+
+  <%# Cercle 1 — Consommation à date %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle1_consommation" class="fr-label">Consommation à date de l'enveloppe <%= render partial: "actes/tooltip", locals: { name: "isp_cercle1_consommation_info" } %></label>
+      <%= td.text_field :isp_cercle1_consommation, id: "isp_cercle1_consommation", class: "fr-input",
+          value: td.object.isp_cercle1_consommation,
+          data: { action: "input->acte-form#changeNumber input->acte-form#calculateIspReste",
+                  acte_form_number_field: true, isp_cercle: "1" } %>
+    </div>
+  </div>
+
+  <%# Cercle 1 — Reste à consommer (calculé) %>
+  <%
+    reste1 = td.object.isp_cercle1_enveloppe_sgg.present? ?
+      (td.object.isp_cercle1_enveloppe_sgg.to_f - td.object.isp_cercle1_consommation.to_f) : nil
+  %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
+       data-conditional-field-target="field">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">Reste à consommer</p>
+        <p class="fr-text--lg fr-mb-0 text_center fr-text--bold" id="isp_cercle1_reste">
+          <%= reste1 ? "#{number_with_precision(reste1, precision: 2, delimiter: " ", separator: ',')} €" : "--€" %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div><%# end Cercle 1 conditional-field wrapper %>
+
+<%# ── Cercle 2 ─────────────────────────────────────────────────────── %>
+<div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+
+  <%# Cercle 2 — radio Oui/Non (default Non) %>
+  <div class="fr-col-12 fr-col-lg-4">
+    <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="cercle2-legend">
+      <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="cercle2-legend">
+        <strong>Cercle 2</strong>
+      </legend>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :isp_cercle2, true, id: "isp_cercle2_oui",
+              data: { action: "change->conditional-field#toggle change->acte-form#resetIspCercle",
+                      conditional_field_target: "checkbox", isp_cercle: "2" } %>
+          <label class="fr-label" for="isp_cercle2_oui">Oui</label>
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :isp_cercle2, false, id: "isp_cercle2_non",
+              checked: td.object.isp_cercle2 == false || td.object.isp_cercle2.nil?,
+              data: { action: "change->conditional-field#toggle change->acte-form#resetIspCercle",
+                      conditional_field_target: "checkbox", isp_cercle: "2" } %>
+          <label class="fr-label" for="isp_cercle2_non">Non</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <%# Cercle 2 — Nature des ISP (checkbox-dropdown) %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
+       data-conditional-field-target="field"
+       style="position: relative;"
+       data-controller="checkbox-dropdown">
+    <label class="fr-label">Nature des ISP</label>
+    <%= td.hidden_field :isp_cercle2_natures, id: "isp_cercle2_natures_hidden",
+        data: { checkbox_dropdown_target: "hidden" },
+        value: td.object.isp_cercle2_natures&.join(",") %>
+    <button type="button" class="fr-select text-left w-100 fr-mt-1w"
+            style="text-align: left; cursor: pointer;"
+            data-action="click->checkbox-dropdown#toggle"
+            aria-haspopup="listbox" aria-expanded="false">
+      <span data-checkbox-dropdown-target="label"
+            data-placeholder="Sélectionner une option">
+        <%= td.object.isp_cercle2_natures.present? ? td.object.isp_cercle2_natures.join(", ") : "Sélectionner une option" %>
+      </span>
+    </button>
+    <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
+         data-checkbox-dropdown-target="menu">
+      <% [["ISOE", "ISOE"], ["NBI", "NBI"], ["SFT", "SFT"], ["Indemnité de résidence", "Indemnité de résidence"], ["Indemnité de technicité", "Indemnité de technicité"]].each do |label, value| %>
+        <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
+          <input type="checkbox" id="isp_cercle2_nature_<%= value.parameterize %>"
+                 value="<%= value %>"
+                 data-checkbox-dropdown-target="checkbox"
+                 data-action="change->checkbox-dropdown#change"
+                 <%= "checked" if td.object.isp_cercle2_natures&.include?(value) %>>
+          <label class="fr-label" for="isp_cercle2_nature_<%= value.parameterize %>"><%= label %></label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Cercle 2 — Montant au contrôle %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle2_montant" class="fr-label">Montant au contrôle*</label>
+      <%= td.text_field :isp_cercle2_montant, id: "isp_cercle2_montant", class: "fr-input",
+          value: td.object.isp_cercle2_montant,
+          required: td.object.isp_cercle2 == true,
+          data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+    </div>
+  </div>
+
+  <%# Cercle 2 — Enveloppe SGG %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle2_enveloppe_sgg" class="fr-label">Montant annuel de l'enveloppe SGG*</label>
+      <%= td.text_field :isp_cercle2_enveloppe_sgg, id: "isp_cercle2_enveloppe_sgg", class: "fr-input",
+          value: td.object.isp_cercle2_enveloppe_sgg,
+          required: td.object.isp_cercle2 == true,
+          data: { action: "input->acte-form#changeNumber input->acte-form#calculateIspReste",
+                  acte_form_number_field: true, isp_cercle: "2" } %>
+    </div>
+  </div>
+
+  <%# Cercle 2 — Consommation à date %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
+       data-conditional-field-target="field">
+    <div class="fr-input-group">
+      <label for="isp_cercle2_consommation" class="fr-label">Consommation à date de l'enveloppe <%= render partial: "actes/tooltip", locals: { name: "isp_cercle2_consommation_info" } %></label>
+      <%= td.text_field :isp_cercle2_consommation, id: "isp_cercle2_consommation", class: "fr-input",
+          value: td.object.isp_cercle2_consommation,
+          data: { action: "input->acte-form#changeNumber input->acte-form#calculateIspReste",
+                  acte_form_number_field: true, isp_cercle: "2" } %>
+    </div>
+  </div>
+
+  <%# Cercle 2 — Reste à consommer (calculé) %>
+  <%
+    reste2 = td.object.isp_cercle2_enveloppe_sgg.present? ?
+      (td.object.isp_cercle2_enveloppe_sgg.to_f - td.object.isp_cercle2_consommation.to_f) : nil
+  %>
+  <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
+       data-conditional-field-target="field">
+    <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+      <div class="fr-cart__body">
+        <p class="fr-text--lg fr-mb-0 text_center">Reste à consommer</p>
+        <p class="fr-text--lg fr-mb-0 text_center fr-text--bold" id="isp_cercle2_reste">
+          <%= reste2 ? "#{number_with_precision(reste2, precision: 2, delimiter: " ", separator: ',')} €" : "--€" %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div><%# end Cercle 2 conditional-field wrapper %>

@@ -1,4 +1,4 @@
-<% content_for :title do %>Formulaire suivi d'un acte HT2 | ANACO
+<% content_for :title do %>Formulaire suivi d'un acte <%= @acte.titre %> | ANACO
 <% end %>
 <main role="main" class="containtAll">
   <div class="fr-container">
@@ -6,12 +6,12 @@
       <div class="fr-col-12 fr-col-lg-12">
         <div class="title-btn">
           <% if @saisine && @acte.numero_chorus.present? %>
-            <h1>Saisine n°<%= @acte_parent.tous_actes_meme_chorus.count + 1 %> - <%= @acte.type_acte %> HT2 CHORUS
+            <h1>Saisine n°<%= @acte_parent.tous_actes_meme_chorus.count + 1 %> - <%= @acte.type_acte %> <%= @acte.titre %> CHORUS
               n°<%= @acte.numero_chorus %> <%= badge_perimetre(@acte) %></h1>
           <% else %>
-            <h1>Formulaire <%= @acte.type_acte %> HT2
+            <h1>Formulaire <%= @acte.type_acte %> <%= @acte.titre %><% if @acte.titre == 'T2'%> - Actes de personnel <% end %>
               <%= badge_perimetre(@acte) %>
-              <%= badge_categorie_organisme(@acte) %>
+              <% if @acte.titre == 'T2' %><%= badge_categorie_t2(@acte) %><% elsif @acte.titre == "HT2" %><%= badge_categorie_organisme(@acte) %><% end %>
             </h1>
           <% end %>
           <button aria-controls="modal-0" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter le formulaire</button>
@@ -80,7 +80,9 @@
       </div>
 
       <div class="fr-col-12 fr-col-lg-9">
-        <% if @acte.perimetre == 'organisme' %>
+        <% if @acte.titre == 'T2' %>
+          <%= render 'form_informations_t2' %>
+        <% elsif @acte.perimetre == 'organisme' %>
           <%= render 'form_informations_organisme' %>
         <% else %>
           <%= render 'form_informations' %>

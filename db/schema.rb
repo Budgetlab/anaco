@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_12_092104) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_18_150240) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -503,7 +503,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_092104) do
   create_table "t2_details", force: :cascade do |t|
     t.boolean "accord_rffim"
     t.bigint "acte_id", null: false
-    t.boolean "avis_cbcm"
+    t.string "avis_cbcm"
     t.boolean "controle_modalites"
     t.string "corps"
     t.datetime "created_at", null: false
@@ -532,13 +532,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_092104) do
     t.decimal "montant_enveloppe_n1"
     t.string "origine_financement", default: [], array: true
     t.string "perimetre_mesure", default: [], array: true
-    t.string "referentiel_type"
+    t.boolean "referentiel_type", default: false
     t.boolean "respect_enveloppe"
     t.boolean "respect_plafond_emplois"
     t.boolean "respect_schema_emplois"
     t.boolean "risque_reconventionnel"
     t.string "sollicitation_db"
     t.string "statut_agents"
+    t.string "type_acte_t2"
     t.datetime "updated_at", null: false
     t.index ["acte_id"], name: "index_t2_details_on_acte_id", unique: true
   end

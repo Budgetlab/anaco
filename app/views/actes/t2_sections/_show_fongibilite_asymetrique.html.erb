@@ -1,0 +1,50 @@
+<%# locals: (acte:, td:) %>
+<div class="fr-table fr-table--no-caption fr-table--no-scroll">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <caption>Fongibilité asymétrique</caption>
+          <thead>
+          <tr class="fr-cell--multiline">
+            <th>Montant au contrôle (€)</th>
+            <% if acte.perimetre == 'etat' %>
+              <th>N°Chorus</th>
+            <% end %>
+            <th>FA Technique</th>
+            <% if acte.perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut) %>
+              <th>Accord RFFIM/RPROG préalable</th>
+              <th>Sollicitation DB/BS préalable</th>
+            <% elsif acte.perimetre == 'etat' && current_user.statut == 'CBR' %>
+              <th>Sollicitation CBCM préalable</th>
+            <% elsif acte.perimetre == 'organisme' %>
+              <th>Enveloppe budgétaire abondée</th>
+            <% end %>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="fr-cell--multiline">
+            <td><%= format_value(number_to_currency(acte.montant_ae, unit: "€", format: "%n %u")) %></td>
+            <% if acte.perimetre == 'etat' %>
+              <td><%= format_value(acte.numero_chorus) %></td>
+            <% end %>
+            <td>
+              <%= td.fa_technique == true ? "Oui" : "Non" %>
+            </td>
+            <% if acte.perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut) %>
+              <td>
+                <%= td.accord_rffim == true ? "Oui" : "Non"%>
+              </td>
+              <td><%= format_value(td.sollicitation_db) %></td>
+            <% elsif acte.perimetre == 'etat' && current_user.statut == 'CBR' %>
+              <td><%= format_value(td.avis_cbcm) %></td>
+            <% elsif acte.perimetre == 'organisme' %>
+              <td><%= format_value(td.enveloppe_abondee) %></td>
+            <% end %>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -18,6 +18,7 @@ class Acte < ApplicationRecord
   has_many :echeanciers, dependent: :destroy
   has_many :poste_lignes, dependent: :destroy
   has_one :t2_detail, dependent: :destroy
+  accepts_nested_attributes_for :t2_detail, update_only: true, reject_if: :all_blank
   accepts_nested_attributes_for :poste_lignes, reject_if: ->(attributes) { attributes['centre_financier_code'].blank? }, allow_destroy: true
   accepts_nested_attributes_for :suspensions, reject_if: ->(attributes) { attributes['date_suspension'].blank? || Array(attributes['motif']).reject(&:blank?).empty? }, allow_destroy: true
   accepts_nested_attributes_for :echeanciers, reject_if: ->(attributes) { attributes['annee'].blank? || attributes['montant_ae'].blank? }, allow_destroy: true
@@ -84,8 +85,10 @@ class Acte < ApplicationRecord
 
   # Validations T2
   validates :titre, presence: true, inclusion: { in: %w[HT2 T2] }
-  validates :categorie_t2, inclusion: { in: %w[contrat hors_contrat], allow_nil: true }
+  validates :categorie_t2, inclusion: { in: ['contrat', 'hors contrat'], allow_nil: true }
   validates :categorie_t2, presence: true, if: -> { titre == 'T2' }
+  validates :montant_ae, presence: true, if: -> { titre == 'T2' && nature == 'Marché' && perimetre == 'etat' }
+  validates :budget_executoire, inclusion: { in: [true, false] }, if: -> { titre == 'T2' && perimetre == 'organisme' && ['Marché', 'Mesure transversale', 'Enveloppe limitative', 'Référentiel'].include?(nature) }
   validate :no_t2_detail_for_ht2
 
   # Methode pour compter les actes en cours dont la date limite est dans les 5 jours à venir

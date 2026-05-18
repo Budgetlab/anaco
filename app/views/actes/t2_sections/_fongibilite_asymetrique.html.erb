@@ -1,0 +1,116 @@
+<%# locals: (f:, td:, acte:) %>
+<% is_dcb = current_user.statut == 'DCB' || current_user.statut == 'admin' %>
+<% is_cbr = current_user.statut == 'CBR' %>
+<% is_etat = acte.perimetre == 'etat' %>
+<% is_organisme = acte.perimetre == 'organisme' %>
+
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="montant_ae" class="fr-label">Montant au contrôle*</label>
+      <%= f.text_field :montant_ae, value: acte.montant_ae, id: "montant_ae", class: "fr-input", required: true,
+                         data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+    </div>
+  </div>
+
+  <% if is_etat %>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-input-group">
+        <label for="acte_numero_chorus" class="fr-label">N°Chorus</label>
+        <%= f.text_field :numero_chorus, id: "acte_numero_chorus", class: "fr-input", value: acte.numero_chorus %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="fa-technique-legend">
+      <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="fa-technique-legend">
+        FA Technique*
+        <%= render partial: "actes/tooltip", locals: { name: "fa_technique_info" } %>
+      </legend>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :fa_technique, true, id: "fa_technique_oui" %>
+          <label class="fr-label" for="fa_technique_oui">Oui</label>
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :fa_technique, false, id: "fa_technique_non",
+                              checked: td.object.fa_technique == false || td.object.fa_technique.nil? %>
+          <label class="fr-label" for="fa_technique_non">Non</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <% if is_etat %>
+
+    <% if is_dcb %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="accord-rffim-legend">
+          <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="accord-rffim-legend">
+            Accord RFFIM/RPROG préalable*
+            <%= render partial: "actes/tooltip", locals: { name: "accord_rffim_info" } %>
+          </legend>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= td.radio_button :accord_rffim, true, id: "accord_rffim_oui" %>
+              <label class="fr-label" for="accord_rffim_oui">Oui</label>
+            </div>
+          </div>
+          <div class="fr-fieldset__element fr-fieldset__element--inline">
+            <div class="fr-radio-group">
+              <%= td.radio_button :accord_rffim, false, id: "accord_rffim_non",
+                                  checked: td.object.accord_rffim == false || td.object.accord_rffim.nil? %>
+              <label class="fr-label" for="accord_rffim_non">Non</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="t2_detail_sollicitation_db" class="fr-label">Sollicitation DB/BS préalable* <%= render partial: "actes/tooltip", locals: { name: "sollicitation_db_info" } %></label>
+          <%= td.select :sollicitation_db,
+                        options_for_select(
+                          [['Favorable', 'Favorable'], ['Non favorable', 'Non favorable'], ['Non sollicité', 'Non sollicité']],
+                          td.object.sollicitation_db
+                        ),
+                        { prompt: 'Sélectionner une option' },
+                        { id: "t2_detail_sollicitation_db", class: "fr-select", required: true } %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if is_cbr %>
+      <div class="fr-col-12 fr-col-lg-4">
+        <div class="fr-select-group">
+          <label for="t2_detail_avis_cbcm" class="fr-label">Sollicitation CBCM préalable* <%= render partial: "actes/tooltip", locals: { name: "sollicitation_cbcm_info" } %></label>
+          <%= td.select :avis_cbcm,
+                        options_for_select(
+                          [['Favorable', 'Favorable'], ['Non favorable', 'Non favorable'], ['Non sollicité', 'Non sollicité']],
+                          td.object.avis_cbcm
+                        ),
+                        { prompt: 'Sélectionner une option' },
+                        { id: "t2_detail_avis_cbcm", class: "fr-select", required: true } %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if is_organisme %>
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="t2_detail_enveloppe_abondee" class="fr-label">Enveloppe budgétaire abondée</label>
+        <%= td.select :enveloppe_abondee,
+                      options_for_select(
+                        [['Fonctionnement', 'Fonctionnement'], ['Investissement', 'Investissement'], ['Intervention', 'Intervention']],
+                        td.object.enveloppe_abondee
+                      ),
+                      { prompt: 'Sélectionner une option' },
+                      { id: "t2_detail_enveloppe_abondee", class: "fr-select" } %>
+      </div>
+    </div>
+  <% end %>
+</div>
