@@ -181,6 +181,13 @@ module ActesHelper
     content_tag(:span, acte.categorie_t2.capitalize, class: "fr-badge #{badge_color}".strip)
   end
 
+  def badge_titre(acte)
+    return '' unless acte.titre.present?
+
+    color_class = acte.titre == 'T2' ? 'fr-tag--t2' : 'fr-tag--ht2'
+    content_tag(:span, acte.titre, class: "fr-tag fr-tag--static #{color_class}")
+  end
+
   def etape2_complete?(acte)
     return true if acte.titre == 'T2'
 

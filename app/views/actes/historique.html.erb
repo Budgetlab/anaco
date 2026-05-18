@@ -271,6 +271,7 @@
                                     "aria-label": "Trier par numéro d'acte" do %>
                         <% end %>
                       </th>
+                      <th scope="col">Titre</th>
                       <th scope="col">Exercice
                       </th>
                       <th scope="col">Centre financier / Organisme</th>
@@ -291,6 +292,7 @@
                           <p class="fr-badge fr-badge--sm <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
                             n°<%= acte.numero_formate %></p>
                         </td>
+                        <td><%= badge_titre(acte) %></td>
                         <td><%= acte.annee %></td>
                         <td class="fr-cell--multiline"><%= acte.perimetre == 'organisme' ? acte.nom_organisme : acte.centre_financier_code %></td>
                         <td class="fr-cell--multiline"><%= format_value(acte.beneficiaire) %></td>

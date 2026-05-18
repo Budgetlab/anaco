@@ -555,3 +555,22 @@ a.fr-tag[aria-pressed=true]::after{
   --hover: var(--background-action-low-blue-france-hover);
   --active: var(--background-action-low-blue-france-active);
 }
+
+/* Tags non-cliquables pour HT2 / T2 */
+.fr-tag--static {
+  cursor: default;
+  pointer-events: none;
+  --idle: transparent;
+  --hover: var(--idle);
+  --active: var(--idle);
+}
+
+.fr-tag--ht2 {
+  color: var(--text-inverted-blue-france) !important;
+  background-color: var(--background-active-blue-france) !important;
+}
+
+.fr-tag--t2 {
+  color: var(--text-action-high-blue-france) !important;
+  background-color: var(--background-action-low-blue-france) !important;
+}

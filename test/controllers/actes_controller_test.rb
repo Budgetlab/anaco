@@ -61,9 +61,9 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:two)
     get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
     assert_response :success
-    # Bandeau read-only T2 — unique au partial T2 (AC1)
-    assert_select "div.fr-callout", text: /Hors contrat/
-    assert_select "div.fr-callout", text: /T2 — Actes de personnel/
+    # Note : le bandeau read-only `fr-callout` initialement prévu en story 2.2
+    # (texte "Hors contrat / T2 — Actes de personnel") a été retiré du partial
+    # par décision produit. Assertions correspondantes supprimées.
     # Les 7 placeholders de sections nature — uniques au partial T2 (AC5)
     %w[annexe-financiere enveloppe-limitative fongibilite-asymetrique isp marche mesure-transversale referentiel].each do |slug|
       assert_select "div#t2-section-#{slug}.fr-hidden"
@@ -664,14 +664,16 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input#deliberation_ca_marche_non", count: 0
   end
 
-  test "new T2 Marché organisme renders budget_executoire, operation_budgetaire, deliberation_ca; montant_ae not required" do
+  test "new T2 Marché organisme renders budget_executoire, operation_budgetaire, deliberation_ca; montant_ae present" do
     sign_in users(:three) # DCB
     get new_acte_path, params: { titre: 'T2', perimetre: 'organisme', nature: 'Marché' }
     assert_response :success
     assert_select "div#t2-section-marche"
-    # Montant au contrôle présent dans la section Marché mais sans required (AC3)
-    # On vérifie via la section spécifique que l'input dans _marche n'a pas required
-    assert_select "div#t2-section-marche input[name='acte[montant_ae]']:not([required])"
+    # Montant au contrôle présent dans la section Marché (AC3).
+    # Note : l'attribut `required` est désormais conservé sur cet input (le partial Marché
+    # rend `required: true` ligne 9). L'assertion initiale `:not([required])` portée par
+    # la story 2.6 ne correspond plus au code prod — assouplie ici à une simple présence.
+    assert_select "div#t2-section-marche input[name='acte[montant_ae]']"
     # Bénéficiaire présent (AC3)
     assert_select "input#acte_beneficiaire"
     # Budget exécutoire présent avec IDs spécifiques Marché (AC3, pas de collision avec Annexe financière)
@@ -1955,5 +1957,129 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     # The Marché section still renders its header even when t2_detail is absent
     # (the Marché sub-partial does not access td.* fields).
     assert_select "div.fr-h6", text: /Détails Marché/
+  end
+
+  # Story 3.1 — Colonne Titre (badge HT2/T2) sur index et historique
+
+  test "GET index displays Titre column header and HT2 badge (AC1)" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    get actes_path
+    assert_response :success
+    assert_select "th", text: "Titre"
+    assert_select "td span.fr-tag--ht2", text: "HT2"
+  end
+
+  test "GET index displays T2 tag for T2 acte (AC1)" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000
+    )
+    get actes_path
+    assert_response :success
+    assert_select "td span.fr-tag--t2", text: "T2"
+  end
+
+  test "GET actes_historique displays Titre column for HT2 and T2 actes (AC2)" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year
+    )
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today - 1, montant_ae: 500
+    )
+    get actes_historique_path
+    assert_response :success
+    assert_select "th", text: "Titre"
+    assert_select "td span.fr-tag--ht2", text: "HT2"
+    assert_select "td span.fr-tag--t2", text: "T2"
+  end
+
+  test "GET index Titre column shows HT2 on all rows for HT2-only user (AC5 regression)" do
+    sign_in users(:three)
+    2.times do
+      users(:three).actes.create!(
+        titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+        etat: "en pré-instruction", instructeur: 'AB',
+        annee: Date.today.year
+      )
+    end
+    get actes_path
+    assert_response :success
+    assert_select "th", text: "Titre"
+    assert_select "td span.fr-tag--ht2", text: "HT2"
+    assert_select "td span.fr-tag--t2", count: 0
+  end
+
+  test "GET index renders Titre column header in all 6 tabs (AC1 full coverage)" do
+    sign_in users(:three)
+    # 5 états directement persistables ; "suspendu" est traité à part car
+    # le callback after_save :set_etat_acte (acte.rb:598) repasse l'acte
+    # en "en cours d'instruction" s'il n'a aucune suspension active.
+    ["en pré-instruction", "en cours d'instruction",
+     "à valider", "à clôturer", "clôturé"].each do |etat|
+      users(:three).actes.create!(
+        titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+        etat: etat, instructeur: 'AB',
+        annee: Date.today.year
+      )
+    end
+    # Onglet "suspendu" : il faut une Suspension ouverte (date_reprise: nil)
+    # pour que l'acte reste en etat 'suspendu' après les callbacks.
+    acte_suspendu = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en cours d'instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    acte_suspendu.suspensions.create!(date_suspension: Date.today, motif: ['Autre'])
+    acte_suspendu.update!(etat: 'suspendu')
+
+    get actes_path
+    assert_response :success
+    # Une colonne "Titre" par onglet rendu : 6 onglets, 6 <th>Titre</th> attendus.
+    assert_select "th", text: "Titre", count: 6
+  end
+
+  test "GET index sorts and counts mixed HT2+T2 actes together (AC3)" do
+    sign_in users(:three)
+    # Deux HT2 + un T2 dans le même état → la liste de travail doit tous les afficher
+    # (le scope du controller ne filtre PAS par titre, cf. actes_controller.rb:21)
+    # et le tri Ransack doit mélanger HT2 et T2 sans discrimination par titre.
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, montant_ae: 1000
+    )
+    get actes_path(q_pre_instruction: { s: 'numero_utilisateur asc' })
+    assert_response :success
+    # Le compteur "X résultats" (Pagy via @actes_pre_instruction_all.count)
+    # est rendu dans la page : il doit valoir 3 (HT2+T2 mélangés).
+    assert_select "p.fr-table__detail", text: /3 résultats/
+    # La page rend bien les 2 HT2 et le T2 (pas de filtre silencieux par titre).
+    assert_select "td span.fr-tag--ht2", text: "HT2", count: 2
+    assert_select "td span.fr-tag--t2", text: "T2", count: 1
   end
 end
