@@ -12,39 +12,57 @@
         <div class="fr-grid-row fr-grid-row--gutters">
           <div class="fr-col-12 fr-col-lg-12">
             <%= form_with url: synthese_users_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance' } do |f| %>
-              <fieldset class="fr-fieldset">
+              <% selected_titres = Array(@q_params[:titre_in]).reject(&:blank?) %>
+              <% selected_perimetres = Array(@q_params[:perimetre_in]).reject(&:blank?) %>
+              <fieldset class="fr-fieldset fr-fieldset--inline">
                 <div class="fr-fieldset__element fr-fieldset__element--inline">
-                  <div class="fr-radio-group fr-radio-rich">
-                    <%= radio_button_tag 'q[perimetre_eq]', '',
-                                         @q_params[:perimetre_eq].blank?,
-                                         class: "fr-radio",
-                                         id: "perimetre-globale",
-                                         onchange: "this.form.requestSubmit()" %>
-                    <%= label_tag "perimetre-globale", "Vue consolidée", class: "fr-label" %>
+                  <span class="fr-label fr-text--bold fr-mr-1w">Titre</span>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q[titre_in][]', 'T2',
+                                      selected_titres.include?('T2') || selected_titres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "titre-t2",
+                                      onchange: "this.form.requestSubmit()" %>
+                    <%= label_tag "titre-t2", "T2 (actes de personnel)", class: "fr-label" %>
                   </div>
                 </div>
                 <div class="fr-fieldset__element fr-fieldset__element--inline">
-                  <div class="fr-radio-group fr-radio-rich">
-                    <%= radio_button_tag 'q[perimetre_eq]', 'etat',
-                                         @q_params[:perimetre_eq] == 'etat',
-                                         class: "fr-radio",
-                                         id: "perimetre-etat",
-                                         onchange: "this.form.requestSubmit()" %>
-                    <%= label_tag "perimetre-etat", "Vue État", class: "fr-label" %>
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q[titre_in][]', 'HT2',
+                                      selected_titres.include?('HT2') || selected_titres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "titre-ht2",
+                                      onchange: "this.form.requestSubmit()" %>
+                    <%= label_tag "titre-ht2", "HT2 (hors actes de personnel)", class: "fr-label" %>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline fr-ml-3w">
+                  <span class="fr-label fr-text--bold fr-mr-1w">Périmètre</span>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q[perimetre_in][]', 'etat',
+                                      selected_perimetres.include?('etat') || selected_perimetres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "perimetre-etat",
+                                      onchange: "this.form.requestSubmit()" %>
+                    <%= label_tag "perimetre-etat", "Etat", class: "fr-label" %>
                   </div>
                 </div>
                 <div class="fr-fieldset__element fr-fieldset__element--inline">
-                  <div class="fr-radio-group fr-radio-rich">
-                    <%= radio_button_tag 'q[perimetre_eq]', 'organisme',
-                                         @q_params[:perimetre_eq] == 'organisme',
-                                         class: "fr-radio",
-                                         id: "perimetre-organisme",
-                                         onchange: "this.form.requestSubmit()" %>
-                    <%= label_tag "perimetre-organisme", "Vue Organisme", class: "fr-label" %>
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q[perimetre_in][]', 'organisme',
+                                      selected_perimetres.include?('organisme') || selected_perimetres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "perimetre-organisme",
+                                      onchange: "this.form.requestSubmit()" %>
+                    <%= label_tag "perimetre-organisme", "Organisme", class: "fr-label" %>
                   </div>
                 </div>
               </fieldset>
-              <% @q_params.except(:perimetre_eq).each do |key, value| %>
+              <% @q_params.except(:titre_in, :perimetre_in, :perimetre_eq).each do |key, value| %>
                 <% if value.is_a?(Array) %>
                   <% value.each do |v| %>
                     <%= hidden_field_tag "q[#{key}][]", v %>
@@ -254,7 +272,12 @@
                   <button aria-controls="modal-btn-filtrer-utilisateurs" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
                 </div>
                 <%= form_with url: synthese_users_actes_path, method: :get, data: { turbo_frame: 'results', turbo_action: 'advance', controller: 'date-range-filter' } do |f| %>
-                  <%= hidden_field_tag 'q[perimetre_eq]', @q_params[:perimetre_eq] %>
+                  <% Array((@q_params || {})[:titre_in]).reject(&:blank?).each do |v| %>
+                    <%= hidden_field_tag 'q[titre_in][]', v %>
+                  <% end %>
+                  <% Array((@q_params || {})[:perimetre_in]).reject(&:blank?).each do |v| %>
+                    <%= hidden_field_tag 'q[perimetre_in][]', v %>
+                  <% end %>
                   <div class="fr-modal__content">
                     <h2 id="modal-btn-filtrer-utilisateurs-title" class="fr-modal__title">
                       Filtrer les résultats

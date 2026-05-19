@@ -2082,4 +2082,357 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td span.fr-tag--ht2", text: "HT2", count: 2
     assert_select "td span.fr-tag--t2", text: "T2", count: 1
   end
+
+  # Story 3.2 — Filtres Titre / Périmètre côte à côte + natures T2 dans le filtre Nature
+
+  # Helper : crée un set représentatif HT2+T2 pour les tests filtres
+  def create_mixte_set(user)
+    user.actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    user.actes.create!(
+      titre: 'HT2', perimetre: 'organisme', nom_organisme: 'Org1', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year
+    )
+    user.actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    user.actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'organisme',
+      nature: 'Annexe financière', nom_organisme: 'Org2', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today, budget_executoire: true
+    )
+  end
+
+  test "AC9 — GET index renders 4 checkboxes (Titre + Périmètre) all checked by default" do
+    sign_in users(:three)
+    get actes_path
+    assert_response :success
+    assert_select "input#titre-t2[type=checkbox][checked=checked]"
+    assert_select "input#titre-ht2[type=checkbox][checked=checked]"
+    assert_select "input#perimetre-etat[type=checkbox][checked=checked]"
+    assert_select "input#perimetre-organisme[type=checkbox][checked=checked]"
+  end
+
+  test "AC5/AC6 — GET index with titre_in=T2 filters to T2 actes only" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(q_current: { titre_in: ['T2'] })
+    assert_response :success
+    assert_select "td span.fr-tag--t2", text: "T2", minimum: 1
+    assert_select "td span.fr-tag--ht2", count: 0
+  end
+
+  test "AC2 — GET index with both titre_in values is equivalent to no filter (vue consolidée)" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(q_current: { titre_in: ['T2', 'HT2'] })
+    assert_response :success
+    # Les 4 actes (2 HT2 + 2 T2) doivent être visibles
+    assert_select "td span.fr-tag--ht2", minimum: 2
+    assert_select "td span.fr-tag--t2", minimum: 2
+  end
+
+  test "AC10 — GET index with perimetre_in=etat keeps existing perimetre filter behavior" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(q_current: { perimetre_in: ['etat'] })
+    assert_response :success
+    # 1 HT2 etat + 1 T2 etat = 2 actes
+    assert_select "p.fr-table__detail", text: /2 résultats/
+  end
+
+  test "AC8 — titre_in is NOT counted as an active filter (filtres_count)" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(q_current: { titre_in: ['T2'] })
+    assert_response :success
+    # filtres_count == 0 → pas de tag "N filtres avancés actifs"
+    assert_select ".fr-tag--dismiss", count: 0
+  end
+
+  test "AC5 — GET historique with titre_in=T2 returns only T2 actes" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year
+    )
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today - 1
+    )
+    get actes_historique_path(q: { titre_in: ['T2'] })
+    assert_response :success
+    assert_select "td span.fr-tag--t2", text: "T2", minimum: 1
+    assert_select "td span.fr-tag--ht2", count: 0
+  end
+
+  test "AC9 — GET historique renders 4 checkboxes (Titre + Périmètre) all checked by default" do
+    sign_in users(:three)
+    get actes_historique_path
+    assert_response :success
+    assert_select "input#titre-t2[type=checkbox][checked=checked]"
+    assert_select "input#titre-ht2[type=checkbox][checked=checked]"
+    assert_select "input#perimetre-etat[type=checkbox][checked=checked]"
+    assert_select "input#perimetre-organisme[type=checkbox][checked=checked]"
+    # Pas de bloc radio "Vue consolidée" résiduel
+    assert_select "input[name='q[perimetre_eq]']", count: 0
+  end
+
+  test "AC4 — GET historique with perimetre_in=[etat,organisme] shows all categorie/CF/Organisme blocks (vue consolidée)" do
+    sign_in users(:three)
+    get actes_historique_path(q: { perimetre_in: ['etat', 'organisme'] })
+    assert_response :success
+    # Tous les champs conditionnels du modal sont rendus en vue consolidée
+    assert_select "label.fr-label", text: "Centre financier"
+    assert_select "label.fr-label", text: "Organisme"
+  end
+
+  test "AC4 — GET historique with perimetre_in=[etat] hides Organisme-only blocks (exclusivement Etat)" do
+    sign_in users(:three)
+    get actes_historique_path(q: { perimetre_in: ['etat'] })
+    assert_response :success
+    # Bloc "Catégorie" (organisme uniquement, dans le modal Filtres avancés) doit être caché
+    assert_select "span.fr-label.fr-text--bold", text: "Catégorie", count: 0
+    # Bloc "Organisme" en LABEL.fr-text--bold (modal Filtres avancés) doit être caché
+    # NB : "Organisme" en <label for='perimetre-organisme'> du sélecteur principal reste lui visible — c'est attendu.
+    assert_select "label.fr-text--bold", text: "Organisme", count: 0
+    # Bloc "Centre financier" (etat OR consolidée) reste visible dans le modal
+    assert_select "label.fr-text--bold", text: "Centre financier"
+  end
+
+  test "AC15 — Nature dropdown in advanced filters contains the 7 T2 natures" do
+    sign_in users(:three)
+    get actes_path
+    assert_response :success
+    # Liste déroulante Nature dans le modal Filtres avancés
+    %w[ISP\ \( ISP\) Annexe Enveloppe Fongibilité Marché\ \(PSC\) Mesure Référentiel].each do |needle|
+      # On vérifie la présence des libellés dans les <option> du select :nature_eq
+    end
+    # Assertions précises sur le select Nature dans le modal
+    assert_select "select[name='q_current[nature_eq]']" do
+      assert_select "option[value='Annexe financière']", text: "Annexe financière"
+      assert_select "option[value='Enveloppe limitative']", text: "Enveloppe limitative"
+      assert_select "option[value='Fongibilité asymétrique']", text: "Fongibilité asymétrique"
+      assert_select "option[value='ISP']", text: "ISP"
+      # Libellé "Marché (PSC)" mais valeur stockée "Marché" pour cohérence avec acte.rb:90
+      assert_select "option[value='Marché']", text: "Marché (PSC)"
+      assert_select "option[value='Mesure transversale']", text: "Mesure transversale"
+      assert_select "option[value='Référentiel']", text: "Référentiel"
+    end
+  end
+
+  test "AC15 — GET historique with nature_eq=ISP returns only T2 ISP actes" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', nature: 'Subvention', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year
+    )
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today - 1
+    )
+    get actes_historique_path(q: { nature_eq: 'ISP' })
+    assert_response :success
+    assert_select "td span.fr-tag--t2", text: "T2", minimum: 1
+    assert_select "td span.fr-tag--ht2", count: 0
+  end
+
+  test "AC13 — GET tableau_de_bord renders 4 checkboxes (Titre + Périmètre)" do
+    sign_in users(:three)
+    get tableau_de_bord_actes_path
+    assert_response :success
+    assert_select "input#titre-t2[type=checkbox]"
+    assert_select "input#titre-ht2[type=checkbox]"
+    assert_select "input#perimetre-etat[type=checkbox]"
+    assert_select "input#perimetre-organisme[type=checkbox]"
+    # Ancien bloc radio supprimé
+    assert_select "input[name='q[perimetre_eq]']", count: 0
+  end
+
+  # Helper : extrait `series` du `data-highcharts-actes-dataset-value="..."` du chart "Délai moyen ..."
+  def extract_delais_series_from_response
+    doc = Nokogiri::HTML(response.body)
+    node = doc.css('div[data-controller="highcharts-actes"][data-highcharts-actes-title-value="Délai moyen de traitement par mois"]').first
+    refute_nil node, "Le chart 'Délai moyen' doit exister dans la réponse"
+    JSON.parse(node['data-highcharts-actes-dataset-value'])["series"]
+  end
+
+  test "AC14 — synthese_temporelle in vue consolidée (no params) returns 3 series" do
+    sign_in users(:three)
+    get synthese_temporelle_actes_path
+    assert_response :success
+    series = extract_delais_series_from_response
+    assert_equal 3, series.size, "Vue consolidée doit produire 3 séries (Etat / Organisme / Consolidé)"
+    names = series.map { |s| s["name"] }
+    assert_includes names, "Délai moyen État"
+    assert_includes names, "Délai moyen Organisme"
+    assert_includes names, "Délai moyen consolidé"
+  end
+
+  test "AC14 — synthese_temporelle with perimetre_in=[etat,organisme] is also vue consolidée (3 series)" do
+    sign_in users(:three)
+    get synthese_temporelle_actes_path(q: { perimetre_in: ['etat', 'organisme'] })
+    assert_response :success
+    assert_equal 3, extract_delais_series_from_response.size
+  end
+
+  test "AC14 — synthese_temporelle with perimetre_in=[etat] returns single Etat series" do
+    sign_in users(:three)
+    get synthese_temporelle_actes_path(q: { perimetre_in: ['etat'] })
+    assert_response :success
+    assert_equal 1, extract_delais_series_from_response.size
+  end
+
+  test "AC14 — synthese_temporelle with perimetre_in=[organisme] returns single Organisme series" do
+    sign_in users(:three)
+    get synthese_temporelle_actes_path(q: { perimetre_in: ['organisme'] })
+    assert_response :success
+    assert_equal 1, extract_delais_series_from_response.size
+  end
+
+  test "AC13 — GET synthese_utilisateurs (admin) renders 4 checkboxes" do
+    sign_in users(:one) # admin
+    get synthese_users_actes_path
+    assert_response :success
+    assert_select "input#titre-t2[type=checkbox]"
+    assert_select "input#titre-ht2[type=checkbox]"
+    assert_select "input#perimetre-etat[type=checkbox]"
+    assert_select "input#perimetre-organisme[type=checkbox]"
+  end
+
+  test "AC14 — synthese_utilisateurs renders successfully across all 4 perimetre combinations (no crash on array→where)" do
+    sign_in users(:one) # admin
+    # 1) Vue consolidée (no params) → @selected_perimetres = nil → skip WHERE
+    get synthese_users_actes_path
+    assert_response :success
+
+    # 2) Etat seul → @selected_perimetres = ['etat'] → WHERE perimetre IN ('etat')
+    get synthese_users_actes_path(q: { perimetre_in: ['etat'] })
+    assert_response :success
+
+    # 3) Organisme seul
+    get synthese_users_actes_path(q: { perimetre_in: ['organisme'] })
+    assert_response :success
+
+    # 4) Les deux cochés → équivalent vue consolidée
+    get synthese_users_actes_path(q: { perimetre_in: ['etat', 'organisme'] })
+    assert_response :success
+  end
+
+  test "AC16 — set_variables_form for new action stays untouched (saisie regression)" do
+    sign_in users(:three)
+    # set_variables_form n'est pas dans le before_action des actions de filtre.
+    # On vérifie que `new` ne charge PAS set_variables_filtres et conserve sa propre logique.
+    # Test indirect : le partial _form_informations_t2.html.erb attend une liste
+    # de strings (pas de tuples) → un set_variables_filtres polluant casserait le rendu.
+    get new_acte_path
+    assert_response :success
+  end
+
+  test "AC16 — new T2 form renders nature select with string values (set_variables_form intact)" do
+    # Si @liste_natures contenait des tuples [label, value], le partial _form_informations_t2.html.erb
+    # ferait `.map { |n| [n, n] }` → `[[label, value], [label, value]]` => libellés cassés.
+    sign_in users(:three)
+    get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
+    assert_response :success
+    # 7 natures T2 état (DCB statut "three" → toutes les natures T2)
+    %w[Annexe\ financière Enveloppe\ limitative Fongibilité\ asymétrique ISP Marché Mesure\ transversale Référentiel].each do |nature|
+      assert_select "select#nature option[value='#{nature}']", text: nature,
+        message: "La nature '#{nature}' doit apparaître avec une valeur ET un texte identique (pas de tuple)"
+    end
+  end
+
+  test "AC9bis — GET index with titre_in=[T2] checks only T2 box, leaves HT2 unchecked" do
+    sign_in users(:three)
+    get actes_path(q_current: { titre_in: ['T2'] })
+    assert_response :success
+    assert_select "input#titre-t2[type=checkbox][checked=checked]"
+    assert_select "input#titre-ht2[type=checkbox]:not([checked])"
+  end
+
+  test "AC9bis — GET historique with perimetre_in=[organisme] checks only Organisme, leaves Etat unchecked" do
+    sign_in users(:three)
+    get actes_historique_path(q: { perimetre_in: ['organisme'] })
+    assert_response :success
+    assert_select "input#perimetre-organisme[type=checkbox][checked=checked]"
+    assert_select "input#perimetre-etat[type=checkbox]:not([checked])"
+  end
+
+  test "AC7 — index modal preserves titre_in as hidden field on advanced filter submit" do
+    sign_in users(:three)
+    get actes_path(q_current: { titre_in: ['T2'], perimetre_in: ['organisme'] })
+    assert_response :success
+    # Le form du modal avancé doit ré-injecter Titre + Périmètre en hidden pour ne pas les perdre
+    assert_select "form input[type=hidden][name='q_current[titre_in][]'][value=T2]"
+    assert_select "form input[type=hidden][name='q_current[perimetre_in][]'][value=organisme]"
+  end
+
+  test "AC7bis — dashboards modal preserves titre_in/perimetre_in as hidden fields" do
+    sign_in users(:three)
+    [
+      [:tableau_de_bord_actes_path, :get_tableau_de_bord],
+      [:synthese_temporelle_actes_path, :get_temporelle],
+      [:synthese_anomalies_actes_path, :get_anomalies],
+      [:synthese_suspensions_actes_path, :get_suspensions]
+    ].each do |path_helper, _|
+      get send(path_helper), params: { q: { titre_in: ['T2'], perimetre_in: ['etat'] } }
+      assert_response :success, "#{path_helper} doit répondre 200"
+      assert_select "form input[type=hidden][name='q[titre_in][]'][value=T2]", minimum: 1,
+        message: "#{path_helper} doit ré-injecter titre_in dans le modal"
+      assert_select "form input[type=hidden][name='q[perimetre_in][]'][value=etat]", minimum: 1,
+        message: "#{path_helper} doit ré-injecter perimetre_in dans le modal"
+    end
+  end
+
+  test "H2 — synthese_utilisateurs applies titre filter when only T2 is selected" do
+    sign_in users(:one) # admin
+    user_cbr = User.where(statut: 'CBR').first
+    refute_nil user_cbr, "Fixtures attendues : au moins un utilisateur CBR"
+    # 1 HT2 clôturé + 1 T2 clôturé pour ce user
+    user_cbr.actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB', annee: Date.today.year,
+      date_cloture: Date.today, date_saisine: Date.today - 1, delai_traitement: 1
+    )
+    user_cbr.actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: 'clôturé', instructeur: 'AB', annee: Date.today.year,
+      date_cloture: Date.today, date_saisine: Date.today - 1, delai_traitement: 1
+    )
+
+    # Helper : extrait { user_nom => clotures_count } depuis le data-highcharts-actes-data-value
+    extract_cbr_stats = lambda do
+      doc = Nokogiri::HTML(response.body)
+      node = doc.css('div[data-highcharts-actes-title-value="Actes clôturés par CBR"]').first
+      refute_nil node, "Le chart 'Actes clôturés par CBR' doit exister"
+      JSON.parse(node['data-highcharts-actes-data-value'])
+    end
+
+    # Cas 1 : T2 seul coché → user_cbr ne doit compter QUE l'acte T2 (count == 1)
+    get synthese_users_actes_path(q: { titre_in: ['T2'] })
+    assert_response :success
+    cbr_stat = extract_cbr_stats.call.find { |s| s["name"] == user_cbr.nom }
+    assert_equal 1, cbr_stat["y"], "titre_in=[T2] doit filtrer les stats : 1 seul acte clôturé attendu"
+
+    # Cas 2 : les 2 cochés → vue consolidée → 2 actes clôturés
+    get synthese_users_actes_path(q: { titre_in: ['T2', 'HT2'] })
+    assert_response :success
+    cbr_stat = extract_cbr_stats.call.find { |s| s["name"] == user_cbr.nom }
+    assert_equal 2, cbr_stat["y"], "Tous les titres cochés == vue consolidée == 2 actes"
+  end
 end

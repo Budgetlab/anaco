@@ -550,10 +550,19 @@ class ActesController < ApplicationController
 
     year = @q_params[:annee_eq].to_i
 
-    # Construire les séries en fonction du périmètre sélectionné
+    # Construire les séries en fonction des périmètres sélectionnés (Story 3.2 : array `perimetre_in`)
+    selected_perimetres = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    perimetre_mode = if selected_perimetres.empty? || selected_perimetres.sort == %w[etat organisme]
+                       :consolide
+                     elsif selected_perimetres == ['etat']
+                       :etat
+                     elsif selected_perimetres == ['organisme']
+                       :organisme
+                     end
+
     series = []
 
-    if @q_params[:perimetre_eq].blank?
+    if perimetre_mode == :consolide
       # Vue consolidée : afficher les 3 courbes
 
       # Délai moyen pour périmètre État
@@ -588,7 +597,7 @@ class ActesController < ApplicationController
         { name: "Délai moyen consolidé", y: delais_global }
       ]
 
-    elsif @q_params[:perimetre_eq] == 'etat'
+    elsif perimetre_mode == :etat
       # Vue État : afficher uniquement la courbe État
       delais_etat = (1..12).map do |month|
         actes_du_mois = @actes_filtered.where(
@@ -601,7 +610,7 @@ class ActesController < ApplicationController
         { name: "Délai moyen de traitement (jours)", y: delais_etat }
       ]
 
-    elsif @q_params[:perimetre_eq] == 'organisme'
+    elsif perimetre_mode == :organisme
       # Vue Organisme : afficher uniquement la courbe Organisme
       delais_organisme = (1..12).map do |month|
         actes_du_mois = @actes_filtered.where(
@@ -962,12 +971,21 @@ class ActesController < ApplicationController
     @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
     @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
 
-    @selected_perimetre = @q_params[:perimetre_eq].presence
+    # `perimetre_in` (array) remplace `perimetre_eq` (scalaire).
+    # Si vue consolidée (rien ou tout coché), on passe `nil` au helper pour skipper la clause `where`.
+    # Sinon, on passe l'array — `where(perimetre: array)` génère un `IN (...)` SQL.
+    selected_perimetres_array = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    @selected_perimetres = (selected_perimetres_array.empty? || selected_perimetres_array.sort == %w[etat organisme]) ? nil : selected_perimetres_array
+
+    # Même sémantique pour `titre_in` : vue consolidée si rien ou tout coché → `nil`.
+    selected_titres_array = Array(@q_params[:titre_in]).reject(&:blank?)
+    @selected_titres = (selected_titres_array.empty? || selected_titres_array.sort == %w[HT2 T2]) ? nil : selected_titres_array
+
     @selected_type_actes = Array(@q_params[:type_acte_in]).reject(&:blank?)
     @selected_type_cloture = @q_params[:type_cloture].presence
 
-    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture)
-    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetre, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture)
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture, @selected_titres)
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture, @selected_titres)
   end
 
   def download_attachments
@@ -1340,7 +1358,10 @@ class ActesController < ApplicationController
   end
 
   def set_variables_filtres
-    @liste_natures = [
+    # Liste des natures pour le filtre (Story 3.2) : HT2 + 7 natures T2.
+    # Format `[label, value]` pour permettre `Marché (PSC)` → valeur stockée `Marché` (T2)
+    # tout en restant distinct des natures HT2 `Marché unique` / `Marché à tranches`.
+    natures_ht2 = [
       "Accord cadre à bons de commande",
       "Accord cadre à marchés subséquents",
       "Acquisition d'œuvres",
@@ -1376,7 +1397,19 @@ class ActesController < ApplicationController
       "Subvention pour charges de service public",
       "Transaction",
       "Transfert"
+    ].map { |n| [n, n] }
+
+    natures_t2 = [
+      ["Annexe financière", "Annexe financière"],
+      ["Enveloppe limitative", "Enveloppe limitative"],
+      ["Fongibilité asymétrique", "Fongibilité asymétrique"],
+      ["ISP", "ISP"],
+      ["Marché (PSC)", "Marché"],
+      ["Mesure transversale", "Mesure transversale"],
+      ["Référentiel", "Référentiel"]
     ]
+
+    @liste_natures = (natures_ht2 + natures_t2).sort_by { |label, _| label }
   end
 
   def set_actes_user
@@ -1396,10 +1429,11 @@ class ActesController < ApplicationController
     end
   end
 
-  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [], updated_at_from = nil, updated_at_to = nil, created_at_from = nil, created_at_to = nil, type_cloture = nil)
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [], updated_at_from = nil, updated_at_to = nil, created_at_from = nil, created_at_to = nil, type_cloture = nil, titre = nil)
     users.includes(:actes).map do |user|
       actes_user = year ? user.actes.where(annee: year) : user.actes.annee_courante
       actes_user = actes_user.where(perimetre: perimetre) if perimetre.present?
+      actes_user = actes_user.where(titre: titre) if titre.present?
       actes_user = actes_user.where(type_acte: type_actes) if type_actes.present?
       actes_user = actes_user.where('created_at >= ?', created_at_from.to_date.beginning_of_day) if created_at_from.present?
       actes_user = actes_user.where('created_at <= ?', created_at_to.to_date.end_of_day) if created_at_to.present?
@@ -1503,7 +1537,9 @@ class ActesController < ApplicationController
     q.delete("s")
     q.delete(:s)
 
-    # On ne compte pas les filtres de périmètre et de recherche (qui sont dans la barre principale)
+    # On ne compte pas les filtres de titre, périmètre et de recherche (qui sont dans la barre principale)
+    q.delete("titre_in")
+    q.delete(:titre_in)
     q.delete("perimetre_in")
     q.delete(:perimetre_in)
     q.delete("numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont")

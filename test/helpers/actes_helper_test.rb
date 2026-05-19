@@ -40,4 +40,31 @@ class ActesHelperTest < ActionView::TestCase
         "badge_titre devrait retourner '' pour titre=#{val.inspect}"
     end
   end
+
+  # Story 3.2 — perimetre_exclusively? helper unit tests
+
+  test "perimetre_exclusively? returns true when only target perimetre is selected" do
+    assert perimetre_exclusively?({ perimetre_in: ['etat'] }, 'etat')
+    assert perimetre_exclusively?({ perimetre_in: ['organisme'] }, 'organisme')
+  end
+
+  test "perimetre_exclusively? returns false when both perimetres are selected (vue consolidée)" do
+    refute perimetre_exclusively?({ perimetre_in: ['etat', 'organisme'] }, 'etat')
+    refute perimetre_exclusively?({ perimetre_in: ['etat', 'organisme'] }, 'organisme')
+  end
+
+  test "perimetre_exclusively? returns false when no perimetre is selected (vue consolidée)" do
+    refute perimetre_exclusively?({}, 'etat')
+    refute perimetre_exclusively?({ perimetre_in: [] }, 'etat')
+    refute perimetre_exclusively?({ perimetre_in: [''] }, 'etat')
+  end
+
+  test "perimetre_exclusively? is robust to nil q_params" do
+    refute perimetre_exclusively?(nil, 'etat')
+  end
+
+  test "perimetre_exclusively? returns false when target perimetre is not selected" do
+    refute perimetre_exclusively?({ perimetre_in: ['organisme'] }, 'etat')
+    refute perimetre_exclusively?({ perimetre_in: ['etat'] }, 'organisme')
+  end
 end

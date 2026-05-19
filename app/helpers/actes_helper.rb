@@ -203,4 +203,12 @@ module ActesHelper
       !acte.disponibilite_credits.nil?
     end
   end
+
+  # Story 3.2 — true si EXCLUSIVEMENT le périmètre cible est sélectionné dans q_params[:perimetre_in].
+  # Reproduit la sémantique de l'ancien `perimetre_eq == target` (scalaire) pour les vues
+  # qui doivent rester en "vue État seule" ou "vue Organisme seule" (vs. vue consolidée).
+  def perimetre_exclusively?(q_params, target)
+    selected = Array((q_params || {})[:perimetre_in]).reject(&:blank?)
+    selected == [target]
+  end
 end
