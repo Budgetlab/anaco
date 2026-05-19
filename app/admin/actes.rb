@@ -21,6 +21,29 @@ ActiveAdmin.register Acte do
     "Saisine en dessous du seuil de soumission au contrôle",
   ].freeze unless defined?(TYPES_OBSERVATIONS)
 
+  # Story 3.4 — Liste unifiée des natures HT2 + T2 (sélecteur filtre)
+  # Concat des listes HT2 visa / avis (cf. actes_controller.rb:1329, 1333) + 7 natures T2
+  # (cf. actes_controller.rb:1249), dédupliquées et triées alphabétiquement.
+  NATURES_FILTER_COLLECTION = (
+    [
+      # HT2 visa
+      "Autre", "Autre contrat", "Bail", "Bon de commande", "Convention",
+      "Décision diverse", "Dotation en fonds propres",
+      "MAPA mixte", "MAPA à tranches", "MAPA unique",
+      "Marché mixte", "Marché unique", "Marché à tranches",
+      "Prêt ou avance", "Remboursement de mise à disposition T3",
+      "Subvention", "Subvention pour charges d'investissement",
+      "Subvention pour charges de service public",
+      "Transaction", "Transfert",
+      # HT2 avis (Convention / Transaction / Autre / Autre contrat dédupliqués)
+      "Accord cadre à bons de commande", "Accord cadre à marchés subséquents",
+      "MAPA à bons de commande", "Marché subséquent à bons de commande",
+      # T2
+      "Annexe financière", "Enveloppe limitative", "Fongibilité asymétrique",
+      "ISP", "Marché", "Mesure transversale", "Référentiel",
+    ].uniq.sort
+  ).freeze unless defined?(NATURES_FILTER_COLLECTION)
+
   permit_params :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global,
                 :centre_financier_code, :date_saisine, :numero_chorus, :beneficiaire, :objet,
                 :ordonnateur, :precisions_acte, :pre_instruction, :action,
@@ -36,10 +59,37 @@ ActiveAdmin.register Acte do
                 :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca,
                 :observations_deliberation_ca, :destination, :nomenclature, :flux, :soutenabilite,
                 :conformite, :concordance_recettes_tiers, :autorisation_tutelle,
-                :avis_programmation, :gestion_anticipee, type_observations: []
+                :avis_programmation, :gestion_anticipee, :titre, :categorie_t2,
+                type_observations: [],
+                t2_detail_attributes: [
+                  :id, :type_acte_t2,
+                  :effectifs, :effectifs_complementaire, :corps, :date_arrete_concours, :date_effet_acte,
+                  :impact_schema_emplois, :impact_autre_cbcm,
+                  :isp_cercle1, :isp_cercle1_montant, :isp_cercle1_enveloppe_sgg, :isp_cercle1_consommation,
+                  :isp_cercle2, :isp_cercle2_montant, :isp_cercle2_enveloppe_sgg, :isp_cercle2_consommation,
+                  :fa_technique, :enveloppe_abondee, :accord_rffim, :sollicitation_db, :avis_cbcm,
+                  :statut_agents, :impact_financier_n1,
+                  :montant_enveloppe_n1, :impact_maximal_sans_enveloppe,
+                  :referentiel_type,
+                  :inscription_pap, :respect_plafond_emplois, :respect_schema_emplois,
+                  :controle_modalites, :respect_enveloppe, :risque_reconventionnel,
+                  grade: [], isp_cercle1_natures: [], isp_cercle2_natures: [],
+                  perimetre_mesure: [], origine_financement: []
+                ]
 
   before_action only: [:create, :update] do
     params[:acte][:type_observations]&.reject!(&:blank?)
+
+    # Story 3.4 — les 5 colonnes array de t2_details sont exposées comme inputs
+    # texte CSV dans le formulaire admin (un input par champ, virgules en séparateur).
+    # On convertit ici en Array<String> avant que le strong-params les voie.
+    td = params.dig(:acte, :t2_detail_attributes)
+    if td.is_a?(ActionController::Parameters) || td.is_a?(Hash)
+      %i[grade isp_cercle1_natures isp_cercle2_natures perimetre_mesure origine_financement].each do |k|
+        val = td[k]
+        td[k] = val.split(',').map(&:strip).reject(&:blank?) if val.is_a?(String)
+      end
+    end
   end
 
   index do
@@ -47,6 +97,8 @@ ActiveAdmin.register Acte do
     id_column
     column :numero_formate
     column :type_acte
+    column :titre
+    column :categorie_t2
     column :etat
     column(:user) { |a| a.user_id }
     column :nature
@@ -61,11 +113,13 @@ ActiveAdmin.register Acte do
   filter :numero_formate
   filter :numero_chorus
   filter :type_acte, as: :select, collection: ['avis', 'visa', 'TF']
+  filter :titre, as: :select, collection: ['HT2', 'T2']
+  filter :categorie_t2, as: :select, collection: ['contrat', 'hors contrat']
   filter :etat, as: :select, collection: Acte::VALID_ETATS
   filter :perimetre, as: :select, collection: ['etat', 'organisme']
   filter :categorie_organisme, as: :select, collection: ['depense', 'recette']
   filter :user_id, as: :select, collection: -> { User.order(:nom).map { |u| [u.nom, u.id] } }
-  filter :nature
+  filter :nature, as: :select, collection: NATURES_FILTER_COLLECTION
   filter :decision_finale
   filter :annee
   filter :date_saisine
@@ -84,6 +138,8 @@ ActiveAdmin.register Acte do
       row :id
       row :numero_formate
       row :numero_utilisateur
+      row :titre
+      row :categorie_t2
       row :type_acte
       row :etat
       row :perimetre
@@ -155,6 +211,72 @@ ActiveAdmin.register Acte do
       row :updated_at
     end
 
+    if acte.titre == 'T2'
+      panel 'Détails T2' do
+        if acte.t2_detail.present?
+          attributes_table_for acte.t2_detail do
+            # Identification
+            row :type_acte_t2
+            row :referentiel_type
+
+            # Annexe financière / RH commun
+            row :effectifs
+            row :effectifs_complementaire
+            row :corps
+            row(:grade) { |td| Array(td.grade).join(', ') }
+            row :date_arrete_concours
+            row :date_effet_acte
+            row :impact_schema_emplois
+            row :impact_autre_cbcm
+
+            # ISP Cercle 1
+            row :isp_cercle1
+            row(:isp_cercle1_natures) { |td| Array(td.isp_cercle1_natures).join(', ') }
+            row(:isp_cercle1_montant) { |td| number_to_currency(td.isp_cercle1_montant, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle1_montant }
+            row(:isp_cercle1_enveloppe_sgg) { |td| number_to_currency(td.isp_cercle1_enveloppe_sgg, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle1_enveloppe_sgg }
+            row(:isp_cercle1_consommation) { |td| number_to_currency(td.isp_cercle1_consommation, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle1_consommation }
+
+            # ISP Cercle 2
+            row :isp_cercle2
+            row(:isp_cercle2_natures) { |td| Array(td.isp_cercle2_natures).join(', ') }
+            row(:isp_cercle2_montant) { |td| number_to_currency(td.isp_cercle2_montant, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle2_montant }
+            row(:isp_cercle2_enveloppe_sgg) { |td| number_to_currency(td.isp_cercle2_enveloppe_sgg, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle2_enveloppe_sgg }
+            row(:isp_cercle2_consommation) { |td| number_to_currency(td.isp_cercle2_consommation, unit: '€', separator: ',', delimiter: ' ') if td.isp_cercle2_consommation }
+
+            # Fongibilité asymétrique
+            row :fa_technique
+            row :enveloppe_abondee
+            row :accord_rffim
+            row :sollicitation_db
+            row :avis_cbcm
+
+            # Mesure transversale / Enveloppe limitative
+            row(:perimetre_mesure) { |td| Array(td.perimetre_mesure).join(', ') }
+            row :statut_agents
+            row(:impact_financier_n1) { |td| number_to_currency(td.impact_financier_n1, unit: '€', separator: ',', delimiter: ' ') if td.impact_financier_n1 }
+            row(:origine_financement) { |td| Array(td.origine_financement).join(', ') }
+            row(:montant_enveloppe_n1) { |td| number_to_currency(td.montant_enveloppe_n1, unit: '€', separator: ',', delimiter: ' ') if td.montant_enveloppe_n1 }
+            row(:impact_maximal_sans_enveloppe) { |td| number_to_currency(td.impact_maximal_sans_enveloppe, unit: '€', separator: ',', delimiter: ' ') if td.impact_maximal_sans_enveloppe }
+
+            # Contrôles RH communs T2 (étape 2)
+            row :inscription_pap
+            row :respect_plafond_emplois
+            row :respect_schema_emplois
+            row :controle_modalites
+            row :respect_enveloppe
+            row :risque_reconventionnel
+
+            # Timestamps
+            row :id
+            row :created_at
+            row :updated_at
+          end
+        else
+          para "Aucun T2Detail associé"
+        end
+      end
+    end
+
     panel 'Suspensions' do
       table_for acte.suspensions do
         column :id
@@ -205,6 +327,72 @@ ActiveAdmin.register Acte do
       f.input :pre_instruction, as: :boolean
       f.input :gestion_anticipee, as: :boolean
       f.input :avis_programmation, as: :boolean
+    end
+
+    f.inputs 'Classification T2' do
+      f.input :titre, as: :select, collection: ['HT2', 'T2']
+      f.input :categorie_t2, as: :select, collection: ['contrat', 'hors contrat'], include_blank: true
+    end
+
+    if f.object.titre == 'T2'
+      f.object.build_t2_detail if f.object.t2_detail.nil?
+
+      f.inputs 'Détails T2 (édition admin — toutes natures à plat)', for: [:t2_detail, f.object.t2_detail] do |td|
+        td.input :type_acte_t2, as: :select, collection: ['Initial', 'Complémentaire'], include_blank: true
+
+        td.input :effectifs, as: :number, step: 0.01
+        td.input :effectifs_complementaire, as: :number, step: 0.01
+        td.input :corps
+        td.input :grade, as: :string,
+                 input_html: { value: Array(td.object.grade).join(', ') },
+                 hint: 'Liste séparée par des virgules'
+        td.input :date_arrete_concours, as: :datepicker
+        td.input :date_effet_acte
+        td.input :impact_schema_emplois, as: :boolean
+        td.input :impact_autre_cbcm, as: :boolean
+
+        td.input :isp_cercle1, as: :boolean
+        td.input :isp_cercle1_natures, as: :string,
+                 input_html: { value: Array(td.object.isp_cercle1_natures).join(', ') },
+                 hint: 'Liste séparée par des virgules'
+        td.input :isp_cercle1_montant, as: :number, step: 0.01
+        td.input :isp_cercle1_enveloppe_sgg, as: :number, step: 0.01
+        td.input :isp_cercle1_consommation, as: :number, step: 0.01
+
+        td.input :isp_cercle2, as: :boolean
+        td.input :isp_cercle2_natures, as: :string,
+                 input_html: { value: Array(td.object.isp_cercle2_natures).join(', ') },
+                 hint: 'Liste séparée par des virgules'
+        td.input :isp_cercle2_montant, as: :number, step: 0.01
+        td.input :isp_cercle2_enveloppe_sgg, as: :number, step: 0.01
+        td.input :isp_cercle2_consommation, as: :number, step: 0.01
+
+        td.input :fa_technique, as: :boolean
+        td.input :enveloppe_abondee
+        td.input :accord_rffim, as: :boolean
+        td.input :sollicitation_db
+        td.input :avis_cbcm
+
+        td.input :perimetre_mesure, as: :string,
+                 input_html: { value: Array(td.object.perimetre_mesure).join(', ') },
+                 hint: 'Liste séparée par des virgules'
+        td.input :statut_agents
+        td.input :impact_financier_n1, as: :number, step: 0.01
+        td.input :origine_financement, as: :string,
+                 input_html: { value: Array(td.object.origine_financement).join(', ') },
+                 hint: 'Liste séparée par des virgules'
+        td.input :montant_enveloppe_n1, as: :number, step: 0.01
+        td.input :impact_maximal_sans_enveloppe, as: :number, step: 0.01
+
+        td.input :referentiel_type, as: :boolean
+
+        td.input :inscription_pap, as: :boolean
+        td.input :respect_plafond_emplois, as: :boolean
+        td.input :respect_schema_emplois, as: :boolean
+        td.input :controle_modalites, as: :boolean
+        td.input :respect_enveloppe, as: :boolean
+        td.input :risque_reconventionnel, as: :boolean
+      end
     end
 
     f.inputs 'Numérotation' do
