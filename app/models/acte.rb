@@ -683,8 +683,10 @@ class Acte < ApplicationRecord
     if centre
       # Supprimer les associations existantes et ajouter la nouvelle
       centre_financiers << centre
-    else
-      # Si pas de code ou code invalide, supprimer toutes les associations
+    elsif titre != 'T2'
+      # Story 3.3 — On ne crée un CentreFinancier "non valide" QUE pour les actes HT2.
+      # Pour les T2, on laisse l'association vide si le code ne correspond à aucun
+      # centre existant (pas de pollution du référentiel par des codes T2 transitoires).
       centre = CentreFinancier.create!(
         code: centre_financier_code,
         statut: 'non valide',

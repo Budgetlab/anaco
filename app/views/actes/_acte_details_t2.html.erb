@@ -136,90 +136,88 @@
     </div>
   </div>
   <%# — Critères de contrôle T2 — %>
-  <% if td.present? %>
-    <%
-      t2_nature = acte.nature
-      t2_perimetre = acte.perimetre
-      icone_resultat = ->(val) {
-        val ? content_tag(:span, '', class: 'fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w', aria: { hidden: true })
-          : content_tag(:span, '', class: 'fr-icon-error-fill fr-icon--sm crouge fr-ml-1w', aria: { hidden: true })
-      }
+  <%
+    t2_nature = acte.nature
+    t2_perimetre = acte.perimetre
+    icone_resultat = ->(val) {
+      val ? content_tag(:span, '', class: 'fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w', aria: { hidden: true })
+        : content_tag(:span, '', class: 'fr-icon-error-fill fr-icon--sm crouge fr-ml-1w', aria: { hidden: true })
+    }
 
-      show_programmation_compat = !acte.services_votes &&
-                                  !(t2_nature == 'ISP') &&
-                                  !(t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme') &&
-                                  (t2_perimetre == 'etat' ? acte.avis_programmation != false : acte.budget_executoire != false)
+    show_programmation_compat = !acte.services_votes &&
+                                !(t2_nature == 'ISP') &&
+                                !(t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme') &&
+                                (t2_perimetre == 'etat' ? acte.avis_programmation != false : acte.budget_executoire != false)
 
-      criteres = []
-      if t2_nature != 'ISP' && t2_perimetre == 'etat' && acte.services_votes == false
-        criteres << ["Programmation initiale transmise", acte.avis_programmation]
-      end
-      unless t2_nature == 'ISP' || (t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
-        criteres << ["L'acte figure dans le dernier document de programmation", acte.programmation_prevue]
-      end
-      if !['ISP', 'Fongibilité asymétrique'].include?(t2_nature) && t2_perimetre == 'organisme' && acte.budget_executoire == false
-        criteres << ["Opération autorisée par les autorités de tutelle", acte.autorisation_tutelle]
-      end
-      if show_programmation_compat
-        criteres << ["Compatibilité avec la programmation annuelle et pluriannuelle", acte.programmation]
-      end
-      if t2_nature != 'Annexe financière'
-        criteres << ["Soutenabilité / Disponibilité des crédits", acte.soutenabilite]
-      end
-      if t2_perimetre == 'etat' && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(t2_nature)
-        inscription_pap_label = t2_nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP"
-        criteres << [inscription_pap_label, td.inscription_pap]
-      end
-      if t2_nature == 'Annexe financière'
-        criteres << ["Respect du plafond d'emplois", td.respect_plafond_emplois]
-      end
-      if t2_nature == 'Annexe financière' && td.impact_schema_emplois == true
-        criteres << ["Respect du schéma d'emplois", td.respect_schema_emplois]
-      end
-      if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(t2_nature)
-        criteres << ["Exactitude de l'évaluation budgétaire", acte.consommation_credits]
-      end
-      if t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut)
-        criteres << ["Contrôle des modalités de mise en œuvre", td.controle_modalites]
-      end
-      if t2_nature == 'ISP'
-        criteres << ["Respect de l'enveloppe notifiée", td.respect_enveloppe]
-      end
-      if ['Mesure transversale', 'Référentiel'].include?(t2_nature)
-        criteres << ["Risque d'effet reconventionnel", td.risque_reconventionnel]
-      end
-      if acte.services_votes == true
-        criteres << ["Acte éligible à la gestion des services votés", acte.programmation]
-      end
-    %>
-    <% if criteres.any? %>
-      <div class="fr-h6 fr-my-3w">Critères de contrôle</div>
-      <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
-        <div class="fr-table__wrapper">
-          <div class="fr-table__container">
-            <div class="fr-table__content">
-              <table>
-                <caption>Critères T2</caption>
-                <thead>
-                <tr class="fr-cell--multiline">
-                  <% criteres.each do |libelle, _| %>
-                    <th><%= libelle %></th>
-                  <% end %>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="fr-cell--multiline">
-                  <% criteres.each do |_, valeur| %>
-                    <td><%= icone_resultat.call(valeur) %></td>
-                  <% end %>
-                </tr>
-                </tbody>
-              </table>
-            </div>
+    criteres = []
+    if t2_nature != 'ISP' && t2_perimetre == 'etat' && acte.services_votes == false
+      criteres << ["Programmation initiale transmise", acte.avis_programmation]
+    end
+    unless t2_nature == 'ISP' || (t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
+      criteres << ["L'acte figure dans le dernier document de programmation", acte.programmation_prevue]
+    end
+    if !['ISP', 'Fongibilité asymétrique'].include?(t2_nature) && t2_perimetre == 'organisme' && acte.budget_executoire == false
+      criteres << ["Opération autorisée par les autorités de tutelle", acte.autorisation_tutelle]
+    end
+    if show_programmation_compat
+      criteres << ["Compatibilité avec la programmation annuelle et pluriannuelle", acte.programmation]
+    end
+    if t2_nature != 'Annexe financière'
+      criteres << ["Soutenabilité / Disponibilité des crédits", acte.soutenabilite]
+    end
+    if td && t2_perimetre == 'etat' && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(t2_nature)
+      inscription_pap_label = t2_nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP"
+      criteres << [inscription_pap_label, td.inscription_pap]
+    end
+    if td && t2_nature == 'Annexe financière'
+      criteres << ["Respect du plafond d'emplois", td.respect_plafond_emplois]
+    end
+    if td && t2_nature == 'Annexe financière' && td.impact_schema_emplois == true
+      criteres << ["Respect du schéma d'emplois", td.respect_schema_emplois]
+    end
+    if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(t2_nature)
+      criteres << ["Exactitude de l'évaluation budgétaire", acte.consommation_credits]
+    end
+    if td && t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut)
+      criteres << ["Contrôle des modalités de mise en œuvre", td.controle_modalites]
+    end
+    if td && t2_nature == 'ISP'
+      criteres << ["Respect de l'enveloppe notifiée", td.respect_enveloppe]
+    end
+    if td && ['Mesure transversale', 'Référentiel'].include?(t2_nature)
+      criteres << ["Risque d'effet reconventionnel", td.risque_reconventionnel]
+    end
+    if acte.services_votes == true
+      criteres << ["Acte éligible à la gestion des services votés", acte.programmation]
+    end
+  %>
+  <% if criteres.any? %>
+    <div class="fr-h6 fr-my-3w">Critères de contrôle</div>
+    <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>Critères T2</caption>
+              <thead>
+              <tr class="fr-cell--multiline">
+                <% criteres.each do |libelle, _| %>
+                  <th><%= libelle %></th>
+                <% end %>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="fr-cell--multiline">
+                <% criteres.each do |_, valeur| %>
+                  <td><%= icone_resultat.call(valeur) %></td>
+                <% end %>
+              </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    <% end %>
+    </div>
   <% end %>
 
   <%# — Tableur — %>

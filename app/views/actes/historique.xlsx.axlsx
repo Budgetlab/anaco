@@ -127,9 +127,13 @@ columns = [
 
 bool = ->(val) { val ? "Oui" : "Non" }
 
-wb.add_worksheet(name: "HT2 ETAT + ORGANISME") do |sheet|
-  is_admin = @statut_user == 'admin'
+is_admin = @statut_user == 'admin'
 
+# Story 3.3 — Partition HT2 / T2 : un onglet par titre.
+# Les actes sans titre (legacy ou data inconsistency) sont traités comme HT2 (titre nil ≠ 'T2').
+actes_ht2, actes_t2 = @actes_all.to_a.partition { |a| a.titre != 'T2' }
+
+wb.add_worksheet(name: "HT2") do |sheet|
   headers = columns.each_with_index.filter_map do |(label, _), idx|
     next if idx == 0 && !is_admin
     label
@@ -146,7 +150,7 @@ wb.add_worksheet(name: "HT2 ETAT + ORGANISME") do |sheet|
 
   sheet.add_row headers, style: header_styles
 
-  @actes_all.each do |acte|
+  actes_ht2.each do |acte|
     last_susp = acte.suspensions.max_by { |s| s.date_suspension || s.created_at }
     last_susp_date     = last_susp&.date_suspension
     last_susp_end_date = last_susp&.date_reprise
@@ -331,4 +335,48 @@ wb.add_worksheet(name: "HT2 ETAT + ORGANISME") do |sheet|
   sheet.column_widths *Array.new(headers.length, 15)
   last_col = Axlsx::col_ref(headers.size - 3)
   sheet.auto_filter = "A1:#{last_col}1"
+end
+
+# ─── Onglet T2 ──────────────────────────────────────────────────────────────
+# Story 3.3 — Onglet dédié aux actes T2 avec les colonnes communes + les champs t2_details.
+# Symétrie admin : la colonne "Controleur" est ajoutée en tête de ligne pour les admins,
+# identique au sheet HT2.
+t2_cols    = t2_export_columns
+t2_indices = t2_export_column_indices
+
+wb.add_worksheet(name: "T2") do |sheet|
+  t2_headers = t2_cols.map { |(label, _)| label }
+  t2_header_styles = t2_cols.map do |(_, perimetre)|
+    case perimetre
+    when :etat      then header_etat_style
+    when :organisme then header_organisme_style
+    else                 header_common_style
+    end
+  end
+
+  if is_admin
+    t2_headers = ['Controleur'] + t2_headers
+    t2_header_styles = [header_common_style] + t2_header_styles
+  end
+
+  sheet.add_row t2_headers, style: t2_header_styles
+
+  actes_t2.each do |acte|
+    row_data = t2_export_row(acte)
+    row_data = [acte.user.nom] + row_data if is_admin
+
+    col_count = row_data.length
+    styles = Array.new(col_count, cell_style)
+    types  = Array.new(col_count, :string)
+
+    offset = is_admin ? 1 : 0
+    t2_indices[:float].each   { |i| styles[i + offset] = number_style; types[i + offset] = :float }
+    t2_indices[:integer].each { |i| types[i + offset] = :integer }
+
+    sheet.add_row row_data, style: styles, types: types
+  end
+
+  sheet.column_widths *Array.new(t2_headers.length, 15)
+  last_col_t2 = Axlsx::col_ref(t2_headers.size - 1)
+  sheet.auto_filter = "A1:#{last_col_t2}1"
 end

@@ -132,16 +132,19 @@ class ActesController < ApplicationController
     respond_to do |format|
       format.html
       format.xlsx do
+        # Story 3.3 — applique les filtres Ransack (q_current) à l'export en s'appuyant
+        # sur @actes_filtered au lieu de @actes (scope non filtré). Permet à q_current[titre_in]
+        # et autres prédicats Ransack de fonctionner pour les téléchargements xlsx.
         scope = params[:scope].presence || 'current'
         @actes = case scope
                  when 'closed'
-                   @actes.clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                   @actes_filtered.clotures.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
                  when 'non_closed'
-                   @actes.non_clotures.includes(:user, :suspensions, centre_financier_principal: :programme)
+                   @actes_filtered.non_clotures.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
                  when 'all'
-                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                   @actes_filtered.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
                  else
-                   @actes.includes(:user, :suspensions, centre_financier_principal: :programme)
+                   @actes_filtered.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
                  end
       end
     end
@@ -186,7 +189,7 @@ class ActesController < ApplicationController
     @q = @actes.ransack(search_params)
     # Gestion du tri
     sort_order = params.dig(:q, :s) || 'updated_at desc'
-    @actes_all = @q.result.includes(:user, :suspensions, centre_financier_principal: :programme).order(sort_order)
+    @actes_all = @q.result.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme).order(sort_order)
 
     # Appliquer le filtre "Avec observations"
     if avec_observations_values.include?('oui') && !avec_observations_values.include?('non')
@@ -368,7 +371,7 @@ class ActesController < ApplicationController
 
   # export fiche excel d'un acte
   def export
-    @acte = Acte.find(params[:id])
+    @acte = Acte.includes(:t2_detail).find(params[:id])
     respond_to do |format|
       format.html
       format.xlsx do

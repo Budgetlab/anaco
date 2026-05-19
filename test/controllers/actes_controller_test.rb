@@ -2435,4 +2435,302 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     cbr_stat = extract_cbr_stats.call.find { |s| s["name"] == user_cbr.nom }
     assert_equal 2, cbr_stat["y"], "Tous les titres cochés == vue consolidée == 2 actes"
   end
+
+  # ─── Story 3.3 — Excel exports including T2 ──────────────────────────────
+
+  # Helper : parse le response body xlsx via Roo et retourne le workbook
+  def parse_xlsx_response
+    tmp = Tempfile.new(['export', '.xlsx'])
+    tmp.binmode
+    tmp.write(@response.body)
+    tmp.close
+    Roo::Excelx.new(tmp.path)
+  end
+
+  test "Story 3.3 AC1 — GET /actes.xlsx returns a workbook with two sheets HT2 and T2" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    assert_equal %w[HT2 T2], workbook.sheets, "Le workbook doit contenir exactement les onglets HT2 puis T2"
+  end
+
+  test "Story 3.3 AC1 — GET /actes.xlsx with only HT2 actes leaves T2 sheet empty (header only)" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB', annee: Date.today.year
+    )
+    get actes_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    assert_equal %w[HT2 T2], workbook.sheets
+    workbook.default_sheet = 'T2'
+    assert_equal 1, workbook.last_row, "Le sheet T2 ne doit contenir QUE l'en-tête (1 row)"
+    workbook.default_sheet = 'HT2'
+    assert workbook.last_row >= 2, "Le sheet HT2 doit contenir au moins 1 ligne de données"
+  end
+
+  test "Story 3.3 AC1 — GET /actes.xlsx with only T2 actes leaves HT2 sheet empty (header only)" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(isp_cercle1: true, isp_cercle1_montant: 1000.0)
+    get actes_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'HT2'
+    assert_equal 1, workbook.last_row, "Le sheet HT2 ne doit contenir QUE l'en-tête (1 row)"
+    workbook.default_sheet = 'T2'
+    assert workbook.last_row >= 2, "Le sheet T2 doit contenir au moins 1 ligne de données"
+  end
+
+  test "Story 3.3 AC8 — GET /actes.xlsx?q_current[titre_in][]=T2 filters to T2 only" do
+    sign_in users(:three)
+    create_mixte_set(users(:three))
+    get actes_path(format: :xlsx, q_current: { titre_in: ['T2'] })
+    assert_response :success
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'HT2'
+    assert_equal 1, workbook.last_row, "Filtre T2 → sheet HT2 vide"
+    workbook.default_sheet = 'T2'
+    assert workbook.last_row >= 2, "Filtre T2 → sheet T2 peuplé"
+  end
+
+  test "Story 3.3 AC2 — GET /actes_historique.xlsx admin sees Controleur column on both HT2 and T2 sheets" do
+    sign_in users(:one) # admin
+    create_mixte_set(users(:one))
+    get actes_historique_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'HT2'
+    assert_equal 'Controleur', workbook.row(1).first, "Sheet HT2 admin : 1ère colonne == Controleur"
+    workbook.default_sheet = 'T2'
+    assert_equal 'Controleur', workbook.row(1).first, "Sheet T2 admin : 1ère colonne == Controleur"
+  end
+
+  test "Story 3.3 AC2 — GET /actes_historique.xlsx non-admin has no Controleur column on either sheet" do
+    sign_in users(:three) # non-admin
+    create_mixte_set(users(:three))
+    get actes_historique_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'HT2'
+    refute_equal 'Controleur', workbook.row(1).first, "Sheet HT2 non-admin : pas de colonne Controleur"
+    workbook.default_sheet = 'T2'
+    refute_equal 'Controleur', workbook.row(1).first, "Sheet T2 non-admin : pas de colonne Controleur"
+  end
+
+  test "Story 3.3 AC3 — GET /actes/:id/export.xlsx for a T2 acte contains DÉTAILS nature section" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(isp_cercle1: true, isp_cercle1_montant: 5000.0)
+    get export_acte_path(acte, format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    # Premier sheet = "Acte <numero_formate>"
+    workbook.default_sheet = workbook.sheets.first
+    cells = (1..workbook.last_row).flat_map { |r| workbook.row(r) }.compact
+    assert_includes cells, "DÉTAILS ISP",
+                    "Le fichier T2 ISP doit contenir une section DÉTAILS ISP"
+  end
+
+  test "Story 3.3 AC7 — GET /actes/:id/export.xlsx for an HT2 acte does NOT contain DÉTAILS nature section" do
+    sign_in users(:three)
+    acte = users(:three).actes.create!(
+      titre: 'HT2', perimetre: 'etat', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB', annee: Date.today.year
+    )
+    get export_acte_path(acte, format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    workbook.default_sheet = workbook.sheets.first
+    cells = (1..workbook.last_row).flat_map { |r| workbook.row(r) }.compact
+    refute(cells.any? { |c| c.is_a?(String) && c.start_with?('DÉTAILS ') },
+           "Régression : un acte HT2 ne doit JAMAIS afficher de section DÉTAILS {nature}")
+  end
+
+  test "Story 3.3 AC4 — GenerateBackupJob produces a workbook with 5 sheets including t2_details" do
+    # Stub GCS upload (Mocha non dispo) — on parse le workbook PENDANT l'upload simulé,
+    # car Tempfile.create supprime le fichier en sortie du block du job.
+    captured_sheets = nil
+    fake_bucket = Object.new
+    fake_bucket.define_singleton_method(:create_file) do |path, *_args|
+      captured_sheets = Roo::Excelx.new(path).sheets
+      true
+    end
+
+    job = GenerateBackupJob.new
+    job.define_singleton_method(:gcs_bucket) { fake_bucket }
+
+    backup = BackupExport.create!(status: 'pending')
+    job.perform(backup.id)
+
+    backup.reload
+    assert_equal 'completed', backup.status, "Backup doit être marqué completed"
+    assert_equal %w[actes suspensions poste_lignes echeanciers t2_details], captured_sheets,
+                 "Le backup doit contenir 5 onglets dans cet ordre"
+  end
+
+  test "Story 3.3 AC11 — Empty workbook headers stable when no actes match filter" do
+    sign_in users(:three)
+    # Pas d'acte créé pour ce user
+    get actes_path(format: :xlsx)
+    assert_response :success
+    workbook = parse_xlsx_response
+    assert_equal %w[HT2 T2], workbook.sheets, "Workbook stable même sans données"
+    workbook.default_sheet = 'HT2'
+    assert_equal 1, workbook.last_row, "HT2 sheet a uniquement l'en-tête"
+    workbook.default_sheet = 'T2'
+    assert_equal 1, workbook.last_row, "T2 sheet a uniquement l'en-tête"
+  end
+
+  # ─── H4 — Validation des données (review code-review) ──────────────────
+  # Les tests ci-dessous valident le contenu, pas seulement la structure du workbook.
+
+  test "Story 3.3 AC6 — T2 sheet headers respect helper t2_export_columns order" do
+    sign_in users(:three)
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    get actes_path(format: :xlsx)
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'T2'
+    headers = workbook.row(1)
+    expected_labels = ApplicationController.helpers.t2_export_columns.map { |(label, _)| label }
+    assert_equal expected_labels, headers,
+                 "Les headers du sheet T2 doivent respecter exactement l'ordre/les labels du helper t2_export_columns"
+  end
+
+  test "Story 3.3 H3 — Déclinaison référentiel rend N/A sauf pour la nature Référentiel" do
+    sign_in users(:three)
+    isp = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    isp.create_t2_detail!(isp_cercle1: true)
+
+    get actes_path(format: :xlsx)
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'T2'
+    headers = workbook.row(1)
+    idx = headers.index('Déclinaison référentiel')
+    refute_nil idx, "La colonne 'Déclinaison référentiel' doit exister"
+    assert_equal "N/A", workbook.row(2)[idx],
+                 "Pour une nature ISP, 'Déclinaison référentiel' doit rendre 'N/A' (et non Oui/Non par défaut)"
+  end
+
+  test "Story 3.3 AC8 — filtre q_current[nature_eq]=ISP limite le sheet T2 aux ISP" do
+    sign_in users(:three)
+    isp = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    isp.create_t2_detail!(isp_cercle1: true)
+    users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'Marché', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today,
+      montant_ae: 1000.0
+    )
+    get actes_path(format: :xlsx, q_current: { nature_eq: 'ISP' })
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'T2'
+    # 1 ligne header + 1 ligne ISP, le Marché doit être filtré
+    assert_equal 2, workbook.last_row, "nature_eq=ISP doit limiter le sheet T2 à 1 acte ISP"
+    headers = workbook.row(1)
+    nature_idx = headers.index('Nature')
+    assert_equal 'ISP', workbook.row(2)[nature_idx]
+  end
+
+  test "Story 3.3 AC4 — admin_backup t2_details sheet contient les colonnes et valeurs attendues" do
+    acte = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    acte.create_t2_detail!(isp_cercle1: true, isp_cercle1_montant: 1234.5)
+
+    captured_t2_rows = nil
+    captured_actes_headers = nil
+    fake_bucket = Object.new
+    fake_bucket.define_singleton_method(:create_file) do |path, *_args|
+      wb = Roo::Excelx.new(path)
+      wb.default_sheet = 't2_details'
+      captured_t2_rows = (1..wb.last_row).map { |r| wb.row(r) }
+      wb.default_sheet = 'actes'
+      captured_actes_headers = wb.row(1)
+      true
+    end
+    job = GenerateBackupJob.new
+    job.define_singleton_method(:gcs_bucket) { fake_bucket }
+    backup = BackupExport.create!(status: 'pending')
+    job.perform(backup.id)
+
+    refute_nil captured_t2_rows, "Le sheet t2_details doit être lu pendant l'upload"
+    assert_equal 2, captured_t2_rows.size, "t2_details doit contenir l'en-tête + 1 ligne"
+    headers = captured_t2_rows.first
+    montant_idx = headers.index('isp_cercle1_montant')
+    refute_nil montant_idx
+    assert_equal 1234.5, captured_t2_rows[1][montant_idx]
+
+    # AC4 — onglet actes doit aussi avoir titre + categorie_t2 avant pdf_generation_status
+    titre_idx   = captured_actes_headers.index('titre')
+    cat_idx     = captured_actes_headers.index('categorie_t2')
+    pdf_idx     = captured_actes_headers.index('pdf_generation_status')
+    refute_nil titre_idx,  "Sheet actes doit contenir la colonne 'titre'"
+    refute_nil cat_idx,    "Sheet actes doit contenir la colonne 'categorie_t2'"
+    assert titre_idx < pdf_idx && cat_idx < pdf_idx,
+           "titre + categorie_t2 doivent précéder pdf_generation_status"
+  end
+
+  test "Story 3.3 H4 — sheet T2 critères de contrôle respectent la matrice nature × perimetre" do
+    sign_in users(:three)
+    # ISP : Programmation initiale transmise → N/A, Respect enveloppe → applicable
+    isp = users(:three).actes.create!(
+      titre: 'T2', categorie_t2: 'hors contrat', perimetre: 'etat',
+      nature: 'ISP', type_acte: 'avis',
+      etat: "en pré-instruction", instructeur: 'AB',
+      annee: Date.today.year, date_saisine: Date.today
+    )
+    isp.create_t2_detail!(isp_cercle1: true, respect_enveloppe: true)
+
+    get actes_path(format: :xlsx)
+    workbook = parse_xlsx_response
+    workbook.default_sheet = 'T2'
+    headers = workbook.row(1)
+    row = workbook.row(2)
+
+    prog_init_idx = headers.index('Programmation initiale transmise')
+    resp_env_idx  = headers.index('Respect enveloppe')
+    insc_pap_idx  = headers.index('Inscription PAP')
+    refute_nil prog_init_idx
+    refute_nil resp_env_idx
+    refute_nil insc_pap_idx
+    assert_equal "N/A", row[prog_init_idx],
+                 "ISP : 'Programmation initiale transmise' doit rendre N/A (nature exclue de la matrice)"
+    assert_equal "Oui", row[resp_env_idx],
+                 "ISP : 'Respect enveloppe' doit rendre Oui (critère applicable)"
+    assert_equal "N/A", row[insc_pap_idx],
+                 "ISP : 'Inscription PAP' n'est applicable que pour Annexe financière/Mesure transversale/Référentiel"
+  end
 end

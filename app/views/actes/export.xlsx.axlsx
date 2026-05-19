@@ -142,7 +142,27 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    sheet.rows[current_row-1].height = 30
 
    # Première table d'informations
-   if @acte.perimetre == 'organisme'
+   if @acte.titre == 'T2'
+     # ─── T2 — Tableau "Informations" unique (miroir _acte_details_t2.html.erb) ────
+     t2_delai =
+       if ['clôturé', 'clôturé en pré-instruction'].include?(@acte.etat)
+         n = @acte.delai_traitement.to_i
+         "#{n} jour#{'s' if n != 1}"
+       else
+         etat_acte(@acte)
+       end
+     organisme_or_cf_label = @acte.perimetre == 'organisme' ? 'Organisme' : 'Centre financier'
+     organisme_or_cf_value = @acte.perimetre == 'organisme' ? @acte.nom_organisme : @acte.centre_financier_code
+     info_t2_headers = ["Nature de l'acte", organisme_or_cf_label, "Catégorie T2", "Exercice",
+                        "Date de saisine", "Délai de traitement",
+                        "Ordonnateur", "Objet", "Services votés"]
+     info_t2_values  = [@acte.nature, organisme_or_cf_value, @acte.categorie_t2&.capitalize, @acte.annee,
+                        @acte.date_saisine&.strftime('%d/%m/%Y'), t2_delai,
+                        @acte.ordonnateur, @acte.objet,
+                        @acte.services_votes == true ? 'Oui' : 'Non']
+     sheet.add_row info_t2_headers, style: Array.new(info_t2_headers.size, header_style)
+     sheet.add_row info_t2_values,  style: Array.new(info_t2_values.size, cell_style)
+   elsif @acte.perimetre == 'organisme'
      # Pour organisme
      montant_headers = ["Montant de l'acte", "Type de montant"]
      montant_headers << "Montant total" if @acte.categorie_organisme == 'depense'
@@ -185,12 +205,21 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
      sheet.add_row row_data, style: row_styles
    else
-     # Pour état (code original)
-     montant_label = case @acte.type_acte
-                    when 'avis' then 'Montant estimatif global (AE)'
-                    when 'visa' then 'Montant engagé'
-                    when 'TF' then 'Montant total affecté'
-                    end
+     # Pour état — aligné sur app/views/actes/_acte_details.html.erb (tableau 1)
+     # Colonnes : [Nature si non-TF], Type engagement/affectation, Montant acte, Montant total, Exercice, Date saisine, Délai
+     # Labels Montant : avis → "Montant de l'acte (AE)" + "Montant estimatif global (AE)"
+     #                 visa → "Montant engagé par l'acte" + "Montant total engagé"
+     #                 TF   → "Montant de l'affectation" + "Montant total affecté"
+     montant_acte_label = case @acte.type_acte
+                          when 'avis' then "Montant de l'acte (AE)"
+                          when 'visa' then "Montant engagé par l'acte"
+                          when 'TF'   then "Montant de l'affectation"
+                          end
+     montant_total_label = case @acte.type_acte
+                           when 'avis' then 'Montant estimatif global (AE)'
+                           when 'visa' then 'Montant total engagé'
+                           when 'TF'   then 'Montant total affecté'
+                           end
 
      type_label = @acte.type_acte == 'TF' ? "Type d'affectation" : "Type d'engagement"
      delai =
@@ -201,25 +230,35 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          etat_acte(@acte)
        end
 
-     etat_headers = ["Nature de l'acte", type_label, montant_label, "Montant de cet acte", "Exercice"]
-     etat_headers << "Gestion anticipée" if @acte.gestion_anticipee?
-     etat_headers += ["Date de saisine", "Délai de traitement"]
-     sheet.add_row etat_headers, style: header_style
-
-     etat_data = [@acte.nature, @acte.type_engagement, @acte.montant_global, @acte.montant_ae, @acte.annee]
-     etat_styles = [cell_style, cell_style, currency_style, currency_style, cell_style]
-     if @acte.gestion_anticipee?
-       etat_data << 'Oui'
-       etat_styles << cell_style
+     etat_headers = []
+     etat_data    = []
+     etat_styles  = []
+     # Nature uniquement quand type_acte != 'TF' (cf. partial)
+     if @acte.type_acte != 'TF'
+       etat_headers << "Nature de l'acte"
+       etat_data    << @acte.nature
+       etat_styles  << cell_style
      end
-     etat_data += [@acte.date_saisine&.strftime('%d/%m/%Y'), delai]
-     etat_styles += [cell_style, cell_style]
-     sheet.add_row etat_data, style: etat_styles
+     etat_headers += [type_label, montant_acte_label, montant_total_label, "Exercice"]
+     etat_data    += [@acte.type_engagement, @acte.montant_ae, @acte.montant_global, @acte.annee]
+     etat_styles  += [cell_style, currency_style, currency_style, cell_style]
+     if @acte.gestion_anticipee?
+       etat_headers << "Gestion anticipée"
+       etat_data    << 'Oui'
+       etat_styles  << cell_style
+     end
+     etat_headers += ["Date de saisine", "Délai de traitement"]
+     etat_data    += [@acte.date_saisine&.strftime('%d/%m/%Y'), delai]
+     etat_styles  += [cell_style, cell_style]
+     sheet.add_row etat_headers, style: header_style
+     sheet.add_row etat_data,    style: etat_styles
    end
    sheet.add_row
 
-   # Deuxième table d'informations
-   if @acte.perimetre == 'organisme'
+   # Deuxième table d'informations (HT2 uniquement — pour T2 le tableau 1 suffit)
+   if @acte.titre == 'T2'
+     # rien à faire — le tableau 1 T2 contient déjà toutes les infos communes
+   elsif @acte.perimetre == 'organisme'
      # Pour organisme
      headers = ["Catégorie", "Opération compte tiers"]
      headers << "Opération budgétaire" if @acte.operation_compte_tiers == false
@@ -331,8 +370,10 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.add_row
    end
 
-   # INFORMATIONS COMPLÉMENTAIRES
-   if @acte.perimetre == 'organisme'
+   # INFORMATIONS COMPLÉMENTAIRES (HT2 uniquement — T2 a sa propre section nature ci-dessous)
+   if @acte.titre == 'T2'
+     # rien à faire — la section "Détails {nature}" ci-dessous remplace les compléments HT2
+   elsif @acte.perimetre == 'organisme'
      # Pour organisme : délibération CA, destination, nomenclature, flux, services votés
      if @acte.deliberation_ca.present? || @acte.destination.present? || @acte.nomenclature.present? || @acte.flux.present? || @acte.services_votes.present?
        current_row = sheet.rows.length + 1
@@ -437,6 +478,227 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      sheet.add_row
    end
 
+   # ─── DÉTAILS NATURE T2 (Story 3.3) ──────────────────────────────────────
+   # Affiché uniquement pour les actes T2. Les infos communes (Nature, Organisme/CF, Catégorie T2,
+   # Exercice, Date saisine, Délai, Ordonnateur, Objet, Services votés) sont déjà dans le tableau
+   # "INFORMATIONS SUR L'ACTE" ci-dessus. Ici on rend les détails nature-spécifiques fidèles aux
+   # partials app/views/actes/t2_sections/_show_*.html.erb (Annexe financière, ISP, FA, Marché,
+   # Mesure transversale, Enveloppe limitative, Référentiel). Beaucoup de champs viennent de
+   # `@acte` directement (montant_ae, beneficiaire, operation_budgetaire, deliberation_ca, …) —
+   # donc on rend même quand `@acte.t2_detail` est nil (cas Marché sans t2_detail créé).
+   if @acte.titre == 'T2'
+     t2 = @acte.t2_detail
+     bool_oui = ->(v) { v.nil? ? "" : (v ? "Oui" : "Non") }
+     fmt_val  = ->(v) { v.nil? || v.to_s.strip.empty? ? "Non renseigné" : v }
+
+     # Sous-tableau "Budget et délibération" (perimetre organisme uniquement)
+     # — identique entre Annexe financière, Mesure transversale, Enveloppe limitative, Référentiel.
+     # Marché gère son propre tableau (colonnes Budget/Délibération inlines).
+     render_budget_deliberation = lambda do
+       next unless @acte.perimetre == 'organisme'
+       bd_headers = ["Budget exécutoire", "Opération budgétaire", "Délibération en CA nécessaire"]
+       bd_values  = [bool_oui.(@acte.budget_executoire),
+                     @acte.operation_budgetaire,
+                     bool_oui.(@acte.deliberation_ca)]
+       if @acte.deliberation_ca == true
+         bd_headers += ["N° de délibération", "Date de délibération", "Observations sur la délibération"]
+         bd_values  += [@acte.numero_deliberation_ca,
+                        @acte.date_deliberation_ca&.strftime('%d/%m/%Y'),
+                        @acte.observations_deliberation_ca]
+       end
+       sheet.add_row bd_headers, style: Array.new(bd_headers.size, header_style)
+       sheet.add_row bd_values,  style: Array.new(bd_values.size, cell_style)
+       sheet.add_row
+     end
+
+     current_row = sheet.rows.length + 1
+     section_title = "DÉTAILS #{@acte.nature&.upcase}".strip
+     sheet.add_row [section_title,"","","","","","","",""], style: section_header_style
+     sheet.merge_cells "A#{current_row}:I#{current_row}"
+     sheet.row_style current_row, section_header_style
+     sheet.rows[current_row-1].height = 30
+
+     case @acte.nature
+     when 'Annexe financière'
+       # Miroir _show_annexe_financiere.html.erb
+       headers = ["Type d'acte", "Date d'effet", "Effectifs (liste principale)",
+                  "Effectifs (liste complémentaire)", "Catégorie", "Corps",
+                  "Date arrêté concours", "Impact schéma d'emplois",
+                  @acte.perimetre == 'organisme' ? "Impact autre CBR" : "Impact autre CBCM"]
+       values  = [fmt_val.(t2&.type_acte_t2),
+                  fmt_val.(t2&.date_effet_acte),
+                  fmt_val.(t2&.effectifs),
+                  fmt_val.(t2&.effectifs_complementaire),
+                  Array(t2&.grade).join(', ').presence || 'Non renseigné',
+                  fmt_val.(t2&.corps),
+                  t2&.date_arrete_concours&.strftime('%d/%m/%Y') || 'Non renseigné',
+                  bool_oui.(t2&.impact_schema_emplois),
+                  bool_oui.(t2&.impact_autre_cbcm)]
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: Array.new(values.size, cell_style)
+       sheet.add_row
+       render_budget_deliberation.call
+
+     when 'ISP'
+       # Miroir _show_isp.html.erb : date d'effet + Cercle 1 + Cercle 2 (chaque cercle si présent)
+       sheet.add_row ["Date d'effet de l'acte"], style: [header_style]
+       sheet.add_row [fmt_val.(t2&.date_effet_acte)], style: [cell_style]
+       sheet.add_row
+       [1, 2].each do |n|
+         present = t2&.public_send("isp_cercle#{n}") == true
+         next unless present
+         sheet.add_row ["Cercle #{n}", "", "", "", ""], style: Array.new(5, section_header_style)
+         sheet.add_row ["Nature(s) des ISP", "Montant au contrôle (€)",
+                        "Enveloppe SGG (€)", "Consommation à date (€)",
+                        "Reste à consommer (€)"], style: Array.new(5, header_style)
+         enveloppe    = t2.public_send("isp_cercle#{n}_enveloppe_sgg").to_f
+         consommation = t2.public_send("isp_cercle#{n}_consommation").to_f
+         reste = (enveloppe - consommation).round(2)
+         sheet.add_row [Array(t2.public_send("isp_cercle#{n}_natures")).join(', ').presence || 'Non renseigné',
+                        t2.public_send("isp_cercle#{n}_montant"),
+                        enveloppe,
+                        consommation,
+                        reste], style: [cell_style, currency_style, currency_style, currency_style, currency_style]
+         sheet.add_row
+       end
+
+     when 'Fongibilité asymétrique'
+       # Miroir _show_fongibilite_asymetrique.html.erb
+       headers = ["Montant au contrôle (€)"]
+       values  = [@acte.montant_ae]
+       styles  = [currency_style]
+       if @acte.perimetre == 'etat'
+         headers << "N° Chorus"
+         values  << fmt_val.(@acte.numero_chorus)
+         styles  << cell_style
+       end
+       headers << "FA Technique"
+       values  << bool_oui.(t2&.fa_technique)
+       styles  << cell_style
+       if @acte.perimetre == 'etat'
+         # Note : le statut user (DCB/CBR) n'est pas disponible dans la vue xlsx ;
+         # on émet les colonnes en mode neutre — Accord RFFIM/Sollicitation DB + Avis CBCM si présents.
+         headers += ["Accord RFFIM/RPROG préalable", "Sollicitation DB/BS préalable", "Sollicitation CBCM préalable"]
+         values  += [bool_oui.(t2&.accord_rffim), fmt_val.(t2&.sollicitation_db), fmt_val.(t2&.avis_cbcm)]
+         styles  += [cell_style, cell_style, cell_style]
+       else
+         headers << "Enveloppe budgétaire abondée"
+         values  << fmt_val.(t2&.enveloppe_abondee)
+         styles  << cell_style
+       end
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: styles
+       sheet.add_row
+
+     when 'Marché'
+       # Miroir _show_marche.html.erb
+       headers = ["Montant au contrôle (€)", "Bénéficiaire"]
+       values  = [@acte.montant_ae, fmt_val.(@acte.beneficiaire)]
+       styles  = [currency_style, cell_style]
+       if @acte.perimetre == 'organisme'
+         headers += ["Budget exécutoire", "Opération budgétaire", "Délibération en CA nécessaire"]
+         values  += [bool_oui.(@acte.budget_executoire), fmt_val.(@acte.operation_budgetaire), bool_oui.(@acte.deliberation_ca)]
+         styles  += [cell_style, cell_style, cell_style]
+         if @acte.deliberation_ca == true
+           headers += ["N° de délibération", "Date de délibération", "Observations sur la délibération"]
+           values  += [fmt_val.(@acte.numero_deliberation_ca),
+                       @acte.date_deliberation_ca&.strftime('%d/%m/%Y') || 'Non renseigné',
+                       fmt_val.(@acte.observations_deliberation_ca)]
+           styles  += [cell_style, cell_style, cell_style]
+         end
+       end
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: styles
+       sheet.add_row
+
+     when 'Mesure transversale'
+       # Miroir _show_mesure_transversale.html.erb
+       headers = ["Date d'effet"]
+       values  = [fmt_val.(t2&.date_effet_acte)]
+       styles  = [cell_style]
+       if @acte.perimetre == 'etat'
+         headers << "Origine de financement"
+         values  << (Array(t2&.origine_financement).join(', ').presence || 'Non renseigné')
+         styles  << cell_style
+       end
+       headers += ["Périmètre de mesure", "Catégorie", "Corps", "Effectifs N", "Effectifs N+1",
+                   "Statut d'agents", "Montant au contrôle (€)", "Impact financier N+1 (€)"]
+       values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
+                   Array(t2&.grade).join(', ').presence || 'Non renseigné',
+                   fmt_val.(t2&.corps),
+                   fmt_val.(t2&.effectifs),
+                   fmt_val.(t2&.effectifs_complementaire),
+                   fmt_val.(t2&.statut_agents),
+                   @acte.montant_ae,
+                   t2&.impact_financier_n1]
+       styles  += [cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, currency_style, currency_style]
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: styles
+       sheet.add_row
+       render_budget_deliberation.call
+
+     when 'Enveloppe limitative'
+       # Miroir _show_enveloppe_limitative.html.erb (2 tableaux)
+       headers = ["Date d'effet"]
+       values  = [fmt_val.(t2&.date_effet_acte)]
+       styles  = [cell_style]
+       if @acte.perimetre == 'etat'
+         headers << "Origine de financement"
+         values  << (Array(t2&.origine_financement).join(', ').presence || 'Non renseigné')
+         styles  << cell_style
+       end
+       headers += ["Périmètre de mesure", "Catégorie", "Corps", "Effectifs N", "Effectifs N+1", "Statut d'agents"]
+       values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
+                   Array(t2&.grade).join(', ').presence || 'Non renseigné',
+                   fmt_val.(t2&.corps),
+                   fmt_val.(t2&.effectifs),
+                   fmt_val.(t2&.effectifs_complementaire),
+                   fmt_val.(t2&.statut_agents)]
+       styles  += [cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: styles
+       sheet.add_row
+       # Tableau suite : montants + effet
+       enveloppe_n1 = t2&.montant_enveloppe_n1.to_f
+       impact_max   = t2&.impact_maximal_sans_enveloppe.to_f
+       effet_pct = enveloppe_n1 > 0 ? "#{((impact_max / enveloppe_n1) * 100).round(1)} %" : "—"
+       headers2 = ["Montant au contrôle (€)", "Montant enveloppe N-1 (€)",
+                   "Impact maximal sans enveloppe (€)", "Effet de l'enveloppe (%)"]
+       values2  = [@acte.montant_ae, t2&.montant_enveloppe_n1, t2&.impact_maximal_sans_enveloppe, effet_pct]
+       sheet.add_row headers2, style: Array.new(headers2.size, header_style)
+       sheet.add_row values2,  style: [currency_style, currency_style, currency_style, cell_style]
+       sheet.add_row
+       render_budget_deliberation.call
+
+     when 'Référentiel'
+       # Miroir _show_referentiel.html.erb
+       headers = ["Date d'effet"]
+       values  = [fmt_val.(t2&.date_effet_acte)]
+       styles  = [cell_style]
+       if @acte.perimetre == 'etat'
+         headers << "Origine de financement"
+         values  << (Array(t2&.origine_financement).join(', ').presence || 'Non renseigné')
+         styles  << cell_style
+       end
+       declinaison_label = @acte.perimetre == 'organisme' ? "Déclinaison autre référentiel" : "Déclinaison référentiel interministériel"
+       headers += ["Périmètre de mesure", "Catégorie", "Corps", "Effectifs N", "Effectifs N+1",
+                   "Montant au contrôle (€)", "Impact financier N+1 (€)", declinaison_label]
+       values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
+                   Array(t2&.grade).join(', ').presence || 'Non renseigné',
+                   fmt_val.(t2&.corps),
+                   fmt_val.(t2&.effectifs),
+                   fmt_val.(t2&.effectifs_complementaire),
+                   @acte.montant_ae,
+                   t2&.impact_financier_n1,
+                   bool_oui.(t2&.referentiel_type)]
+       styles  += [cell_style, cell_style, cell_style, cell_style, cell_style, currency_style, currency_style, cell_style]
+       sheet.add_row headers, style: Array.new(headers.size, header_style)
+       sheet.add_row values,  style: styles
+       sheet.add_row
+       render_budget_deliberation.call
+     end
+   end
+
    # LIGNES DE POSTE (uniquement pour état)
    if @acte.perimetre != 'organisme' && @acte.poste_lignes.present?
          current_row = sheet.rows.length + 1
@@ -523,130 +785,177 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    sheet.row_style current_row, section_header_style
    sheet.rows[current_row-1].height = 30
 
-   if @acte.perimetre == 'organisme'
-     # Critères pour organisme
-     if @acte.categorie_organisme == 'recette' && @acte.operation_compte_tiers == true
-       # Cas spécial : recette + operation_compte_tiers
-       headers = [
-         "Acte programmé",
-         "Conformité au seuil de contrôle",
-         "Concordance recettes/reversements"
-       ]
-       row_data = [
-         @acte.programmation_prevue? ? "✓" : "✗",
-         @acte.conformite? ? "✓" : "✗",
-         @acte.concordance_recettes_tiers? ? "✓" : "✗"
-       ]
-       row_styles = [
-         @acte.programmation_prevue? ? check_ok_style : check_ko_style,
-         @acte.conformite? ? check_ok_style : check_ko_style,
-         @acte.concordance_recettes_tiers? ? check_ok_style : check_ko_style
-       ]
+   if @acte.titre == 'T2'
+     # ─── Critères T2 — miroir _acte_details_t2.html.erb (ordre et labels identiques)
+     t2 = @acte.t2_detail
+     nature = @acte.nature
+     t2_perimetre = @acte.perimetre
+     is_etat_t2 = t2_perimetre == 'etat'
+     headers_t2  = []
+     values_t2   = []
+     styles_t2   = []
 
-       if @acte.budget_executoire == false
-         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
-         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
-         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
-       end
+     add_critere = ->(label, value) {
+       headers_t2 << label
+       values_t2  << (value ? "✓" : "✗")
+       styles_t2  << (value ? check_ok_style : check_ko_style)
+     }
 
-       sheet.add_row headers, style: header_style
-       sheet.add_row row_data, style: row_styles
-     elsif @acte.operation_compte_tiers == true
-       # Cas dépense + operation_compte_tiers (pas d'imputation ni soutenabilité)
-       headers = ["Acte programmé"]
-       row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
-       row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
+     # Calcul "show_programmation_compat" (identique au partial)
+     show_programmation_compat = !@acte.services_votes &&
+                                 !(nature == 'ISP') &&
+                                 !(nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme') &&
+                                 (is_etat_t2 ? @acte.avis_programmation != false : @acte.budget_executoire != false)
 
-       if @acte.categorie_organisme == 'depense'
-         headers << "Disponibilité des fonds au sein de la trésorerie"
-         row_data << (@acte.disponibilite_credits? ? "✓" : "✗")
-         row_styles << (@acte.disponibilite_credits? ? check_ok_style : check_ko_style)
+     # 1) Programmation initiale transmise (État + nature ≠ ISP + services_votes=false)
+     if nature != 'ISP' && is_etat_t2 && @acte.services_votes == false
+       add_critere.("Programmation initiale transmise", @acte.avis_programmation)
+     end
+     # 2) Acte figure dans le dernier document de programmation
+     unless nature == 'ISP' || (nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
+       add_critere.("L'acte figure dans le dernier document de programmation", @acte.programmation_prevue)
+     end
+     # 3) Opération autorisée par les autorités de tutelle (organisme + hors ISP/FA + !budget_exec)
+     if !['ISP', 'Fongibilité asymétrique'].include?(nature) && t2_perimetre == 'organisme' && @acte.budget_executoire == false
+       add_critere.("Opération autorisée par les autorités de tutelle", @acte.autorisation_tutelle)
+     end
+     # 4) Compatibilité avec la programmation annuelle et pluriannuelle
+     if show_programmation_compat
+       add_critere.("Compatibilité avec la programmation annuelle et pluriannuelle", @acte.programmation)
+     end
+     # 5) Soutenabilité / Disponibilité des crédits (sauf Annexe financière)
+     if nature != 'Annexe financière'
+       add_critere.("Soutenabilité / Disponibilité des crédits", @acte.soutenabilite)
+     end
+     # 6) Inscription au PAP / Plan de recrutement (Annexe financière) ou Inscription au PAP (MT, Réf)
+     if t2 && is_etat_t2 && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(nature)
+       inscription_label = nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP"
+       add_critere.(inscription_label, t2.inscription_pap)
+     end
+     # 7) Respect du plafond d'emplois (Annexe financière)
+     if t2 && nature == 'Annexe financière'
+       add_critere.("Respect du plafond d'emplois", t2.respect_plafond_emplois)
+     end
+     # 8) Respect du schéma d'emplois (Annexe financière + impact_schema_emplois=true)
+     if t2 && nature == 'Annexe financière' && t2.impact_schema_emplois == true
+       add_critere.("Respect du schéma d'emplois", t2.respect_schema_emplois)
+     end
+     # 9) Exactitude de l'évaluation budgétaire (FA, Marché, MT)
+     if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(nature)
+       add_critere.("Exactitude de l'évaluation budgétaire", @acte.consommation_credits)
+     end
+     # 10) Contrôle des modalités de mise en œuvre (FA + État ; statut user pas accessible en xlsx → on rend si présent)
+     if t2 && nature == 'Fongibilité asymétrique' && is_etat_t2
+       add_critere.("Contrôle des modalités de mise en œuvre", t2.controle_modalites)
+     end
+     # 11) Respect de l'enveloppe notifiée (ISP)
+     if t2 && nature == 'ISP'
+       add_critere.("Respect de l'enveloppe notifiée", t2.respect_enveloppe)
+     end
+     # 12) Risque d'effet reconventionnel (MT, Réf)
+     if t2 && ['Mesure transversale', 'Référentiel'].include?(nature)
+       add_critere.("Risque d'effet reconventionnel", t2.risque_reconventionnel)
+     end
+     # 13) Acte éligible à la gestion des services votés (si services_votes=true)
+     if @acte.services_votes == true
+       add_critere.("Acte éligible à la gestion des services votés", @acte.programmation)
+     end
 
-         headers << "Exactitude de l'évaluation de la consommation des crédits"
-         row_data << (@acte.consommation_credits? ? "✓" : "✗")
-         row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
-       end
-
-       headers << "Conformité seuil contrôle"
-       row_data << (@acte.conformite? ? "✓" : "✗")
-       row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
-
-       if @acte.services_votes == true && @acte.categorie_organisme == 'depense'
-         headers << "Services votés"
-         row_data << (@acte.programmation? ? "✓" : "✗")
-         row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
-       end
-
-       if @acte.budget_executoire == false
-         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
-         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
-         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
-       end
-
-       sheet.add_row headers, style: header_style
-       sheet.add_row row_data, style: row_styles
+     if headers_t2.empty?
+       sheet.add_row ["Aucun critère applicable pour cette nature T2", "", "", "", ""], style: cell_style
      else
-       # Cas normal (operation_compte_tiers = false)
-       headers = ["Acte programmé"]
-       row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
-       row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
+       sheet.add_row headers_t2, style: Array.new(headers_t2.size, header_style)
+       sheet.add_row values_t2,  style: styles_t2
+     end
+   elsif @acte.perimetre == 'organisme'
+     # Critères pour organisme — miroir _acte_details_organisme.html.erb
+     # Construction unifiée (les branches du partial sont des opt-ins basés sur categorie_organisme
+     # et operation_compte_tiers ; on reproduit la même logique conditionnelle ligne par ligne).
+     is_depense = @acte.categorie_organisme == 'depense'
+     is_recette = @acte.categorie_organisme == 'recette'
+     is_tiers   = @acte.operation_compte_tiers == true
 
-       if @acte.categorie_organisme == 'depense'
-         headers << "Disponibilité des crédits"
-         row_data << (@acte.disponibilite_credits? ? "✓" : "✗")
-         row_styles << (@acte.disponibilite_credits? ? check_ok_style : check_ko_style)
-       end
+     headers = ["Acte programmé"]
+     row_data = [@acte.programmation_prevue? ? "✓" : "✗"]
+     row_styles = [@acte.programmation_prevue? ? check_ok_style : check_ko_style]
 
-       headers << "Imputation de la #{@acte.categorie_organisme == 'depense' ? 'dépense' : 'recette'}"
+     # Disponibilité des crédits / fonds (depense uniquement)
+     if is_depense
+       label_dispo = is_tiers ? "Disponibilité des fonds au sein de la trésorerie" : "Disponibilité des crédits"
+       headers << label_dispo
+       row_data << (@acte.disponibilite_credits? ? "✓" : "✗")
+       row_styles << (@acte.disponibilite_credits? ? check_ok_style : check_ko_style)
+     end
+
+     # Imputation (sauf operation_compte_tiers=true)
+     unless is_tiers
+       headers << "Imputation de la #{is_depense ? 'dépense' : 'recette'}"
        row_data << (@acte.imputation_depense? ? "✓" : "✗")
        row_styles << (@acte.imputation_depense? ? check_ok_style : check_ko_style)
+     end
 
-       if @acte.categorie_organisme == 'depense'
-         headers << "Exactitude de l'évaluation de la consommation des crédits"
-         row_data << (@acte.consommation_credits? ? "✓" : "✗")
-         row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
-       end
+     # Exactitude de l'évaluation de la consommation des crédits (depense uniquement)
+     if is_depense
+       headers << "Exactitude de l'évaluation de la consommation des crédits"
+       row_data << (@acte.consommation_credits? ? "✓" : "✗")
+       row_styles << (@acte.consommation_credits? ? check_ok_style : check_ko_style)
+     end
 
-       headers << "Soutenabilité"
+     # Soutenabilité (sauf operation_compte_tiers=true) — label long et contextuel
+     unless is_tiers
+       label_sout = is_depense ?
+                    "Compatibilité avec caractère soutenable de la gestion" :
+                    "Caractère soutenable des engagements financiers exigés en contrepartie de la recette"
+       headers << label_sout
        row_data << (@acte.soutenabilite? ? "✓" : "✗")
        row_styles << (@acte.soutenabilite? ? check_ok_style : check_ko_style)
-
-       headers << "Conformité seuil contrôle"
-       row_data << (@acte.conformite? ? "✓" : "✗")
-       row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
-
-       if @acte.services_votes == true && @acte.categorie_organisme == 'depense'
-         headers << "Engagement éligible à la gestion des services votés"
-         row_data << (@acte.programmation? ? "✓" : "✗")
-         row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
-       end
-
-       if @acte.budget_executoire == false
-         headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
-         row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
-         row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
-       end
-
-       sheet.add_row headers, style: header_style
-       sheet.add_row row_data, style: row_styles
      end
+
+     # Conformité au seuil de contrôle (toujours)
+     headers << "Conformité au seuil de contrôle"
+     row_data << (@acte.conformite? ? "✓" : "✗")
+     row_styles << (@acte.conformite? ? check_ok_style : check_ko_style)
+
+     # Concordance recettes/reversements (recette + operation_compte_tiers)
+     if is_recette && is_tiers
+       headers << "Concordance entre les recettes encaissées pour compte de tiers et les reversements correspondants"
+       row_data << (@acte.concordance_recettes_tiers? ? "✓" : "✗")
+       row_styles << (@acte.concordance_recettes_tiers? ? check_ok_style : check_ko_style)
+     end
+
+     # Engagement éligible à la gestion des services votés (services_votes + depense)
+     if @acte.services_votes == true && is_depense
+       headers << "Engagement éligible à la gestion des services votés"
+       row_data << (@acte.programmation? ? "✓" : "✗")
+       row_styles << (@acte.programmation? ? check_ok_style : check_ko_style)
+     end
+
+     # Opération autorisée par les autorités de tutelle (budget_executoire=false)
+     if @acte.budget_executoire == false
+       headers << "Opération autorisée par les autorités de tutelle dans l'attente du vote du BI"
+       row_data << (@acte.autorisation_tutelle? ? "✓" : "✗")
+       row_styles << (@acte.autorisation_tutelle? ? check_ok_style : check_ko_style)
+     end
+
+     sheet.add_row headers, style: header_style
+     sheet.add_row row_data, style: row_styles
    else
-     # Critères pour état (code original)
+     # Critères pour état — miroir _acte_details.html.erb (libellés alignés)
      if @acte.services_votes == true
-       critere4 = "Engagement éligible à la gestion des services votés"
+       critere5 = "Engagement éligible à la gestion des services votés"
      elsif @acte.avis_programmation == false
-       critere4 = "Programmation initiale transmise"
+       critere5 = "Programmation initiale transmise"
      else
-       critere4 = "Compatibilité programmation"
+       critere5 = "Compatibilité avec la programmation annuelle et pluriannuelle"
      end
-     critere4_valeur = @acte.avis_programmation == false ? "✗" : (@acte.programmation? ? "✓" : "✗")
-     critere4_style  = @acte.avis_programmation == false ? check_ko_style : (@acte.programmation? ? check_ok_style : check_ko_style)
+     critere5_valeur = @acte.avis_programmation == false ? "✗" : (@acte.programmation? ? "✓" : "✗")
+     critere5_style  = @acte.avis_programmation == false ? check_ko_style : (@acte.programmation? ? check_ok_style : check_ko_style)
      sheet.add_row [
        "Acte programmé",
        "Disponibilité des crédits",
        "Imputation de la dépense",
-       "Exactitude de l'évaluation",
-       critere4
+       "Exactitude de l'évaluation de la consommation des crédits",
+       critere5
      ], style: header_style
 
      sheet.add_row [
@@ -654,13 +963,13 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        @acte.disponibilite_credits? ? "✓" : "✗",
        @acte.imputation_depense? ? "✓" : "✗",
        @acte.consommation_credits? ? "✓" : "✗",
-       critere4_valeur
+       critere5_valeur
      ], style: [
        @acte.programmation_prevue? ? check_ok_style : check_ko_style,
        @acte.disponibilite_credits? ? check_ok_style : check_ko_style,
        @acte.imputation_depense? ? check_ok_style : check_ko_style,
        @acte.consommation_credits? ? check_ok_style : check_ko_style,
-       critere4_style
+       critere5_style
      ]
    end
 
