@@ -28,8 +28,8 @@
               <td><%= Array(td.perimetre_mesure).join(', ').presence || 'Non renseigné' %></td>
               <td><%= Array(td.grade).join(', ').presence || 'Non renseigné' %></td>
               <td><%= format_value(td.corps) %></td>
-              <td><%= format_value(td.effectifs) %></td>
-              <td><%= format_value(td.effectifs_complementaire) %></td>
+              <td><%= format_effectif(td.effectifs) %></td>
+              <td><%= format_effectif(td.effectifs_complementaire) %></td>
               <td><%= format_value(td.statut_agents) %></td>
             </tr>
           </tbody>

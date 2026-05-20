@@ -16,31 +16,23 @@
               <th>Corps</th>
               <th>Date arrêté concours</th>
               <th>Impact schéma d'emplois</th>
-              <th><%= acte.perimetre == 'organisme' ? "Impact autre CBR" : "Impact autre CBCM" %></th>
+              <th><%= acte.perimetre == 'organisme' ? "Impact autre CBCM/CBR" : "Impact autre CBCM" %></th>
             </tr>
           </thead>
           <tbody>
             <tr class="fr-cell--multiline">
               <td><%= format_value(td.type_acte_t2) %></td>
               <td><%= format_value(td.date_effet_acte) %></td>
-              <td><%= format_value(td.effectifs) %></td>
-              <td><%= format_value(td.effectifs_complementaire) %></td>
+              <td><%= format_effectif(td.effectifs) %></td>
+              <td><%= format_effectif(td.effectifs_complementaire) %></td>
               <td><%= Array(td.grade).join(', ').presence || 'Non renseigné' %></td>
               <td><%= format_value(td.corps) %></td>
               <td><%= format_date_text(td.date_arrete_concours) %></td>
               <td>
-                <% if td.impact_schema_emplois == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %>
-                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                <% end %>
+                <%= td.impact_schema_emplois == true ? "Oui" : "Non"%>
               </td>
               <td>
-                <% if td.impact_autre_cbcm == true %>
-                  <span class="fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w" aria-hidden="true"></span>
-                <% else %>
-                  <span class="fr-icon-error-fill fr-icon--sm crouge fr-ml-1w" aria-hidden="true"></span>
-                <% end %>
+                <%= td.impact_autre_cbcm == true ? "Oui" : "Non"%>
               </td>
             </tr>
           </tbody>

@@ -36,10 +36,11 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
       <div class="fr-col-12 fr-col-lg-12">
         <h1 class="title-btn">
-          <span class="fr-capitalize">Acte <%= @acte.titre %>
+          <span class="fr-capitalize">Acte
             <% if @acte.titre == "T2" %>
-              n°<%= @acte.numero_formate %>
+              de personnel n°<%= @acte.numero_formate %>
             <% else %>
+              <%= @acte.titre %>
               <% if @acte.perimetre == 'organisme' %>
                 <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
                 <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
@@ -84,7 +85,7 @@
 
                 </div>
                 <div>
-                  <% if ['clôturé', 'clôturé en pré-instruction'].include?(acte.etat) && ['DCB', 'CBR'].include?(current_user.statut) %>
+                  <% if ['clôturé', 'clôturé en pré-instruction'].include?(acte.etat) && ['DCB', 'CBR'].include?(current_user.statut) && acte.titre == "HT2" %>
                     <%= link_to new_acte_path(parent_id: acte.id), class: 'fr-btn fr-btn--icon-left fr-icon-file-add-line' do %>
                       Nouvelle saisine
                     <% end %>
@@ -100,6 +101,18 @@
                 <%= render 'acte_details_organisme', acte: acte %>
               <% else %>
                 <%= render 'acte_details', acte: acte %>
+              <% end %>
+
+              <% if acte.etat == 'clôturé' && current_user.statut == "admin" %>
+                <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+                  <li>
+                    <%= form_with(model: acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
+                      <%= hidden_field_tag :etape, 8 %>
+                      <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+                      <%= f.button "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary fr-icon-arrow-go-back-line fr-btn--icon-left', data: { turbo_confirm: 'Confirmer?' } %>
+                    <% end %>
+                  </li>
+                </ul>
               <% end %>
 
               <!-- Modal de téléchargement pour cet acte -->

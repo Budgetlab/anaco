@@ -432,15 +432,3 @@
     <% end %>
   <% end %>
 </div>
-
-<% if acte.etat == 'clôturé' && current_user.statut == "admin" %>
-  <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
-    <li>
-      <%= form_with(model: acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
-        <%= hidden_field_tag :etape, 8 %>
-        <%= f.hidden_field :etat, value: "en cours d'instruction" %>
-        <%= f.button "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary fr-icon-arrow-go-back-line fr-btn--icon-left', data: { turbo_confirm: 'Confirmer?' } %>
-      <% end %>
-    </li>
-  </ul>
-<% end %>

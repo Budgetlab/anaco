@@ -12,10 +12,10 @@
               <th>N°Chorus</th>
             <% end %>
             <th>FA Technique</th>
-            <% if acte.perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut) %>
+            <% if acte.perimetre == 'etat' && acte.user.statut == 'DCB' %>
               <th>Accord RFFIM/RPROG préalable</th>
               <th>Sollicitation DB/BS préalable</th>
-            <% elsif acte.perimetre == 'etat' && current_user.statut == 'CBR' %>
+            <% elsif acte.perimetre == 'etat' && acte.user.statut == 'CBR' %>
               <th>Sollicitation CBCM préalable</th>
             <% elsif acte.perimetre == 'organisme' %>
               <th>Enveloppe budgétaire abondée</th>
@@ -31,12 +31,12 @@
             <td>
               <%= td.fa_technique == true ? "Oui" : "Non" %>
             </td>
-            <% if acte.perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut) %>
+            <% if acte.perimetre == 'etat' && acte.user.statut == 'DCB' %>
               <td>
                 <%= td.accord_rffim == true ? "Oui" : "Non"%>
               </td>
               <td><%= format_value(td.sollicitation_db) %></td>
-            <% elsif acte.perimetre == 'etat' && current_user.statut == 'CBR' %>
+            <% elsif acte.perimetre == 'etat' && acte.user.statut == 'CBR' %>
               <td><%= format_value(td.avis_cbcm) %></td>
             <% elsif acte.perimetre == 'organisme' %>
               <td><%= format_value(td.enveloppe_abondee) %></td>

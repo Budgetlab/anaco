@@ -88,6 +88,13 @@ module ApplicationHelper
     value.presence || default
   end
 
+  # Pour afficher les effectifs (float) sans décimale inutile : 11.0 → "11", 11.5 → "11.5"
+  def format_effectif(value, default = "Non renseigné")
+    return default if value.nil?
+    f = value.to_f
+    f % 1 == 0 ? f.to_i.to_s : f.to_s
+  end
+
   # Pour assurer que les images et pièces jointes sont correctement affichées dans les PDFs
   def format_for_pdf(content)
     return content unless content.present?

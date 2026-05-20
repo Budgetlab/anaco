@@ -488,18 +488,24 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
    # donc on rend même quand `@acte.t2_detail` est nil (cas Marché sans t2_detail créé).
    if @acte.titre == 'T2'
      t2 = @acte.t2_detail
-     bool_oui = ->(v) { v.nil? ? "" : (v ? "Oui" : "Non") }
-     fmt_val  = ->(v) { v.nil? || v.to_s.strip.empty? ? "Non renseigné" : v }
+     bool_oui    = ->(v) { v.nil? ? "" : (v ? "Oui" : "Non") }
+     fmt_val     = ->(v) { v.nil? || v.to_s.strip.empty? ? "Non renseigné" : v }
+     fmt_effectif = ->(v) { v.nil? ? "Non renseigné" : (v.to_f % 1 == 0 ? v.to_f.to_i.to_s : v.to_f.to_s) }
 
      # Sous-tableau "Budget et délibération" (perimetre organisme uniquement)
-     # — identique entre Annexe financière, Mesure transversale, Enveloppe limitative, Référentiel.
+     # — partagé entre Annexe financière, Mesure transversale, Enveloppe limitative, Référentiel.
+     # Annexe financière n'affiche pas "Opération budgétaire" (cf. _show_annexe_financiere.html.erb).
      # Marché gère son propre tableau (colonnes Budget/Délibération inlines).
-     render_budget_deliberation = lambda do
+     render_budget_deliberation = lambda do |with_operation_budgetaire: true|
        next unless @acte.perimetre == 'organisme'
-       bd_headers = ["Budget exécutoire", "Opération budgétaire", "Délibération en CA nécessaire"]
-       bd_values  = [bool_oui.(@acte.budget_executoire),
-                     @acte.operation_budgetaire,
-                     bool_oui.(@acte.deliberation_ca)]
+       bd_headers = ["Budget exécutoire"]
+       bd_values  = [bool_oui.(@acte.budget_executoire)]
+       if with_operation_budgetaire
+         bd_headers << "Opération budgétaire"
+         bd_values  << @acte.operation_budgetaire
+       end
+       bd_headers << "Délibération en CA nécessaire"
+       bd_values  << bool_oui.(@acte.deliberation_ca)
        if @acte.deliberation_ca == true
          bd_headers += ["N° de délibération", "Date de délibération", "Observations sur la délibération"]
          bd_values  += [@acte.numero_deliberation_ca,
@@ -524,11 +530,11 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        headers = ["Type d'acte", "Date d'effet", "Effectifs (liste principale)",
                   "Effectifs (liste complémentaire)", "Catégorie", "Corps",
                   "Date arrêté concours", "Impact schéma d'emplois",
-                  @acte.perimetre == 'organisme' ? "Impact autre CBR" : "Impact autre CBCM"]
+                  @acte.perimetre == 'organisme' ? "Impact autre CBCM/CBR" : "Impact autre CBCM"]
        values  = [fmt_val.(t2&.type_acte_t2),
                   fmt_val.(t2&.date_effet_acte),
-                  fmt_val.(t2&.effectifs),
-                  fmt_val.(t2&.effectifs_complementaire),
+                  fmt_effectif.(t2&.effectifs),
+                  fmt_effectif.(t2&.effectifs_complementaire),
                   Array(t2&.grade).join(', ').presence || 'Non renseigné',
                   fmt_val.(t2&.corps),
                   t2&.date_arrete_concours&.strftime('%d/%m/%Y') || 'Non renseigné',
@@ -537,7 +543,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        sheet.add_row headers, style: Array.new(headers.size, header_style)
        sheet.add_row values,  style: Array.new(values.size, cell_style)
        sheet.add_row
-       render_budget_deliberation.call
+       render_budget_deliberation.call(with_operation_budgetaire: false)
 
      when 'ISP'
        # Miroir _show_isp.html.erb : date d'effet + Cercle 1 + Cercle 2 (chaque cercle si présent)
@@ -575,13 +581,15 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        headers << "FA Technique"
        values  << bool_oui.(t2&.fa_technique)
        styles  << cell_style
-       if @acte.perimetre == 'etat'
-         # Note : le statut user (DCB/CBR) n'est pas disponible dans la vue xlsx ;
-         # on émet les colonnes en mode neutre — Accord RFFIM/Sollicitation DB + Avis CBCM si présents.
-         headers += ["Accord RFFIM/RPROG préalable", "Sollicitation DB/BS préalable", "Sollicitation CBCM préalable"]
-         values  += [bool_oui.(t2&.accord_rffim), fmt_val.(t2&.sollicitation_db), fmt_val.(t2&.avis_cbcm)]
-         styles  += [cell_style, cell_style, cell_style]
-       else
+       if @acte.perimetre == 'etat' && @acte.user.statut == 'DCB'
+         headers += ["Accord RFFIM/RPROG préalable", "Sollicitation DB/BS préalable"]
+         values  += [bool_oui.(t2&.accord_rffim), fmt_val.(t2&.sollicitation_db)]
+         styles  += [cell_style, cell_style]
+       elsif @acte.perimetre == 'etat' && @acte.user.statut == 'CBR'
+         headers << "Sollicitation CBCM préalable"
+         values  << fmt_val.(t2&.avis_cbcm)
+         styles  << cell_style
+       elsif @acte.perimetre == 'organisme'
          headers << "Enveloppe budgétaire abondée"
          values  << fmt_val.(t2&.enveloppe_abondee)
          styles  << cell_style
@@ -626,8 +634,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
                    Array(t2&.grade).join(', ').presence || 'Non renseigné',
                    fmt_val.(t2&.corps),
-                   fmt_val.(t2&.effectifs),
-                   fmt_val.(t2&.effectifs_complementaire),
+                   fmt_effectif.(t2&.effectifs),
+                   fmt_effectif.(t2&.effectifs_complementaire),
                    fmt_val.(t2&.statut_agents),
                    @acte.montant_ae,
                    t2&.impact_financier_n1]
@@ -651,8 +659,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
                    Array(t2&.grade).join(', ').presence || 'Non renseigné',
                    fmt_val.(t2&.corps),
-                   fmt_val.(t2&.effectifs),
-                   fmt_val.(t2&.effectifs_complementaire),
+                   fmt_effectif.(t2&.effectifs),
+                   fmt_effectif.(t2&.effectifs_complementaire),
                    fmt_val.(t2&.statut_agents)]
        styles  += [cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
        sheet.add_row headers, style: Array.new(headers.size, header_style)
@@ -686,8 +694,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
                    Array(t2&.grade).join(', ').presence || 'Non renseigné',
                    fmt_val.(t2&.corps),
-                   fmt_val.(t2&.effectifs),
-                   fmt_val.(t2&.effectifs_complementaire),
+                   fmt_effectif.(t2&.effectifs),
+                   fmt_effectif.(t2&.effectifs_complementaire),
                    @acte.montant_ae,
                    t2&.impact_financier_n1,
                    bool_oui.(t2&.referentiel_type)]
@@ -813,7 +821,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      end
      # 2) Acte figure dans le dernier document de programmation
      unless nature == 'ISP' || (nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
-       add_critere.("L'acte figure dans le dernier document de programmation", @acte.programmation_prevue)
+       add_critere.("Acte programmé", @acte.programmation_prevue)
      end
      # 3) Opération autorisée par les autorités de tutelle (organisme + hors ISP/FA + !budget_exec)
      if !['ISP', 'Fongibilité asymétrique'].include?(nature) && t2_perimetre == 'organisme' && @acte.budget_executoire == false
@@ -844,8 +852,8 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(nature)
        add_critere.("Exactitude de l'évaluation budgétaire", @acte.consommation_credits)
      end
-     # 10) Contrôle des modalités de mise en œuvre (FA + État ; statut user pas accessible en xlsx → on rend si présent)
-     if t2 && nature == 'Fongibilité asymétrique' && is_etat_t2
+     # 10) Contrôle des modalités de mise en œuvre (FA + État + instructeur DCB)
+     if t2 && nature == 'Fongibilité asymétrique' && is_etat_t2 && @acte.user.statut == 'DCB'
        add_critere.("Contrôle des modalités de mise en œuvre", t2.controle_modalites)
      end
      # 11) Respect de l'enveloppe notifiée (ISP)

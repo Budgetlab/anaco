@@ -212,7 +212,7 @@
   <% end %>
 </div>
 <% if is_organisme %>
-  <div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
     <div class="fr-col-12 fr-col-lg-4">
       <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="deliberation-ca-el-legend">
         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="deliberation-ca-el-legend">
@@ -220,18 +220,43 @@
         </legend>
         <div class="fr-fieldset__element fr-fieldset__element--inline">
           <div class="fr-radio-group">
-            <%= f.radio_button :deliberation_ca, true, id: "deliberation_ca_el_oui" %>
+            <%= f.radio_button :deliberation_ca, true, id: "deliberation_ca_el_oui",
+                data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
             <label class="fr-label" for="deliberation_ca_el_oui">Oui</label>
           </div>
         </div>
         <div class="fr-fieldset__element fr-fieldset__element--inline">
           <div class="fr-radio-group">
             <%= f.radio_button :deliberation_ca, false, id: "deliberation_ca_el_non",
-                               checked: acte.deliberation_ca == false || acte.deliberation_ca.nil? %>
+                               checked: acte.deliberation_ca == false || acte.deliberation_ca.nil?,
+                               data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
             <label class="fr-label" for="deliberation_ca_el_non">Non</label>
           </div>
         </div>
       </fieldset>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-input-group">
+        <label for="numero_deliberation_ca_el" class="fr-label">N° de délibération</label>
+        <%= f.text_field :numero_deliberation_ca, id: "numero_deliberation_ca_el", class: "fr-input", value: acte.numero_deliberation_ca %>
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-select-group">
+        <label for="date_deliberation_ca_el" class="fr-label">Date de délibération</label>
+        <%= f.text_field :date_deliberation_ca, class: "fr-select",
+            data: { controller: "flatpickr", flatpickr_default_date: format_date(acte.date_deliberation_ca) },
+            value: format_date(acte.date_deliberation_ca), id: "date_deliberation_ca_el", placeholder: "Sélectionner une option" %>
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-12 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-input-group">
+        <label for="observations_deliberation_ca_el" class="fr-label">Observations sur la délibération</label>
+        <%= f.text_area :observations_deliberation_ca, id: "observations_deliberation_ca_el", class: "fr-input" %>
+      </div>
     </div>
   </div>
 <% end %>

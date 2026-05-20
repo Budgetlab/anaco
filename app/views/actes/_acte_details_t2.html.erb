@@ -110,7 +110,6 @@
   <%# — T2 nature-specific details section — %>
   <% td = acte.t2_detail %>
 
-  <div class="fr-h6 fr-my-3w">Détails <%= acte.nature %></div>
   <% case acte.nature %>
   <% when 'Annexe financière' %>
     <%= render 'actes/t2_sections/show_annexe_financiere', acte: acte, td: td %>
@@ -154,7 +153,7 @@
       criteres << ["Programmation initiale transmise", acte.avis_programmation]
     end
     unless t2_nature == 'ISP' || (t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
-      criteres << ["L'acte figure dans le dernier document de programmation", acte.programmation_prevue]
+      criteres << ["Acte programmé", acte.programmation_prevue]
     end
     if !['ISP', 'Fongibilité asymétrique'].include?(t2_nature) && t2_perimetre == 'organisme' && acte.budget_executoire == false
       criteres << ["Opération autorisée par les autorités de tutelle", acte.autorisation_tutelle]
@@ -178,7 +177,7 @@
     if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(t2_nature)
       criteres << ["Exactitude de l'évaluation budgétaire", acte.consommation_credits]
     end
-    if td && t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'etat' && ['DCB', 'admin'].include?(current_user.statut)
+    if td && t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'etat' && acte.user.statut == 'DCB'
       criteres << ["Contrôle des modalités de mise en œuvre", td.controle_modalites]
     end
     if td && t2_nature == 'ISP'

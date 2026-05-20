@@ -1,5 +1,5 @@
 <%# locals: (f:, td:, acte:) %>
-<% is_dcb = current_user.statut == 'DCB' || current_user.statut == 'admin' %>
+<% is_dcb = current_user.statut == 'DCB' %>
 <% is_cbr = current_user.statut == 'CBR' %>
 <% is_etat = acte.perimetre == 'etat' %>
 <% is_organisme = acte.perimetre == 'organisme' %>
