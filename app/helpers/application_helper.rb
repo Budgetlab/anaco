@@ -88,11 +88,15 @@ module ApplicationHelper
     value.presence || default
   end
 
-  # Pour afficher les effectifs (float) sans décimale inutile : 11.0 → "11", 11.5 → "11.5"
+  # Pour afficher les effectifs (float) au format français : 11.0 → "11", 26363.3 → "26 363,3"
   def format_effectif(value, default = "Non renseigné")
     return default if value.nil?
     f = value.to_f
-    f % 1 == 0 ? f.to_i.to_s : f.to_s
+    if f % 1 == 0
+      number_with_delimiter(f.to_i, delimiter: " ")
+    else
+      number_with_precision(f, precision: 10, strip_insignificant_zeros: true, delimiter: " ", separator: ',')
+    end
   end
 
   # Pour assurer que les images et pièces jointes sont correctement affichées dans les PDFs

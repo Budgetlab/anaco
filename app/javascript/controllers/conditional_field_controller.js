@@ -5,8 +5,8 @@ export default class extends Controller {
     static values = { inverse: Boolean }
 
     connect() {
-        // Initialize visibility on page load
-        this.toggle()
+        // Initial visibility is handled server-side (ERB fr-hidden conditions).
+        // Stimulus only responds to user interactions via the change event.
     }
 
     toggle() {
@@ -27,6 +27,7 @@ export default class extends Controller {
 
         // Inverse logic if specified
         const shouldShow = this.inverseValue ? !isChecked : isChecked
+        console.log(shouldShow)
 
         // Toggle all field targets (support for multiple conditional fields)
         if (this.hasFieldTarget) {

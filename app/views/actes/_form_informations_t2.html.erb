@@ -23,8 +23,19 @@
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
           <label for="nature" class="fr-label">Nature de l'acte*</label>
+          <%
+            nature_labels = {
+              'Annexe financière'       => 'Annexe financière (concours)',
+              'Enveloppe limitative'    => 'Enveloppe limitative (revalorisation…)',
+              'Fongibilité asymétrique' => 'Fongibilité asymétrique',
+              'ISP'                     => 'ISP (cabinet ministériel)',
+              'Marché'                  => 'Marché (PSC)',
+              'Mesure transversale'     => 'Mesure transversale (autres actes)',
+              'Référentiel'             => 'Référentiel (cadre de gestion)'
+            }
+          %>
           <%= f.select :nature,
-                       options_for_select(@liste_natures.map { |n| [n, n] }, @acte.nature),
+                       options_for_select(@liste_natures.map { |n| [nature_labels[n] || n, n] }, @acte.nature),
                        { prompt: "Sélectionner une option" },
                        { id: "nature", class: "fr-select", required: true,
                          data: { action: "change->acte-form#toggleNatureT2", 'acte-form-target': "natureT2Select" } } %>

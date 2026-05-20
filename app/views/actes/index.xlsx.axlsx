@@ -328,7 +328,7 @@ wb.add_worksheet(name: "T2") do |sheet|
   sheet.add_row t2_headers, style: t2_header_styles
 
   actes_t2.each do |acte|
-    row_data = t2_export_row(acte)
+    row_data = ©(acte)
 
     col_count = row_data.length
     styles = Array.new(col_count, cell_style)

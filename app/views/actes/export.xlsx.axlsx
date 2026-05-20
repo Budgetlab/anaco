@@ -490,7 +490,15 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      t2 = @acte.t2_detail
      bool_oui    = ->(v) { v.nil? ? "" : (v ? "Oui" : "Non") }
      fmt_val     = ->(v) { v.nil? || v.to_s.strip.empty? ? "Non renseigné" : v }
-     fmt_effectif = ->(v) { v.nil? ? "Non renseigné" : (v.to_f % 1 == 0 ? v.to_f.to_i.to_s : v.to_f.to_s) }
+     fmt_effectif = ->(v) {
+       next "Non renseigné" if v.nil?
+       f = v.to_f
+       if f % 1 == 0
+         number_with_delimiter(f.to_i, delimiter: " ")
+       else
+         number_with_precision(f, precision: 10, strip_insignificant_zeros: true, delimiter: " ", separator: ',')
+       end
+     }
 
      # Sous-tableau "Budget et délibération" (perimetre organisme uniquement)
      # — partagé entre Annexe financière, Mesure transversale, Enveloppe limitative, Référentiel.
@@ -667,9 +675,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        sheet.add_row values,  style: styles
        sheet.add_row
        # Tableau suite : montants + effet
-       enveloppe_n1 = t2&.montant_enveloppe_n1.to_f
-       impact_max   = t2&.impact_maximal_sans_enveloppe.to_f
-       effet_pct = enveloppe_n1 > 0 ? "#{((impact_max / enveloppe_n1) * 100).round(1)} %" : "—"
+       montant_ae_el = @acte.montant_ae.to_f
+       impact_max    = t2&.impact_maximal_sans_enveloppe.to_f
+       effet_pct = impact_max > 0 ? "#{((montant_ae_el / impact_max) * 100).round(1)} %" : "—"
        headers2 = ["Montant au contrôle (€)", "Montant enveloppe N-1 (€)",
                    "Impact maximal sans enveloppe (€)", "Effet de l'enveloppe (%)"]
        values2  = [@acte.montant_ae, t2&.montant_enveloppe_n1, t2&.impact_maximal_sans_enveloppe, effet_pct]

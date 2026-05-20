@@ -155,7 +155,7 @@
       <label for="el_montant_enveloppe_n1" class="fr-label">Montant enveloppe N-1</label>
       <%= td.text_field :montant_enveloppe_n1, id: "el_montant_enveloppe_n1", class: "fr-input",
                           value: td.object.montant_enveloppe_n1,
-                          data: { action: "input->acte-form#changeNumber" } %>
+                          data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
     </div>
   </div>
 
@@ -164,7 +164,7 @@
       <label for="el_impact_maximal_sans_enveloppe" class="fr-label">Impact maximal sans enveloppe <%= render partial: "actes/tooltip", locals: { name: "impact_maximal_sans_enveloppe_info" } %></label>
       <%= td.text_field :impact_maximal_sans_enveloppe, id: "el_impact_maximal_sans_enveloppe", class: "fr-input",
                           value: td.object.impact_maximal_sans_enveloppe,
-                          data: { action: "input->acte-form#changeNumber input->acte-form#calculateEffetEnveloppe" } %>
+                          data: { action: "input->acte-form#changeNumber input->acte-form#calculateEffetEnveloppe", acte_form_number_field: true } %>
     </div>
   </div>
 
