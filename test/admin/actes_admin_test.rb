@@ -110,8 +110,9 @@ class ActesAdminTest < ActionDispatch::IntegrationTest
     get "/anaco/admin/actes/#{@t2_acte.id}"
     assert_response :success
     assert_includes @response.body, "Détails T2"
-    # type_acte_t2, decimal montant rendered (we don't assert exact format of currency to keep robust)
-    assert_match(/1[\s ]?500/, @response.body) # number_to_currency outputs "1 500,00 €"
+    # number_to_currency formats as "1 500,00 €" — assert € presence to guard against
+    # accidental loss of formatting (raw "1500.0" would still pass a loose number match)
+    assert_match(/1[\s ]500,00\s?€/, @response.body)
     # array column grade joined
     assert_includes @response.body, "A, B"
   end
@@ -210,6 +211,47 @@ class ActesAdminTest < ActionDispatch::IntegrationTest
     get "/anaco/admin/actes/#{@ht2_acte.id}/edit"
     assert_response :success
     assert_no_match(/name="acte\[t2_detail_attributes\]/, @response.body)
+  end
+
+  test "admin show page renders date_arrete_concours in FR format dd/mm/yyyy" do
+    @t2_detail.update!(date_arrete_concours: Date.new(2026, 5, 19))
+    get "/anaco/admin/actes/#{@t2_acte.id}"
+    assert_response :success
+    assert_includes @response.body, "19/05/2026"
+    assert_not_includes @response.body, "2026-05-19"
+  end
+
+  test "admin edit on T2 acte without t2_detail can create one by saving a single field" do
+    # Sanity: build_t2_detail path — admin opens edit on a Marché-style T2 with no detail,
+    # saves a single field → a t2_detail row must be persisted (reject_if: :all_blank lets it through)
+    assert_nil @t2_acte_no_detail.t2_detail
+    patch "/anaco/admin/actes/#{@t2_acte_no_detail.id}", params: {
+      acte: {
+        t2_detail_attributes: { respect_plafond_emplois: "1" }
+      }
+    }
+    assert_response :redirect
+    @t2_acte_no_detail.reload
+    assert_not_nil @t2_acte_no_detail.t2_detail
+    assert_equal true, @t2_acte_no_detail.t2_detail.respect_plafond_emplois
+  end
+
+  test "admin update with foreign t2_detail id does not corrupt the foreign row" do
+    # IDOR guard: posting another acte's t2_detail.id under t2_detail_attributes must
+    # never silently update the foreign record. accepts_nested_attributes_for :t2_detail
+    # with update_only: true keeps the nested record scoped to its owning acte —
+    # this test pins down that contract.
+    foreign_id = @t2_detail.id # belongs to @t2_acte
+    original_montant = @t2_detail.isp_cercle1_montant
+    patch "/anaco/admin/actes/#{@t2_acte_no_detail.id}", params: {
+      acte: {
+        t2_detail_attributes: { id: foreign_id, isp_cercle1_montant: "99999" }
+      }
+    }
+    # Whether the request 200s or redirects, the foreign t2_detail MUST be untouched.
+    @t2_detail.reload
+    assert_equal original_montant, @t2_detail.isp_cercle1_montant,
+                 "Foreign t2_detail must not be modified by another acte's update"
   end
 
   # ─── AC6 — Ransackable foundation ───────────────────────────────────

@@ -1,6 +1,6 @@
 # Story 3.4: Gestion des actes T2 dans ActiveAdmin
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -412,6 +412,17 @@ claude-opus-4-7
 - **Note de tech-debt à reporter en rétrospective** : la constante `NATURES_FILTER_COLLECTION` dans [actes.rb:25-46](app/admin/actes.rb:25) duplique la connaissance des natures HT2/T2 déjà éparpillée dans [actes_controller.rb:1249,1329,1333](app/controllers/actes_controller.rb:1249). Refacto possible vers `Acte::NATURES_HT2_VISA / NATURES_HT2_AVIS / NATURES_T2` partagés. Pas urgent.
 
 ### Change Log
+
+- 2026-05-19 (code review AI — fixes appliqués) — Corrections post-review :
+  - **H1** : `row :date_arrete_concours` reformaté en FR `%d/%m/%Y` ([actes.rb:228](app/admin/actes.rb:228)) — l'AC4 l'exigeait, oubli initial.
+  - **M1** : `enveloppe_abondee`, `sollicitation_db`, `avis_cbcm`, `statut_agents` passés en `as: :text` dans le form admin ([actes.rb:371-379](app/admin/actes.rb:371)) — schema `string` sans limite, contenu textuel parfois multi-mots (notamment l'avis CBCM).
+  - **M5** : assertion currency dans le test "renders Détails T2 panel" durcie pour exiger le `€` après le montant ([actes_admin_test.rb:114](test/admin/actes_admin_test.rb:114)) — l'ancien `/1[\s ]?500/` matchait aussi `1500.0` brut.
+  - **L2** : commentaire de `NATURES_FILTER_COLLECTION` reformulé pour expliquer correctement la dédup ([actes.rb:38-40](app/admin/actes.rb:38)).
+  - **3 nouveaux tests** ajoutés :
+    - "admin show page renders date_arrete_concours in FR format" (guard pour H1)
+    - "admin edit on T2 acte without t2_detail can create one by saving a single field" (guard pour le path `build_t2_detail` de Task 8, jusque-là non couvert)
+    - "admin update with foreign t2_detail id does not corrupt the foreign row" (IDOR guard pour `accepts_nested_attributes_for ... update_only: true`)
+  - Suite complète : **200 runs / 1321 assertions / 0 failures** (+3 tests / +10 assertions vs. premier passage Story 3.4 final).
 
 - 2026-05-19 (post-impl — demande utilisateur) — Édition des champs `t2_detail` ajoutée au formulaire admin :
   - Nouvelle section `f.inputs 'Détails T2 (édition admin — toutes natures à plat)'` conditionnelle sur `f.object.titre == 'T2'`, insérée après `'Classification T2'` ([actes.rb:326-388](app/admin/actes.rb:326)).

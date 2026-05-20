@@ -35,7 +35,8 @@ ActiveAdmin.register Acte do
       "Subvention", "Subvention pour charges d'investissement",
       "Subvention pour charges de service public",
       "Transaction", "Transfert",
-      # HT2 avis (Convention / Transaction / Autre / Autre contrat dédupliqués)
+      # HT2 avis (4 valeurs uniques — Convention, Transaction, Autre, Autre contrat
+      # déjà listées dans la sous-section visa ci-dessus, dédupliquées par .uniq)
       "Accord cadre à bons de commande", "Accord cadre à marchés subséquents",
       "MAPA à bons de commande", "Marché subséquent à bons de commande",
       # T2
@@ -224,7 +225,7 @@ ActiveAdmin.register Acte do
             row :effectifs_complementaire
             row :corps
             row(:grade) { |td| Array(td.grade).join(', ') }
-            row :date_arrete_concours
+            row(:date_arrete_concours) { |td| td.date_arrete_concours&.strftime('%d/%m/%Y') }
             row :date_effet_acte
             row :impact_schema_emplois
             row :impact_autre_cbcm
@@ -368,15 +369,15 @@ ActiveAdmin.register Acte do
         td.input :isp_cercle2_consommation, as: :number, step: 0.01
 
         td.input :fa_technique, as: :boolean
-        td.input :enveloppe_abondee
+        td.input :enveloppe_abondee, as: :text
         td.input :accord_rffim, as: :boolean
-        td.input :sollicitation_db
-        td.input :avis_cbcm
+        td.input :sollicitation_db, as: :text
+        td.input :avis_cbcm, as: :text
 
         td.input :perimetre_mesure, as: :string,
                  input_html: { value: Array(td.object.perimetre_mesure).join(', ') },
                  hint: 'Liste séparée par des virgules'
-        td.input :statut_agents
+        td.input :statut_agents, as: :text
         td.input :impact_financier_n1, as: :number, step: 0.01
         td.input :origine_financement, as: :string,
                  input_html: { value: Array(td.object.origine_financement).join(', ') },
