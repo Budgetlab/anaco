@@ -155,7 +155,11 @@ class ActesController < ApplicationController
     search_params = (params[:q] || {}).dup
 
     # Par défaut, filtrer sur l'année en cours si aucun filtre n'est spécifié
-    if params[:q].blank?
+    # On exclut la clé :s (tri) du test car cliquer sur un en-tête de colonne
+    # transmet q[s]=... sans pour autant constituer un filtre utilisateur.
+    raw_q = params[:q] || {}
+    q_without_sort = (raw_q.respond_to?(:to_unsafe_h) ? raw_q.to_unsafe_h : raw_q).except("s")
+    if q_without_sort.blank?
       search_params[:annee_in] = [Date.today.year.to_s]
     end
 
