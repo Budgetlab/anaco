@@ -36,95 +36,96 @@
     </div>
     <%= render 'actes/flash_message' %>
   </div>
-  <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
-    <div class="fr-container">
-      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-mb-4w">
-        <div class="fr-col-12">
-          <%= search_form_for @q_current, as: :q_current, data: { controller: 'filter', action: 'submit->filter#updateActiveTab', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
-            <%= hidden_field_tag :tab, @selected_tab, data: { filter_target: 'tabField' } %>
-            <%# Préserver tous les autres filtres avancés %>
-            <% if params[:q_current].present? %>
-              <% params[:q_current].each do |key, value| %>
-                <% next if key.to_s == 'titre_in' || key.to_s == 'perimetre_in' || key.to_s == 'numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont' %>
-                <% if value.is_a?(Array) %>
-                  <% value.each do |v| %>
-                    <%= hidden_field_tag "q_current[#{key}][]", v %>
-                  <% end %>
-                <% else %>
-                  <%= hidden_field_tag "q_current[#{key}]", value %>
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-mb-4w">
+      <div class="fr-col-12">
+        <%= search_form_for @q_current, as: :q_current, data: { controller: 'filter', action: 'submit->filter#updateActiveTab', turbo_frame: 'table', turbo_action: 'advance' } do |f| %>
+          <%= hidden_field_tag :tab, @selected_tab, data: { filter_target: 'tabField' } %>
+          <%# Préserver tous les autres filtres avancés %>
+          <% if params[:q_current].present? %>
+            <% params[:q_current].each do |key, value| %>
+              <% next if key.to_s == 'titre_in' || key.to_s == 'perimetre_in' || key.to_s == 'numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont' %>
+              <% if value.is_a?(Array) %>
+                <% value.each do |v| %>
+                  <%= hidden_field_tag "q_current[#{key}][]", v %>
                 <% end %>
+              <% else %>
+                <%= hidden_field_tag "q_current[#{key}]", value %>
               <% end %>
             <% end %>
-            <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-              <div class="fr-col-12">
-                <div class="fr-search-bar" role="search">
-                  <label class="fr-label" for="search-input"> Rechercher </label>
-                  <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont,
-                                     placeholder: "Rechercher un acte par n° acte, n° Chorus, centre financier, bénéficiaire, instructeur, valideur",
-                                     class: "fr-input",
-                                     id: "search-input", oninput: 'this.form.requestSubmit()' %>
-                  <button class="fr-btn fr-btn--filter" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button" title="Filtres avancés">Filtres
-                    avancés
-                  </button>
-                </div>
-              </div>
-              <div class="fr-col-12">
-                <% selected_titres = Array(params.dig(:q_current, :titre_in)).reject(&:blank?) %>
-                <% selected_perimetres = Array(params.dig(:q_current, :perimetre_in)).reject(&:blank?) %>
-                <fieldset class="fr-fieldset fr-fieldset--inline">
-                  <div class="fr-fieldset__element fr-fieldset__element--inline">
-                    <span class="fr-label fr-text--bold fr-mr-1w">Titre</span>
-                  </div>
-                  <div class="fr-fieldset__element fr-fieldset__element--inline">
-                    <div class="fr-checkbox-group fr-checkbox-group--md">
-                      <%= check_box_tag 'q_current[titre_in][]', 'T2',
-                                        selected_titres.include?('T2') || selected_titres.empty?,
-                                        class: "fr-checkbox",
-                                        id: "titre-t2",
-                                        onchange: 'this.form.requestSubmit()' %>
-                      <%= label_tag "titre-t2", "T2 (actes de personnel)", class: "fr-label" %>
-                    </div>
-                  </div>
-                  <div class="fr-fieldset__element fr-fieldset__element--inline">
-                    <div class="fr-checkbox-group fr-checkbox-group--md">
-                      <%= check_box_tag 'q_current[titre_in][]', 'HT2',
-                                        selected_titres.include?('HT2') || selected_titres.empty?,
-                                        class: "fr-checkbox",
-                                        id: "titre-ht2",
-                                        onchange: 'this.form.requestSubmit()' %>
-                      <%= label_tag "titre-ht2", "HT2 (hors actes de personnel)", class: "fr-label" %>
-                    </div>
-                  </div>
-                  <div class="fr-fieldset__element fr-fieldset__element--inline fr-ml-3w">
-                    <span class="fr-label fr-text--bold fr-mr-1w">Périmètre</span>
-                  </div>
-                  <div class="fr-fieldset__element fr-fieldset__element--inline">
-                    <div class="fr-checkbox-group fr-checkbox-group--md">
-                      <%= check_box_tag 'q_current[perimetre_in][]', 'etat',
-                                        selected_perimetres.include?('etat') || selected_perimetres.empty?,
-                                        class: "fr-checkbox",
-                                        id: "perimetre-etat",
-                                        onchange: 'this.form.requestSubmit()' %>
-                      <%= label_tag "perimetre-etat", "Etat", class: "fr-label" %>
-                    </div>
-                  </div>
-                  <div class="fr-fieldset__element fr-fieldset__element--inline">
-                    <div class="fr-checkbox-group fr-checkbox-group--md">
-                      <%= check_box_tag 'q_current[perimetre_in][]', 'organisme',
-                                        selected_perimetres.include?('organisme') || selected_perimetres.empty?,
-                                        class: "fr-checkbox",
-                                        id: "perimetre-organisme",
-                                        onchange: 'this.form.requestSubmit()' %>
-                      <%= label_tag "perimetre-organisme", "Organisme", class: "fr-label" %>
-                    </div>
-                  </div>
-                </fieldset>
+          <% end %>
+          <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
+            <div class="fr-col-12">
+              <div class="fr-search-bar" role="search">
+                <label class="fr-label" for="search-input"> Rechercher </label>
+                <%= f.search_field :numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont,
+                                   placeholder: "Rechercher un acte par n° acte, n° Chorus, centre financier, bénéficiaire, instructeur, valideur",
+                                   class: "fr-input",
+                                   id: "search-input", oninput: 'this.form.requestSubmit()' %>
+                <button class="fr-btn fr-btn--filter" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button" title="Filtres avancés">Filtres
+                  avancés
+                </button>
               </div>
             </div>
-          <% end %>
-        </div>
+            <div class="fr-col-12">
+              <% selected_titres = Array(params.dig(:q_current, :titre_in)).reject(&:blank?) %>
+              <% selected_perimetres = Array(params.dig(:q_current, :perimetre_in)).reject(&:blank?) %>
+              <fieldset class="fr-fieldset fr-fieldset--inline">
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <span class="fr-label fr-text--bold fr-mr-1w">Titre</span>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q_current[titre_in][]', 'T2',
+                                      selected_titres.include?('T2') || selected_titres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "titre-t2",
+                                      data: { filter_group: 'titre', action: 'change->filter#ensureGroupChecked' } %>
+                    <%= label_tag "titre-t2", "T2 (actes de personnel)", class: "fr-label" %>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q_current[titre_in][]', 'HT2',
+                                      selected_titres.include?('HT2') || selected_titres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "titre-ht2",
+                                      data: { filter_group: 'titre', action: 'change->filter#ensureGroupChecked' } %>
+                    <%= label_tag "titre-ht2", "HT2 (hors actes de personnel)", class: "fr-label" %>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline fr-ml-3w">
+                  <span class="fr-label fr-text--bold fr-mr-1w">Périmètre</span>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q_current[perimetre_in][]', 'etat',
+                                      selected_perimetres.include?('etat') || selected_perimetres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "perimetre-etat",
+                                      data: { filter_group: 'perimetre', action: 'change->filter#ensureGroupChecked' } %>
+                    <%= label_tag "perimetre-etat", "Etat", class: "fr-label" %>
+                  </div>
+                </div>
+                <div class="fr-fieldset__element fr-fieldset__element--inline">
+                  <div class="fr-checkbox-group fr-checkbox-group--md">
+                    <%= check_box_tag 'q_current[perimetre_in][]', 'organisme',
+                                      selected_perimetres.include?('organisme') || selected_perimetres.empty?,
+                                      class: "fr-checkbox",
+                                      id: "perimetre-organisme",
+                                      data: { filter_group: 'perimetre', action: 'change->filter#ensureGroupChecked' } %>
+                    <%= label_tag "perimetre-organisme", "Organisme", class: "fr-label" %>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
+  </div>
+
+  <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
     <% if @filtres_count > 0 %>
       <div class="fr-container fr-mt-2w">
         <div class="fr-tags-group">
