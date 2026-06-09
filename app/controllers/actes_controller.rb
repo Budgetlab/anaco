@@ -808,7 +808,7 @@ class ActesController < ApplicationController
     # Données pour les observations - Utilise unnest de PostgreSQL
     all_observations =
       @actes_filtered
-        .pluck(:type_observations)
+        .pluck(:id, :type_observations).map { |_, v| v }
         .compact
         .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
         .map { |s| s.to_s.strip }
@@ -833,7 +833,7 @@ class ActesController < ApplicationController
     years.each do |year|
       actes_annee = actes_for_evolution.where(annee: year)
       observations_count = actes_annee
-        .pluck(:type_observations)
+        .pluck(:id, :type_observations).map { |_, v| v }
         .compact
         .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
         .reject(&:blank?)

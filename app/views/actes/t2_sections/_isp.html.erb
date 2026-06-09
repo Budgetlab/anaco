@@ -59,7 +59,7 @@
     </button>
     <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
          data-checkbox-dropdown-target="menu">
-      <% [["ISOE", "ISOE"], ["NBI", "NBI"], ["SFT", "SFT"], ["Indemnité de résidence", "Indemnité de résidence"], ["Indemnité de technicité", "Indemnité de technicité"]].each do |label, value| %>
+      <% [["Mensuelle", "Mensuelle"], ["De chute", "De chute"], ["Exceptionnelle", "Exceptionnelle"]].each do |label, value| %>
         <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
           <input type="checkbox" id="isp_cercle1_nature_<%= value.parameterize %>"
                  value="<%= value %>"
@@ -177,7 +177,7 @@
     </button>
     <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
          data-checkbox-dropdown-target="menu">
-      <% [["ISOE", "ISOE"], ["NBI", "NBI"], ["SFT", "SFT"], ["Indemnité de résidence", "Indemnité de résidence"], ["Indemnité de technicité", "Indemnité de technicité"]].each do |label, value| %>
+      <% [["Mensuelle", "Mensuelle"], ["De chute", "De chute"], ["Exceptionnelle", "Exceptionnelle"]].each do |label, value| %>
         <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
           <input type="checkbox" id="isp_cercle2_nature_<%= value.parameterize %>"
                  value="<%= value %>"

@@ -376,7 +376,7 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
             t2_detail_attributes: {
               date_effet_acte: '01/09/2026',
               isp_cercle1: 'true',
-              isp_cercle1_natures: 'ISOE,NBI',
+              isp_cercle1_natures: 'Mensuelle,Exceptionnelle',
               isp_cercle1_montant: '15000.50',
               isp_cercle1_enveloppe_sgg: '200000',
               isp_cercle1_consommation: '50000',
@@ -395,7 +395,7 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil acte.t2_detail
     assert_equal '01/09/2026', acte.t2_detail.date_effet_acte
     assert_equal true,  acte.t2_detail.isp_cercle1
-    assert_equal %w[ISOE NBI], acte.t2_detail.isp_cercle1_natures
+    assert_equal %w[Mensuelle Exceptionnelle], acte.t2_detail.isp_cercle1_natures
     assert_equal 15000.5, acte.t2_detail.isp_cercle1_montant.to_f
     assert_equal 200000,  acte.t2_detail.isp_cercle1_enveloppe_sgg.to_f
     assert_equal 50000,   acte.t2_detail.isp_cercle1_consommation.to_f
@@ -414,7 +414,7 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
         date_saisine: Date.today.strftime('%d/%m/%Y'), pre_instruction: false,
         t2_detail_attributes: {
           date_effet_acte: '01/09/2026',
-          isp_cercle1: 'true', isp_cercle1_natures: 'ISOE,NBI',
+          isp_cercle1: 'true', isp_cercle1_natures: 'Mensuelle,Exceptionnelle',
           isp_cercle1_montant: '15000.50', isp_cercle1_enveloppe_sgg: '200000',
           isp_cercle1_consommation: '50000', isp_cercle2: 'false'
         }

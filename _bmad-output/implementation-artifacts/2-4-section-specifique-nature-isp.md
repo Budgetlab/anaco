@@ -176,7 +176,7 @@ For Cercle 2 (default Non):
 
 ### `isp_cercleX_natures` — checkbox-dropdown (same pattern as `grade`)
 
-The `checkbox-dropdown` Stimulus controller is already registered (`app/javascript/controllers/checkbox_dropdown_controller.js`). The ISP nature options (from epic/screenshot) include options like "Indemnité de résidence", "NBI", "SFT", etc. — pending confirmation from user. Use a `hidden_field` that submits CSV; controller splits to array. The controller preprocessor in `acte_params` already handles `grade` as a CSV→array. **ISP natures arrays** will need similar preprocessing or submit as native checkbox array.
+The `checkbox-dropdown` Stimulus controller is already registered (`app/javascript/controllers/checkbox_dropdown_controller.js`). The ISP nature options are : "Mensuelle", "De chute", "Exceptionnelle". Use a `hidden_field` that submits CSV; controller splits to array. The controller preprocessor in `acte_params` already handles `grade` as a CSV→array. **ISP natures arrays** will need similar preprocessing or submit as native checkbox array.
 
 **Recommended approach:** use individual checkboxes with `name="acte[t2_detail_attributes][isp_cercle1_natures][]"` (native Rails array), avoiding the CSV approach (simpler, no preprocessor needed). The checkbox-dropdown controller works the same way — it just needs the `hidden` target value to be a comma-separated string that the controller reads back into checkbox states.
 
@@ -199,11 +199,10 @@ end
 
 ### ISP nature options for dropdown
 
-From the screenshot: the dropdown label is "Nature des ISP" with a "Sélectionner une option" prompt. The exact options are not visible in the screenshot. Use a reasonable set based on context or ask the user. **Placeholder options until confirmed:**
+The dropdown label is "Nature des ISP" with a "Sélectionner une option" prompt. The available options are :
 ```
-ISOE, NBI, Indemnité de résidence, SFT, Indemnité de technicité
+Mensuelle, De chute, Exceptionnelle
 ```
-> Note: confirm with user if a specific enumerated list exists.
 
 ### "Reste à consommer" — Stimulus real-time calculation
 
@@ -399,11 +398,11 @@ claude-sonnet-4-6
 
 - `acte_params` étendu : `t2_detail_attributes` inclut désormais `:isp_cercle1`, `:isp_cercle2`, `:isp_cercle1_montant`, `:isp_cercle1_enveloppe_sgg`, `:isp_cercle1_consommation`, `:isp_cercle2_montant`, `:isp_cercle2_enveloppe_sgg`, `:isp_cercle2_consommation`, `isp_cercle1_natures: []`, `isp_cercle2_natures: []`.
 - Préprocesseur CSV→array ajouté pour `isp_cercle1_natures` et `isp_cercle2_natures` (même pattern que `grade`).
-- `_isp.html.erb` implémenté : Cercle 1 (default Oui, sous-champs visibles) + Cercle 2 (default Non, sous-champs cachés), `conditional-field` Stimulus pour le reveal, `checkbox-dropdown` pour les natures ISP (options : ISOE, NBI, SFT, Indemnité de résidence, Indemnité de technicité), "Reste à consommer" calculé server-side au rendu initial et mis à jour en temps réel via `calculateIspReste`.
+- `_isp.html.erb` implémenté : Cercle 1 (default Oui, sous-champs visibles) + Cercle 2 (default Non, sous-champs cachés), `conditional-field` Stimulus pour le reveal, `checkbox-dropdown` pour les natures ISP (options : Mensuelle, De chute, Exceptionnelle), "Reste à consommer" calculé server-side au rendu initial et mis à jour en temps réel via `calculateIspReste`.
 - `calculateIspReste(event)` ajouté à `acte_form_controller.js` : lit `dataset.ispCercle` ("1" ou "2") pour identifier le cercle, calcule `enveloppe_sgg - consommation`, affiche `--€` si les deux champs sont vides.
 - 3 nouveaux tests dans `actes_controller_test.rb` : rendu des champs ISP, persistance complète des données (isp_cercle1/2, natures CSV→array, montants décimaux), non-régression deliberation_ca pour ISP.
 - Suite complète : **54 runs / 228 assertions / 0 failures / 0 errors**.
-- Note : les options de la liste "Nature des ISP" sont des placeholders (ISOE, NBI, SFT, Indemnité de résidence, Indemnité de technicité) — à confirmer avec les utilisateurs métier.
+- Options de la liste "Nature des ISP" confirmées par le métier : Mensuelle, De chute, Exceptionnelle.
 
 ### File List
 
