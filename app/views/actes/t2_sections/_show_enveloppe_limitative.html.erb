@@ -59,13 +59,7 @@
             <td><%= format_value(number_to_currency(acte.montant_ae, unit: "€", format: "%n %u")) %></td>
             <td><%= format_value(number_to_currency(td.montant_enveloppe_n1, unit: "€", format: "%n %u")) %></td>
             <td><%= format_value(number_to_currency(td.impact_maximal_sans_enveloppe, unit: "€", format: "%n %u")) %></td>
-            <td>
-              <% if td.impact_maximal_sans_enveloppe.to_f > 0 %>
-                <%= number_to_percentage((acte.montant_ae.to_f / td.impact_maximal_sans_enveloppe.to_f) * 100, precision: 1) %>
-              <% else %>
-                —
-              <% end %>
-            </td>
+            <td><%= format_effet_enveloppe_pct(acte.montant_ae, td.impact_maximal_sans_enveloppe) %></td>
 
           </tr>
           </tbody>

@@ -675,9 +675,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        sheet.add_row values,  style: styles
        sheet.add_row
        # Tableau suite : montants + effet
-       montant_ae_el = @acte.montant_ae.to_f
-       impact_max    = t2&.impact_maximal_sans_enveloppe.to_f
-       effet_pct = impact_max > 0 ? "#{((montant_ae_el / impact_max) * 100).round(1)} %" : "—"
+       effet_pct = format_effet_enveloppe_pct(@acte.montant_ae, t2&.impact_maximal_sans_enveloppe)
        headers2 = ["Montant au contrôle (€)", "Montant enveloppe N-1 (€)",
                    "Impact maximal sans enveloppe (€)", "Effet de l'enveloppe (%)"]
        values2  = [@acte.montant_ae, t2&.montant_enveloppe_n1, t2&.impact_maximal_sans_enveloppe, effet_pct]

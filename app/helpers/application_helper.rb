@@ -88,6 +88,21 @@ module ApplicationHelper
     value.presence || default
   end
 
+  # Calcule l'effet de l'enveloppe (%) : ratio montant_ae / impact_maximal_sans_enveloppe.
+  # Retourne un entier arrondi (Integer) ou nil si le calcul n'est pas possible.
+  # Réutilisé dans la vue _show_enveloppe_limitative et dans export.xlsx.axlsx.
+  def effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe)
+    impact = impact_maximal_sans_enveloppe.to_f
+    return nil if impact <= 0
+    ((montant_ae.to_f / impact) * 100).round
+  end
+
+  # Variante formatée pour affichage : "12 %" ou "—" si non calculable.
+  def format_effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe, placeholder: "—")
+    pct = effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe)
+    pct.nil? ? placeholder : "#{pct} %"
+  end
+
   # Pour afficher les effectifs (float) au format français : 11.0 → "11", 26363.3 → "26 363,3"
   def format_effectif(value, default = "Non renseigné")
     return default if value.nil?
