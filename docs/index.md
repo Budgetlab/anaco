@@ -26,6 +26,7 @@
 - [Source Tree Analysis](./source-tree-analysis.md) — Annotated directory structure with entry points
 - [Development Guide](./development-guide.md) — Setup, testing, debugging, common tasks
 - [Deployment Guide](./deployment-guide.md) — CI/CD, Docker, Cloud Run, Kamal, Cloud SQL
+- [Fonctionnalité Avis](./feature-avis.md) — Cycle de vie, création, visualisation, administration des avis
 
 ## Existing Documentation
 
