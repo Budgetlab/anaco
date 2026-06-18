@@ -1,0 +1,17 @@
+<%# Accordéon DSFR de rappel d'écart pour un avis (chiffres alloués vs prévus).
+    Locals :
+      id    : suffixe d'id (ex: "execution" → id="accordion-execution")
+      badge : texte du badge (ex: "Rappel exécution 2025")
+      title : titre suivant le badge (ex: "Écart début de gestion/exécution")
+      avis  : objet Avi passé au partial rappel_ecart
+%>
+<section class="fr-accordion">
+  <h3 class="fr-accordion__title">
+    <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-<%= id %>" data-action="click->form#save">
+      <p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w"><%= badge %></p> <%= title %>
+    </button>
+  </h3>
+  <div class="fr-collapse" id="accordion-<%= id %>">
+    <%= render partial: "avis/rappel_ecart", locals: { avis: avis } %>
+  </div>
+</section>

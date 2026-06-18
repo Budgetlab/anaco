@@ -1,49 +1,60 @@
-<div class="fr-mt-4w" data-controller="form">
+<div class="fr-mt-4w" data-controller="form conditional-field">
   <%= form_with(model: [@bop, @avis], data: { 'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm " }) do |f| %>
     <%= f.hidden_field :user_id, value: current_user.id %>
     <%= f.hidden_field :phase, value: "CRG1" %>
     <%= f.hidden_field :annee, value: @annee_a_afficher %>
     <%= f.hidden_field :etat, value: "Brouillon", data: { 'form-target': 'etat' } %>
     <%= f.hidden_field :date_reception, value: Date.today %>
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-lg-4">
+        <%= render 'radio_oui_non',
+              f: f, attribute: :avis_recu,
+              legend: "Je suis en capacité de rendre mon analyse*",
+              id_prefix: "avis-recu-crg1", default: true,
+              data: { action: "change->conditional-field#toggle",
+                      conditional_field_target: "checkbox" } %>
+        <div class="fr-select-group <%= 'fr-hidden' if (@avis.avis_recu.nil? || @avis.avis_recu) %>" data-conditional-field-target="field" data-inverse="true">
+          <label for="avi-motif-absence-crg1" class="fr-label">Motif d'absence*</label>
+          <%= f.select :motif_absence,
+                options_for_select(@liste_motifs, @avis.motif_absence),
+                { include_blank: 'Sélectionner' },
+                { id: 'avi-motif-absence-crg1', class: 'fr-select', required: true } %>
+        </div>
+        <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right <%= 'fr-hidden' if (@avis.avis_recu.nil? || @avis.avis_recu) %>" data-conditional-field-target="field" data-inverse="true">
+          <li>
+            <%= f.submit "Valider", class: "fr-btn", data: { action: "click->form#validate" } %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w <%= 'fr-hidden' unless (@avis.avis_recu.nil? || @avis.avis_recu) %>" data-conditional-field-target="field">
       <div class="fr-col-12 fr-col-lg-4">
 
         <div class="fr-select-group">
           <label for="date_envoi" class="fr-label">Date de la note d’analyse du CRG1*
             <span class="fr-hint-text">Indiquer ici la date de la note signée par le DRFIP ou le CBR</span></label>
-          <%= f.text_field :date_envoi, class: "fr-select", data: { 'form-target': 'fieldRequire', controller: "flatpickr", flatpickr_default_date: format_date(@avis.date_envoi) }, value: format_date(@avis.date_envoi), id: "date_envoi", placeholder: "- sélectionner -" %>
+          <%= f.text_field :date_envoi, class: "fr-select", required: true, data: { controller: "flatpickr", flatpickr_default_date: format_date(@avis.date_envoi) }, value: format_date(@avis.date_envoi), id: "date_envoi", placeholder: "- sélectionner -" %>
         </div>
         <div class="fr-select-group">
           <label for="statut" class="fr-label">Risque d’insoutenabilité budgétaire*</label>
-          <%= f.select :statut, [["- sélectionner -", ""], ['Aucun risque', 'Aucun risque'], ['Risques éventuels ou modérés', 'Risques éventuels ou modérés'], ['Risques certains ou significatifs', 'Risques certains ou significatifs'],], { selected: @avis.statut }, { data: { 'form-target': 'fieldRequire' }, id: "statut", class: "fr-select" } %>
+          <%= f.select :statut, statuts_for_phase('CRG1'), { include_blank: '- sélectionner -' }, { id: "statut", class: "fr-select", required: true } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-8">
 
-        <section class="fr-accordion">
-          <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-debut" data-action="click->form#save">
-              <p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis début de
-                gestion <%= @annee_a_afficher %></p> Écart ressource/prévision d'exécution
-            </button>
-          </h3>
-          <div class="fr-collapse" id="accordion-debut">
-            <%= render partial: "avis/rappel_ecart", locals: { avis: @avis_debut } %>
-          </div>
-        </section>
+        <%= render 'accordion_rappel',
+              id: 'debut',
+              badge: "Rappel avis début de gestion #{@annee_a_afficher}",
+              title: "Écart ressource/prévision d'exécution",
+              avis: @avis_debut %>
 
-
-        <section class="fr-accordion">
-          <h3 class="fr-accordion__title">
-            <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-crg1" data-action="click->form#save">
-              <p class="fr-badge fr-badge--info fr-badge--no-icon fr-mr-1w">Rappel avis
-                CRG1 <%= @annee_a_afficher - 1 %></p> Écart ressource/prévision d'exécution
-            </button>
-          </h3>
-          <div class="fr-collapse" id="accordion-crg1">
-            <%= render partial: "avis/rappel_ecart", locals: { avis: @avis_crg1_n1 } %>
-          </div>
-        </section>
+        <%= render 'accordion_rappel',
+              id: 'crg1',
+              badge: "Rappel avis CRG1 #{@annee_a_afficher - 1}",
+              title: "Écart ressource/prévision d'exécution",
+              avis: @avis_crg1_n1 %>
 
 
         <%= render partial: "avis/form_chiffres", locals: { f: f, bop: @bop, avis: @avis } %>
@@ -52,7 +63,7 @@
             Observations du contrôleur budgétaire
             <span class="fr-hint-text">800 caractères recommandés, espaces compris</span>
           </label>
-          <%= f.text_area :commentaire, data: { action: "input->form#calculNombreCaracteres" }, class: "fr-input", id: "commentaire", rows: 10, value: @avis.commentaire %>
+          <%= f.text_area :commentaire, data: { action: "input->form#calculNombreCaracteres" }, class: "fr-input", id: "commentaire", rows: 10 %>
           <p class="fr-message fr-message--info"><span class="fr-mr-1v" data-form-target="count">0 </span> caractères
           </p>
         </div>
@@ -60,87 +71,17 @@
         <ul class="fr-btns-group fr-btns-group--icon-left fr-btns-group--inline fr-btns-group--right">
           <li>
             <button class="fr-btn fr-icon-save-3-fill fr-btn--icon-left fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1123" data-action="click->form#save">
-              Enregistrer
+              Enregistrer en brouillon
             </button>
           </li>
           <li>
-            <button class="fr-btn bouton_inactive" data-fr-opened="false" data-form-target="Btnvalidate" aria-controls="modal-1122" data-action="click->form#open">Valider</button>
+            <%= f.submit "Valider", class: "fr-btn", data: { action: "click->form#validate" } %>
           </li>
         </ul>
-        <dialog id="modal-1123" class="fr-modal" aria-labelledby="modal-1123-title">
-          <div class="fr-container fr-container--fluid fr-container-md">
-            <div class="fr-grid-row fr-grid-row--center">
-              <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                <div class="fr-modal__body">
-                  <div class="fr-modal__header">
-                    <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer" data-action="click->form#save">
-                      Fermer
-                    </button>
-                  </div>
-                  <div class="fr-modal__content">
-                    <h1 id="modal-1123-title" class="fr-modal__title">
-                      <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                      Enregistrer le brouillon
-                    </h1>
-                    <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette
-                      page pour compléter et valider votre avis afin qu'il soit transmis définitivement au DCB.</p>
-                    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
-                      <li>
-                        <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer" data-action="click->form#save">
-                          Annuler
-                        </button>
-                      </li>
-                      <li>
-                        <button data-action="click->form#changeTextToFloat" data-form-target="Btnsave" class="fr-btn" title="Enregistrer">
-                          Enregistrer
-                        </button>
-                      </li>
-                    </ul>
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </dialog>
-        <dialog id="modal-1122" class="fr-modal" aria-labelledby="modal-1122-title">
-          <div class="fr-container fr-container--fluid fr-container-md">
-            <div class="fr-grid-row fr-grid-row--center">
-              <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
-                <div class="fr-modal__body">
-                  <div class="fr-modal__header">
-                    <button class="fr-btn--close fr-btn" aria-controls="modal-1122" title="Fermer" data-action="click->form#save">
-                      Fermer
-                    </button>
-                  </div>
-                  <div class="fr-modal__content">
-                    <div class="fr-alert fr-alert--warning fr-mb-2w fr-hidden" id="alert_field_empty">
-                      <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les données </h3>
-                    </div>
-                    <h1 id="modal-1122-title" class="fr-modal__title">
-                      <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
-                      Souhaitez-vous valider le formulaire ?
-                    </h1>
-                    <p>En cliquant sur valider, vous confirmez votre avis/note et rendez sa lecture accessible.</p>
-                    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
-                      <li>
-                        <button class="fr-btn fr-btn--secondary" aria-controls="modal-1122" title="Fermer" data-action="click->form#save">
-                          Annuler
-                        </button>
-                      </li>
-                      <li>
-                        <%= f.submit "Valider", class: "fr-btn", data: { 'form-target': "submitBouton", action: "click->form#changeTextToFloat" }, aria: { label: "Valider" } %>
-                      </li>
-                    </ul>
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </dialog>
       </div>
     </div>
+
+    <%= render 'form_modals', f: f %>
   <% end %>
 </div>
 

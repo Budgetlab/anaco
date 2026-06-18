@@ -1,5 +1,11 @@
 module AvisHelper
 
+  # Liste des statuts possibles pour une phase d'avis (ex: 'début de gestion').
+  # Source : Avi::STATUTS_PAR_PHASE.
+  def statuts_for_phase(phase)
+    Avi::STATUTS_PAR_PHASE.fetch(phase, [])
+  end
+
   def badge_class_for_etat(etat)
     case etat
     when 'En attente de lecture'
@@ -21,6 +27,8 @@ module AvisHelper
       'fr-badge fr-badge--warning'
     when 'Défavorable', 'Risques certains ou significatifs', 'Risques significatifs'
       'fr-badge fr-badge--error'
+    when 'Non reçu'
+      'fr-badge fr-badge--brown-caramel'
     else
       'fr-badge'
     end

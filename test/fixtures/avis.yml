@@ -1,2 +1,31 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+avis_debut_lu:
+  bop: bop_1
+  user: cbr_1
+  phase: "début de gestion"
+  annee: 2026
+  etat: "Lu"
+  statut: "Favorable"
+  avis_recu: true
+  date_reception: 2026-01-15
+  date_envoi: 2026-01-20
+  is_delai: false
+  is_crg1: false
 
+avis_brouillon:
+  bop: bop_1
+  user: cbr_1
+  phase: "CRG1"
+  annee: 2026
+  etat: "Brouillon"
+  avis_recu: true
+
+avis_non_recu:
+  bop: bop_1
+  user: cbr_1
+  phase: "début de gestion"
+  annee: 2026
+  etat: "Lu"
+  statut: "Non reçu"
+  avis_recu: false
+  is_crg1: true
+  motif_absence: "Dossier incomplet, ne permettant pas de rendre un avis"

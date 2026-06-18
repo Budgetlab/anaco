@@ -1,2 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+programme_1:
+  user: one
+  mission: mission_1
+  ministere: ministere_1
+  numero: "100"
+  nom: Programme Test
+  statut: Actif
+  deconcentre: true

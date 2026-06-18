@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_18_150240) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_091441) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -180,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_150240) do
     t.float "ae_f"
     t.float "ae_i"
     t.integer "annee"
+    t.boolean "avis_recu", default: true, null: false
     t.bigint "bop_id", null: false
     t.string "commentaire"
     t.float "cp_f"
@@ -193,6 +194,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_150240) do
     t.float "etpt_i"
     t.boolean "is_crg1"
     t.boolean "is_delai"
+    t.string "motif_absence"
     t.string "phase"
     t.string "statut"
     t.float "t2_f"

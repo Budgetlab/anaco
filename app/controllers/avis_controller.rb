@@ -7,6 +7,7 @@ class AvisController < ApplicationController
   before_action :redirect_unless_dcb, only: %i[consultation update_etat]
   before_action :set_bop, only: %i[new create edit update]
   before_action :redirect_unless_bop_controller, only: %i[new create edit update]
+  before_action :set_liste_motifs, only: %i[new create edit update]
   require 'axlsx'
   include ApplicationHelper
   include AvisHelper
@@ -67,10 +68,12 @@ class AvisController < ApplicationController
 
   # fonction qui créé un nouvel avis
   def create
-    @avis = @bop.avis.new(avi_params)
+    @avis = @bop.avis.new(force_non_recu_attributes!(avi_params))
     if @avis.save
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
       @avis.update(etat: 'Lu') if dcb_is_updating?
+      # avis_recu=false : le callback set_etat_avis force "Brouillon" (dates nulles) ; on bypass pour rester "Lu"
+      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to historique_path, notice: @message
     else
       render :new
@@ -87,13 +90,16 @@ class AvisController < ApplicationController
   def update
     @avis = Avi.find(params[:id])
     etat = @avis.etat
+    forced_params = force_non_recu_attributes!(avi_params)
     if ['Lu', 'En attente de lecture'].include?(etat) # avis modifié
-      @avis.update(avi_params)
+      @avis.update(forced_params)
       @avis.update(etat: etat) if @avis.etat != "Brouillon"
+      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to bop_path(@avis.bop), notice: 'Modification'
-    elsif @avis.update(avi_params)
+    elsif @avis.update(forced_params)
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
       @avis.update(etat: 'Lu') if dcb_is_updating?
+      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to historique_path, notice: @message
     else
       render :edit
@@ -217,11 +223,39 @@ class AvisController < ApplicationController
   private
 
   def avi_params
-    params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee, :duree_prevision)
+    params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee, :duree_prevision, :avis_recu, :motif_absence)
+  end
+
+  # Force statut/etat et nullifie les champs non pertinents quand avis_recu = false.
+  # En "début de gestion", on programme toujours un CRG1 si l'avis n'a pas été reçu.
+  # Bascule Non → Oui : reset motif_absence pour ne pas conserver une donnée masquée.
+  def force_non_recu_attributes!(attrs)
+    avis_recu = attrs[:avis_recu]
+    if avis_recu == 'false' || avis_recu == false
+      is_crg1_value = attrs[:phase] == 'début de gestion' ? true : nil
+      attrs.merge(
+        avis_recu: false,
+        statut: 'Non reçu',
+        etat: 'Lu',
+        date_envoi: nil, date_reception: nil,
+        is_delai: nil, is_crg1: is_crg1_value,
+        ae_i: nil, ae_f: nil, cp_i: nil, cp_f: nil,
+        t2_i: nil, t2_f: nil, etpt_i: nil, etpt_f: nil,
+        commentaire: nil, duree_prevision: nil
+      )
+    elsif avis_recu == 'true' || avis_recu == true
+      attrs.merge(avis_recu: true, motif_absence: nil)
+    else
+      attrs
+    end
   end
 
   def set_bop
     @bop = Bop.find(params[:bop_id])
+  end
+
+  def set_liste_motifs
+    @liste_motifs = Avi::MOTIFS_ABSENCE
   end
 
   def set_avis_phase(annee)
@@ -234,13 +268,10 @@ class AvisController < ApplicationController
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
-    @avis_execution = avis_annee_precedente.select { |a| a.phase == 'execution' }[0]
   end
 
   # fonction pour afficher le bon formulaire
   def set_form_phase(annee)
-    # if (annee == @annee && @avis_execution.nil? && @avis_debut_n1) || (@avis_execution && @avis_execution.etat != 'valide') # doit remplir le form execution au départ
-    #  'execution'
     if annee == @annee && @phase == 'services votés'
       'services votés'
     elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1) # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas

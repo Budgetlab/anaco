@@ -29,15 +29,24 @@ export default class extends Controller {
         }
     }
 
+    // Soumission "Valider" : passe etat en "En attente de lecture" puis lance
+    // la soumission avec validation HTML5 native (cf. changeTextToFloat).
+    validate(event) {
+        this.etatTarget.value = "En attente de lecture";
+        this.changeTextToFloat(event);
+    }
+
     formChange() {
         let isValid = this.validateForm(this.formTarget);
-        if (isValid == true) {
-            this.BtnvalidateTarget.classList.remove('bouton_inactive');
-            this.BtnvalidateTarget.disabled = false;
-        } else {
-            this.BtnvalidateTarget.classList.add('bouton_inactive');
-            this.BtnvalidateTarget.disabled = true;
-        }
+        this.BtnvalidateTargets.forEach((btn) => {
+            if (isValid == true) {
+                btn.classList.remove('bouton_inactive');
+                btn.disabled = false;
+            } else {
+                btn.classList.add('bouton_inactive');
+                btn.disabled = true;
+            }
+        });
     }
 
     setNombreInput() {
@@ -226,7 +235,13 @@ export default class extends Controller {
                 }
             }
         })
-        this.formTarget.submit();
+        // Brouillon : bypass validation HTML5 (champs partiels admis).
+        // Valider : requestSubmit() déclenche la validation HTML5 native.
+        if (this.etatTarget.value === "Brouillon") {
+            this.formTarget.submit();
+        } else {
+            this.formTarget.requestSubmit();
+        }
     }
 
     setAlerteDate(date, date_max, resultat) {
@@ -240,26 +255,14 @@ export default class extends Controller {
     validateForm() {
         let isValid = true;
         this.fieldRequireTargets.forEach((field) => {
-            if (field.value == "" && field.disabled == false) {
+            // Ignore les champs dans un wrapper conditional-field masqué (.fr-hidden)
+            if (field.value == "" && field.disabled == false && !field.closest(".fr-hidden")) {
                 isValid = false;
             }
         })
         return isValid
     }
 
-    open(e) {
-        e.preventDefault();
-        this.etatTarget.value = "En attente de lecture";
-        const fields = document.querySelectorAll("input[type='text'],textarea");
-        let field_empty = Array.from(fields).some(field => field.value === '');
-        const alert_message = document.getElementById("alert_field_empty")
-        if (field_empty) {
-            alert_message.classList.remove("fr-hidden");
-        } else {
-            alert_message.classList.add("fr-hidden");
-        }
-
-    }
 
     save(e) {
         e.preventDefault();

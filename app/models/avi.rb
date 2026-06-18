@@ -3,6 +3,19 @@ class Avi < ApplicationRecord
   belongs_to :user
   require 'axlsx'
 
+  MOTIFS_ABSENCE = [
+    'Absence de dossier transmis par le RBOP',
+    'Dossier transmis tardivement par le RBOP',
+    'Dossier incomplet, ne permettant pas de rendre un avis'
+  ].freeze
+
+  STATUTS_PAR_PHASE = {
+    'début de gestion' => ['Favorable', 'Favorable avec réserve', 'Défavorable'],
+    'services votés'   => ['Favorable', 'Favorable avec réserve', 'Défavorable'],
+    'CRG1'             => ['Aucun risque', 'Risques éventuels ou modérés', 'Risques certains ou significatifs'],
+    'CRG2'             => ['Aucun risque', 'Risques modérés', 'Risques significatifs']
+  }.freeze
+
   before_save :set_etat_avis
 
   def self.import(file)
@@ -26,6 +39,8 @@ class Avi < ApplicationRecord
       avis.etat = row_data['Etat'].presence || 'Lu'
       avis.statut = row_data['Statut/Risque']
       avis.commentaire = row_data['commentaire']
+      avis.motif_absence = row_data["Motif d'absence"]
+      avis.avis_recu = (row_data['Statut/Risque'] != 'Non reçu')
       avis.duree_prevision = row_data['Durée prévision'].to_i if row_data['Durée prévision'].present?
       avis.date_reception = parse_date(row_data['Date reception'])
       avis.date_envoi = parse_date(row_data['Date avis initial'])
@@ -94,7 +109,7 @@ class Avi < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["ae_f", "ae_i", "annee", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
+    ["ae_f", "ae_i", "annee", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "motif_absence", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["bop", "user"]

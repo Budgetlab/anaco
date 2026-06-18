@@ -122,11 +122,10 @@
                       <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
                         <% end %></td>
                       <td><%= avis.bop.programme.numero %> - <%= avis.bop.programme.nom %> </td>
-                      <td><%= avis.statut %></td>
+                      <td><span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon"><%= avis.statut %></span></td>
                       <td>
                         <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
                       </td>
-
                       <td>
                         <% if avis.etat == "Brouillon" %>
                           <% if current_user.statut != "admin" %>
@@ -256,7 +255,7 @@
                     <span class="fr-label fr-text--bold">Statut/Risque</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array((@q_params || {})[:statut_in]) %>
-                      <% ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs"].each do |t| %>
+                      <% ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs", "Non reçu"].each do |t| %>
                         <li>
                           <label class="fr-tag tag-selectable"
                                  data-controller="tag-select"

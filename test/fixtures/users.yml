@@ -18,3 +18,15 @@ three:
   statut: "DCB"
   nom: "DCB Test"
   encrypted_password: <%= password_digest %>
+
+cbr_1:
+  email: cbr1@hotmail.fr
+  statut: "CBR"
+  nom: "CBR Un"
+  encrypted_password: <%= password_digest %>
+
+dcb_1:
+  email: dcb1@hotmail.fr
+  statut: "DCB"
+  nom: "DCB Un"
+  encrypted_password: <%= password_digest %>
