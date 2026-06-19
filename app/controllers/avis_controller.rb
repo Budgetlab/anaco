@@ -44,7 +44,9 @@ class AvisController < ApplicationController
   # Page de création d'un nouvel avis
   def new
     @annee_a_afficher = annee_a_afficher
-    redirect_to bop_path(@bop) and return if @bop.statut == 'inactif'
+    # Activité par année : un BOP peut être actif globalement (statut) mais hors période
+    # d'activité pour l'année ciblée → pas de saisie possible cette année-là.
+    redirect_to bop_path(@bop) and return unless @bop.actif_en?(@annee_a_afficher)
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
     set_avis_phase(@annee_a_afficher)

@@ -254,7 +254,7 @@ module ApplicationHelper
   end
 
   def bops_actifs(bops, annee)
-    bops.where('created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
+    bops.actifs_en(annee)
   end
 
   def colorful_card_css_class(amount)

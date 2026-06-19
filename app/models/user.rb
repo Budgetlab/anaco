@@ -56,11 +56,11 @@ class User < ApplicationRecord
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
+    self.bops.actifs_en(annee)
   end
 
   def bops_inactifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'inactif')
+    self.bops.inactifs_en(annee)
   end
 
   # Nombre total d'avis à produire pour l'année : tag "À rédiger" (pas d'avis) + "Brouillon",

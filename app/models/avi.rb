@@ -109,7 +109,7 @@ class Avi < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["ae_f", "ae_i", "annee", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "motif_absence", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
+    ["ae_f", "ae_i", "annee", "avis_recu", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "motif_absence", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
   end
   def self.ransackable_associations(auth_object = nil)
     ["bop", "user"]

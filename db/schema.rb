@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_091441) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_19_054758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -217,6 +217,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_091441) do
   create_table "bops", force: :cascade do |t|
     t.string "code"
     t.datetime "created_at", null: false
+    t.date "date_debut_activite"
+    t.date "date_fin_activite"
     t.bigint "dcb_id"
     t.boolean "deconcentre", default: false, null: false
     t.string "dotation"
@@ -224,6 +226,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_091441) do
     t.string "statut", default: "actif", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["date_debut_activite", "date_fin_activite"], name: "index_bops_on_periode_activite"
     t.index ["dcb_id"], name: "index_bops_on_dcb_id"
     t.index ["deconcentre"], name: "index_bops_on_deconcentre"
     t.index ["programme_id"], name: "index_bops_on_programme_id"

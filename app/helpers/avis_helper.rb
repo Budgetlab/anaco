@@ -161,7 +161,7 @@ module AvisHelper
     when 'CRG1'
       avis.select { |a| a.phase == 'début de gestion' && a.is_crg1? && a.statut != 'Brouillon' }.count
     else
-      Bop.where('created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif').count
+      Bop.actifs_en(annee).count
     end
   end
 

@@ -65,16 +65,23 @@
       <div class="fr-col-12 fr-col-lg-12">
         <h2 class="fr-mb-3w">Historique des avis</h2>
         <%= render 'avis/success' %>
+        <%# Onglets : couvrent la période d'activité du BOP.
+            - Borne basse : date_debut_activite.year (fallback 2023 si nil).
+            - Borne haute : date_fin_activite.year si défini, plafonné à l'année courante
+              (un BOP désactivé en 2024 n'a pas d'avis en 2026). %>
+        <% premiere_annee = @bop.date_debut_activite&.year || 2023 %>
+        <% derniere_annee = [Date.today.year, @bop.date_fin_activite&.year].compact.min %>
+        <% annees_historique = derniere_annee.downto(premiere_annee).to_a %>
         <div class="fr-tabs">
           <ul class="fr-tabs__list" role="tablist" aria-label="Avis du bop par année">
-            <% (Date.today.year).downto(2023).to_a.each do |annee| %>
+            <% annees_historique.each do |annee| %>
               <li role="presentation">
-                <button id="tabpanel-<%= annee %>" class="fr-tabs__tab" tabindex="<%= annee == Date.today.year ? '0' : '-1' %>" role="tab" aria-selected="<%= annee == Date.today.year ? 'true' : 'false' %>" aria-controls="tabpanel-<%= annee %>-panel"><%= annee %></button>
+                <button id="tabpanel-<%= annee %>" class="fr-tabs__tab" tabindex="<%= annee == derniere_annee ? '0' : '-1' %>" role="tab" aria-selected="<%= annee == derniere_annee ? 'true' : 'false' %>" aria-controls="tabpanel-<%= annee %>-panel"><%= annee %></button>
               </li>
             <% end %>
           </ul>
-          <% (Date.today.year).downto(2023).to_a.each do |annee| %>
-            <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == Date.today.year ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
+          <% annees_historique.each do |annee| %>
+            <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == derniere_annee ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
               <% liste_avis_annee = @bop_avis.order(created_at: :desc).select { |avis| avis.annee == annee } %>
               <% if liste_avis_annee.empty? %>
                 <p>Aucun avis</p>

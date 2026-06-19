@@ -1,6 +1,7 @@
 ActiveAdmin.register Bop do
 
-  permit_params :user_id, :dcb_id, :programme_id, :code, :dotation, :deconcentre, :statut
+  permit_params :user_id, :dcb_id, :programme_id, :code, :dotation, :deconcentre, :statut,
+                :date_debut_activite, :date_fin_activite
 
   index do
     selectable_column
@@ -9,6 +10,8 @@ ActiveAdmin.register Bop do
     column(:programme) { |b| "#{b.programme.numero} - #{b.programme.nom}" }
     column(:ministere) { |b| b.programme.ministere.nom }
     column :statut
+    column :date_debut_activite
+    column :date_fin_activite
     column :dotation
     column :deconcentre
     column(:user) { |b| b.user.nom }
@@ -24,6 +27,8 @@ ActiveAdmin.register Bop do
       row(:programme) { |b| "#{b.programme.numero} - #{b.programme.nom}" }
       row(:ministere) { |b| b.programme.ministere.nom }
       row :statut
+      row :date_debut_activite
+      row :date_fin_activite
       row :dotation
       row :deconcentre
       row(:user) { |b| b.user.nom }
@@ -37,6 +42,10 @@ ActiveAdmin.register Bop do
     f.inputs do
       f.input :code
       f.input :statut, as: :select, collection: ["actif", "inactif"]
+      f.input :date_debut_activite, as: :datepicker,
+              hint: "Date métier de début d'activité du BOP."
+      f.input :date_fin_activite, as: :datepicker,
+              hint: "Date de désactivation. Laisser vide si encore actif."
       f.input :dotation, as: :select, collection: ["HT2", "T2", "HT2 et T2"]
       f.input :deconcentre, as: :boolean
       f.input :programme, as: :select,
