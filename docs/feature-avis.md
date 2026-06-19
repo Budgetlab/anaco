@@ -372,7 +372,8 @@ sequenceDiagram
 ### 6.1 Remplissage des avis
 
 - **Route** : `GET /remplissage_avis` → `avis#remplissage_avis`
-- **Contenu** : pour le CBR connecté, liste des BOP actifs et inactifs avec, pour chacun, les avis déjà saisis sur l'année courante. C'est l'écran d'entrée principal pour démarrer ou poursuivre la saisie.
+- **Contenu** : tableau de bord du CBR. Une ligne par BOP, 4 colonnes pour les phases (Services votés, Avis à la programmation, CRG1, CRG2), un badge de statut par case, et 2 boutons d'action (Rédiger / Consulter les avis). Un compteur global "Il reste X avis à rédiger" agrège les cellules "À rédiger" et "Brouillon" de toutes les phases ouvertes.
+- **Documentation détaillée** : [page-remplissage-avis.md](./page-remplissage-avis.md) — logique des badges, règles de calendrier, helpers, compteur, sélecteur d'année, onglet BOP inactifs.
 
 ### 6.2 Suivi du remplissage
 

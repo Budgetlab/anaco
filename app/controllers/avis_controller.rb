@@ -48,7 +48,9 @@ class AvisController < ApplicationController
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
     set_avis_phase(@annee_a_afficher)
-    @phase_form = set_form_phase(@annee_a_afficher)
+    # Si l'appelant cible explicitement une phase (bouton Rédiger du tableau remplissage),
+    # on l'utilise ; sinon on retombe sur la logique automatique.
+    @phase_form = params[:phase].presence || set_form_phase(@annee_a_afficher)
     @last_avis_phase = @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form).order(:created_at).last
 
     if @last_avis_phase.present?
@@ -57,8 +59,9 @@ class AvisController < ApplicationController
         redirect_to edit_bop_avi_path(bop_id: @bop.id, id: @last_avis_phase.id) and return
       end
 
-      # Avis déjà finalisé et hors phase services votés → consulter le BOP
-      if @phase != 'services votés'
+      # Avis déjà finalisé et hors phase services votés (le seul formulaire multi-versions)
+      # → on consulte le BOP plutôt que de doublonner.
+      if @phase_form != 'services votés'
         redirect_to bop_path(@bop), notice: 'Un avis a déjà été transmis pour cette phase.' and return
       end
     end

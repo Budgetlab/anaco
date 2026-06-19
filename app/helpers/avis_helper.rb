@@ -6,6 +6,68 @@ module AvisHelper
     Avi::STATUTS_PAR_PHASE.fetch(phase, [])
   end
 
+  # Indique si la phase est ouverte à la saisie dans ANACO pour l'année affichée.
+  # Année passée → toutes phases ouvertes. Sinon, dépend de la date d'aujourd'hui.
+  def phase_ouverte?(phase, annee_affichee, annee, date_debut, date_crg1, date_crg2)
+    return true if annee_affichee < annee
+    case phase
+    when 'services votés'   then true
+    when 'début de gestion' then Date.today >= date_debut
+    when 'CRG1'             then Date.today >= date_crg1
+    when 'CRG2'             then Date.today >= date_crg2
+    end
+  end
+
+  # Badge HTML pour une case (phase, bop) du tableau de remplissage.
+  # avis        : dernier avis pour la phase (ou nil). Pour SV, le plus récent.
+  # avis_debut  : avis 'début de gestion' (utilisé pour CRG1 → N/A si !is_crg1).
+  def phase_status_badge(avis, phase, ouverte, avis_debut: nil)
+    return content_tag(:p, 'N/A', class: 'fr-badge') if phase == 'CRG1' && avis_debut&.is_crg1 == false
+
+    unless ouverte
+      return content_tag(:p, class: 'fr-badge') do
+        concat content_tag(:span, '', class: 'fr-icon-git-repository-private-fill fr-icon--sm', 'aria-hidden': true)
+        concat 'Non ouvert'
+      end
+    end
+
+    if avis.nil?
+      return content_tag(:p, class: 'fr-badge fr-badge--warning fr-badge--no-icon') do
+        concat content_tag(:span, '', class: 'fr-icon-edit-fill fr-icon--sm', 'aria-hidden': true)
+        concat 'À rédiger'
+      end
+    end
+
+    case
+    when avis.etat == 'Brouillon'
+      content_tag(:p, 'Brouillon', class: 'fr-badge fr-badge--new fr-badge--no-icon')
+    when avis.statut == 'Non reçu'
+      content_tag(:p, 'Non reçu', class: 'fr-badge fr-badge--brown-caramel')
+    else
+      content_tag(:p, class: 'fr-badge fr-badge--info fr-badge--no-icon') do
+        concat content_tag(:span, '', class: 'fr-icon-checkbox-circle-fill fr-icon--sm', 'aria-hidden': true)
+        concat 'Transmis'
+      end
+    end
+  end
+
+  # Prochaine phase à rédiger pour un BOP (SV → début → CRG1 → CRG2), ou nil si rien.
+  # Une phase est candidate si elle est ouverte ET (pas d'avis OU avis en brouillon).
+  # CRG1 n'est candidat que si l'avis début de gestion l'a programmé (is_crg1 == true).
+  def next_phase_to_fill(avis_bop, annee_affichee, annee, date_debut, date_crg1, date_crg2)
+    avis_sv    = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at)
+    avis_debut = avis_bop.find { |a| a.phase == 'début de gestion' }
+    avis_crg1  = avis_bop.find { |a| a.phase == 'CRG1' }
+    avis_crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
+    dates = [annee_affichee, annee, date_debut, date_crg1, date_crg2]
+
+    return 'services votés'   if phase_ouverte?('services votés', *dates)   && (avis_sv.nil? || avis_sv.etat == 'Brouillon')
+    return 'début de gestion' if phase_ouverte?('début de gestion', *dates) && (avis_debut.nil? || avis_debut.etat == 'Brouillon')
+    return 'CRG1'             if phase_ouverte?('CRG1', *dates)             && avis_debut&.is_crg1 && (avis_crg1.nil? || avis_crg1.etat == 'Brouillon')
+    return 'CRG2'             if phase_ouverte?('CRG2', *dates)             && (avis_crg2.nil? || avis_crg2.etat == 'Brouillon')
+    nil
+  end
+
   def badge_class_for_etat(etat)
     case etat
     when 'En attente de lecture'

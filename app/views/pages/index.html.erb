@@ -79,7 +79,7 @@
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
                               <%= link_to remplissage_avis_path do %>
-                                <%= pluralize(current_user.avis_a_remplir(Date.today.year, @phase), 'avis/note', plural: 'avis/notes') %>
+                                <%= pluralize(current_user.avis_a_remplir(Date.today.year, @date_debut, @date_crg1, @date_crg2), 'avis/note', plural: 'avis/notes') %>
                               <% end %>
                             </h3>
                             <p class="fr-tile__detail">

@@ -27,6 +27,7 @@
 - [Development Guide](./development-guide.md) — Setup, testing, debugging, common tasks
 - [Deployment Guide](./deployment-guide.md) — CI/CD, Docker, Cloud Run, Kamal, Cloud SQL
 - [Fonctionnalité Avis](./feature-avis.md) — Cycle de vie, création, visualisation, administration des avis
+- [Page Remplissage des avis](./page-remplissage-avis.md) — Tableau de bord CBR : badges par phase, boutons d'action, calendrier, compteur global
 
 ## Existing Documentation
 

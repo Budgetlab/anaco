@@ -76,7 +76,7 @@
                 AE HT2
               </label>
               <% if @bop.dotation != "T2" %>
-                <%= f.text_field :ae_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "ae_f", %>
+                <%= f.text_field :ae_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "ae_f" %>
               <% else %>
                 <%= f.text_field :ae_f, class: "fr-input", id: "ae_f", value: 0, disabled: true %>
                 <%= f.hidden_field :ae_f, value: 0 %>
@@ -89,7 +89,7 @@
                 CP HT2
               </label>
               <% if @bop.dotation != "T2" %>
-                <%= f.text_field :cp_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "cp_f", %>
+                <%= f.text_field :cp_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "cp_f" %>
               <% else %>
                 <%= f.text_field :cp_f, class: "fr-input", id: "cp_f", value: 0, disabled: true %>
                 <%= f.hidden_field :cp_f, value: 0 %>
@@ -102,7 +102,7 @@
                 AE/CP T2
               </label>
               <% if @bop.dotation != "HT2" %>
-                <%= f.text_field :t2_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "t2_f", %>
+                <%= f.text_field :t2_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "t2_f" %>
               <% else %>
                 <%= f.text_field :t2_f, class: "fr-input", id: "t2_f", value: 0, disabled: true %>
                 <%= f.hidden_field :t2_f, value: 0 %>
@@ -115,7 +115,7 @@
                 ETPT
               </label>
               <% if @bop.dotation != "HT2" %>
-                <%= f.text_field :etpt_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "etpt_f", %>
+                <%= f.text_field :etpt_f, data: { action: 'input->form#changeNumber' }, class: "fr-input", id: "etpt_f" %>
               <% else %>
                 <%= f.text_field :etpt_f, class: "fr-input", id: "etpt_f", value: 0, disabled: true %>
                 <%= f.hidden_field :etpt_f, value: 0 %>

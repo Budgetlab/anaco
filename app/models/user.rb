@@ -63,14 +63,37 @@ class User < ApplicationRecord
     self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'inactif')
   end
 
-  def avis_a_remplir(annee, phase)
-    case phase
-    when 'début de gestion'
-      bops_actifs(annee).count - bops_with_avis(annee, phase)
-    when 'CRG1'
-      avis_a_remplir(annee, 'début de gestion') + bops_with_crg1(annee) - bops_with_avis(annee, phase)
-    when 'CRG2'
-      avis_a_remplir(annee, 'début de gestion') + avis_a_remplir(annee, 'CRG1') + bops_actifs(annee).count - bops_with_avis(annee, phase)
+  # Nombre total d'avis à produire pour l'année : tag "À rédiger" (pas d'avis) + "Brouillon",
+  # toutes phases confondues, en cohérence avec les badges du tableau remplissage_avis.
+  # - SV    : 1 par BOP si dernier avis SV manquant ou en brouillon (SV toujours ouverte)
+  # - Début : 1 par BOP si avis début manquant ou en brouillon (phase ouverte)
+  # - CRG1  : 1 par BOP si avis CRG1 manquant ou en brouillon, sauf si début.is_crg1 == false
+  #           (cas N/A : le CRG1 n'est pas programmé). Quand début est nil, on compte
+  #           quand même (le badge affiche "À rédiger" dans ce cas).
+  # - CRG2  : 1 par BOP si avis CRG2 manquant ou en brouillon (phase ouverte)
+  # Année passée → toutes phases sont considérées ouvertes.
+  def avis_a_remplir(annee, date_debut, date_crg1, date_crg2)
+    past_year     = annee < Date.today.year
+    debut_ouverte = past_year || Date.today >= date_debut
+    crg1_ouverte  = past_year || Date.today >= date_crg1
+    crg2_ouverte  = past_year || Date.today >= date_crg2
+
+    bops_ids     = bops_actifs(annee).pluck(:id)
+    avis_par_bop = self.avis.where(annee: annee, bop_id: bops_ids).group_by(&:bop_id)
+
+    bops_ids.sum do |bop_id|
+      avis_bop = avis_par_bop[bop_id] || []
+      sv    = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at)
+      debut = avis_bop.find { |a| a.phase == 'début de gestion' }
+      crg1  = avis_bop.find { |a| a.phase == 'CRG1' }
+      crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
+
+      count = 0
+      count += 1 if (sv.nil? || sv.etat == 'Brouillon')                                       # SV toujours ouverte
+      count += 1 if debut_ouverte && (debut.nil? || debut.etat == 'Brouillon')
+      count += 1 if crg1_ouverte  && debut&.is_crg1 != false && (crg1.nil? || crg1.etat == 'Brouillon')
+      count += 1 if crg2_ouverte  && (crg2.nil? || crg2.etat == 'Brouillon')
+      count
     end
   end
 
