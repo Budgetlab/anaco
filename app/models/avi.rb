@@ -1,6 +1,11 @@
 class Avi < ApplicationRecord
   belongs_to :bop
   belongs_to :user
+  # Association vers l'entrée Phase (table de référence du calendrier).
+  # Nommée :phase_periode pour ne pas shadow le column string `phase` (legacy)
+  # — toutes les comparaisons `avi.phase == 'CRG1'` continuent à fonctionner.
+  belongs_to :phase_periode, class_name: 'Phase', foreign_key: 'phase_id',
+                             optional: true, inverse_of: :avis
   require 'axlsx'
 
   MOTIFS_ABSENCE = [
@@ -16,6 +21,18 @@ class Avi < ApplicationRecord
     'CRG2'             => ['Aucun risque', 'Risques modérés', 'Risques significatifs']
   }.freeze
 
+  # Liste plate de tous les statuts métier connus (toutes phases + Non reçu transversal).
+  # Utilisée par l'admin pour le select unique.
+  TOUS_LES_STATUTS = (STATUTS_PAR_PHASE.values.flatten.uniq + ['Non reçu']).freeze
+
+  # Empêche la création d'un avis avec un nom de phase inconnu (ex: 'execution' supprimée,
+  # ou typo). Restrict on: :create pour ne pas casser la mise à jour d'avis legacy
+  # qui auraient une valeur exotique en base.
+  validates :phase, inclusion: { in: Phase::NOMS_CONNUS,
+                                  message: "doit être l'un de : #{Phase::NOMS_CONNUS.join(', ')}" },
+                    on: :create
+
+  before_validation :assigner_phase_periode_depuis_phase_nom
   before_save :set_etat_avis
 
   def self.import(file)
@@ -69,63 +86,39 @@ class Avi < ApplicationRecord
   rescue ArgumentError
     nil
   end
-  # fonction pour importer les avis d'exécution
-  def self.import_execution(file)
-    Avi.where(phase: 'execution').destroy_all
-    data = Roo::Spreadsheet.open(file.path)
-    headers = data.row(1) # get header row
-    data.each_with_index do |row, idx|
-      next if idx == 0 # skip header
 
-      row_data = Hash[[headers, row].transpose]
-      code_bop = row_data['Code BOP'].to_s
-      bop = Bop.find_by(code: code_bop)
-      next unless bop
-
-      avis = Avi.where(bop_id: bop.id, user_id: bop.user_id, phase: row_data['phase'], annee: 2023).first || Avi.new(bop_id: bop.id, user_id: bop.user_id, phase: row_data['phase'], annee: 2023)
-      # avis = bop.avis.find_or_initialize_by(phase: row_data['phase'], annee: 2023)
-
-      column_names_bis = row_data['phase'] == 'execution' ? %w[ae_f cp_f t2_f etpt_f] : %w[created_at etat date_reception date_envoi statut ae_i cp_i t2_i etpt_i ae_f cp_f t2_f etpt_f commentaire]
-      avis.attributes = row_data.slice(*column_names_bis)
-
-      if row_data['phase'] == 'début de gestion'
-        avis.is_crg1 = row_data['is_crg1'] == 'oui' ? true : false
-        avis.is_delai = row_data['is_delai'] == 'oui' ? true : false
-      end
-      if row_data['phase'] == 'execution'
-        avis_debut_n1 = bop.avis.where(phase: 'début de gestion', annee: 2023).first
-        avis.ae_f = row_data['ae_f'].to_f.round(1)
-        avis.cp_f = row_data['cp_f'].to_f.round(1)
-        avis.t2_f = row_data['t2_f'].to_f.round(1)
-        avis.etpt_f = row_data['etpt_f'].to_f.round(1)
-        avis.ae_i = avis_debut_n1&.ae_i || 0
-        avis.cp_i = avis_debut_n1&.cp_i || 0
-        avis.t2_i = avis_debut_n1&.t2_i || 0
-        avis.etpt_i = avis_debut_n1&.etpt_i || 0
-        avis.date_envoi = Date.new(2025, 1, 1)
-      end
-      avis.save
-    end
-  end
+  # Note : la méthode self.import_execution a été supprimée en juin 2026 (avec les avis
+  # phase='execution' qui n'étaient plus utilisés). Si besoin d'importer des données
+  # historiques d'exécution, voir l'historique git.
 
   def self.ransackable_attributes(auth_object = nil)
-    ["ae_f", "ae_i", "annee", "avis_recu", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "motif_absence", "phase", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
+    ["ae_f", "ae_i", "annee", "avis_recu", "bop_id", "commentaire", "cp_f", "cp_i", "created_at", "date_envoi", "date_reception","duree_prevision", "etat", "etpt_f", "etpt_i", "id", "id_value", "is_crg1", "is_delai", "motif_absence", "phase", "phase_id", "statut", "t2_f", "t2_i", "updated_at", "user_id"]
   end
   def self.ransackable_associations(auth_object = nil)
-    ["bop", "user"]
-  end
-
-  # Method to get the number of the avis based on its creation date
-  def numero_avis_services_votes
-    Avi.where(phase: 'services votés', annee: self.annee, bop_id: self.bop_id)
-       .order(:created_at)
-       .pluck(:id)
-       .index(self.id) + 1
+    ["bop", "phase_periode", "user"]
   end
 
   private
 
+  # Si phase_id est nul mais (annee + phase) sont renseignés, on lie automatiquement
+  # à la Phase correspondante (la première par date_debut s'il y a plusieurs instances
+  # du même nom dans l'année). Permet aux callsites legacy de continuer à créer un
+  # avis sans connaître la table phases. Pour distinguer SV1/SV2 il faut passer
+  # explicitement phase_id (cf. bouton Rédiger du tableau).
+  def assigner_phase_periode_depuis_phase_nom
+    return if phase_id.present?
+    return if annee.blank? || phase.blank?
+    matched = Phase.where(annee: annee, nom: phase).order(:date_debut).first
+    self.phase_id = matched.id if matched
+  end
+
+  # Détermine automatiquement si l'avis doit retomber en Brouillon parce qu'il
+  # manque des champs obligatoires. Ne s'applique PAS aux avis non reçus :
+  # ceux-ci ont volontairement des champs nuls (date_envoi, statut, etc.) et sont
+  # finalisés en "Lu" avec statut="Non reçu" via force_non_recu_attributes!.
   def set_etat_avis
+    return if avis_recu == false
+
     if phase == 'début de gestion'
       if date_reception.nil? || date_envoi.nil? || statut.nil?
         self.etat = 'Brouillon'

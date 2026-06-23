@@ -15,7 +15,7 @@ class AvisController < ApplicationController
   # Page historique des avis
   def index
     scope = current_user.statut == 'admin' ? Avi : current_user.avis
-    avis_all = scope.where.not(phase: 'execution').order(updated_at: :desc)
+    avis_all = scope.order(updated_at: :desc)
 
     # On duplique pour ne pas modifier params directement
     search_params = (params[:q] || {}).dup
@@ -50,10 +50,19 @@ class AvisController < ApplicationController
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
     set_avis_phase(@annee_a_afficher)
-    # Si l'appelant cible explicitement une phase (bouton Rédiger du tableau remplissage),
-    # on l'utilise ; sinon on retombe sur la logique automatique.
-    @phase_form = params[:phase].presence || set_form_phase(@annee_a_afficher)
-    @last_avis_phase = @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form).order(:created_at).last
+    # phase_id (instance précise de Phase) prime sur phase (string legacy),
+    # qui prime sur la déduction automatique de set_form_phase.
+    @phase_obj = Phase.find_by(id: params[:phase_id]) if params[:phase_id].present?
+    @phase_form = @phase_obj&.nom || params[:phase].presence || set_form_phase(@annee_a_afficher)
+
+    # Recherche du dernier avis pour cette phase : par phase_id si fourni (cible une
+    # instance précise — SV1 ou SV2), sinon par nom (cas legacy / phase mono-instance).
+    @last_avis_phase =
+      if @phase_obj
+        @bop.avis.where(annee: @annee_a_afficher, phase_id: @phase_obj.id).order(:created_at).last
+      else
+        @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form).order(:created_at).last
+      end
 
     if @last_avis_phase.present?
       # Avis existant non finalisé (brouillon) → reprendre
@@ -68,7 +77,7 @@ class AvisController < ApplicationController
       end
     end
 
-    @avis = @bop.avis.new
+    @avis = @bop.avis.new(phase_id: @phase_obj&.id)
   end
 
   # fonction qui créé un nouvel avis
@@ -77,8 +86,6 @@ class AvisController < ApplicationController
     if @avis.save
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
       @avis.update(etat: 'Lu') if dcb_is_updating?
-      # avis_recu=false : le callback set_etat_avis force "Brouillon" (dates nulles) ; on bypass pour rester "Lu"
-      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to historique_path, notice: @message
     else
       render :new
@@ -99,12 +106,10 @@ class AvisController < ApplicationController
     if ['Lu', 'En attente de lecture'].include?(etat) # avis modifié
       @avis.update(forced_params)
       @avis.update(etat: etat) if @avis.etat != "Brouillon"
-      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to bop_path(@avis.bop), notice: 'Modification'
     elsif @avis.update(forced_params)
       @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
       @avis.update(etat: 'Lu') if dcb_is_updating?
-      @avis.update_columns(etat: 'Lu') if @avis.avis_recu == false
       redirect_to historique_path, notice: @message
     else
       render :edit
@@ -129,7 +134,7 @@ class AvisController < ApplicationController
   # Page de consultation des avis pour les DCB
   def consultation
     bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
-    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').where.not(phase: 'execution').order(created_at: :desc)
+    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
 
     # On duplique pour ne pas modifier params directement
     search_params = (params[:q] || {}).dup
@@ -208,7 +213,7 @@ class AvisController < ApplicationController
     @annee_a_afficher = annee_a_afficher
     @controleurs = User.includes(:avis).where(statut: ['CBR', 'DCB'])
     @dcb = User.includes(consulted_bops: :avis).where(statut: 'DCB')
-    @avis = Avi.where(annee: @annee_a_afficher).where.not(phase: 'execution')
+    @avis = Avi.where(annee: @annee_a_afficher)
   end
 
   def restitutions
@@ -228,7 +233,7 @@ class AvisController < ApplicationController
   private
 
   def avi_params
-    params.require(:avi).permit(:user_id, :phase, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee, :duree_prevision, :avis_recu, :motif_absence)
+    params.require(:avi).permit(:user_id, :phase, :phase_id, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee, :duree_prevision, :avis_recu, :motif_absence)
   end
 
   # Force statut/etat et nullifie les champs non pertinents quand avis_recu = false.
@@ -277,7 +282,7 @@ class AvisController < ApplicationController
 
   # fonction pour afficher le bon formulaire
   def set_form_phase(annee)
-    if annee == @annee && @phase == 'services votés'
+    if annee == @annee && @phase_courante == 'services votés'
       'services votés'
     elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1) # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
       'début de gestion'

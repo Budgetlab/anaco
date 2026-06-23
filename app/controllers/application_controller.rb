@@ -31,21 +31,37 @@ class ApplicationController < ActionController::Base
     @devise_mapping ||= Devise.mappings[:user]
   end
 
-  # fonction pour déclarer les variables globales dans l'application
+  # Variables globales du calendrier budgétaire de l'année courante.
+  #
+  # Source de vérité : table `phases`. Les valeurs sont configurables via
+  # `/anaco/phases` (admin). Fallback sur les dates par défaut (20/02, 01/06, 01/09)
+  # si une phase manque en base — préserve le bon fonctionnement même en cas de
+  # données incomplètes.
+  #
+  # IMPORTANT : la global s'appelle `@phase_courante` (et non `@phase`) pour éviter
+  # une collision avec l'ivar resource d'ActiveAdmin pour le modèle `Phase`
+  # (`@phase` est utilisé par ResourceController pour mémoïser la Phase trouvée).
   def set_global_variable
     @annee = Date.today.year
-    @date_debut = Date.new(@annee, 2, 20)
-    @date_crg1 = Date.new(@annee, 6, 1)
-    @date_crg2 = Date.new(@annee, 9, 1)
-    if Date.today < @date_debut
-      @phase = 'services votés'
-    elsif @date_debut <= Date.today && Date.today < @date_crg1
-      @phase = 'début de gestion'
-    elsif @date_crg1 <= Date.today && Date.today < @date_crg2
-      @phase = 'CRG1'
-    elsif Date.today >= @date_crg2
-      @phase = 'CRG2'
-    end
+    phases_annee = Phase.pour_annee(@annee).to_a
+
+    @date_debut = phases_annee.find { |p| p.nom == 'début de gestion' }&.date_debut || Date.new(@annee, 2, 20)
+    @date_crg1  = phases_annee.find { |p| p.nom == 'CRG1' }&.date_debut             || Date.new(@annee, 6, 1)
+    @date_crg2  = phases_annee.find { |p| p.nom == 'CRG2' }&.date_debut             || Date.new(@annee, 9, 1)
+
+    # Phase courante : la plus récente dont date_debut est passée.
+    # Fallback sur la logique date-pivot si la table ne renvoie rien (cas d'année
+    # totalement vide en base ; rare avec les seeds en place).
+    @phase_courante = Phase.courante_pour(@annee, Date.today)&.nom
+    @phase_courante ||= if Date.today < @date_debut
+                          'services votés'
+                        elsif Date.today < @date_crg1
+                          'début de gestion'
+                        elsif Date.today < @date_crg2
+                          'CRG1'
+                        else
+                          'CRG2'
+                        end
   end
 
 

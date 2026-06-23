@@ -2,6 +2,7 @@
   <%= form_with(model: [@bop, @avis], data: { 'form-target': "form", action: "change->form#formChange input->form#formChange turbo:before-fetch-request->form#submitForm " }) do |f| %>
     <%= f.hidden_field :user_id, value: current_user.id %>
     <%= f.hidden_field :phase, value: "CRG1" %>
+    <%= f.hidden_field :phase_id %>
     <%= f.hidden_field :annee, value: @annee_a_afficher %>
     <%= f.hidden_field :etat, value: "Brouillon", data: { 'form-target': 'etat' } %>
     <%= f.hidden_field :date_reception, value: Date.today %>

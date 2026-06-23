@@ -6,65 +6,96 @@ module AvisHelper
     Avi::STATUTS_PAR_PHASE.fetch(phase, [])
   end
 
-  # Indique si la phase est ouverte à la saisie dans ANACO pour l'année affichée.
-  # Année passée → toutes phases ouvertes. Sinon, dépend de la date d'aujourd'hui.
-  def phase_ouverte?(phase, annee_affichee, annee, date_debut, date_crg1, date_crg2)
-    return true if annee_affichee < annee
-    case phase
-    when 'services votés'   then true
-    when 'début de gestion' then Date.today >= date_debut
-    when 'CRG1'             then Date.today >= date_crg1
-    when 'CRG2'             then Date.today >= date_crg2
-    end
+  # Mémoïze les phases d'une année pour éviter N+1 quand le tableau de remplissage
+  # rend N lignes (chaque ligne interroge plusieurs fois le calendrier de l'année).
+  def phases_for_annee(annee)
+    @_phases_for_annee_cache ||= {}
+    @_phases_for_annee_cache[annee] ||= Phase.pour_annee(annee).to_a
+  end
+
+  # Phases d'une année groupées par nom, chaque liste ordonnée par date_debut.
+  # Hash : { 'services votés' => [Phase, ...], 'début de gestion' => [Phase], ... }
+  # Permet au partial d'empiler N badges par cellule (SV1, SV2, ...).
+  def phases_groupees_par_nom(annee)
+    @_phases_groupees_cache ||= {}
+    @_phases_groupees_cache[annee] ||= phases_for_annee(annee).sort_by(&:date_debut).group_by(&:nom)
+  end
+
+  # Noms de phases réellement présents dans le calendrier de l'année (ex: 2024
+  # n'a pas "services votés"). Préserve l'ordre canonique défini par Phase::NOMS_CONNUS.
+  # Sert à générer dynamiquement les colonnes du tableau remplissage_avis.
+  def noms_phases_pour_annee(annee)
+    noms_existants = phases_for_annee(annee).map(&:nom).uniq
+    Phase::NOMS_CONNUS.select { |nom| noms_existants.include?(nom) }
+  end
+
+  # Trouve l'avis lié à une instance précise de Phase via phase_id.
+  # Les avis legacy sans phase_id ne sont pas matchés ici (cas marginal après backfill).
+  def avis_pour_phase(avis_bop, phase)
+    avis_bop.find { |a| a.phase_id == phase.id }
+  end
+
+  # Indique si la phase (par son nom) est ouverte à la saisie pour l'année affichée
+  # à la date de référence. Une phase est ouverte ssi au moins une instance de ce nom
+  # dans l'année a une date_debut <= référence. Une phase absente du calendrier de
+  # l'année (ex: services votés en 2024) est par construction non ouverte.
+  def phase_ouverte?(phase_nom, annee, reference_date = Date.today)
+    phases_for_annee(annee).any? { |p| p.nom == phase_nom && p.date_debut <= reference_date }
   end
 
   # Badge HTML pour une case (phase, bop) du tableau de remplissage.
-  # avis        : dernier avis pour la phase (ou nil). Pour SV, le plus récent.
+  # avis        : avis associé à cette instance de phase (ou nil).
   # avis_debut  : avis 'début de gestion' (utilisé pour CRG1 → N/A si !is_crg1).
-  def phase_status_badge(avis, phase, ouverte, avis_debut: nil)
-    return content_tag(:p, 'N/A', class: 'fr-badge') if phase == 'CRG1' && avis_debut&.is_crg1 == false
+  # prefix      : libellé court préfixant le label (ex: "SV1") quand il y a plusieurs
+  #               instances de la même phase dans l'année.
+  def phase_status_badge(avis, phase, ouverte, avis_debut: nil, prefix: nil)
+    label_with_prefix = ->(label) { prefix ? "#{prefix} #{label}" : label }
+
+    return content_tag(:p, label_with_prefix.call('N/A'), class: 'fr-badge') if phase == 'CRG1' && avis_debut&.is_crg1 == false
 
     unless ouverte
       return content_tag(:p, class: 'fr-badge') do
         concat content_tag(:span, '', class: 'fr-icon-git-repository-private-fill fr-icon--sm', 'aria-hidden': true)
-        concat 'Non ouvert'
+        concat label_with_prefix.call('Non ouvert')
       end
     end
 
     if avis.nil?
       return content_tag(:p, class: 'fr-badge fr-badge--warning fr-badge--no-icon') do
         concat content_tag(:span, '', class: 'fr-icon-edit-fill fr-icon--sm', 'aria-hidden': true)
-        concat 'À rédiger'
+        concat label_with_prefix.call('À rédiger')
       end
     end
 
     case
     when avis.etat == 'Brouillon'
-      content_tag(:p, 'Brouillon', class: 'fr-badge fr-badge--new fr-badge--no-icon')
+      content_tag(:p, label_with_prefix.call('Brouillon'), class: 'fr-badge fr-badge--new fr-badge--no-icon')
     when avis.statut == 'Non reçu'
-      content_tag(:p, 'Non reçu', class: 'fr-badge fr-badge--brown-caramel')
+      content_tag(:p, label_with_prefix.call('Non reçu'), class: 'fr-badge fr-badge--brown-caramel')
     else
       content_tag(:p, class: 'fr-badge fr-badge--info fr-badge--no-icon') do
         concat content_tag(:span, '', class: 'fr-icon-checkbox-circle-fill fr-icon--sm', 'aria-hidden': true)
-        concat 'Transmis'
+        concat label_with_prefix.call('Transmis')
       end
     end
   end
 
-  # Prochaine phase à rédiger pour un BOP (SV → début → CRG1 → CRG2), ou nil si rien.
-  # Une phase est candidate si elle est ouverte ET (pas d'avis OU avis en brouillon).
-  # CRG1 n'est candidat que si l'avis début de gestion l'a programmé (is_crg1 == true).
-  def next_phase_to_fill(avis_bop, annee_affichee, annee, date_debut, date_crg1, date_crg2)
-    avis_sv    = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at)
+  # Prochaine instance de Phase à rédiger pour un BOP, ou nil si tout est transmis.
+  # Itère sur les phases de l'année dans l'ordre chronologique. Une instance est
+  # candidate si elle est ouverte ET (pas d'avis associé OU avis en brouillon).
+  # CRG1 est sauté si l'avis début existe avec is_crg1 == false (cas N/A).
+  # Retourne l'objet Phase (pas le nom) pour cibler une instance précise — utile
+  # quand plusieurs phases du même nom coexistent (SV1, SV2).
+  def next_phase_to_fill(avis_bop, annee, reference_date = Date.today)
     avis_debut = avis_bop.find { |a| a.phase == 'début de gestion' }
-    avis_crg1  = avis_bop.find { |a| a.phase == 'CRG1' }
-    avis_crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
-    dates = [annee_affichee, annee, date_debut, date_crg1, date_crg2]
 
-    return 'services votés'   if phase_ouverte?('services votés', *dates)   && (avis_sv.nil? || avis_sv.etat == 'Brouillon')
-    return 'début de gestion' if phase_ouverte?('début de gestion', *dates) && (avis_debut.nil? || avis_debut.etat == 'Brouillon')
-    return 'CRG1'             if phase_ouverte?('CRG1', *dates)             && avis_debut&.is_crg1 && (avis_crg1.nil? || avis_crg1.etat == 'Brouillon')
-    return 'CRG2'             if phase_ouverte?('CRG2', *dates)             && (avis_crg2.nil? || avis_crg2.etat == 'Brouillon')
+    phases_for_annee(annee).sort_by(&:date_debut).each do |phase|
+      next unless phase.ouverte?(reference_date)
+      next if phase.nom == 'CRG1' && avis_debut&.is_crg1 == false
+
+      avis = avis_pour_phase(avis_bop, phase)
+      return phase if avis.nil? || avis.etat == 'Brouillon'
+    end
     nil
   end
 
@@ -145,7 +176,7 @@ module AvisHelper
 
   # fonction pour charger les avis renseignés dans l'année en cours (hors avis d'éxécution et brouillon)
   def avis_annee_remplis(annee)
-    Avi.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    Avi.where(annee: annee).where.not(etat: 'Brouillon')
   end
 
   def avis_remplis_phase(avis, phase)
@@ -159,7 +190,10 @@ module AvisHelper
   def avis_a_remplir(avis, phase, annee)
     case phase
     when 'CRG1'
-      avis.select { |a| a.phase == 'début de gestion' && a.is_crg1? && a.statut != 'Brouillon' }.count
+      # Nombre de CRG1 attendus = nombre d'avis début de gestion finalisés avec is_crg1=true.
+      # NB : on filtre sur `etat` (workflow : Brouillon / En attente / Lu), pas `statut`
+      # (verdict métier qui ne prend jamais la valeur 'Brouillon').
+      avis.select { |a| a.phase == 'début de gestion' && a.is_crg1? && a.etat != 'Brouillon' }.count
     else
       Bop.actifs_en(annee).count
     end
@@ -174,11 +208,14 @@ module AvisHelper
   end
 
   def avis_lus(avis, phase)
-    avis.joins(:user).where('user.statut': 'CBR').select { |a| a.phase == phase && a.etat == 'Lu' }.count
+    # NB : la clé `users:` correspond au nom de la table (pluriel) produit par
+    # `joins(:user)`. L'ancien `'user.statut': ...` cherchait une table `user`
+    # (singulier) inexistante → erreur SQL.
+    avis.joins(:user).where(users: { statut: 'CBR' }).select { |a| a.phase == phase && a.etat == 'Lu' }.count
   end
 
   def avis_recus(avis, phase)
-    avis.joins(:user).where('user.statut': 'CBR').select { |a| a.phase == phase && a.etat != 'Brouillon' }.count
+    avis.joins(:user).where(users: { statut: 'CBR' }).select { |a| a.phase == phase && a.etat != 'Brouillon' }.count
   end
 
   def taux_lecture_avis(avis, phase)
@@ -187,13 +224,6 @@ module AvisHelper
     else
       (avis_lus(avis, phase) * 100.0 / avis_recus(avis, phase)).to_f.round
     end
-  end
-
-  # Method to get the number of the avis based on its creation date
-  def numero_avis_services_votes(avis, avis_all)
-    avis_services_votes = avis_all.select { |a| a.phase == 'services votés' && a.annee == avis.annee && a.bop_id == avis.bop_id }
-                                  .sort_by(&:created_at)
-    avis_services_votes.index(avis) + 1
   end
 
 end

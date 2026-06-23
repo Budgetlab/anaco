@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
-    <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
+    <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'début de gestion' %>
     <div id="containPDF">
       <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
       <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"

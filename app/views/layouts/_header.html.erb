@@ -102,7 +102,7 @@
             </li>
 
             <% if current_user.statut != 'CBR' %>
-              <li class="fr-nav__item">
+              <li class="fr-nav__item fr-hidden">
                 <button class="fr-nav__btn" aria-expanded="false" aria-controls="menu-cnrep" <%= current_page?(schemas_remplissage_path) || current_page?(schemas_path) ? 'aria-current="true"' : '' %>>Schémas
                   fin de gestion
                 </button>

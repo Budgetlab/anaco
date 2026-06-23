@@ -38,7 +38,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
               <ul class="fr-badges-group fr-mb-0">
                 <li>
-                  <p class="fr-tag"> Ministère <%= @bop.programme.ministere.nom %></p>
+                  <p class="fr-tag"> Ministère <%= @bop.programme&.ministere&.nom %></p>
                 </li>
               </ul>
               <p class="fr-badge fr-badge--blue-ecume fr-mb-0">
@@ -48,13 +48,15 @@
                 <% end %>
               </p>
             </div>
-            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb.nom %></p>
+            <p class="fr-card__detail fr-icon-arrow-right-line">DCB responsable : <%= @bop.dcb&.nom %></p>
           </div>
-          <h3 class="fr-card__title">Contrôleur : <%= @bop.user.nom %></h3>
+          <h3 class="fr-card__title">Contrôleur : <%= @bop.user&.nom %></h3>
           <div class="fr-card__desc">
-            <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.programme.numero %>
-                - <%= @bop.programme.nom %>
-              <% end %></p>
+            <% if @bop.programme %>
+              <p class="fr-mb-1w"><%= link_to programme_path(@bop.programme) do %>Programme n°<%= @bop.programme.numero %>
+                  - <%= @bop.programme.nom %>
+                <% end %></p>
+            <% end %>
           </div>
         </div>
       </div>
@@ -107,12 +109,9 @@
                             <tr>
                               <td><%= l(avis.created_at, format: "%e/%m/%y") %></td>
                               <td>
-                                <div class="fr-capitalize"><%= avis.phase %></div>
-                                <% if avis.phase == 'services votés' %>
-                                  n°<%= numero_avis_services_votes(avis, liste_avis_annee) %>
-                                <% end %>
+                                <div class="fr-capitalize"><%= avis.phase_periode&.libelle_avec_numero || avis.phase %></div>
                               </td>
-                              <td><span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon"><%= avis.statut %></span></td>
+                              <td><span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon"><%= avis.statut.presence || 'Non renseigné' %></span></td>
                               <td>
                                 <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
                               </td>

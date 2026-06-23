@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_19_054758) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_23_071320) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -196,12 +196,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_054758) do
     t.boolean "is_delai"
     t.string "motif_absence"
     t.string "phase"
+    t.bigint "phase_id"
     t.string "statut"
     t.float "t2_f"
     t.float "t2_i"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["bop_id"], name: "index_avis_on_bop_id"
+    t.index ["phase_id"], name: "index_avis_on_phase_id"
     t.index ["user_id"], name: "index_avis_on_user_id"
   end
 
@@ -324,6 +326,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_054758) do
     t.index ["id_opera"], name: "index_organismes_on_id_opera"
     t.index ["nom"], name: "index_organismes_on_nom"
     t.index ["user_id"], name: "index_organismes_on_user_id"
+  end
+
+  create_table "phases", force: :cascade do |t|
+    t.integer "annee", null: false
+    t.datetime "created_at", null: false
+    t.date "date_debut", null: false
+    t.string "nom", null: false
+    t.datetime "updated_at", null: false
+    t.index ["annee", "date_debut"], name: "index_phases_on_annee_and_date_debut"
+    t.index ["annee", "nom", "date_debut"], name: "index_phases_unique_par_annee_nom_debut", unique: true
   end
 
   create_table "poste_lignes", force: :cascade do |t|
@@ -579,6 +591,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_054758) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "avis", "bops"
+  add_foreign_key "avis", "phases"
   add_foreign_key "avis", "users"
   add_foreign_key "bops", "programmes"
   add_foreign_key "bops", "users"

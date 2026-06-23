@@ -64,7 +64,7 @@ class Programme < ApplicationRecord
   end
 
   def avis_remplis_annee(annee)
-    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon')
   end
 
   def bops_actifs(annee)

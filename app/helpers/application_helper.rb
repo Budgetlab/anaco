@@ -241,16 +241,22 @@ module ApplicationHelper
     # avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
   end
 
-  def display_phases(annee_a_afficher, annee, date_crg1, date_crg2, date_debut)
-    if annee_a_afficher < annee || Date.today >= date_crg2
-      ['CRG2', 'CRG1', 'début de gestion']
-    elsif Date.today >= date_crg1
-      ['CRG1', 'début de gestion']
-    elsif Date.today >= date_debut
-      ['début de gestion', 'services votés']
-    else
-      ['services votés']
-    end
+  # Liste des noms de phases à afficher en onglets de suivi_remplissage / show_avis,
+  # ordonnés du plus récent au plus ancien (le 1er sert d'onglet sélectionné par défaut).
+  #
+  # - Année passée → toutes les phases connues pour cette année (saisie clôturée,
+  #   on présente l'historique complet).
+  # - Année courante → seulement les phases dont date_debut est passée (les autres
+  #   ne sont pas encore ouvertes à la saisie, rien à montrer).
+  #
+  # Source de vérité : la table Phase (les arguments supplémentaires sont conservés
+  # pour rétro-compat des callsites — ils ne sont plus utilisés).
+  def display_phases(annee_a_afficher, *_legacy_args)
+    phases_annee = Phase.pour_annee(annee_a_afficher).to_a
+    visibles = annee_a_afficher < Date.today.year ? phases_annee
+                                                  : phases_annee.select { |p| p.date_debut <= Date.today }
+    noms_existants = visibles.map(&:nom).uniq
+    Phase::NOMS_CONNUS.reverse.select { |nom| noms_existants.include?(nom) }
   end
 
   def bops_actifs(bops, annee)

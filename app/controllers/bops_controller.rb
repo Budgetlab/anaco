@@ -17,7 +17,7 @@ class BopsController < ApplicationController
   # page affichage du bop
   def show
     @bop = Bop.find(params[:id])
-    @bop_avis = @bop.avis.where.not(phase: 'execution')
+    @bop_avis = @bop.avis
   end
 
   # page modification de la dotation du BOP

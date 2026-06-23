@@ -42,8 +42,8 @@ wb.add_worksheet(name: "Avis #{@annee}") do |sheet|
   @avis.each do |avis|
     sheet.add_row [
       avis.annee,
-      avis.bop.code,
-      avis.user.nom,
+      avis.bop&.code,
+      avis.user&.nom,
       avis.phase,
       avis.etat,
       avis.statut,

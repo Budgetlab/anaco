@@ -60,6 +60,8 @@ Rails.application.routes.draw do
     end
     post 'import_programmes' => 'programmes#import'
 
+    resources :phases, only: [:index, :create, :update, :destroy]
+
     resources :avis, only: :show
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'

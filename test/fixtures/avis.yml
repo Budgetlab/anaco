@@ -2,6 +2,7 @@ avis_debut_lu:
   bop: bop_1
   user: cbr_1
   phase: "début de gestion"
+  phase_periode: debut_2026
   annee: 2026
   etat: "Lu"
   statut: "Favorable"
@@ -15,6 +16,7 @@ avis_brouillon:
   bop: bop_1
   user: cbr_1
   phase: "CRG1"
+  phase_periode: crg1_2026
   annee: 2026
   etat: "Brouillon"
   avis_recu: true
@@ -23,6 +25,7 @@ avis_non_recu:
   bop: bop_1
   user: cbr_1
   phase: "début de gestion"
+  phase_periode: debut_2026
   annee: 2026
   etat: "Lu"
   statut: "Non reçu"

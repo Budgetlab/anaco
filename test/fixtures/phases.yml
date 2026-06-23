@@ -1,0 +1,29 @@
+sv_2026:
+  nom: "services votés"
+  annee: 2026
+  date_debut: 2026-01-01
+
+debut_2026:
+  nom: "début de gestion"
+  annee: 2026
+  date_debut: 2026-02-20
+
+crg1_2026:
+  nom: "CRG1"
+  annee: 2026
+  date_debut: 2026-06-01
+
+crg2_2026:
+  nom: "CRG2"
+  annee: 2026
+  date_debut: 2026-09-01
+
+sv1_2027:
+  nom: "services votés"
+  annee: 2027
+  date_debut: 2027-01-01
+
+sv2_2027:
+  nom: "services votés"
+  annee: 2027
+  date_debut: 2027-06-15

@@ -20,7 +20,7 @@
       </div>
 
       <% if @annee_a_afficher == @annee %>
-        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
+        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase_courante %> <%= @annee %></h2>
       <% end %>
 
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
@@ -55,7 +55,7 @@
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">Il reste <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher, @date_debut, @date_crg1, @date_crg2), 'avis/note', plural: 'avis/notes') %>
+              <span class="fr-notice__title">Il reste <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher), 'avis/note', plural: 'avis/notes') %>
                 à rédiger</span>
             </p>
           </div>
@@ -71,10 +71,9 @@
                 <thead>
                   <tr>
                     <th scope="col">BOP</th>
-                    <th scope="col">Services votés</th>
-                    <th scope="col">Début de gestion</th>
-                    <th scope="col">CRG1</th>
-                    <th scope="col">CRG2</th>
+                    <% noms_phases_pour_annee(@annee_a_afficher).each do |nom| %>
+                      <th scope="col"><%= Phase.libelle_colonne(nom) %></th>
+                    <% end %>
                     <th scope="col"><span class="fr-sr-only">Rédiger</span></th>
                     <th scope="col"><span class="fr-sr-only">Consulter</span></th>
                   </tr>
@@ -84,11 +83,7 @@
                     <%= render 'bop_actif_row',
                           bop: bop,
                           avis_par_bop: @avis_par_bop,
-                          annee_affichee: @annee_a_afficher,
-                          annee: @annee,
-                          date_debut: @date_debut,
-                          date_crg1: @date_crg1,
-                          date_crg2: @date_crg2 %>
+                          annee_affichee: @annee_a_afficher %>
                   <% end %>
                 </tbody>
               </table>

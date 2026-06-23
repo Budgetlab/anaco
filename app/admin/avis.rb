@@ -5,15 +5,13 @@ ActiveAdmin.register Avi do
                 :statut, :etat, :commentaire, :bop_id, :user_id, :annee, :duree_prevision,
                 :avis_recu, :motif_absence
 
-  # Liste plate des statuts métier connus (toutes phases + Non reçu transversal).
-  STATUTS_ADMIN = (Avi::STATUTS_PAR_PHASE.values.flatten.uniq + ['Non reçu']).freeze
-
   index do
     selectable_column
     id_column
-    column(:bop) { |a| a.bop_id }
-    column(:user) { |a| a.user_id }
+    column(:bop) { |a| a.bop&.code }
+    column(:user) { |a| a.user&.nom }
     column :phase
+    column("Phase liée") { |a| link_to(a.phase_periode.libelle_avec_numero, admin_phase_path(a.phase_periode)) if a.phase_periode }
     column :annee
     column :statut
     column :etat
@@ -28,9 +26,10 @@ ActiveAdmin.register Avi do
   show do
     attributes_table do
       row :id
-      row(:bop) { |a| a.bop_id }
-      row(:user) { |a| a.user_id }
+      row(:bop) { |a| a.bop&.code }
+      row(:user) { |a| a.user&.nom }
       row :phase
+      row("Phase liée") { |a| link_to(a.phase_periode.libelle_avec_numero, admin_phase_path(a.phase_periode)) if a.phase_periode }
       row :annee
       row :statut
       row :etat
@@ -62,7 +61,7 @@ ActiveAdmin.register Avi do
       f.input :phase, as: :select,
               collection: ['début de gestion', 'services votés', 'CRG1', 'CRG2']
       f.input :annee, as: :number
-      f.input :statut, as: :select, collection: STATUTS_ADMIN, include_blank: true
+      f.input :statut, as: :select, collection: Avi::TOUS_LES_STATUTS, include_blank: true
       f.input :etat, as: :select,
               collection: ['Brouillon', 'En attente de lecture', 'Lu'],
               include_blank: true

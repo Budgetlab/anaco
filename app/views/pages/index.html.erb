@@ -56,7 +56,7 @@
               </h3>
               <div class="fr-card__desc">
                 <div>
-                  <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">Phase en cours : <%= @phase %></p>
+                  <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">Phase en cours : <%= @phase_courante %></p>
                   <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(@date_ouverture, format: "%e %B") %>
                     au <%= I18n.localize(@date_fermeture, format: "%e %B %Y") %></p>
                 </div>
@@ -79,7 +79,7 @@
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
                               <%= link_to remplissage_avis_path do %>
-                                <%= pluralize(current_user.avis_a_remplir(Date.today.year, @date_debut, @date_crg1, @date_crg2), 'avis/note', plural: 'avis/notes') %>
+                                <%= pluralize(current_user.avis_a_remplir(Date.today.year), 'avis/note', plural: 'avis/notes') %>
                               <% end %>
                             </h3>
                             <p class="fr-tile__detail">

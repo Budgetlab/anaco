@@ -65,18 +65,20 @@ class User < ApplicationRecord
 
   # Nombre total d'avis à produire pour l'année : tag "À rédiger" (pas d'avis) + "Brouillon",
   # toutes phases confondues, en cohérence avec les badges du tableau remplissage_avis.
-  # - SV    : 1 par BOP si dernier avis SV manquant ou en brouillon (SV toujours ouverte)
-  # - Début : 1 par BOP si avis début manquant ou en brouillon (phase ouverte)
+  # Le calendrier est lu depuis la table phases : si une phase n'existe pas dans
+  # l'année (ex: SV en 2024), elle n'est pas comptée. Si elle existe mais date_debut
+  # est dans le futur, elle est non ouverte et n'est pas comptée non plus.
+  # - SV    : 1 par BOP si dernier avis SV manquant ou en brouillon (et phase ouverte)
+  # - Début : 1 par BOP si avis début manquant ou en brouillon (et phase ouverte)
   # - CRG1  : 1 par BOP si avis CRG1 manquant ou en brouillon, sauf si début.is_crg1 == false
-  #           (cas N/A : le CRG1 n'est pas programmé). Quand début est nil, on compte
-  #           quand même (le badge affiche "À rédiger" dans ce cas).
-  # - CRG2  : 1 par BOP si avis CRG2 manquant ou en brouillon (phase ouverte)
-  # Année passée → toutes phases sont considérées ouvertes.
-  def avis_a_remplir(annee, date_debut, date_crg1, date_crg2)
-    past_year     = annee < Date.today.year
-    debut_ouverte = past_year || Date.today >= date_debut
-    crg1_ouverte  = past_year || Date.today >= date_crg1
-    crg2_ouverte  = past_year || Date.today >= date_crg2
+  #           (cas N/A : le CRG1 n'est pas programmé). Quand début est nil, on compte.
+  # - CRG2  : 1 par BOP si avis CRG2 manquant ou en brouillon (et phase ouverte)
+  def avis_a_remplir(annee, reference_date = Date.today)
+    # Une phase nommée X est ouverte pour l'année si au moins une de ses instances
+    # a une date_debut <= reference_date.
+    phases_ouvertes_noms = Phase.pour_annee(annee)
+                                .where('date_debut <= ?', reference_date)
+                                .pluck(:nom).uniq.to_set
 
     bops_ids     = bops_actifs(annee).pluck(:id)
     avis_par_bop = self.avis.where(annee: annee, bop_id: bops_ids).group_by(&:bop_id)
@@ -89,10 +91,10 @@ class User < ApplicationRecord
       crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
 
       count = 0
-      count += 1 if (sv.nil? || sv.etat == 'Brouillon')                                       # SV toujours ouverte
-      count += 1 if debut_ouverte && (debut.nil? || debut.etat == 'Brouillon')
-      count += 1 if crg1_ouverte  && debut&.is_crg1 != false && (crg1.nil? || crg1.etat == 'Brouillon')
-      count += 1 if crg2_ouverte  && (crg2.nil? || crg2.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('services votés')   && (sv.nil?    || sv.etat    == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('début de gestion') && (debut.nil? || debut.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('CRG1')             && debut&.is_crg1 != false && (crg1.nil? || crg1.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('CRG2')             && (crg2.nil?  || crg2.etat  == 'Brouillon')
       count
     end
   end
@@ -111,7 +113,7 @@ class User < ApplicationRecord
   end
 
   def avis_remplis_annee(annee)
-    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon')
   end
 
   def avis_brouillon(annee, phase)

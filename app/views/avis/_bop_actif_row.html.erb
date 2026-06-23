@@ -1,25 +1,39 @@
 <%# Ligne du tableau de remplissage pour un BOP actif.
     Locals :
-      bop, avis_par_bop, annee_affichee, annee,
-      date_debut, date_crg1, date_crg2
+      bop, avis_par_bop, annee_affichee
+    Le calendrier des phases est lu via les helpers (Phase via la table).
+    Chaque cellule de phase peut contenir N badges si plusieurs instances de la phase
+    coexistent dans l'année (cas SV1/SV2).
 %>
-<% avis_bop    = avis_par_bop[bop.id] || [] %>
-<% avis_sv     = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at) %>
-<% avis_debut  = avis_bop.find   { |a| a.phase == 'début de gestion' } %>
-<% avis_crg1   = avis_bop.find   { |a| a.phase == 'CRG1' } %>
-<% avis_crg2   = avis_bop.find   { |a| a.phase == 'CRG2' } %>
-<% dates       = [annee_affichee, annee, date_debut, date_crg1, date_crg2] %>
-<% next_phase  = next_phase_to_fill(avis_bop, *dates) %>
+<% avis_bop       = avis_par_bop[bop.id] || [] %>
+<% avis_debut     = avis_bop.find { |a| a.phase == 'début de gestion' } %>
+<% phases_par_nom = phases_groupees_par_nom(annee_affichee) %>
+<% next_phase     = next_phase_to_fill(avis_bop, annee_affichee) %>
 
 <tr>
   <td><%= link_to "BOP #{bop.code}", bop_path(bop) %></td>
-  <td><%= phase_status_badge(avis_sv,    'services votés',   phase_ouverte?('services votés',   *dates)) %></td>
-  <td><%= phase_status_badge(avis_debut, 'début de gestion', phase_ouverte?('début de gestion', *dates)) %></td>
-  <td><%= phase_status_badge(avis_crg1,  'CRG1',             phase_ouverte?('CRG1',             *dates), avis_debut: avis_debut) %></td>
-  <td><%= phase_status_badge(avis_crg2,  'CRG2',             phase_ouverte?('CRG2',             *dates)) %></td>
+
+  <% noms_phases_pour_annee(annee_affichee).each do |nom| %>
+    <td>
+      <% instances = phases_par_nom[nom] || [] %>
+      <% if instances.empty? %>
+        <%# Phase absente du calendrier de l'année (ex: SV en 2024) → "Non ouvert". %>
+        <%= phase_status_badge(nil, nom, false) %>
+      <% else %>
+        <% instances.each do |phase| %>
+          <% avis      = avis_pour_phase(avis_bop, phase) %>
+          <% prefixe   = instances.size > 1 ? phase.libelle_court_avec_numero : nil %>
+          <div class="fr-mb-1v">
+            <%= phase_status_badge(avis, nom, phase.ouverte?, avis_debut: avis_debut, prefix: prefixe) %>
+          </div>
+        <% end %>
+      <% end %>
+    </td>
+  <% end %>
+
   <td>
     <% if next_phase %>
-      <%= link_to new_bop_avi_path(bop_id: bop, date: annee_affichee, phase: next_phase),
+      <%= link_to new_bop_avi_path(bop_id: bop, date: annee_affichee, phase_id: next_phase.id),
                   class: "fr-btn fr-btn--icon-left fr-icon-edit-line" do %>
         Rédiger
       <% end %>

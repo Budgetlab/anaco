@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :show do %>
-  <div class="fr-h2">Nous sommes en phase de <%= @phase %> <%= @annee %></div>
+  <div class="fr-h2">Nous sommes en phase de <%= @phase_courante %> <%= @annee %></div>
   <div class="fr-mb-2w">
     <ul class="fr-tags-group">
       <% (2023..Date.today.year).to_a.each do |annee| %>
@@ -52,7 +52,7 @@
 
   <div class="fr-h2" id="restitutions">Restitutions</div>
   <% bops_actifs_count = bops_actifs(@bops, @annee_a_afficher).count %>
-  <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
+  <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'début de gestion' %>
   <div class="fr-mb-4w" data-controller="highcharts"
        data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count, 'début de gestion') %>"
        data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, 'début de gestion') %>"
@@ -122,7 +122,7 @@
             <li>
               <% avis_bop_sv.each do |avis| %>
                 <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
-                  Avis <%= avis.phase %> n°<%= numero_avis_services_votes(avis, avis_bop_sv) %>
+                  Avis <%= avis.phase_periode&.libelle_avec_numero || avis.phase %>
                 </a>
               <% end %>
               <% avis_bop.each_with_index do |avis, index| %>
