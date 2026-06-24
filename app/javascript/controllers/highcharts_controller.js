@@ -174,7 +174,7 @@ export default class extends Controller {
             this.syntheseChart('notes2')
         }
         if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget) {
-            const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-disabled-grey)"]
+            const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-contrast-brown-caramel)", "var(--background-disabled-grey)"]
             const title = 'Délais de programmation initiale';
             const target = this.canvasAvisDateTarget;
             const data = JSON.parse(this.data.get("avisdate"));
@@ -185,12 +185,13 @@ export default class extends Controller {
                     {name: 'BOP initiaux reçus entre le 1er et le 15 mars', y: data[1]},
                     {name: 'BOP initiaux reçus entre le 15 et le 31 mars', y: data[2]},
                     {name: 'BOP initiaux reçus après le 1er avril', y: data[3]},
-                    {name: 'BOP initiaux non reçus', y: data[4]},
+                    {name: 'Non reçu', y: data[4]},
+                    {name: 'Non renseigné', y: data[5]},
                 ]
             }]
             this.synthesePie(colors, title, series, target);
         }
-        if (notesbar != null && notesbar.length > 0 && this.hasCanvasNotesBarTarget) {
+        if (notesbar != null && notesbar.categories && notesbar.categories.length > 0 && this.hasCanvasNotesBarTarget) {
             this.syntheseNotesBar();
         }
     }
@@ -198,7 +199,7 @@ export default class extends Controller {
     synthesePie(colors, title, series, target) {
         const options = {
             chart: {
-                height: '100%',
+                height: 500,
                 style: {
                     fontFamily: "Marianne",
                 },
@@ -225,16 +226,23 @@ export default class extends Controller {
 
             title: {
                 text: title,
-
                 style: {
-                    fontSize: '13px',
+                    fontSize: '18px',
                     fontWeight: "900",
                     color: 'var(--text-title-grey)',
                 },
             },
             legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                layout: 'vertical',
+                maxHeight: 150,
+                itemMarginTop: 2,
+                itemMarginBottom: 2,
                 itemStyle: {
                     color: 'var(--text-title-grey)',
+                    fontSize: '11px',
+                    fontWeight: 'normal',
                 },
             },
             tooltip: {
@@ -244,7 +252,6 @@ export default class extends Controller {
                 formatter: function () {
                     return '<b>' + this.point.name + ': </b>' + this.point.y + ' (' + Math.round(this.percentage * 10) / 10 + '% )'
                 }
-                //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
             accessibility: {
                 point: {
@@ -270,11 +277,19 @@ export default class extends Controller {
     }
 
     syntheseNotesBar() {
-        const data = JSON.parse(this.data.get("notesbar"));
-        const colors = ["var(--background-disabled-grey)", "var(--background-action-high-red-marianne-active)", "var(--artwork-minor-blue-france)", "var(--background-action-low-green-bourgeon)"];
+        const payload = JSON.parse(this.data.get("notesbar"));
+        const categories = payload.categories;
+        const [capacite, consommation, besoin, nonRecu, nonRenseigne] = payload.series;
+        const colors = [
+            "var(--background-disabled-grey)",
+            "var(--background-contrast-brown-caramel)",
+            "var(--background-action-high-red-marianne-active)",
+            "var(--artwork-minor-blue-france)",
+            "var(--background-action-low-green-bourgeon)"
+        ];
         const options = {
             chart: {
-                height: '100%',
+                height: 500,
                 style: {
                     fontFamily: "Marianne",
                 },
@@ -289,15 +304,14 @@ export default class extends Controller {
 
             title: {
                 text: 'Statuts des BOP',
-
                 style: {
-                    fontSize: '13px',
+                    fontSize: '18px',
                     fontWeight: "900",
                     color: 'var(--text-title-grey)',
                 },
             },
             xAxis: {
-                categories: ["Début de gestion", 'CRG1', 'CRG2'],
+                categories: categories,
                 labels: {
                     style: {
                         color: 'var(--text-title-grey)',
@@ -313,8 +327,16 @@ export default class extends Controller {
             },
             legend: {
                 reversed: true,
+                align: 'center',
+                verticalAlign: 'bottom',
+                layout: 'vertical',
+                maxHeight: 150,
+                itemMarginTop: 2,
+                itemMarginBottom: 2,
                 itemStyle: {
                     color: 'var(--text-title-grey)',
+                    fontSize: '11px',
+                    fontWeight: 'normal',
                 },
             },
             tooltip: {
@@ -333,17 +355,20 @@ export default class extends Controller {
                 },
             },
             series: [{
-                name: 'Notes non reçues',
-                data: data[3],
+                name: 'Non renseigné',
+                data: nonRenseigne,
+            }, {
+                name: 'Non reçu',
+                data: nonRecu,
             }, {
                 name: 'BOP avec besoin de financement',
-                data: data[2],
+                data: besoin,
             }, {
                 name: 'BOP avec consommation à la ressource',
-                data: data[1],
+                data: consommation,
             }, {
                 name: 'BOP avec capacité contributive',
-                data: data[0],
+                data: capacite,
             },]
         }
         this.chart = Highcharts.chart(this.canvasNotesBarTarget, options);

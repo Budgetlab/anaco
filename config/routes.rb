@@ -23,7 +23,6 @@ Rails.application.routes.draw do
                controllers: { sessions: 'sessions' }
 
     root 'pages#index'
-    get 'global_search', to: 'pages#global_search'
     get 'utilisateurs' => 'users#index'
     post 'import_users' => 'users#import'
     post '/select_nom' => 'users#select_nom'
@@ -68,7 +67,6 @@ Rails.application.routes.draw do
     get 'remplissage_avis' => 'avis#remplissage_avis'
     get 'suivi_remplissage_avis' => 'avis#suivi_remplissage'
     get 'restitutions' => 'avis#restitutions'
-    get 'restitutions_perimetre' => 'avis#restitutions_perimetre'
     post 'update_etat', to: 'avis#update_etat'
     get 'admin_back_up_avis', to: 'avis#admin_back_up_avis'
     post 'import_avis', to: 'avis#import'

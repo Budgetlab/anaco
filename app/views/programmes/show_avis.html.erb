@@ -56,7 +56,7 @@
   <div class="fr-mb-4w" data-controller="highcharts"
        data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count, 'début de gestion') %>"
        data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, 'début de gestion') %>"
-       data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher) %>"
+       data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher).to_json %>"
        data-highcharts-notes1="<%= notes_repartition(@avis, avis_crg1(@avis), 'CRG1')  %>"
        data-highcharts-notes2="<%= notes_repartition(@avis, bops_actifs_count, 'CRG2') %>">
     <div class="fr-grid-row fr-grid-row--gutters">

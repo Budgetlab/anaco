@@ -218,16 +218,16 @@ class AvisController < ApplicationController
 
   def restitutions
     @annee_a_afficher = annee_a_afficher
-    @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
-    @avis_remplis = avis_annee_remplis(@annee_a_afficher)
-    @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
-  end
-
-  def restitutions_perimetre
-    @annee_a_afficher = annee_a_afficher
-    @avis_total = current_user.bops_actifs(@annee_a_afficher).count
-    @avis_remplis = current_user.avis_remplis_annee(@annee_a_afficher)
-    @liste_programmes = current_user.programmes_access
+    @perimetre = params[:perimetre] == 'perimetre' && current_user.statut != 'admin' ? 'perimetre' : 'national'
+    if @perimetre == 'perimetre'
+      @avis_total = current_user.bops_actifs(@annee_a_afficher).count
+      @avis_remplis = current_user.avis_remplis_annee(@annee_a_afficher)
+      @programmes = current_user.programmes_access
+    else
+      @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
+      @avis_remplis = avis_annee_remplis(@annee_a_afficher)
+      @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
+    end
   end
 
   private

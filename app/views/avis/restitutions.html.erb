@@ -1,18 +1,38 @@
 <% content_for :title do %>Restitutions | ANACO
 <% end %>
-<main>
+<% titre_programmes = @perimetre == 'perimetre' ? "Liste des programmes associés à mes BOP [#{@programmes.length}]" : "Les programmes [#{@programmes.length}]" %>
+<div class="fr-container-blue">
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-my-6w">
-          Restitutions nationales
-        </h1>
+        <h1 class="fr-my-6w">Tableau de bord</h1>
+
+        <% if ['CBR', 'DCB'].include?(current_user.statut) %>
+          <fieldset class="fr-fieldset fr-mb-2w" id="perimetre-radios">
+            <div class="fr-fieldset__element fr-fieldset__element--inline">
+              <div class="fr-radio-group fr-radio-rich">
+                <%= radio_button_tag :perimetre, 'national', @perimetre == 'national',
+                                     id: 'perimetre-national',
+                                     onchange: "window.location.href='#{restitutions_path(date: @annee_a_afficher, perimetre: 'national')}'" %>
+                <label class="fr-label" for="perimetre-national">Périmètre national</label>
+              </div>
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline">
+              <div class="fr-radio-group fr-radio-rich">
+                <%= radio_button_tag :perimetre, 'perimetre', @perimetre == 'perimetre',
+                                     id: 'perimetre-perimetre',
+                                     onchange: "window.location.href='#{restitutions_path(date: @annee_a_afficher, perimetre: 'perimetre')}'" %>
+                <label class="fr-label" for="perimetre-perimetre">Mon périmètre</label>
+              </div>
+            </div>
+          </fieldset>
+        <% end %>
 
         <div class="fr-mb-2w title-btn">
           <ul class="fr-tags-group">
             <% (2023..Date.today.year).to_a.each do |annee| %>
               <li>
-                <%= link_to restitutions_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
+                <%= link_to restitutions_path(date: annee, perimetre: @perimetre), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
                   <%= annee %>
                 <% end %>
               </li>
@@ -28,66 +48,74 @@
         </div>
       </div>
     </div>
-    <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'début de gestion' %>
     <div id="containPDF">
       <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
       <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"
            data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
-           data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>"
+           data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher).to_json %>"
            data-highcharts-notes1="<%= notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1') %>"
            data-highcharts-notes2="<%= notes_repartition(@avis_remplis, @avis_total, 'CRG2') %>">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12 fr-col-lg-6">
-                <div class="fr-text--center">
-                  <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-                    <div class="fr-cart__body">
-                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %> </p>
-                      <p class="fr-text--lg fr-mb-0 text_center">BOP Actifs</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="fr-col-12 fr-col-lg-6">
-                <div class="fr-text--center">
-                  <%= image_tag "artwork/pictograms/digital/calendar.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
-                    <div class="fr-cart__body">
-                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %> </p>
-                      <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
-                    </div>
-                  </div>
+
+        <div class="fr-grid-row">
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center fr-p-2v">
+              <div class="fr-card fr-p-2w">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %></p>
+                  <p class="fr-text--lg fr-mb-0 text_center">BOP actifs</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvisDate"></div>
-          </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotesBar"></div>
+          <div class="fr-col-12 fr-col-lg-6">
+            <div class="fr-text--center fr-p-2v">
+              <div class="fr-card fr-p-2w">
+                <div class="fr-cart__body">
+                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %></p>
+                  <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="fr-grid-row fr-grid-row--gutters">
+
           <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvis"></div>
+            <div class="fr-p-2v">
+              <div class="fr-card fr-p-2w">
+                <div data-highcharts-target="canvasAvisDate"></div>
+              </div>
+            </div>
           </div>
           <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotes1"></div>
+            <div class="fr-p-2v">
+              <div class="fr-card fr-p-2w">
+                <div data-highcharts-target="canvasNotesBar"></div>
+              </div>
+            </div>
           </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotes2"></div>
-          </div>
+
+        <% repartitions = statuts_repartition_par_phase(@avis_remplis, @avis_total, @annee_a_afficher) %>
+
+          <% repartitions.each do |rep| %>
+            <div class="fr-col-12 fr-col-lg-4">
+              <div class="fr-p-2v">
+                <div class="fr-card fr-p-2w">
+                  <div data-controller="statut-pie"
+                       data-statut-pie-title-value="<%= "Répartition - #{rep[:libelle]}" %>"
+                       data-statut-pie-data-value="<%= rep[:data].to_json %>"></div>
+                </div>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
 
 
-    <h2 class="fr-mt-6w fr-mb-2w">Les programmes [<%= @programmes.length %>]</h2>
+    <h2 class="fr-mt-6w fr-mb-2w"><%= titre_programmes %></h2>
 
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+    <div class="fr-grid-row fr-grid-row--gutters fr-pb-4w">
       <% @programmes.each do |programme| %>
         <div class="fr-col-12 fr-col-lg-3">
           <div class="fr-card">
@@ -120,4 +148,4 @@
       <% end %>
     </div>
   </div>
-</main>
+</div>

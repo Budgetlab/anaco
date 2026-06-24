@@ -39,28 +39,6 @@ class PagesController < ApplicationController
     @ht2_suspendu = counts["suspendu"] || 0
   end
 
-  def global_search
-    @statut_user = current_user.statut
-    if params[:query].present?
-      if @statut_user == 'CBR'
-        @bops = current_user.bops.where('code ILIKE ?', "%#{params[:query]}%")
-        @programmes = Programme.accessible.where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
-        @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")
-        @ministeres = Ministere.where('nom ILIKE ?', "%#{params[:query]}%")
-      else
-        @programmes = Programme.accessible.where('nom ILIKE ? OR numero ILIKE ?', "%#{params[:query]}%", "%#{params[:query]}%")
-        @missions = Mission.where('nom ILIKE ?', "%#{params[:query]}%")
-        @ministeres = Ministere.where('nom ILIKE ?', "%#{params[:query]}%")
-        @bops = Bop.where('code ILIKE ?', "%#{params[:query]}%")
-      end
-    else
-      @programmes = []
-      @missions = []
-      @ministeres = []
-      @bops = []
-    end
-  end
-
   def mentions_legales; end
 
   def accessibilite; end

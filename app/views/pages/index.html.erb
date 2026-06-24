@@ -15,37 +15,6 @@
       </div>
     </div>
 
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
-      <div class="fr-col-12 fr-col-lg-12">
-        <% label = "Rechercher un programme, un ministère, une mission, un BOP" %>
-        <%= form_with url: global_search_path, data: { turbo_frame: 'global_search' }, method: :get do |form| %>
-          <div class="fr-search-bar" id="header-search" role="search">
-            <label class="fr-label" for="search-784-input">
-              <%= label %>
-            </label>
-            <%= form.text_field :query, value: params[:query], autofocus: true, class: 'fr-input', id: "search-784-input", placeholder: label, oninput: 'this.form.requestSubmit()', data: { action: "keyup->search#collapse" } %>
-            <button class="fr-btn" title="Rechercher" aria-controls="modal-autocomplete" aria-expanded="false" data-search-target="button">
-              <%= label %>
-            </button>
-          </div>
-        <% end %>
-
-        <div id="modal-autocomplete" class="fr-collapse shadow">
-          <div class="fr-container fr-p-0">
-            <div class="fr-grid-row">
-              <div class="fr-col-12">
-                <div class="fr-modal__body fr-modal--body-search">
-                  <div class="fr-modal__content fr-mb-4w">
-                    <%= turbo_frame_tag :global_search, target: "_top" %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-card fr-card--shadow">
@@ -66,7 +35,7 @@
                       <ul class="fr-btns-group fr-btns-group--icon-left  fr-mt-2w">
                         <li>
                           <%= link_to remplissage_avis_path, class: "fr-btn fr-icon-add-line" do %>
-                            Donner un avis ou une note sur la programmation
+                            Rédiger un avis ou une note sur la programmation
                           <% end %>
                         </li>
                       </ul>
@@ -144,7 +113,7 @@
                                 Accéder au tableau de bord
                               <% end %>
                             <% else %>
-                              <%= link_to restitutions_perimetre_path do %>
+                              <%= link_to restitutions_path(perimetre: 'perimetre') do %>
                                 Accéder au tableau de bord
                               <% end %>
                             <% end %>

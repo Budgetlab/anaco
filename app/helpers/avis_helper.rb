@@ -146,12 +146,41 @@ module AvisHelper
   # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee, phase)
     avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
-    avis_date_1 = avis.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) && a.phase == phase }
-    avis_date_2 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) && a.phase == phase }
-    avis_date_3 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) && a.phase == phase }
-    avis_date_4 = avis.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) && a.phase == phase }
-    avis_vide = avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4
-    [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_vide]
+    avis_phase = avis.select { |a| a.phase == phase }
+    avis_non_recu = avis_phase.count { |a| a.statut == 'Non reçu' }
+    avis_date_1 = avis_phase.count { |a| !a.date_reception.nil? && a.date_reception <= Date.new(annee, 3, 1) }
+    avis_date_2 = avis_phase.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 1) && a.date_reception <= Date.new(annee, 3, 15) }
+    avis_date_3 = avis_phase.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 3, 15) && a.date_reception <= Date.new(annee, 3, 31) }
+    avis_date_4 = avis_phase.count { |a| !a.date_reception.nil? && a.date_reception > Date.new(annee, 4, 1) }
+    avis_vide = [avis_total - avis_date_1 - avis_date_2 - avis_date_3 - avis_date_4 - avis_non_recu, 0].max
+    [avis_date_1, avis_date_2, avis_date_3, avis_date_4, avis_non_recu, avis_vide]
+  end
+
+  # Pour chaque phase de l'année sélectionnée, renvoie la répartition des statuts
+  # (statuts métier de la phase + "Non reçu" si présent + "Non renseigné" pour le reliquat).
+  # avis_total = nombre de BOP actifs sur l'année (référentiel commun).
+  def statuts_repartition_par_phase(avis_remplis, avis_total, annee)
+    phases = Phase.pour_annee(annee).to_a
+    instances_par_nom = phases.group_by(&:nom)
+
+    phases.map do |phase|
+      avis_phase = avis_remplis.select { |a| a.phase == phase.nom }
+      # Pour 'services votés' multi-instances : ne garder que le dernier avis par BOP
+      if phase.nom == 'services votés'
+        avis_phase = avis_phase.group_by(&:bop_id).map { |_, list| list.max_by(&:created_at) }
+      end
+
+      buckets = (Avi::STATUTS_PAR_PHASE[phase.nom] || []) + ['Non reçu']
+      counts = buckets.map { |s| [s, avis_phase.count { |a| a.statut == s }] }.to_h
+      renseignes_total = counts.values.sum
+      counts['Non renseigné'] = [avis_total - renseignes_total, 0].max
+
+      data = counts.reject { |_, v| v == 0 }.map { |name, y| { name: name, y: y } }
+      instances = instances_par_nom[phase.nom] || []
+      libelle = instances.size > 1 ? phase.libelle_avec_numero : phase.nom.sub(/\A./, &:upcase)
+
+      { phase_nom: phase.nom, libelle: libelle, data: data }
+    end
   end
 
   # fonction pour afficher les graphes avec la répartition des statuts pour les notes CRG1 et CRG2
