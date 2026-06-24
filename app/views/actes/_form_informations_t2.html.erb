@@ -22,7 +22,9 @@
 
       <div class="fr-col-12 fr-col-lg-4">
         <div class="fr-select-group">
-          <label for="nature" class="fr-label">Nature de l'acte*</label>
+          <label for="nature" class="fr-label">Nature de l'acte*
+            <%= render partial: "actes/tooltip", locals: { name: "nature_acte_info" } %>
+          </label>
           <%
             nature_labels = {
               'Annexe financière'       => 'Annexe financière (concours)',

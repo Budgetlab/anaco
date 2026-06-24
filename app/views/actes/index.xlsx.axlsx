@@ -67,7 +67,7 @@ columns = [
   ['Objet',                                           :common],     # P  16
   ['Bénéficiaire',                                    :common],     # Q  17
   ["Nombre d'actes",                                  :common],     # R  18
-  ['Montant au contrôle',                             :common],     # S  19
+  ['Montant de la mesure',                             :common],     # S  19
   ['Type de montant',                                 :organisme],  # T  20
   ['Montant total',                                   :common],     # U  21
   ['Titre/Catégorie',                                 :etat],       # V  22
@@ -186,7 +186,7 @@ wb.add_worksheet(name: "HT2") do |sheet|
       acte.beneficiaire,
       # R  18 Nombre d'actes
       acte.nombre_actes && acte.nombre_actes > 1 ? acte.nombre_actes : 1,
-      # S  19 Montant au contrôle
+      # S  19 Montant de la mesure
       acte.montant_ae,
       # T  20 Type de montant  (organisme only)
       is_etat ? "N/A" : acte.type_montant,
@@ -288,7 +288,7 @@ wb.add_worksheet(name: "HT2") do |sheet|
     styles = Array.new(col_count, cell_style)
     types  = Array.new(col_count, :string)
 
-    styles[18] = number_style  # S  Montant au contrôle
+    styles[18] = number_style  # S  Montant de la mesure
     styles[20] = number_style  # U  Montant total
     styles[14] = text_style    # O  Numéro Chorus / N° acte interne
     styles[24] = text_style    # Y  Numéro Marché
@@ -296,7 +296,7 @@ wb.add_worksheet(name: "HT2") do |sheet|
 
     types[2]  = :integer  # C  Exercice
     types[17] = :integer  # R  Nombre d'actes
-    types[18] = :float    # S  Montant au contrôle
+    types[18] = :float    # S  Montant de la mesure
     types[20] = :float    # U  Montant total
     types[49] = :integer  # AX Délai de traitement
 

@@ -72,11 +72,11 @@
     </div>
   </div>
 
-  <%# Cercle 1 — Montant au contrôle %>
+  <%# Cercle 1 — Montant de la mesure %>
   <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle1 == true || td.object.isp_cercle1.nil? %>"
        data-conditional-field-target="field">
     <div class="fr-input-group">
-      <label for="isp_cercle1_montant" class="fr-label">Montant au contrôle*</label>
+      <label for="isp_cercle1_montant" class="fr-label">Montant de la mesure*</label>
       <%= td.text_field :isp_cercle1_montant, id: "isp_cercle1_montant", class: "fr-input",
           value: td.object.isp_cercle1_montant,
           required: td.object.isp_cercle1 == true || td.object.isp_cercle1.nil?,
@@ -190,11 +190,11 @@
     </div>
   </div>
 
-  <%# Cercle 2 — Montant au contrôle %>
+  <%# Cercle 2 — Montant de la mesure %>
   <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless td.object.isp_cercle2 == true %>"
        data-conditional-field-target="field">
     <div class="fr-input-group">
-      <label for="isp_cercle2_montant" class="fr-label">Montant au contrôle*</label>
+      <label for="isp_cercle2_montant" class="fr-label">Montant de la mesure*</label>
       <%= td.text_field :isp_cercle2_montant, id: "isp_cercle2_montant", class: "fr-input",
           value: td.object.isp_cercle2_montant,
           required: td.object.isp_cercle2 == true,

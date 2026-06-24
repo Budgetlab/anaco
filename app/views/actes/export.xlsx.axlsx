@@ -562,7 +562,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          present = t2&.public_send("isp_cercle#{n}") == true
          next unless present
          sheet.add_row ["Cercle #{n}", "", "", "", ""], style: Array.new(5, section_header_style)
-         sheet.add_row ["Nature(s) des ISP", "Montant au contrôle (€)",
+         sheet.add_row ["Nature(s) des ISP", "Montant de la mesure (€)",
                         "Enveloppe SGG (€)", "Consommation à date (€)",
                         "Reste à consommer (€)"], style: Array.new(5, header_style)
          enveloppe    = t2.public_send("isp_cercle#{n}_enveloppe_sgg").to_f
@@ -578,7 +578,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
      when 'Fongibilité asymétrique'
        # Miroir _show_fongibilite_asymetrique.html.erb
-       headers = ["Montant au contrôle (€)"]
+       headers = ["Montant de la mesure (€)"]
        values  = [@acte.montant_ae]
        styles  = [currency_style]
        if @acte.perimetre == 'etat'
@@ -608,7 +608,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
 
      when 'Marché'
        # Miroir _show_marche.html.erb
-       headers = ["Montant au contrôle (€)", "Bénéficiaire"]
+       headers = ["Montant de la mesure (€)", "Bénéficiaire"]
        values  = [@acte.montant_ae, fmt_val.(@acte.beneficiaire)]
        styles  = [currency_style, cell_style]
        if @acte.perimetre == 'organisme'
@@ -638,7 +638,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
          styles  << cell_style
        end
        headers += ["Périmètre de mesure", "Catégorie", "Corps", "Effectifs N", "Effectifs N+1",
-                   "Statut d'agents", "Montant au contrôle (€)", "Impact financier N+1 (€)"]
+                   "Statut d'agents", "Montant de la mesure (€)", "Impact financier N+1 (€)"]
        values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
                    Array(t2&.grade).join(', ').presence || 'Non renseigné',
                    fmt_val.(t2&.corps),
@@ -676,7 +676,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        sheet.add_row
        # Tableau suite : montants + effet
        effet_pct = format_effet_enveloppe_pct(@acte.montant_ae, t2&.impact_maximal_sans_enveloppe)
-       headers2 = ["Montant au contrôle (€)", "Montant enveloppe N-1 (€)",
+       headers2 = ["Montant de la mesure (€)", "Montant enveloppe N-1 (€)",
                    "Impact maximal sans enveloppe (€)", "Effet de l'enveloppe (%)"]
        values2  = [@acte.montant_ae, t2&.montant_enveloppe_n1, t2&.impact_maximal_sans_enveloppe, effet_pct]
        sheet.add_row headers2, style: Array.new(headers2.size, header_style)
@@ -696,7 +696,7 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
        end
        declinaison_label = @acte.perimetre == 'organisme' ? "Déclinaison autre référentiel" : "Déclinaison référentiel interministériel"
        headers += ["Périmètre de mesure", "Catégorie", "Corps", "Effectifs N", "Effectifs N+1",
-                   "Montant au contrôle (€)", "Impact financier N+1 (€)", declinaison_label]
+                   "Montant de la mesure (€)", "Impact financier N+1 (€)", declinaison_label]
        values  += [Array(t2&.perimetre_mesure).join(', ').presence || 'Non renseigné',
                    Array(t2&.grade).join(', ').presence || 'Non renseigné',
                    fmt_val.(t2&.corps),
@@ -837,9 +837,9 @@ wb.add_worksheet(name: "Acte #{@acte.numero_formate}") do |sheet|
      if show_programmation_compat
        add_critere.("Compatibilité avec la programmation annuelle et pluriannuelle", @acte.programmation)
      end
-     # 5) Soutenabilité / Disponibilité des crédits (sauf Annexe financière)
+     # 5) Soutenabilité des crédits (sauf Annexe financière)
      if nature != 'Annexe financière'
-       add_critere.("Soutenabilité / Disponibilité des crédits", @acte.soutenabilite)
+       add_critere.("Soutenabilité des crédits", @acte.soutenabilite)
      end
      # 6) Inscription au PAP / Plan de recrutement (Annexe financière) ou Inscription au PAP (MT, Réf)
      if t2 && is_etat_t2 && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(nature)

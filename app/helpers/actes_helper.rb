@@ -235,7 +235,7 @@ module ActesHelper
       ['Ordonnateur',                     :common],
       ['Objet',                           :common],
       ['Bénéficiaire',                    :common],
-      ['Montant au contrôle',             :common],
+      ['Montant de la mesure',             :common],
       ['Opération budgétaire',            :organisme],
       ['Budget exécutoire',               :organisme],
       ['Délibération CA',                 :organisme],
@@ -435,7 +435,7 @@ module ActesHelper
     label_idx = ->(label) { cols.index { |(l, _)| l == label } }
     {
       float: [
-        label_idx.('Montant au contrôle'),
+        label_idx.('Montant de la mesure'),
         label_idx.('ISP C1 montant'),
         label_idx.('ISP C1 enveloppe SGG'),
         label_idx.('ISP C1 consommation'),

@@ -162,7 +162,7 @@
       criteres << ["Compatibilité avec la programmation annuelle et pluriannuelle", acte.programmation]
     end
     if t2_nature != 'Annexe financière'
-      criteres << ["Soutenabilité / Disponibilité des crédits", acte.soutenabilite]
+      criteres << ["Soutenabilité des crédits", acte.soutenabilite]
     end
     if td && t2_perimetre == 'etat' && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(t2_nature)
       inscription_pap_label = t2_nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP"
