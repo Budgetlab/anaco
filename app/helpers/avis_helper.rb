@@ -133,16 +133,6 @@ module AvisHelper
     end
   end
 
-  # fonction pour afficher la répartition des statuts pour les avis début de gestion de l'année sélectionnée
-  def avis_repartition(avis, avis_total, phase)
-    avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
-    avis_favorables = avis.count { |a| a.statut == 'Favorable' && a.phase == phase }
-    avis_reserves = avis.count { |a| a.statut == 'Favorable avec réserve' && a.phase == phase }
-    avis_defavorables = avis.count { |a| a.statut == 'Défavorable' && a.phase == phase }
-    avis_vide = avis_total - avis_favorables - avis_reserves - avis_defavorables
-    [avis_favorables, avis_reserves, avis_defavorables, avis_vide]
-  end
-
   # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee, phase)
     avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
@@ -181,16 +171,6 @@ module AvisHelper
 
       { phase_nom: phase.nom, libelle: libelle, data: data }
     end
-  end
-
-  # fonction pour afficher les graphes avec la répartition des statuts pour les notes CRG1 et CRG2
-  def notes_repartition(avis, avis_total, phase)
-    notes_counts = avis.select { |a| a.phase == phase }.group_by(&:statut).transform_values(&:count)
-    notes_sans_risque = notes_counts['Aucun risque'].to_i
-    notes_moyen = (notes_counts['Risques éventuels ou modérés'] || 0) + (notes_counts['Risques modérés'] || 0)
-    notes_red = (notes_counts['Risques certains ou significatifs'] || 0) + (notes_counts['Risques significatifs'] || 0)
-    notes_vide = avis_total - notes_sans_risque - notes_moyen - notes_red
-    [notes_sans_risque, notes_moyen, notes_red, notes_vide]
   end
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année

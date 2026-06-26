@@ -40,19 +40,4 @@ module BopsHelper
     ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0))
   end
 
-  # fonction pour calculer les statuts des bops sur une phase
-  def statut_bop(avis, avis_total, phase)
-    if phase == 'CRG1'
-      statuts_positive = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
-      statuts_nul = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
-      statuts_negative = avis.count { |a| a.phase == 'début de gestion' && a.is_crg1 == false && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? } + avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
-      statuts_vide = avis_total - avis.select { |a| a.phase == 'début de gestion' && a.is_crg1 == false }.count - avis.count { |a| a.phase == phase }
-    else
-      statuts_positive = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).positive? }
-      statuts_nul = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).zero? }
-      statuts_negative = avis.count { |a| a.phase == phase && ((a.ae_i || 0) + (a.t2_i || 0) - (a.ae_f || 0) - (a.t2_f || 0)).negative? }
-      statuts_vide = avis_total - avis.count { |a| a.phase == phase }
-    end
-    [statuts_positive, statuts_nul, statuts_negative, statuts_vide]
-  end
 end

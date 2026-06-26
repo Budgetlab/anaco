@@ -1,5 +1,4 @@
 <%= turbo_frame_tag :show do %>
-  <div class="fr-h2">Nous sommes en phase de <%= @phase_courante %> <%= @annee %></div>
   <div class="fr-mb-2w">
     <ul class="fr-tags-group">
       <% (2023..Date.today.year).to_a.each do |annee| %>
@@ -54,29 +53,37 @@
   <% bops_actifs_count = bops_actifs(@bops, @annee_a_afficher).count %>
   <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'début de gestion' %>
   <div class="fr-mb-4w" data-controller="highcharts"
-       data-highcharts-avis="<%= avis_repartition(@avis, bops_actifs_count, 'début de gestion') %>"
        data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, 'début de gestion') %>"
-       data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher).to_json %>"
-       data-highcharts-notes1="<%= notes_repartition(@avis, avis_crg1(@avis), 'CRG1')  %>"
-       data-highcharts-notes2="<%= notes_repartition(@avis, bops_actifs_count, 'CRG2') %>">
+       data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher).to_json %>">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
-        <div data-highcharts-target="canvasAvisDate"></div>
+        <div class="fr-p-2v">
+          <div class="fr-card fr-p-2w">
+            <div data-highcharts-target="canvasAvisDate"></div>
+          </div>
+        </div>
       </div>
       <div class="fr-col-12 fr-col-lg-6">
-        <div data-highcharts-target="canvasNotesBar"></div>
+        <div class="fr-p-2v">
+          <div class="fr-card fr-p-2w">
+            <div data-highcharts-target="canvasNotesBar"></div>
+          </div>
+        </div>
       </div>
     </div>
+    <% repartitions = statuts_repartition_par_phase(@avis, bops_actifs_count, @annee_a_afficher) %>
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-lg-4">
-        <div data-highcharts-target="canvasAvis"></div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <div data-highcharts-target="canvasNotes1"></div>
-      </div>
-      <div class="fr-col-12 fr-col-lg-4">
-        <div data-highcharts-target="canvasNotes2"></div>
-      </div>
+      <% repartitions.each do |rep| %>
+        <div class="fr-col-12 fr-col-lg-6">
+          <div class="fr-p-2v">
+            <div class="fr-card fr-p-2w">
+              <div data-controller="statut-pie"
+                   data-statut-pie-title-value="<%= "Répartition - #{rep[:libelle]}" %>"
+                   data-statut-pie-data-value="<%= rep[:data].to_json %>"></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 
