@@ -42,8 +42,8 @@ class AvisController < ApplicationController
   end
 
   # Page de création d'un nouvel avis.
-  # Phase ciblée : params[:phase_id] explicite, sinon next_phase_to_fill (même
-  # logique que le bouton "Rédiger" du tableau remplissage_avis).
+  # Phase ciblée : next_phase_to_fill (même logique que le bouton "Rédiger"
+  # du tableau remplissage_avis), seule entrée possible aujourd'hui.
   # Règle : 1 avis par (BOP, instance de Phase). Si déjà existant :
   #   - brouillon → bascule sur edit pour reprendre la saisie
   #   - finalisé  → retour à la fiche BOP avec un notice
@@ -53,8 +53,7 @@ class AvisController < ApplicationController
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
     avis_bop = @bop.avis.where(annee: @annee_a_afficher).to_a
-    @phase_obj = Phase.find_by(id: params[:phase_id]) ||
-                 next_phase_to_fill(avis_bop, @annee_a_afficher)
+    @phase_obj = next_phase_to_fill(avis_bop, @annee_a_afficher)
     redirect_to bop_path(@bop), notice: 'Aucun avis à rédiger pour ce BOP.' and return if @phase_obj.nil?
 
     @phase_form = @phase_obj.nom
@@ -68,7 +67,7 @@ class AvisController < ApplicationController
       redirect_to edit_bop_avi_path(bop_id: @bop.id, id: existing.id) and return
     end
 
-    @avis = @bop.avis.new(phase_id: @phase_obj.id)
+    @avis = @bop.avis.new(phase_id: @phase_obj.id, annee: @phase_obj.annee)
   end
 
   # fonction qui créé un nouvel avis.
@@ -85,7 +84,7 @@ class AvisController < ApplicationController
 
     if @avis.save
       message = @avis.etat == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-      redirect_to historique_path, notice: message
+      redirect_to bop_path(@bop), notice: message
     else
       setup_form_context_from_avis
       flash.now[:alert] = @avis.errors.full_messages.to_sentence
@@ -111,7 +110,13 @@ class AvisController < ApplicationController
     @avis = Avi.find(params[:id])
     etat_initial = @avis.etat
     attrs = force_non_recu_attributes!(avi_params, phase_nom: @avis.phase)
-    attrs = attrs.merge(etat: etat_initial) if ['Lu', 'En attente de lecture'].include?(etat_initial)
+    # Préservation de l'etat finalisé : si l'avis était lu/en attente, on conserve
+    # cet etat MALGRÉ ce que renvoie le form/callback — SAUF quand l'utilisateur
+    # demande explicitement un retour en brouillon et que c'est autorisé.
+    downgrade_brouillon = attrs[:etat] == 'Brouillon' && brouillon_allowed?(@avis)
+    if ['Lu', 'En attente de lecture'].include?(etat_initial) && !downgrade_brouillon
+      attrs = attrs.merge(etat: etat_initial)
+    end
     attrs = attrs.merge(etat: 'Lu') if dcb_is_updating?
 
     if @avis.update(attrs)

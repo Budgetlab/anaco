@@ -99,6 +99,22 @@ module AvisHelper
     nil
   end
 
+  # Le bouton "Enregistrer en brouillon" n'est proposé que si :
+  # - l'avis est sur l'année en cours
+  # - aucun autre avis du même BOP n'existe sur une phase ultérieure (date_debut >)
+  # Soi-même est exclu du test pour qu'une édition de brouillon reste possible.
+  def brouillon_allowed?(avis)
+    return false unless avis && avis.phase_periode
+    annee = avis.annee || avis.phase_periode.annee
+    return false unless annee == Date.today.year
+
+    scope = Avi.where(bop_id: avis.bop_id, annee: annee)
+               .joins(:phase_periode)
+               .where('phases.date_debut > ?', avis.phase_periode.date_debut)
+    scope = scope.where.not(id: avis.id) if avis.persisted?
+    scope.none?
+  end
+
   def badge_class_for_etat(etat)
     case etat
     when 'En attente de lecture'

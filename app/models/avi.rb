@@ -38,6 +38,12 @@ class Avi < ApplicationRecord
                                       message: 'un avis existe déjà pour ce BOP et cette phase' },
                        if: -> { phase_id.present? }
 
+  # Garde-fou serveur : un avis ne peut être en brouillon que sur l'année courante
+  # ET s'il est le dernier renseigné sur le BOP (aucun avis sur une phase ultérieure).
+  # Le bouton UI est déjà masqué dans ces cas — cette validation bloque les POST directs.
+  validate :brouillon_seulement_si_dernier_avis_annee_courante,
+           if: -> { etat == 'Brouillon' && phase_periode.present? && annee.present? }
+
   before_validation :assigner_phase_periode_depuis_phase_nom
   before_save :set_etat_avis
 
@@ -133,6 +139,21 @@ class Avi < ApplicationRecord
       if date_envoi.nil? || statut.nil?
         self.etat = 'Brouillon'
       end
+    end
+  end
+
+  def brouillon_seulement_si_dernier_avis_annee_courante
+    if annee != Date.today.year
+      errors.add(:etat, "ne peut être en brouillon que sur l'année en cours")
+      return
+    end
+
+    scope = Avi.where(bop_id: bop_id, annee: annee)
+               .joins(:phase_periode)
+               .where('phases.date_debut > ?', phase_periode.date_debut)
+    scope = scope.where.not(id: id) if persisted?
+    if scope.exists?
+      errors.add(:etat, 'ne peut être en brouillon car un avis existe sur une phase ultérieure')
     end
   end
 end
