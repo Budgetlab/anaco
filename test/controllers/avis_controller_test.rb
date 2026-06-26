@@ -22,7 +22,7 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Lu",       avi.etat
     assert_equal false,      avi.avis_recu
     assert_equal "Absence de dossier transmis par le RBOP", avi.motif_absence
-    assert_equal true,       avi.is_crg1, "début de gestion non reçu doit programmer un CRG1"
+    assert_equal true,       avi.is_crg1, "programmation initiale non reçu doit programmer un CRG1"
     assert_nil avi.date_envoi
     assert_nil avi.date_reception
     assert_nil avi.ae_i
@@ -44,7 +44,7 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Lu",       avi.etat
     assert_equal false,      avi.avis_recu
     assert_equal "Dossier transmis tardivement par le RBOP", avi.motif_absence
-    assert_equal true,       avi.is_crg1, "début de gestion non reçu doit programmer un CRG1"
+    assert_equal true,       avi.is_crg1, "programmation initiale non reçu doit programmer un CRG1"
     assert_nil avi.date_envoi
     assert_nil avi.date_reception
     assert_nil avi.ae_i

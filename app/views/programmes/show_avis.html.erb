@@ -51,9 +51,9 @@
 
   <div class="fr-h2" id="restitutions">Restitutions</div>
   <% bops_actifs_count = bops_actifs(@bops, @annee_a_afficher).count %>
-  <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'début de gestion' %>
+  <% phase_avis = @phase_courante == 'services votés' ? 'services votés' : 'programmation initiale' %>
   <div class="fr-mb-4w" data-controller="highcharts"
-       data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, 'début de gestion') %>"
+       data-highcharts-avisdate="<%= avis_date_repartition(@avis, bops_actifs_count, @annee_a_afficher, 'programmation initiale') %>"
        data-highcharts-notesbar="<%= statut_bop_repartition(@avis, bops_actifs_count, @annee_a_afficher).to_json %>">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
@@ -97,7 +97,7 @@
 
   <div class="fr-accordions-group fr-mb-4w">
     <% @bops.each do |bop| %>
-      <% avis_bop = get_avis_for_bop(['début de gestion', 'CRG1', 'CRG2'], bop, @avis) %>
+      <% avis_bop = get_avis_for_bop(['programmation initiale', 'CRG1', 'CRG2'], bop, @avis) %>
       <% avis_bop_sv = @avis.select { |avis| avis.bop_id == bop.id && avis.phase == 'services votés' } %>
       <% last_avis_bop_sv = avis_bop_sv.max_by(&:created_at) %>
       <section class="fr-accordion">
@@ -113,7 +113,7 @@
               <% avis_bop.each do |avis| %>
                 <% unless avis.nil? %>
                   <p class="<%= badge_class_for_statut(avis.statut) %> fr-ml-2w"><%= avis.phase %></p>
-                  <% if avis.phase == "début de gestion" && avis.is_crg1 == false %>
+                  <% if avis.phase == "programmation initiale" && avis.is_crg1 == false %>
                     <p class="fr-badge fr-badge--no-icon fr-ml-2w">PAS DE CRG1</p>
                   <% end %>
                 <% end %>
@@ -135,7 +135,7 @@
               <% avis_bop.each_with_index do |avis, index| %>
                 <% if avis.nil? %>
                   <% if index == 0 || index == 2 %>
-                    <button class="fr-btn" disabled><%= index == 0 ? 'Avis début de gestion' : 'Note CRG2' %></button>
+                    <button class="fr-btn" disabled><%= index == 0 ? 'Avis programmation initiale' : 'Note CRG2' %></button>
                   <% elsif index == 1 %>
                     <% if avis_bop.first.nil? || avis_bop.first.is_crg1? %>
                       <button class="fr-btn" disabled>Note CRG1</button>

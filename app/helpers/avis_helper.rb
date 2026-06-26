@@ -1,6 +1,6 @@
 module AvisHelper
 
-  # Liste des statuts possibles pour une phase d'avis (ex: 'début de gestion').
+  # Liste des statuts possibles pour une phase d'avis (ex: 'programmation initiale').
   # Source : Avi::STATUTS_PAR_PHASE.
   def statuts_for_phase(phase)
     Avi::STATUTS_PAR_PHASE.fetch(phase, [])
@@ -14,7 +14,7 @@ module AvisHelper
   end
 
   # Phases d'une année groupées par nom, chaque liste ordonnée par date_debut.
-  # Hash : { 'services votés' => [Phase, ...], 'début de gestion' => [Phase], ... }
+  # Hash : { 'services votés' => [Phase, ...], 'programmation initiale' => [Phase], ... }
   # Permet au partial d'empiler N badges par cellule (SV1, SV2, ...).
   def phases_groupees_par_nom(annee)
     @_phases_groupees_cache ||= {}
@@ -45,7 +45,7 @@ module AvisHelper
 
   # Badge HTML pour une case (phase, bop) du tableau de remplissage.
   # avis        : avis associé à cette instance de phase (ou nil).
-  # avis_debut  : avis 'début de gestion' (utilisé pour CRG1 → N/A si !is_crg1).
+  # avis_debut  : avis 'programmation initiale' (utilisé pour CRG1 → N/A si !is_crg1).
   # prefix      : libellé court préfixant le label (ex: "SV1") quand il y a plusieurs
   #               instances de la même phase dans l'année.
   def phase_status_badge(avis, phase, ouverte, avis_debut: nil, prefix: nil)
@@ -87,7 +87,7 @@ module AvisHelper
   # Retourne l'objet Phase (pas le nom) pour cibler une instance précise — utile
   # quand plusieurs phases du même nom coexistent (SV1, SV2).
   def next_phase_to_fill(avis_bop, annee, reference_date = Date.today)
-    avis_debut = avis_bop.find { |a| a.phase == 'début de gestion' }
+    avis_debut = avis_bop.find { |a| a.phase == 'programmation initiale' }
 
     phases_for_annee(annee).sort_by(&:date_debut).each do |phase|
       next unless phase.ouverte?(reference_date)
@@ -133,7 +133,7 @@ module AvisHelper
     end
   end
 
-  # fonction pour afficher la répartition des dates de réception pour les avis début de gestion de l'année sélectionnée
+  # fonction pour afficher la répartition des dates de réception pour les avis programmation initiale de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee, phase)
     avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
     avis_phase = avis.select { |a| a.phase == phase }
@@ -175,12 +175,12 @@ module AvisHelper
 
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
   def avis_crg1(avis)
-    avis.count { |a| a.is_crg1 && a.phase == 'début de gestion' }
+    avis.count { |a| a.is_crg1 && a.phase == 'programmation initiale' }
   end
 
   # fonction pour calculer le nombre d'avis données sans interruption du delai parmi la liste des avis remplis
   def avis_delai(avis)
-    avis.count { |a| !a.is_delai && a.phase == 'début de gestion' }
+    avis.count { |a| !a.is_delai && a.phase == 'programmation initiale' }
   end
 
   # fonction pour charger les avis renseignés dans l'année en cours (hors avis d'éxécution et brouillon)
@@ -199,10 +199,10 @@ module AvisHelper
   def avis_a_remplir(avis, phase, annee)
     case phase
     when 'CRG1'
-      # Nombre de CRG1 attendus = nombre d'avis début de gestion finalisés avec is_crg1=true.
+      # Nombre de CRG1 attendus = nombre d'avis programmation initiale finalisés avec is_crg1=true.
       # NB : on filtre sur `etat` (workflow : Brouillon / En attente / Lu), pas `statut`
       # (verdict métier qui ne prend jamais la valeur 'Brouillon').
-      avis.select { |a| a.phase == 'début de gestion' && a.is_crg1? && a.etat != 'Brouillon' }.count
+      avis.select { |a| a.phase == 'programmation initiale' && a.is_crg1? && a.etat != 'Brouillon' }.count
     else
       Bop.actifs_en(annee).count
     end

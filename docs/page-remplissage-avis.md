@@ -71,7 +71,7 @@ Le tableau utilise les composants DSFR `fr-table` + `fr-tabs`. Chaque ligne d'un
 
 Les colonnes de phase ne sont **plus codées en dur** : elles sont générées à partir de la table `phases`.
 
-- **Sélection des colonnes** : `noms_phases_pour_annee(annee)` retourne les noms de phase présents au calendrier de l'année, dans l'ordre canonique défini par `Phase::NOMS_CONNUS` (`['services votés', 'début de gestion', 'CRG1', 'CRG2']`). Une année sans `services votés` n'aura pas de colonne SV.
+- **Sélection des colonnes** : `noms_phases_pour_annee(annee)` retourne les noms de phase présents au calendrier de l'année, dans l'ordre canonique défini par `Phase::NOMS_CONNUS` (`['services votés', 'programmation initiale', 'CRG1', 'CRG2']`). Une année sans `services votés` n'aura pas de colonne SV.
 - **Libellé de colonne** : `Phase.libelle_colonne(nom)` — libellé court présenté en en-tête (`SV`, `Avis à la programmation`, etc.).
 - **Cellule multi-instances** : si plusieurs instances d'une même phase coexistent (cas typique : `SV1` et `SV2` la même année), la cellule empile **un badge par instance**, préfixé par le libellé court (`SV1`, `SV2`).
 

@@ -13,7 +13,7 @@ sheet_col = Array.new(30, 14)
     @avis.each do |avis|
         is_delai = ""
         is_crg1 = ""
-        if avis.phase == "début de gestion"
+        if avis.phase == "programmation initiale"
          is_delai = avis.is_delai == true ? "oui" : "non"
          is_crg1 = avis.is_crg1 == true ? "oui" : "non"
         end

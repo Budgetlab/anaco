@@ -32,7 +32,7 @@ Sauf indication contraire, toutes les routes documentées sont préfixées par l
 
 Un **avis** est l'évaluation portée par un Contrôleur Budgétaire Régional (CBR) sur un Budget Opérationnel de Programme (BOP) à un moment donné de l'année budgétaire. L'avis exprime un **statut** (favorable, défavorable, etc.) accompagné d'un cadrage **financier** (autorisations d'engagement, crédits de paiement, masse salariale T2, plafond d'emplois ETPT). Il est ensuite consulté et marqué comme lu par un Département du Contrôle Budgétaire (DCB).
 
-Chaque avis se rattache à une **phase** du calendrier budgétaire (début de gestion, CRG1, CRG2, services votés, exécution) et possède un **état** (Brouillon, En attente de lecture, Lu).
+Chaque avis se rattache à une **phase** du calendrier budgétaire (programmation initiale, CRG1, CRG2, services votés, exécution) et possède un **état** (Brouillon, En attente de lecture, Lu).
 
 ### 1.2 Rôles concernés
 
@@ -52,7 +52,7 @@ Les autorisations sont implémentées par les filtres `redirect_unless_bop_contr
 - **Programme** — Niveau de regroupement métier au sein d'un ministère.
 - **CRG1 / CRG2** — Comptes Rendus de Gestion intermédiaires (premier et second).
 - **Services votés** — Avis émis sur la base des crédits votés, versionné séquentiellement au sein d'une même année.
-- **Début de gestion** — Avis initial de l'année.
+- **Programmation initiale** — Avis initial de l'année.
 - **Exécution** — Restitution N-1 des crédits réellement consommés.
 - **AE / CP / T2 / ETPT** — Voir [glossaire en annexe](#91-glossaire-métier).
 
@@ -102,7 +102,7 @@ La méthode `set_etat_avis` force l'état à `"Brouillon"` lorsque les champs ob
 
 ```ruby
 def set_etat_avis
-  if phase == 'début de gestion'
+  if phase == 'programmation initiale'
     if date_reception.nil? || date_envoi.nil? || statut.nil?
       self.etat = 'Brouillon'
     end
@@ -116,7 +116,7 @@ end
 
 Conséquences pratiques :
 
-- En **début de gestion**, un avis est en brouillon tant que `date_reception`, `date_envoi` ou `statut` n'est pas renseigné.
+- En **programmation initiale**, un avis est en brouillon tant que `date_reception`, `date_envoi` ou `statut` n'est pas renseigné.
 - En **CRG1** ou **CRG2**, un avis est en brouillon tant que `date_envoi` ou `statut` n'est pas renseigné.
 - Aucune règle explicite n'est définie pour les phases **services votés** et **exécution** dans ce callback.
 
@@ -164,7 +164,7 @@ Le code contient par ailleurs une branche commentée référant un état `"valid
 
 ```mermaid
 flowchart TD
-    Debut[Début de gestion] -->|is_crg1 = true| CRG1[CRG1]
+    Debut[Programmation initiale] -->|is_crg1 = true| CRG1[CRG1]
     Debut -->|is_crg1 = false| CRG2[CRG2]
     CRG1 --> CRG2
     Debut -.->|import N-1| Exec[Exécution N-1]
@@ -173,9 +173,9 @@ flowchart TD
 
 | Phase | Déclenchement | Particularités |
 |---|---|---|
-| `début de gestion` | Phase initiale d'une année. | Requiert `date_reception`, `date_envoi`, `statut`. |
-| `CRG1` | Conditionnel : uniquement si l'avis de début de gestion a `is_crg1 = true`. | Requiert `date_envoi`, `statut`. |
-| `CRG2` | Suit le CRG1, ou la phase de début de gestion si aucun CRG1 n'est programmé. | Requiert `date_envoi`, `statut`. |
+| `programmation initiale` | Phase initiale d'une année. | Requiert `date_reception`, `date_envoi`, `statut`. |
+| `CRG1` | Conditionnel : uniquement si l'avis de programmation initiale a `is_crg1 = true`. | Requiert `date_envoi`, `statut`. |
+| `CRG2` | Suit le CRG1, ou la phase de programmation initiale si aucun CRG1 n'est programmé. | Requiert `date_envoi`, `statut`. |
 | `services votés` | Piste secondaire indépendante de la séquence ci-dessus. | Plusieurs avis possibles par BOP et par année (numérotation séquentielle via `numero_avis_services_votes`). |
 | `execution` | Restitution N-1. | Alimentée par `Avi.import_execution` (voir [§ 7.1](#71-import-des-avis)). |
 
@@ -219,7 +219,7 @@ def set_form_phase(annee)
   if annee == @annee && @phase == 'services votés'
     'services votés'
   elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1)
-    'début de gestion'
+    'programmation initiale'
   elsif (@avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')) || (annee == @annee && Date.today < @date_crg2)
     'CRG1'
   else
@@ -231,8 +231,8 @@ end
 Règles appliquées :
 
 1. Si l'utilisateur a demandé explicitement la phase **services votés** sur l'année en cours, le formulaire correspondant est ouvert.
-2. Sinon, tant qu'il n'existe pas d'avis de début de gestion validé, le formulaire **début de gestion** est servi (y compris avant la date de bascule CRG1).
-3. Si le début de gestion impose un CRG1 (`is_crg1 = true`) et qu'aucun CRG1 finalisé n'existe, ou que la date de bascule CRG2 n'est pas atteinte, le formulaire **CRG1** est servi.
+2. Sinon, tant qu'il n'existe pas d'avis de programmation initiale validé, le formulaire **programmation initiale** est servi (y compris avant la date de bascule CRG1).
+3. Si le programmation initiale impose un CRG1 (`is_crg1 = true`) et qu'aucun CRG1 finalisé n'existe, ou que la date de bascule CRG2 n'est pas atteinte, le formulaire **CRG1** est servi.
 4. Sinon, le formulaire **CRG2** est servi.
 
 ### 4.3 Reprise et blocage à l'ouverture du formulaire
@@ -249,7 +249,7 @@ Chaque phase dispose de son propre partial. Tous se trouvent dans [app/views/avi
 
 | Phase | Partial | Sous-formulaire chiffres |
 |---|---|---|
-| Début de gestion | `_form_debut.html.erb` | `_form_chiffres.html.erb` |
+| Programmation initiale | `_form_debut.html.erb` | `_form_chiffres.html.erb` |
 | CRG1 | `_form_crg1.html.erb` | `_form_chiffres.html.erb` |
 | CRG2 | `_form_crg2.html.erb` | `_form_chiffres.html.erb` |
 | Services votés | `_form_services_votes.html.erb` | `_form_chiffres.html.erb` |
@@ -410,7 +410,7 @@ Deux méthodes d'import distinctes existent au niveau du modèle.
 
 #### `Avi.import(file)`
 
-Import standard utilisé pour les phases **début de gestion**, **CRG1**, **CRG2** et **services votés**. La méthode parcourt un fichier tableur dont la première ligne contient les en-têtes et crée ou met à jour les avis correspondants (rattachement au BOP par son code).
+Import standard utilisé pour les phases **programmation initiale**, **CRG1**, **CRG2** et **services votés**. La méthode parcourt un fichier tableur dont la première ligne contient les en-têtes et crée ou met à jour les avis correspondants (rattachement au BOP par son code).
 
 Colonnes attendues (en-têtes du tableur), telles que lues par `Avi.import` :
 
@@ -443,7 +443,7 @@ Import dédié à la **restitution de l'exécution N-1**. La colonne d'identific
 
 - **Avant import**, tous les avis existants en phase `execution` sont supprimés.
 - L'année est figée à `2023` dans le code.
-- **Pour les lignes dont la phase est `execution`** : la `date_envoi` est forcée au `2025-01-01` ; seules les colonnes finales (`ae_f`, `cp_f`, `t2_f`, `etpt_f`) sont alimentées par le fichier ; les colonnes initiales (`ae_i`, `cp_i`, `t2_i`, `etpt_i`) sont héritées de l'avis **début de gestion** du même BOP et de la même année.
+- **Pour les lignes dont la phase est `execution`** : la `date_envoi` est forcée au `2025-01-01` ; seules les colonnes finales (`ae_f`, `cp_f`, `t2_f`, `etpt_f`) sont alimentées par le fichier ; les colonnes initiales (`ae_i`, `cp_i`, `t2_i`, `etpt_i`) sont héritées de l'avis **programmation initiale** du même BOP et de la même année.
 - **Pour les lignes dont la phase n'est pas `execution`** : un jeu complet de colonnes est utilisé (`created_at`, `etat`, `date_reception`, `date_envoi`, `statut`, `ae_i`, `cp_i`, `t2_i`, `etpt_i`, …), permettant à ce même import de mettre à jour d'autres avis présents dans le fichier.
 
 #### Parsing des dates

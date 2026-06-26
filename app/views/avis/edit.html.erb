@@ -33,7 +33,7 @@
           <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
             BOP doté en <%= @bop.dotation %>
           </p>
-          <% if @phase_form == 'début de gestion' || @phase_form == 'services votés' %>
+          <% if @phase_form == 'programmation initiale' || @phase_form == 'services votés' %>
             <%= link_to edit_bop_path(@bop), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>
               Modifier
             <% end %>
@@ -79,7 +79,7 @@
     <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
     <% if @phase_form == "services votés" %>
       <%= render 'form_services_votes' %>
-    <% elsif @phase_form == "début de gestion" %>
+    <% elsif @phase_form == "programmation initiale" %>
       <%= render 'form_debut' %>
     <% elsif @phase_form == "CRG1" %>
       <%= render 'form_crg1' %>

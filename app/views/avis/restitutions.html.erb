@@ -5,7 +5,7 @@
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-my-6w">Tableau de bord</h1>
+        <h1 class="fr-my-6w">Tableau de bord avis/notes</h1>
 
         <% if ['CBR', 'DCB'].include?(current_user.statut) %>
           <fieldset class="fr-fieldset fr-mb-2w" id="perimetre-radios">
@@ -51,7 +51,7 @@
     <div id="containPDF">
       <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
       <div class="fr-mb-4w" data-controller="highcharts"
-           data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
+           data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'programmation initiale') %>"
            data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher).to_json %>">
 
         <div class="fr-grid-row">

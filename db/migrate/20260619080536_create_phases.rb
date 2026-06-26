@@ -19,21 +19,21 @@ class CreatePhases < ActiveRecord::Migration[8.1]
       dir.up do
         seed = [
           # 2023 : pas de services votés (phase non existante cette année-là)
-          { nom: 'début de gestion', annee: 2023, date_debut: '2023-01-01' },
+          { nom: 'programmation initiale', annee: 2023, date_debut: '2023-01-01' },
           { nom: 'CRG1',             annee: 2023, date_debut: '2023-06-01' },
           { nom: 'CRG2',             annee: 2023, date_debut: '2023-09-01' },
           # 2024 : pas de services votés (phase non existante cette année-là)
-          { nom: 'début de gestion', annee: 2024, date_debut: '2024-01-01' },
+          { nom: 'programmation initiale', annee: 2024, date_debut: '2024-01-01' },
           { nom: 'CRG1',             annee: 2024, date_debut: '2024-06-01' },
           { nom: 'CRG2',             annee: 2024, date_debut: '2024-09-01' },
           # 2025
           { nom: 'services votés',   annee: 2025, date_debut: '2025-01-01' },
-          { nom: 'début de gestion', annee: 2025, date_debut: '2025-02-20' },
+          { nom: 'programmation initiale', annee: 2025, date_debut: '2025-02-20' },
           { nom: 'CRG1',             annee: 2025, date_debut: '2025-06-01' },
           { nom: 'CRG2',             annee: 2025, date_debut: '2025-09-01' },
           # 2026
           { nom: 'services votés',   annee: 2026, date_debut: '2026-01-01' },
-          { nom: 'début de gestion', annee: 2026, date_debut: '2026-02-20' },
+          { nom: 'programmation initiale', annee: 2026, date_debut: '2026-02-20' },
           { nom: 'CRG1',             annee: 2026, date_debut: '2026-06-01' },
           { nom: 'CRG2',             annee: 2026, date_debut: '2026-09-01' }
         ]

@@ -227,7 +227,7 @@ module ApplicationHelper
   def sum_chiffres_avis(avis, phase)
     avis_phase = case phase
                  when 'CRG1'
-                   avis.select { |avi| avi.phase == phase || (avi.phase == 'début de gestion' && !avi.is_crg1) }
+                   avis.select { |avi| avi.phase == phase || (avi.phase == 'programmation initiale' && !avi.is_crg1) }
                  else
                    avis.select { |avi| avi.phase == phase }
                  end

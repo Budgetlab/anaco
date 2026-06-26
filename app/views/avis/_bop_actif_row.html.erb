@@ -6,7 +6,7 @@
     coexistent dans l'année (cas SV1/SV2).
 %>
 <% avis_bop       = avis_par_bop[bop.id] || [] %>
-<% avis_debut     = avis_bop.find { |a| a.phase == 'début de gestion' } %>
+<% avis_debut     = avis_bop.find { |a| a.phase == 'programmation initiale' } %>
 <% phases_par_nom = phases_groupees_par_nom(annee_affichee) %>
 <% next_phase     = next_phase_to_fill(avis_bop, annee_affichee) %>
 

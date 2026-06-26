@@ -6,13 +6,13 @@ class AvisHelperTest < ActionView::TestCase
   # ---- phase_ouverte? ----
 
   test "phase_ouverte? : true si la phase existe dans l'année et date_debut passée" do
-    # Fixture debut_2026 : nom='début de gestion', date_debut=2026-02-20
-    assert phase_ouverte?('début de gestion', 2026, Date.new(2026, 2, 20))
-    assert phase_ouverte?('début de gestion', 2026, Date.new(2026, 12, 31))
+    # Fixture debut_2026 : nom='programmation initiale', date_debut=2026-02-20
+    assert phase_ouverte?('programmation initiale', 2026, Date.new(2026, 2, 20))
+    assert phase_ouverte?('programmation initiale', 2026, Date.new(2026, 12, 31))
   end
 
   test "phase_ouverte? : false si date_debut pas encore passée" do
-    refute phase_ouverte?('début de gestion', 2026, Date.new(2026, 2, 19))
+    refute phase_ouverte?('programmation initiale', 2026, Date.new(2026, 2, 19))
   end
 
   test "phase_ouverte? : false si la phase n'existe pas dans le calendrier de l'année" do
@@ -52,7 +52,7 @@ class AvisHelperTest < ActionView::TestCase
   test "next_phase_to_fill : nil si toutes les phases transmises" do
     avis_bop = [
       Avi.new(phase: 'services votés',   phase_id: phases(:sv_2026).id,   etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1)),
-      Avi.new(phase: 'début de gestion', phase_id: phases(:debut_2026).id, etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1)),
+      Avi.new(phase: 'programmation initiale', phase_id: phases(:debut_2026).id, etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1)),
       Avi.new(phase: 'CRG1',             phase_id: phases(:crg1_2026).id, etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1)),
       Avi.new(phase: 'CRG2',             phase_id: phases(:crg2_2026).id, etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1))
     ]
@@ -61,7 +61,7 @@ class AvisHelperTest < ActionView::TestCase
 
   test "next_phase_to_fill : CRG1 sauté si début.is_crg1 == false" do
     sv    = Avi.new(phase: 'services votés',   phase_id: phases(:sv_2026).id,   etat: 'Lu', annee: 2026, user: users(:cbr_1), bop: bops(:bop_1))
-    debut = Avi.new(phase: 'début de gestion', phase_id: phases(:debut_2026).id, etat: 'Lu', is_crg1: false, annee: 2026, user: users(:cbr_1), bop: bops(:bop_1))
+    debut = Avi.new(phase: 'programmation initiale', phase_id: phases(:debut_2026).id, etat: 'Lu', is_crg1: false, annee: 2026, user: users(:cbr_1), bop: bops(:bop_1))
     avis_bop = [sv, debut]
     # Au 1er juin 2026 : CRG1 ouverte mais début dit N/A → tout est traité → nil
     assert_nil next_phase_to_fill(avis_bop, 2026, Date.new(2026, 6, 1))
@@ -87,7 +87,7 @@ class AvisHelperTest < ActionView::TestCase
 
   test "avis_pour_phase : match exact via phase_id" do
     phase = phases(:debut_2026)
-    avis_match    = Avi.new(phase_id: phase.id, phase: 'début de gestion', annee: 2026,
+    avis_match    = Avi.new(phase_id: phase.id, phase: 'programmation initiale', annee: 2026,
                             user: users(:cbr_1), bop: bops(:bop_1))
     avis_autre    = Avi.new(phase_id: phases(:crg1_2026).id, phase: 'CRG1', annee: 2026,
                             user: users(:cbr_1), bop: bops(:bop_1))

@@ -52,7 +52,7 @@ class User < ApplicationRecord
   end
 
   def bops_with_crg1(annee)
-    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'], phase: 'début de gestion', is_crg1: true }).count
+    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'], phase: 'programmation initiale', is_crg1: true }).count
   end
 
   def bops_actifs(annee)
@@ -86,13 +86,13 @@ class User < ApplicationRecord
     bops_ids.sum do |bop_id|
       avis_bop = avis_par_bop[bop_id] || []
       sv    = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at)
-      debut = avis_bop.find { |a| a.phase == 'début de gestion' }
+      debut = avis_bop.find { |a| a.phase == 'programmation initiale' }
       crg1  = avis_bop.find { |a| a.phase == 'CRG1' }
       crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
 
       count = 0
       count += 1 if phases_ouvertes_noms.include?('services votés')   && (sv.nil?    || sv.etat    == 'Brouillon')
-      count += 1 if phases_ouvertes_noms.include?('début de gestion') && (debut.nil? || debut.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('programmation initiale') && (debut.nil? || debut.etat == 'Brouillon')
       count += 1 if phases_ouvertes_noms.include?('CRG1')             && debut&.is_crg1 != false && (crg1.nil? || crg1.etat == 'Brouillon')
       count += 1 if phases_ouvertes_noms.include?('CRG2')             && (crg2.nil?  || crg2.etat  == 'Brouillon')
       count
@@ -102,7 +102,7 @@ class User < ApplicationRecord
   def avis_a_remplir_phase(annee, phase)
     case phase
     when 'CRG1'
-      self.avis.where(annee: annee, phase: 'début de gestion', is_crg1: true).where.not(etat: 'Brouillon').count
+      self.avis.where(annee: annee, phase: 'programmation initiale', is_crg1: true).where.not(etat: 'Brouillon').count
     else
       bops_actifs(annee).count
     end

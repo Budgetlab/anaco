@@ -58,13 +58,13 @@
 
         <div class="fr-select-group">
           <label for="statut" class="fr-label">Sens de l'avis*</label>
-          <%= f.select :statut, statuts_for_phase('début de gestion'), { include_blank: '- sélectionner -' }, { id: "statut", class: "fr-select", required: true } %>
+          <%= f.select :statut, statuts_for_phase('programmation initiale'), { include_blank: '- sélectionner -' }, { id: "statut", class: "fr-select", required: true } %>
         </div>
       </div>
       <div class="fr-col-12 fr-col-lg-8">
         <%= render 'accordion_rappel',
                    id: 'debut',
-                   badge: "Rappel avis début de gestion #{@annee_a_afficher - 1}",
+                   badge: "Rappel avis programmation initiale #{@annee_a_afficher - 1}",
                    title: "Écart ressource/prévision d'exécution",
                    avis: @avis_debut_n1 %>
 

@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
     @annee = Date.today.year
     phases_annee = Phase.pour_annee(@annee).to_a
 
-    @date_debut = phases_annee.find { |p| p.nom == 'début de gestion' }&.date_debut || Date.new(@annee, 2, 20)
+    @date_debut = phases_annee.find { |p| p.nom == 'programmation initiale' }&.date_debut || Date.new(@annee, 2, 20)
     @date_crg1  = phases_annee.find { |p| p.nom == 'CRG1' }&.date_debut             || Date.new(@annee, 6, 1)
     @date_crg2  = phases_annee.find { |p| p.nom == 'CRG2' }&.date_debut             || Date.new(@annee, 9, 1)
 
@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
     @phase_courante ||= if Date.today < @date_debut
                           'services votés'
                         elsif Date.today < @date_crg1
-                          'début de gestion'
+                          'programmation initiale'
                         elsif Date.today < @date_crg2
                           'CRG1'
                         else

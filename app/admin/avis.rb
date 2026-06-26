@@ -59,7 +59,7 @@ ActiveAdmin.register Avi do
       f.input :bop, as: :select, collection: Bop.order(:code).map { |b| [b.code, b.id] }
       f.input :user, as: :select, collection: User.order(:nom).map { |u| [u.nom, u.id] }
       f.input :phase, as: :select,
-              collection: ['début de gestion', 'services votés', 'CRG1', 'CRG2']
+              collection: ['programmation initiale', 'services votés', 'CRG1', 'CRG2']
       f.input :annee, as: :number
       f.input :statut, as: :select, collection: Avi::TOUS_LES_STATUTS, include_blank: true
       f.input :etat, as: :select,

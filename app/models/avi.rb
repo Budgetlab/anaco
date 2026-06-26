@@ -15,7 +15,7 @@ class Avi < ApplicationRecord
   ].freeze
 
   STATUTS_PAR_PHASE = {
-    'début de gestion' => ['Favorable', 'Favorable avec réserve', 'Défavorable'],
+    'programmation initiale' => ['Favorable', 'Favorable avec réserve', 'Défavorable'],
     'services votés'   => ['Favorable', 'Favorable avec réserve', 'Défavorable'],
     'CRG1'             => ['Aucun risque', 'Risques éventuels ou modérés', 'Risques certains ou significatifs'],
     'CRG2'             => ['Aucun risque', 'Risques modérés', 'Risques significatifs']
@@ -125,7 +125,7 @@ class Avi < ApplicationRecord
   def set_etat_avis
     return if avis_recu == false
 
-    if phase == 'début de gestion'
+    if phase == 'programmation initiale'
       if date_reception.nil? || date_envoi.nil? || statut.nil?
         self.etat = 'Brouillon'
       end

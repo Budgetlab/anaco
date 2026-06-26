@@ -12,7 +12,7 @@ class PagesController < ApplicationController
     @statut_user = current_user.statut
     # chargement des avis
     @bops_actifs = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee).count
-    if @phase_courante == "début de gestion"
+    if @phase_courante == "programmation initiale"
       @date_ouverture = @date_debut
       @date_fermeture = @date_crg1.prev_day
     elsif @phase_courante == "CRG1"

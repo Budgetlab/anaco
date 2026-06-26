@@ -1,14 +1,14 @@
 class Phase < ApplicationRecord
   # Noms canoniques utilisés dans le code et les vues.
   # Toute évolution se fait par création de lignes en base, pas par enum dur ici.
-  NOMS_CONNUS = ['services votés', 'début de gestion', 'CRG1', 'CRG2'].freeze
+  NOMS_CONNUS = ['services votés', 'programmation initiale', 'CRG1', 'CRG2'].freeze
 
   # Libellé d'affichage en en-tête de colonne du tableau remplissage_avis.
   # Mappe les noms internes (lowercase) vers les intitulés "capitalisés"
   # affichés à l'utilisateur.
   LIBELLES_COLONNE = {
     'services votés'   => 'Services votés',
-    'début de gestion' => 'Début de gestion',
+    'programmation initiale' => 'Programmation initiale',
     'CRG1'             => 'CRG1',
     'CRG2'             => 'CRG2'
   }.freeze
@@ -62,11 +62,11 @@ class Phase < ApplicationRecord
 
   # Variante courte pour préfixer un badge dans le tableau remplissage_avis
   # quand il y a plusieurs instances de la même phase dans l'année.
-  # Mapping des abréviations : services votés → SV, début de gestion → DG.
+  # Mapping des abréviations : services votés → SV, programmation initiale → PI.
   # CRG1/CRG2 sont déjà courts → on retourne le nom tel quel.
   ABREVIATIONS = {
-    'services votés'   => 'SV',
-    'début de gestion' => 'DG'
+    'services votés'         => 'SV',
+    'programmation initiale' => 'PI'
   }.freeze
 
   def libelle_court_avec_numero

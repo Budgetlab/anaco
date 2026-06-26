@@ -249,13 +249,13 @@ class AvisController < ApplicationController
   end
 
   # Force statut/etat et nullifie les champs non pertinents quand avis_recu = false.
-  # En "début de gestion", on programme toujours un CRG1 si l'avis n'a pas été reçu.
+  # En "programmation initiale", on programme toujours un CRG1 si l'avis n'a pas été reçu.
   # Bascule Non → Oui : reset motif_absence pour ne pas conserver une donnée masquée.
   # phase_nom est passé explicitement : le client n'envoie plus :phase dans les params.
   def force_non_recu_attributes!(attrs, phase_nom:)
     avis_recu = attrs[:avis_recu]
     if avis_recu == 'false' || avis_recu == false
-      is_crg1_value = phase_nom == 'début de gestion' ? true : nil
+      is_crg1_value = phase_nom == 'programmation initiale' ? true : nil
       attrs.merge(
         avis_recu: false,
         statut: 'Non reçu',
@@ -294,11 +294,11 @@ class AvisController < ApplicationController
 
   def set_avis_phase(annee)
     avis_annee_courante = @bop.avis.where(annee: annee)
-    @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
+    @avis_debut = avis_annee_courante.select { |a| a.phase == 'programmation initiale' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
     avis_annee_precedente = @bop.avis.where(annee: annee - 1)
-    @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
+    @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'programmation initiale' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
   end

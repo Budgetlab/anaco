@@ -39,7 +39,7 @@ class PhaseTest < ActiveSupport::TestCase
   end
 
   test "libelle_avec_numero : pas de numéro quand phase unique" do
-    assert_equal 'début de gestion', phases(:debut_2026).libelle_avec_numero
+    assert_equal 'programmation initiale', phases(:debut_2026).libelle_avec_numero
   end
 
   test "libelle_avec_numero : numéro affiché quand plusieurs phases du même nom" do
@@ -47,10 +47,10 @@ class PhaseTest < ActiveSupport::TestCase
     assert_equal 'services votés 2', phases(:sv2_2027).libelle_avec_numero
   end
 
-  test "libelle_court_avec_numero : abréviation + numéro pour SV et DG, nom sinon" do
+  test "libelle_court_avec_numero : abréviation + numéro pour SV et PI, nom sinon" do
     assert_equal 'SV1', phases(:sv1_2027).libelle_court_avec_numero
     assert_equal 'SV2', phases(:sv2_2027).libelle_court_avec_numero
-    assert_equal 'DG1', phases(:debut_2026).libelle_court_avec_numero
+    assert_equal 'PI1', phases(:debut_2026).libelle_court_avec_numero
     assert_equal 'CRG11', phases(:crg1_2026).libelle_court_avec_numero
   end
 
