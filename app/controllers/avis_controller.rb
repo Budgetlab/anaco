@@ -41,78 +41,86 @@ class AvisController < ApplicationController
     end
   end
 
-  # Page de création d'un nouvel avis
+  # Page de création d'un nouvel avis.
+  # Phase ciblée : params[:phase_id] explicite, sinon next_phase_to_fill (même
+  # logique que le bouton "Rédiger" du tableau remplissage_avis).
+  # Règle : 1 avis par (BOP, instance de Phase). Si déjà existant :
+  #   - brouillon → bascule sur edit pour reprendre la saisie
+  #   - finalisé  → retour à la fiche BOP avec un notice
   def new
     @annee_a_afficher = annee_a_afficher
-    # Activité par année : un BOP peut être actif globalement (statut) mais hors période
-    # d'activité pour l'année ciblée → pas de saisie possible cette année-là.
     redirect_to bop_path(@bop) and return unless @bop.actif_en?(@annee_a_afficher)
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
+    avis_bop = @bop.avis.where(annee: @annee_a_afficher).to_a
+    @phase_obj = Phase.find_by(id: params[:phase_id]) ||
+                 next_phase_to_fill(avis_bop, @annee_a_afficher)
+    redirect_to bop_path(@bop), notice: 'Aucun avis à rédiger pour ce BOP.' and return if @phase_obj.nil?
+
+    @phase_form = @phase_obj.nom
     set_avis_phase(@annee_a_afficher)
-    # phase_id (instance précise de Phase) prime sur phase (string legacy),
-    # qui prime sur la déduction automatique de set_form_phase.
-    @phase_obj = Phase.find_by(id: params[:phase_id]) if params[:phase_id].present?
-    @phase_form = @phase_obj&.nom || params[:phase].presence || set_form_phase(@annee_a_afficher)
 
-    # Recherche du dernier avis pour cette phase : par phase_id si fourni (cible une
-    # instance précise — SV1 ou SV2), sinon par nom (cas legacy / phase mono-instance).
-    @last_avis_phase =
-      if @phase_obj
-        @bop.avis.where(annee: @annee_a_afficher, phase_id: @phase_obj.id).order(:created_at).last
-      else
-        @bop.avis.where(annee: @annee_a_afficher, phase: @phase_form).order(:created_at).last
-      end
-
-    if @last_avis_phase.present?
-      # Avis existant non finalisé (brouillon) → reprendre
-      unless ['Lu', 'En attente de lecture'].include?(@last_avis_phase.etat)
-        redirect_to edit_bop_avi_path(bop_id: @bop.id, id: @last_avis_phase.id) and return
-      end
-
-      # Avis déjà finalisé et hors phase services votés (le seul formulaire multi-versions)
-      # → on consulte le BOP plutôt que de doublonner.
-      if @phase_form != 'services votés'
+    existing = @bop.avis.find_by(phase_id: @phase_obj.id, annee: @annee_a_afficher)
+    if existing
+      if ['Lu', 'En attente de lecture'].include?(existing.etat)
         redirect_to bop_path(@bop), notice: 'Un avis a déjà été transmis pour cette phase.' and return
       end
+      redirect_to edit_bop_avi_path(bop_id: @bop.id, id: existing.id) and return
     end
 
-    @avis = @bop.avis.new(phase_id: @phase_obj&.id)
+    @avis = @bop.avis.new(phase_id: @phase_obj.id)
   end
 
-  # fonction qui créé un nouvel avis
+  # fonction qui créé un nouvel avis.
+  # user_id, phase (string) et annee sont dérivés côté serveur depuis current_user
+  # et le phase_id soumis : aucune confiance dans ces 3 valeurs côté client.
   def create
-    @avis = @bop.avis.new(force_non_recu_attributes!(avi_params))
+    phase = Phase.find_by(id: avi_params[:phase_id])
+    return redirect_to bop_path(@bop), alert: 'Phase invalide.' if phase.nil?
+
+    attrs = avi_params.merge(user_id: current_user.id, phase: phase.nom, annee: phase.annee)
+    attrs = force_non_recu_attributes!(attrs, phase_nom: phase.nom)
+    attrs = attrs.merge(etat: 'Lu') if dcb_is_updating?
+    @avis = @bop.avis.new(attrs)
+
     if @avis.save
-      @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-      @avis.update(etat: 'Lu') if dcb_is_updating?
-      redirect_to historique_path, notice: @message
+      message = @avis.etat == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
+      redirect_to historique_path, notice: message
     else
-      render :new
+      setup_form_context_from_avis
+      flash.now[:alert] = @avis.errors.full_messages.to_sentence
+      render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     @avis = Avi.find(params[:id])
     @annee_a_afficher = @avis.annee
+    @phase_obj  = @avis.phase_periode
+    @phase_form = @phase_obj&.nom || @avis.phase
     set_avis_phase(@avis.annee)
-    @phase_form = @avis.phase
   end
 
+  # Update d'un avis existant.
+  # Règles :
+  #   - avis déjà finalisé (Lu / En attente de lecture) : on préserve l'etat malgré
+  #     les modifs (le callback set_etat_avis pourrait sinon le forcer à Brouillon
+  #     si un champ obligatoire est vidé).
+  #   - DCB qui édite son propre BOP : on bascule etat=Lu (lu automatiquement).
   def update
     @avis = Avi.find(params[:id])
-    etat = @avis.etat
-    forced_params = force_non_recu_attributes!(avi_params)
-    if ['Lu', 'En attente de lecture'].include?(etat) # avis modifié
-      @avis.update(forced_params)
-      @avis.update(etat: etat) if @avis.etat != "Brouillon"
-      redirect_to bop_path(@avis.bop), notice: 'Modification'
-    elsif @avis.update(forced_params)
-      @message = params[:avi][:etat] == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-      @avis.update(etat: 'Lu') if dcb_is_updating?
-      redirect_to historique_path, notice: @message
+    etat_initial = @avis.etat
+    attrs = force_non_recu_attributes!(avi_params, phase_nom: @avis.phase)
+    attrs = attrs.merge(etat: etat_initial) if ['Lu', 'En attente de lecture'].include?(etat_initial)
+    attrs = attrs.merge(etat: 'Lu') if dcb_is_updating?
+
+    if @avis.update(attrs)
+      message = @avis.etat == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
+      redirect_to bop_path(@avis.bop), notice: message
     else
-      render :edit
+      setup_form_context_from_avis
+      flash.now[:alert] = @avis.errors.full_messages.to_sentence
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -133,8 +141,9 @@ class AvisController < ApplicationController
 
   # Page de consultation des avis pour les DCB
   def consultation
-    bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
-    avis_all = Avi.where(bop_id: bops_consultation.pluck(:id)).where.not(etat: 'Brouillon').order(created_at: :desc)
+    avis_all = Avi.where(bop_id: current_user.bops_a_consulter.select(:id))
+                  .where.not(etat: 'Brouillon')
+                  .order(created_at: :desc)
 
     # On duplique pour ne pas modifier params directement
     search_params = (params[:q] || {}).dup
@@ -148,7 +157,7 @@ class AvisController < ApplicationController
     @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
 
     @q = avis_all.ransack(search_params)
-    @avis_all = @q.result.includes(bop: :programme, user: [])
+    @avis_all = @q.result.includes(:user, bop: :programme)
     @avis_en_attente = @avis_all.where(etat: 'En attente de lecture')
     @avis_lus = @avis_all.where(etat: 'Lu')
     @filtres_count = count_active_filters(@q_params)
@@ -163,19 +172,20 @@ class AvisController < ApplicationController
     end
   end
 
-  # fonction qui met à jour l'état de l'avis comme Lu
+  # Marque un avis (ou tous les avis en attente sur le périmètre du DCB) comme Lu.
+  # Sécurité : la lookup est scopée à bops_a_consulter pour qu'un DCB ne puisse pas
+  # marquer Lu un avis hors de son périmètre via un id arbitraire.
   def update_etat
+    scope = Avi.where(bop_id: current_user.bops_a_consulter.select(:id))
     if params[:id]
-      @avis = Avi.find(params[:id])
-      @avis&.update(etat: 'Lu')
+      avis = scope.find(params[:id])
+      avis.update(etat: 'Lu')
       notice = 'Lu'
-    else # update all
-      bops_consultation = current_user.consulted_bops.where.not(user_id: current_user.id)
-      avis = Avi.where(bop_id: bops_consultation.pluck(:id)).where(etat: 'En attente de lecture')
-      avis.update_all(etat: 'Lu')
+    else
+      scope.where(etat: 'En attente de lecture').update_all(etat: 'Lu')
       notice = 'Lus'
     end
-    redirect_to consultation_path, flash: { notice: notice }
+    redirect_to consultation_path, notice: notice
   end
 
   def admin_back_up_avis
@@ -202,7 +212,7 @@ class AvisController < ApplicationController
   end
 
   def remplissage_avis
-    @annee_a_afficher = annee_a_afficher
+    @annee_a_afficher = @annee
     @bops_inactifs = current_user.bops_inactifs(@annee_a_afficher).order(code: :asc)
     @bops_actifs = current_user.bops_actifs(@annee_a_afficher).order(code: :asc)
     @avis = current_user.avis.where(annee: @annee_a_afficher).to_a
@@ -232,17 +242,20 @@ class AvisController < ApplicationController
 
   private
 
+  # user_id, phase et annee sont dérivés côté contrôleur (current_user et phase_id),
+  # jamais permis depuis le client. bop_id vient de l'URL via @bop.avis.new.
   def avi_params
-    params.require(:avi).permit(:user_id, :phase, :phase_id, :bop_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :annee, :duree_prevision, :avis_recu, :motif_absence)
+    params.require(:avi).permit(:phase_id, :date_reception, :date_envoi, :is_delai, :is_crg1, :statut, :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f, :commentaire, :etat, :duree_prevision, :avis_recu, :motif_absence)
   end
 
   # Force statut/etat et nullifie les champs non pertinents quand avis_recu = false.
   # En "début de gestion", on programme toujours un CRG1 si l'avis n'a pas été reçu.
   # Bascule Non → Oui : reset motif_absence pour ne pas conserver une donnée masquée.
-  def force_non_recu_attributes!(attrs)
+  # phase_nom est passé explicitement : le client n'envoie plus :phase dans les params.
+  def force_non_recu_attributes!(attrs, phase_nom:)
     avis_recu = attrs[:avis_recu]
     if avis_recu == 'false' || avis_recu == false
-      is_crg1_value = attrs[:phase] == 'début de gestion' ? true : nil
+      is_crg1_value = phase_nom == 'début de gestion' ? true : nil
       attrs.merge(
         avis_recu: false,
         statut: 'Non reçu',
@@ -268,30 +281,26 @@ class AvisController < ApplicationController
     @liste_motifs = Avi::MOTIFS_ABSENCE
   end
 
+  # Recharge les variables d'instance dont la vue new.html.erb a besoin
+  # quand on re-render après une erreur de validation sur create.
+  # Source canonique de la phase = @avis.phase_periode (objet Phase), peuplé par
+  # le callback before_validation depuis phase_id ou (phase, annee).
+  def setup_form_context_from_avis
+    @annee_a_afficher = @avis.annee || annee_a_afficher
+    @phase_obj  = @avis.phase_periode
+    @phase_form = @phase_obj&.nom || @avis.phase
+    set_avis_phase(@annee_a_afficher)
+  end
+
   def set_avis_phase(annee)
     avis_annee_courante = @bop.avis.where(annee: annee)
     @avis_debut = avis_annee_courante.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1 = avis_annee_courante.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2 = avis_annee_courante.select { |a| a.phase == 'CRG2' }[0]
-    @avis_sv = avis_annee_courante.select { |a| a.phase == 'services votés' && a.etat == 'Brouillon' }[0]
     avis_annee_precedente = @bop.avis.where(annee: annee - 1)
     @avis_debut_n1 = avis_annee_precedente.select { |a| a.phase == 'début de gestion' }[0]
     @avis_crg1_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG1' }[0]
     @avis_crg2_n1 = avis_annee_precedente.select { |a| a.phase == 'CRG2' }[0]
-  end
-
-  # fonction pour afficher le bon formulaire
-  def set_form_phase(annee)
-    if annee == @annee && @phase_courante == 'services votés'
-      'services votés'
-    elsif @avis_debut.nil? || @avis_debut.etat == 'Brouillon' || (annee == @annee && Date.today < @date_crg1) # tant que user n'a pas rempli début de gestion ou que la phase CRG1 ne démarre pas
-      'début de gestion'
-    elsif (@avis_debut.is_crg1 && (@avis_crg1.nil? || @avis_crg1.etat == 'Brouillon')) || (annee == @annee && Date.today < @date_crg2) # avis début de gestion rempli et phase de CRG1
-      'CRG1'
-    else
-      # avis début de gestion rempli et phase de CRG2 sauf si CRG1 présent et non rempli
-      'CRG2'
-    end
   end
 
   def redirect_unless_dcb

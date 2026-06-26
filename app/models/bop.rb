@@ -8,24 +8,26 @@ class Bop < ApplicationRecord
   # Période d'activité d'un BOP : date_debut_activite (obligatoire en pratique),
   # date_fin_activite (nullable = encore actif).
   # Un BOP est "actif sur l'année N" si sa période chevauche l'année.
+  # date_fin_activite est exclusive : un BOP avec date_fin_activite = 1er janvier N
+  # est inactif sur N (et toute année postérieure).
   scope :actifs_en, ->(annee) {
     debut_annee = Date.new(annee, 1, 1)
     fin_annee   = Date.new(annee, 12, 31)
     where('date_debut_activite <= ?', fin_annee)
-      .where('date_fin_activite IS NULL OR date_fin_activite >= ?', debut_annee)
+      .where('date_fin_activite IS NULL OR date_fin_activite > ?', debut_annee)
   }
 
   scope :inactifs_en, ->(annee) {
     debut_annee = Date.new(annee, 1, 1)
     fin_annee   = Date.new(annee, 12, 31)
-    where('date_debut_activite IS NULL OR date_debut_activite > ? OR date_fin_activite < ?',
+    where('date_debut_activite IS NULL OR date_debut_activite > ? OR date_fin_activite <= ?',
           fin_annee, debut_annee)
   }
 
   def actif_en?(annee)
     return false if date_debut_activite.nil?
     return false if date_debut_activite > Date.new(annee, 12, 31)
-    date_fin_activite.nil? || date_fin_activite >= Date.new(annee, 1, 1)
+    date_fin_activite.nil? || date_fin_activite > Date.new(annee, 1, 1)
   end
 
   def self.import(file)

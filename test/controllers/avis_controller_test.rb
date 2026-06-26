@@ -3,17 +3,14 @@ require "test_helper"
 class AvisControllerTest < ActionDispatch::IntegrationTest
   setup do
     @cbr = users(:cbr_1)
-    @bop = bops(:bop_1)
+    @bop = bops(:bop_2) # bop_2 n'a pas d'avis en fixture → libre pour tester create
     sign_in @cbr
   end
 
   test "create avec avis_recu=false force statut=Non reçu et etat=Lu" do
     assert_difference -> { Avi.count } do
       post bop_avis_path(@bop), params: { avi: {
-        phase: "début de gestion",
-        annee: 2026,
-        user_id: @cbr.id,
-        bop_id: @bop.id,
+        phase_id: phases(:debut_2026).id,
         etat: "Brouillon",
         avis_recu: "false",
         motif_absence: "Absence de dossier transmis par le RBOP"
@@ -37,7 +34,6 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     avi = avis(:avis_debut_lu)
 
     patch bop_avi_path(bop_id: avi.bop_id, id: avi.id), params: { avi: {
-      phase: "début de gestion",
       etat: "Lu",
       avis_recu: "false",
       motif_absence: "Dossier transmis tardivement par le RBOP"

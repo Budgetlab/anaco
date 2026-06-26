@@ -32,6 +32,12 @@ class Avi < ApplicationRecord
                                   message: "doit être l'un de : #{Phase::NOMS_CONNUS.join(', ')}" },
                     on: :create
 
+  # Règle : 1 avis par (BOP, instance de Phase, année). Empêche les doublons même
+  # en cas de POST direct sur create (la garde côté contrôleur ne suffit pas).
+  validates :phase_id, uniqueness: { scope: [:bop_id, :annee],
+                                      message: 'un avis existe déjà pour ce BOP et cette phase' },
+                       if: -> { phase_id.present? }
+
   before_validation :assigner_phase_periode_depuis_phase_nom
   before_save :set_etat_avis
 

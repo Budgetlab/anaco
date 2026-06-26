@@ -24,11 +24,10 @@ avis_brouillon:
 avis_non_recu:
   bop: bop_1
   user: cbr_1
-  phase: "début de gestion"
-  phase_periode: debut_2026
+  phase: "CRG2"
+  phase_periode: crg2_2026
   annee: 2026
   etat: "Lu"
   statut: "Non reçu"
   avis_recu: false
-  is_crg1: true
   motif_absence: "Dossier incomplet, ne permettant pas de rendre un avis"

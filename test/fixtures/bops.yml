@@ -7,3 +7,13 @@ bop_1:
   deconcentre: true
   statut: actif
   date_debut_activite: 2024-01-01
+
+bop_2:
+  user: cbr_1
+  dcb: dcb_1
+  programme: programme_1
+  code: "0200-CDPL-CR91"
+  dotation: "HT2"
+  deconcentre: true
+  statut: actif
+  date_debut_activite: 2024-01-01

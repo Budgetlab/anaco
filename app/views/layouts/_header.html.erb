@@ -89,7 +89,7 @@
                     </li>
                   <% end %>
                   <li>
-                    <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Tableau de bord
+                    <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Tableau de bord avis/notes
                     <% end %>
                   </li>
                 </ul>
@@ -135,7 +135,7 @@
                   <% if ['CBR', 'DCB'].include?(current_user.statut) %>
                     <li>
                       <%= active_link_to actes_path, class: "fr-nav__link", target: "_self", active: :exact do %>Liste
-                        de travail
+                        de travail actes
                       <% end %>
                     </li>
                   <% end %>
@@ -146,8 +146,7 @@
                   </li>
                   <li>
                     <%= active_link_to tableau_de_bord_actes_path, class: "fr-nav__link", target: "_self" do %>Tableau
-                      de
-                      bord
+                      de bord actes
                     <% end %>
                   </li>
                   <% if current_user.statut == "admin" %>

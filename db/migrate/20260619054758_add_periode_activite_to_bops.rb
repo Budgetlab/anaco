@@ -14,11 +14,12 @@ class AddPeriodeActiviteToBops < ActiveRecord::Migration[8.1]
           WHERE date_debut_activite IS NULL;
         SQL
 
-        # BOP déjà flagués 'inactif' → fin d'activité positionnée à updated_at (best effort
-        # à ajuster manuellement après migration si nécessaire).
+        # BOP déjà flagués 'inactif' → fin d'activité positionnée au 1er janvier de l'année
+        # de updated_at. La date est exclusive : ainsi le BOP est inactif dès cette année-là.
+        # Best effort à ajuster manuellement après migration si nécessaire.
         execute <<~SQL
           UPDATE bops
-          SET date_fin_activite = updated_at::date
+          SET date_fin_activite = make_date(EXTRACT(YEAR FROM updated_at)::int, 1, 1)
           WHERE statut = 'inactif' AND date_fin_activite IS NULL;
         SQL
       end

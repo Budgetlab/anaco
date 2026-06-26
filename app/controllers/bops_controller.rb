@@ -29,10 +29,11 @@ class BopsController < ApplicationController
     @bop = Bop.find(params[:id])
     @bop.update(dotation: params[:dotation])
     if @bop.dotation == 'aucune'
-      @bop.update(statut: 'inactif')
+      @bop.update(statut: 'inactif', date_fin_activite: Date.new(@annee, 1, 1))
       @bop.avis.where(created_at: Date.new(@annee, 1, 1)..Date.new(@annee, 12, 31), phase: 'début de gestion')&.destroy_all
       redirect_to remplissage_avis_path, flash: { notice: 'suppression' }
     else
+      @bop.update(statut: 'actif', date_fin_activite: nil) if @bop.statut == 'inactif'
       redirect_to new_bop_avi_path(@bop.id)
     end
   end

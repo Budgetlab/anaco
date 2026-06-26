@@ -128,16 +128,22 @@ class User < ApplicationRecord
     end
   end
 
+  # BOPs que l'utilisateur consulte (en tant que DCB) en excluant ceux dont il est lui-même CBR.
+  # Sert de périmètre pour la page de consultation et update_etat (autorisation).
+  def bops_a_consulter
+    consulted_bops.where.not(user_id: id)
+  end
+
   def avis_a_lire_recus(annee, phase)
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': 'Brouillon').count
+    bops_a_consulter.joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': 'Brouillon').count
   end
 
   def avis_a_lire
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'En attente de lecture').count
+    bops_a_consulter.joins(:avis).where('avis.etat': 'En attente de lecture').count
   end
 
   def avis_lus(annee, phase)
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'Lu', 'avis.phase': phase, 'avis.annee': annee).count
+    bops_a_consulter.joins(:avis).where('avis.etat': 'Lu', 'avis.phase': phase, 'avis.annee': annee).count
   end
 
   def taux_de_lecture(annee, phase)
