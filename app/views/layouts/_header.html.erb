@@ -81,6 +81,10 @@
                       <% end %>
                     </li>
                   <% end %>
+                  <li>
+                    <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Tableau de bord avis/notes
+                    <% end %>
+                  </li>
                   <% if current_user.statut == "admin" %>
                     <li>
                       <%= active_link_to suivi_remplissage_avis_path, class: "fr-nav__link", target: "_self" do %>Suivi
@@ -88,10 +92,6 @@
                       <% end %>
                     </li>
                   <% end %>
-                  <li>
-                    <%= active_link_to restitutions_path, class: "fr-nav__link", target: "_self" do %>Tableau de bord avis/notes
-                    <% end %>
-                  </li>
                 </ul>
               </div>
             </li>
