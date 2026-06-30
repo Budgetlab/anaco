@@ -110,4 +110,37 @@ class AvisHelperTest < ActionView::TestCase
     assert_includes html, 'À rédiger'
     refute_includes html, 'SV1'
   end
+
+  # ---- activite_avis_repartition ----
+
+  test "activite_avis_repartition : ventile transmis / non reçu / non renseigné par phase" do
+    avis_remplis = [avis(:avis_debut_lu), avis(:avis_non_recu)]
+    avis_total = 3
+    res = activite_avis_repartition(avis_remplis, avis_total, 2026)
+
+    # Phases 2026 triées par date_debut : SV, programmation initiale, CRG1, CRG2
+    assert_equal ['Services votés', 'Programmation initiale', 'CRG1', 'CRG2'], res[:categories]
+    transmis, non_recu, non_renseigne = res[:series]
+
+    # programmation initiale (index 1) : 1 avis Favorable transmis
+    assert_equal [0, 1, 0, 0], transmis
+    # CRG2 (index 3) : 1 avis Non reçu
+    assert_equal [0, 0, 0, 1], non_recu
+    # Reliquat = avis_total - transmis - non_recu, plancher 0
+    assert_equal [3, 2, 3, 2], non_renseigne
+
+    # Cohérence : chaque phase totalise avis_total
+    res[:categories].each_index do |i|
+      assert_equal avis_total, transmis[i] + non_recu[i] + non_renseigne[i]
+    end
+  end
+
+  test "activite_avis_repartition : le brouillon n'est pas compté comme transmis" do
+    # avis_brouillon (CRG1) ne doit pas apparaître si exclu en amont (avis_remplis filtre déjà les brouillons)
+    res = activite_avis_repartition([], 2, 2026)
+    transmis, non_recu, non_renseigne = res[:series]
+    assert_equal [0, 0, 0, 0], transmis
+    assert_equal [0, 0, 0, 0], non_recu
+    assert_equal [2, 2, 2, 2], non_renseigne
+  end
 end

@@ -50,4 +50,42 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_nil avi.ae_i
     assert_nil avi.commentaire
   end
+
+  test "restitutions répond avec succès et affiche le bloc de filtres" do
+    sign_in users(:one) # admin
+    get restitutions_path
+    assert_response :success
+    assert_select "button[aria-controls=modal-btn-filtrer]", text: /Filtrer les résultats/
+    assert_select "h6", text: /Filtres appliqués/
+    assert_select "p.fr-tag--filtres", text: Date.today.year.to_s
+  end
+
+  test "restitutions filtre l'exercice via q[annee_eq]" do
+    sign_in users(:one)
+    get restitutions_path(q: { annee_eq: 2024 })
+    assert_response :success
+    assert_select "p.fr-tag--filtres", text: "2024"
+  end
+
+  test "restitutions filtre par code BOP affiche le tag correspondant" do
+    sign_in users(:one)
+    get restitutions_path(q: { annee_eq: 2024, bop_code_cont: "0100" })
+    assert_response :success
+    assert_select "p.fr-tag--filtres", text: /BOP : 0100/
+  end
+
+  test "restitutions admin filtre par profil et contrôleur" do
+    sign_in users(:one)
+    get restitutions_path(q: { annee_eq: 2024, user_statut_eq: "CBR", user_nom_in: ["CBR Un"] })
+    assert_response :success
+    assert_select "p.fr-tag--filtres", text: "CBR"
+    assert_select "p.fr-tag--filtres", text: "CBR Un"
+  end
+
+  test "restitutions n'affiche pas le filtre profil pour un non-admin" do
+    sign_in @cbr
+    get restitutions_path
+    assert_response :success
+    assert_select "select#q_user_statut_eq", count: 0
+  end
 end

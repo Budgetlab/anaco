@@ -856,7 +856,7 @@
                           <% selected_noms = Array(@q_params[:user_nom_in]) %>
                           Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
                         </button>
-                        <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                        <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 3300; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
                           <div style="padding: 0.5rem;">
                             <% users_by_statut.each do |user| %>
                               <div class="fr-checkbox-group"

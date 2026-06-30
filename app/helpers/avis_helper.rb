@@ -189,6 +189,39 @@ module AvisHelper
     end
   end
 
+  # Activité liée aux avis/notes : pour chaque phase de l'année, ventile les BOP en
+  # trois catégories — avis transmis (statut métier renseigné, hors "Non reçu"),
+  # avis "Non reçu", et "Non renseigné" (reliquat sur le référentiel des BOP actifs).
+  # Format identique à statut_bop_repartition pour alimenter un bar chart empilé.
+  def activite_avis_repartition(avis_remplis, avis_total, annee)
+    phases = Phase.pour_annee(annee).to_a
+    instances_par_nom = phases.group_by(&:nom)
+
+    categories = []
+    transmis, non_recu, non_renseigne = [], [], []
+
+    phases.each do |phase|
+      avis_phase = avis_remplis.select { |a| a.phase == phase.nom }
+      # Pour 'services votés' multi-instances : ne garder que le dernier avis par BOP
+      if phase.nom == 'services votés'
+        avis_phase = avis_phase.group_by(&:bop_id).map { |_, list| list.max_by(&:created_at) }
+      end
+
+      statuts_metier = Avi::STATUTS_PAR_PHASE[phase.nom] || []
+      tr = avis_phase.count { |a| statuts_metier.include?(a.statut) }
+      nr = avis_phase.count { |a| a.statut == 'Non reçu' }
+      vide = [avis_total - tr - nr, 0].max
+
+      instances = instances_par_nom[phase.nom] || []
+      categories << (instances.size > 1 ? phase.libelle_court_avec_numero : phase.nom.sub(/\A./, &:upcase))
+      transmis << tr
+      non_recu << nr
+      non_renseigne << vide
+    end
+
+    { categories: categories, series: [transmis, non_recu, non_renseigne] }
+  end
+
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
   def avis_crg1(avis)
     avis.count { |a| a.is_crg1 && a.phase == 'programmation initiale' }

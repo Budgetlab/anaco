@@ -232,17 +232,45 @@ class AvisController < ApplicationController
   end
 
   def restitutions
-    @annee_a_afficher = annee_a_afficher
-    @perimetre = params[:perimetre] == 'perimetre' && current_user.statut != 'admin' ? 'perimetre' : 'national'
-    if @perimetre == 'perimetre'
-      @avis_total = current_user.bops_actifs(@annee_a_afficher).count
-      @avis_remplis = current_user.avis_remplis_annee(@annee_a_afficher)
-      @programmes = current_user.programmes_access
-    else
-      @avis_total = bops_actifs(Bop.all, @annee_a_afficher).count
-      @avis_remplis = avis_annee_remplis(@annee_a_afficher)
-      @programmes = Programme.where(deconcentre: true).includes(bops: :avis).order(numero: :asc)
+    @statut_user = current_user.statut
+
+    # Paramètres de filtrage (Ransack) — l'année en cours par défaut.
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    @q_params.reject! { |_, v| v.blank? }
+    annee_eq = @q_params[:annee_eq].presence&.to_i
+    @q_params[:annee_eq] = (2023..Date.today.year).include?(annee_eq) ? annee_eq : Date.today.year
+    @annee_a_afficher = @q_params[:annee_eq]
+
+    @perimetre = params[:perimetre] == 'perimetre' && @statut_user != 'admin' ? 'perimetre' : 'national'
+
+    # Périmètre BOP de base selon le profil et le choix national / mon périmètre.
+    bops_scope = if @perimetre == 'perimetre'
+                   current_user.bops
+                 else
+                   Bop.joins(:programme).where(programmes: { deconcentre: true })
+                 end
+
+    # Restriction par profil / contrôleur (admin uniquement).
+    if @statut_user == 'admin'
+      selected_statut = @q_params[:user_statut_eq].presence
+      selected_noms = Array(@q_params[:user_nom_in]).reject(&:blank?)
+      bops_scope = bops_scope.joins(:user).where(users: { statut: selected_statut }) if selected_statut.present?
+      bops_scope = bops_scope.joins(:user).where(users: { nom: selected_noms }) if selected_noms.any?
     end
+
+    # Filtre BOP/Programme : recherche sur le code du BOP.
+    bop_code = @q_params[:bop_code_cont].presence
+    bops_scope = bops_scope.where('bops.code ILIKE ?', "%#{bop_code}%") if bop_code.present?
+
+    bops_actifs = bops_scope.actifs_en(@annee_a_afficher)
+    @avis_total = bops_actifs.count
+
+    @avis_remplis = Avi.where(bop_id: bops_actifs.select(:id), annee: @annee_a_afficher)
+                       .where.not(etat: 'Brouillon')
+
+    @programmes = Programme.where(id: bops_actifs.distinct.pluck(:programme_id))
+                           .includes(bops: :avis).order(numero: :asc)
   end
 
   private
