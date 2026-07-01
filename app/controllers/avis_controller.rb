@@ -242,7 +242,15 @@ class AvisController < ApplicationController
     @q_params[:annee_eq] = (2023..Date.today.year).include?(annee_eq) ? annee_eq : Date.today.year
     @annee_a_afficher = @q_params[:annee_eq]
 
-    @perimetre = params[:perimetre] == 'perimetre' && @statut_user != 'admin' ? 'perimetre' : 'national'
+    # Pour un DCB/CBR, "Mon périmètre" est le défaut (sauf choix explicite "national").
+    # L'admin reste toujours sur le périmètre national.
+    @perimetre = if @statut_user == 'admin'
+                   'national'
+                 elsif params[:perimetre] == 'national'
+                   'national'
+                 else
+                   'perimetre'
+                 end
 
     # Périmètre BOP de base selon le profil et le choix national / mon périmètre.
     bops_scope = if @perimetre == 'perimetre'
@@ -268,6 +276,7 @@ class AvisController < ApplicationController
 
     @avis_remplis = Avi.where(bop_id: bops_actifs.select(:id), annee: @annee_a_afficher)
                        .where.not(etat: 'Brouillon')
+                       .includes(bop: :programme)
 
     @programmes = Programme.where(id: bops_actifs.distinct.pluck(:programme_id))
                            .includes(bops: :avis).order(numero: :asc)

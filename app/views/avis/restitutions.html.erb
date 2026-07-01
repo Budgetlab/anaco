@@ -1,4 +1,4 @@
-<% content_for :title do %>Restitutions | ANACO
+<% content_for :title do %>Tableau de bors avis/notes | ANACO
 <% end %>
 <% titre_programmes = @perimetre == 'perimetre' ? "Liste des programmes associés à mes BOP [#{@programmes.length}]" : "Les programmes [#{@programmes.length}]" %>
 <div class="fr-container-blue">
@@ -12,18 +12,18 @@
             <fieldset class="fr-fieldset" id="perimetre-radios">
               <div class="fr-fieldset__element fr-fieldset__element--inline">
                 <div class="fr-radio-group fr-radio-rich">
-                  <%= radio_button_tag :perimetre, 'national', @perimetre == 'national',
-                                       id: 'perimetre-national',
-                                       onchange: "window.location.href='#{restitutions_path(perimetre: 'national', q: @q_params)}'" %>
-                  <label class="fr-label" for="perimetre-national">Périmètre national</label>
-                </div>
-              </div>
-              <div class="fr-fieldset__element fr-fieldset__element--inline">
-                <div class="fr-radio-group fr-radio-rich">
                   <%= radio_button_tag :perimetre, 'perimetre', @perimetre == 'perimetre',
                                        id: 'perimetre-perimetre',
                                        onchange: "window.location.href='#{restitutions_path(perimetre: 'perimetre', q: @q_params)}'" %>
                   <label class="fr-label" for="perimetre-perimetre">Mon périmètre</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag :perimetre, 'national', @perimetre == 'national',
+                                       id: 'perimetre-national',
+                                       onchange: "window.location.href='#{restitutions_path(perimetre: 'national', q: @q_params)}'" %>
+                  <label class="fr-label" for="perimetre-national">Périmètre national</label>
                 </div>
               </div>
             </fieldset>
@@ -70,123 +70,220 @@
           </div>
         </div>
 
-        <div class="fr-mb-2w title-btn">
-          <div data-controller="pdf-export">
-            <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
-                    data-action="pdf-export#export" data-pdf-export-target="button"
-                    data-pdf-export-title="Restitutions_<%= @annee_a_afficher %>.pdf">
-              Exporter au format PDF
+      </div>
+    </div>
+
+    <% repartitions = statuts_repartition_par_phase(@avis_remplis, @avis_total, @annee_a_afficher) %>
+
+    <div class="fr-grid-row" data-controller="tab-nav">
+      <div class="fr-col-12 fr-col-lg-3">
+        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+          <div class="fr-sidemenu__inner fr-backgroud--grey">
+            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+              Dans cette rubrique
             </button>
+            <div class="fr-collapse" id="fr-sidemenu-wrapper">
+              <ul class="fr-sidemenu__list">
+                <li class="fr-sidemenu__item">
+                  <a href="#activite" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="activite" data-action="tab-nav#select">
+                    Activité globale
+                  </a>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <a href="#statut" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="statut" data-action="tab-nav#select">
+                    Statut des avis/notes
+                  </a>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <a href="#programmes" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="programmes" data-action="tab-nav#select">
+                    Programmes
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
+        </nav>
       </div>
-    </div>
-    <div id="containPDF">
-      <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
-      <div class="fr-mb-4w" data-controller="highcharts"
-           data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'programmation initiale') %>"
-           data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher).to_json %>"
-           data-highcharts-activiteavis="<%= activite_avis_repartition(@avis_remplis, @avis_total, @annee_a_afficher).to_json %>">
+      <div class="fr-col-12 fr-col-lg-9">
 
-        <div class="fr-grid-row">
-          <div class="fr-col-12 fr-col-lg-6">
-            <div class="fr-text--center fr-p-2v">
-              <div class="fr-card fr-p-2w">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %></p>
-                  <p class="fr-text--lg fr-mb-0 text_center">BOP actifs</p>
+        <%# --- Activité globale --- %>
+        <section data-tab-nav-target="panel" data-tab="activite">
+          <h2 class="fr-my-3w">Activité globale</h2>
+          <% non_recus_par_programme = @perimetre == 'national' ? avis_non_recus_par_programme(@avis_remplis) : [] %>
+          <% non_recus_par_bop = @perimetre == 'perimetre' ? avis_non_recus_par_bop(@avis_remplis) : [] %>
+          <% activite = activite_avis_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>
+          <% calendrier = avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'programmation initiale') %>
+          <% soutenabilite = statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>
+          <div class="fr-mb-4w" data-controller="highcharts"
+               data-highcharts-avisdate="<%= calendrier %>"
+               data-highcharts-notesbar="<%= soutenabilite.to_json %>"
+               data-highcharts-activiteavis="<%= activite.to_json %>"
+               data-highcharts-nonrecusprogramme="<%= non_recus_par_programme.to_json %>"
+               data-highcharts-nonrecusbop="<%= non_recus_par_bop.to_json %>">
+
+            <div class="fr-grid-row">
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %></p>
+                      <p class="fr-text--lg fr-mb-0 text_center">BOP actifs</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %></p>
+                      <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_delai_interrompu(@avis_remplis) %></p>
+                      <p class="fr-text--lg fr-mb-0 text_center">Interruptions du délai</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="fr-col-12 fr-col-lg-6">
-            <div class="fr-text--center fr-p-2v">
-              <div class="fr-card fr-p-2w">
-                <div class="fr-cart__body">
-                  <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %></p>
-                  <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasActiviteAvis"></div>
+                    <% transmis, non_recu, non_renseigne = activite[:series] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-activite-avis',
+                               caption: "Activité liée aux avis/notes",
+                               headers: ['Phase', 'Avis transmis', 'Non reçu', 'Non renseigné'],
+                               rows: activite[:categories].each_with_index.map { |cat, i| [cat, transmis[i], non_recu[i], non_renseigne[i]] } %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasAvisDate"></div>
+                    <% calendrier_labels = ['Reçus avant le 1er mars', 'Reçus entre le 1er et le 15 mars', 'Reçus entre le 15 et le 31 mars', 'Reçus après le 1er avril', 'Non reçu', 'Non renseigné'] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-calendrier',
+                               caption: "Calendrier de réception des programmations initiales",
+                               headers: ['Catégorie', 'Nombre'],
+                               rows: calendrier_labels.each_with_index.map { |label, i| [label, calendrier[i]] },
+                               total_row: ['Total', @avis_total] %>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasNotesBar"></div>
+                    <% sout_cap, sout_conso, sout_besoin, sout_nr, sout_vide = soutenabilite[:series] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-soutenabilite',
+                               caption: "Indicateurs de soutenabilité des BOP",
+                               headers: ['Phase', 'Capacité contributive', 'Consommation à la ressource', 'Besoin de financement', 'Non reçu', 'Non renseigné'],
+                               rows: soutenabilite[:categories].each_with_index.map { |cat, i| [cat, sout_cap[i], sout_conso[i], sout_besoin[i], sout_nr[i], sout_vide[i]] } %>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="fr-grid-row">
-          <div class="fr-col-12">
-            <div class="fr-p-2v">
-              <div class="fr-card fr-p-2w">
-                <div data-highcharts-target="canvasActiviteAvis"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="fr-grid-row fr-grid-row--gutters">
-
-          <div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-p-2v">
-              <div class="fr-card fr-p-2w">
-                <div data-highcharts-target="canvasAvisDate"></div>
-              </div>
-            </div>
-          </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-p-2v">
-              <div class="fr-card fr-p-2w">
-                <div data-highcharts-target="canvasNotesBar"></div>
-              </div>
-            </div>
-          </div>
-
-        <% repartitions = statuts_repartition_par_phase(@avis_remplis, @avis_total, @annee_a_afficher) %>
-
-          <% repartitions.each do |rep| %>
-            <div class="fr-col-12 fr-col-lg-4">
-              <div class="fr-p-2v">
-                <div class="fr-card fr-p-2w">
-                  <div data-controller="statut-pie"
-                       data-statut-pie-title-value="<%= "Répartition - #{rep[:libelle]}" %>"
-                       data-statut-pie-data-value="<%= rep[:data].to_json %>"></div>
+            <% if @perimetre == 'national' && non_recus_par_programme.any? %>
+              <div class="fr-grid-row">
+                <div class="fr-col-12">
+                  <div class="fr-p-2v">
+                    <div class="fr-card fr-p-2w">
+                      <div data-highcharts-target="canvasNonRecusProgramme"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          <% end %>
-        </div>
+            <% end %>
+            <% if @perimetre == 'perimetre' && non_recus_par_bop.any? %>
+              <div class="fr-grid-row">
+                <div class="fr-col-12">
+                  <div class="fr-p-2v">
+                    <div class="fr-card fr-p-2w">
+                      <div data-highcharts-target="canvasNonRecusBop"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <%# --- Statut des avis/notes --- %>
+        <section data-tab-nav-target="panel" data-tab="statut" hidden>
+          <h2 class="fr-my-3w">Statut des avis/notes</h2>
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <% repartitions.each_with_index do |rep, idx| %>
+              <% rep_total = rep[:data].sum { |d| d[:y] } %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-controller="statut-pie"
+                         data-statut-pie-title-value="<%= "Répartition - #{rep[:libelle]}" %>"
+                         data-statut-pie-data-value="<%= rep[:data].to_json %>"></div>
+                    <%= render 'data_table_accordion',
+                               id: "accordion-repartition-#{idx}",
+                               caption: "Répartition - #{rep[:libelle]}",
+                               headers: ['Statut', 'Nombre'],
+                               rows: rep[:data].map { |d| [d[:name], d[:y]] },
+                               total_row: ['Total', rep_total] %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <%# --- Programmes --- %>
+        <section data-tab-nav-target="panel" data-tab="programmes" hidden>
+          <h2 class="fr-my-3w"><%= titre_programmes %></h2>
+          <div class="fr-grid-row fr-grid-row--gutters fr-pb-4w">
+            <% @programmes.each do |programme| %>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-card">
+                  <div class="fr-card__body">
+                    <div class="fr-card__content">
+                      <div class="fr-card__start">
+                        <ul class="fr-badges-group">
+                          <li>
+                            <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(programme.avis_remplis_annee(@annee_a_afficher).count, 'avis/note rempli', plural: 'avis/notes remplis') %> </p>
+                          </li>
+                        </ul>
+                        <p class="fr-card__detail fr-icon-arrow-right-line"><%= programme.bops_actifs(@annee_a_afficher).count %>
+                          BOP actifs</p>
+                      </div>
+                      <h3 class="fr-card__title">Programme n°<%= programme.numero %> </h3>
+                      <div class="fr-card__desc"> <%= programme.nom %></div>
+                    </div>
+                    <div class="fr-card__footer">
+                      <ul class="fr-links-group">
+                        <li>
+                          <%= link_to programme_path(programme), class: "fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
+                            Afficher
+                          <% end %>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
       </div>
-    </div>
-
-
-    <h2 class="fr-mt-6w fr-mb-2w"><%= titre_programmes %></h2>
-
-    <div class="fr-grid-row fr-grid-row--gutters fr-pb-4w">
-      <% @programmes.each do |programme| %>
-        <div class="fr-col-12 fr-col-lg-3">
-          <div class="fr-card">
-            <div class="fr-card__body">
-              <div class="fr-card__content">
-                <div class="fr-card__start">
-                  <ul class="fr-badges-group">
-                    <li>
-                      <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(programme.avis_remplis_annee(@annee_a_afficher).count, 'avis/note rempli', plural: 'avis/notes remplis') %> </p>
-                    </li>
-                  </ul>
-                  <p class="fr-card__detail fr-icon-arrow-right-line"><%= programme.bops_actifs(@annee_a_afficher).count %>
-                    BOP actifs</p>
-                </div>
-                <h3 class="fr-card__title">Programme n°<%= programme.numero %> </h3>
-                <div class="fr-card__desc"> <%= programme.nom %></div>
-              </div>
-              <div class="fr-card__footer">
-                <ul class="fr-links-group">
-                  <li>
-                    <%= link_to programme_path(programme), class: "fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
-                      Afficher
-                    <% end %>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% end %>
     </div>
   </div>
 </div>

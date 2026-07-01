@@ -143,4 +143,79 @@ class AvisHelperTest < ActionView::TestCase
     assert_equal [0, 0, 0, 0], non_recu
     assert_equal [2, 2, 2, 2], non_renseigne
   end
+
+  # ---- avis_non_recus_par_programme ----
+
+  test "avis_non_recus_par_programme : ne compte que les 'Non reçu' et formate P<numero>" do
+    res = avis_non_recus_par_programme([avis(:avis_debut_lu), avis(:avis_non_recu)])
+    # avis_debut_lu = Favorable (exclu), avis_non_recu sur programme_1 (numero 100)
+    assert_equal [{ name: 'P100', y: 1 }], res
+  end
+
+  test "avis_non_recus_par_programme : exclut les programmes sans 'Non reçu' et trie décroissant" do
+    prog_a = Struct.new(:numero).new('900')
+    prog_b = Struct.new(:numero).new('200')
+    bop_a  = Struct.new(:programme).new(prog_a)
+    bop_b  = Struct.new(:programme).new(prog_b)
+    avi = ->(bop, statut) { Struct.new(:bop, :statut).new(bop, statut) }
+
+    avis = [
+      avi.call(bop_a, 'Non reçu'),
+      avi.call(bop_a, 'Non reçu'),
+      avi.call(bop_a, 'Non reçu'),
+      avi.call(bop_b, 'Non reçu'),
+      avi.call(bop_b, 'Favorable') # ignoré
+    ]
+    res = avis_non_recus_par_programme(avis)
+    assert_equal [{ name: 'P900', y: 3 }, { name: 'P200', y: 1 }], res
+  end
+
+  test "avis_non_recus_par_programme : liste vide si aucun 'Non reçu'" do
+    assert_equal [], avis_non_recus_par_programme([avis(:avis_debut_lu)])
+  end
+
+  # ---- avis_non_recus_par_bop ----
+
+  test "avis_non_recus_par_bop : ne compte que les 'Non reçu' et utilise le code BOP" do
+    res = avis_non_recus_par_bop([avis(:avis_debut_lu), avis(:avis_non_recu)])
+    # avis_non_recu est sur bop_1 (code 0100-CDPL-CR91), avis_debut_lu = Favorable (exclu)
+    assert_equal [{ name: bops(:bop_1).code, y: 1 }], res
+  end
+
+  test "avis_non_recus_par_bop : exclut les BOP sans 'Non reçu' et trie décroissant" do
+    bop_a = Struct.new(:code).new('0900-AAAA')
+    bop_b = Struct.new(:code).new('0200-BBBB')
+    avi = ->(bop, statut) { Struct.new(:bop, :statut).new(bop, statut) }
+
+    avis = [
+      avi.call(bop_a, 'Non reçu'),
+      avi.call(bop_a, 'Non reçu'),
+      avi.call(bop_b, 'Non reçu'),
+      avi.call(bop_b, 'Favorable') # ignoré
+    ]
+    res = avis_non_recus_par_bop(avis)
+    assert_equal [{ name: '0900-AAAA', y: 2 }, { name: '0200-BBBB', y: 1 }], res
+  end
+
+  test "avis_non_recus_par_bop : liste vide si aucun 'Non reçu'" do
+    assert_equal [], avis_non_recus_par_bop([avis(:avis_debut_lu)])
+  end
+
+  # ---- avis_delai_interrompu ----
+
+  test "avis_delai_interrompu : compte les is_delai=true en programmation initiale uniquement" do
+    avi = ->(is_delai, phase) { Struct.new(:is_delai, :phase).new(is_delai, phase) }
+    avis = [
+      avi.call(true, 'programmation initiale'),
+      avi.call(true, 'programmation initiale'),
+      avi.call(false, 'programmation initiale'), # pas d'interruption
+      avi.call(true, 'CRG1'),                    # mauvaise phase
+      avi.call(nil, 'programmation initiale')
+    ]
+    assert_equal 2, avis_delai_interrompu(avis)
+  end
+
+  test "avis_delai_interrompu : 0 sur la fixture avis_debut_lu (is_delai false)" do
+    assert_equal 0, avis_delai_interrompu([avis(:avis_debut_lu)])
+  end
 end

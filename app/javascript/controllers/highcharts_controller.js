@@ -1,24 +1,35 @@
 import {Controller} from "@hotwired/stimulus"
 import Highcharts from "highcharts"
 import exporting from "exporting"
+import data from "data"
 import accessibility from "accessibility"
 import nodata from "nodata"
+import { EXPORTING_CONFIG } from "controllers/statut_pie_controller"
 
 exporting(Highcharts)
+data(Highcharts)
 accessibility(Highcharts)
 nodata(Highcharts)
 
 export default class extends Controller {
     static get targets() {
-        return ['canvasAvisDate', 'canvasNotesBar', 'canvasActiviteAvis'];
+        return ['canvasAvisDate', 'canvasNotesBar', 'canvasActiviteAvis', 'canvasNonRecusProgramme', 'canvasNonRecusBop'];
     }
 
     connect() {
         const avisdate = JSON.parse(this.data.get("avisdate"));
         const notesbar = JSON.parse(this.data.get("notesbar"));
         const activiteavis = JSON.parse(this.data.get("activiteavis"));
+        const nonrecusprogramme = JSON.parse(this.data.get("nonrecusprogramme"));
+        const nonrecusbop = JSON.parse(this.data.get("nonrecusbop"));
         if (activiteavis != null && activiteavis.categories && activiteavis.categories.length > 0 && this.hasCanvasActiviteAvisTarget) {
             this.syntheseActiviteAvis();
+        }
+        if (nonrecusprogramme != null && nonrecusprogramme.length > 0 && this.hasCanvasNonRecusProgrammeTarget) {
+            this.barNonRecus(nonrecusprogramme, 'Nombre de dossiers non reçus par programme', this.canvasNonRecusProgrammeTarget);
+        }
+        if (nonrecusbop != null && nonrecusbop.length > 0 && this.hasCanvasNonRecusBopTarget) {
+            this.barNonRecus(nonrecusbop, 'Nombre de dossiers non reçus par BOP', this.canvasNonRecusBopTarget);
         }
         if (avisdate != null && avisdate.length > 0 && this.hasCanvasAvisDateTarget) {
             const colors = ["var(--background-contrast-green-menthe)", "var(--background-contrast-blue-cumulus-active)", "var(--background-action-low-green-tilleul-verveine-hover)", "var(--background-action-high-purple-glycine-active)", "var(--background-contrast-brown-caramel)", "var(--background-disabled-grey)"]
@@ -46,7 +57,7 @@ export default class extends Controller {
     synthesePie(colors, title, series, target) {
         const options = {
             chart: {
-                height: 500,
+                height: 600,
                 style: {
                     fontFamily: "Marianne",
                 },
@@ -55,7 +66,7 @@ export default class extends Controller {
                 plotShadow: false,
                 type: 'pie',
             },
-            exporting: {enabled: false},
+            exporting: EXPORTING_CONFIG,
             colors: Highcharts.map(colors, function (color) {
                 return {
                     radialGradient: {
@@ -110,7 +121,14 @@ export default class extends Controller {
                     allowPointSelect: true,
                     cursor: 'pointer',
                     dataLabels: {
-                        enabled: false
+                        enabled: true,
+                        format: '<b>{point.y}</b>',
+                        style: {
+                            textOutline: '1px #FFFFFF',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            color: 'var(--text-title-grey)',
+                        }
                     },
                     showInLegend: true,
                 }
@@ -132,7 +150,7 @@ export default class extends Controller {
         ];
         const options = {
             chart: {
-                height: 500,
+                height: 600,
                 style: {
                     fontFamily: "Marianne",
                 },
@@ -142,7 +160,7 @@ export default class extends Controller {
                 type: 'bar',
             },
             colors: colors,
-            exporting: {enabled: false},
+            exporting: EXPORTING_CONFIG,
             title: {
                 text: 'Activité liée aux avis/notes',
                 style: {
@@ -192,6 +210,16 @@ export default class extends Controller {
                 series: {
                     stacking: 'normal',
                     pointWidth: 15,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{y}',
+                        style: {
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            color: 'var(--text-title-grey)',
+                            textOutline: '1px #FFFFFF',
+                        }
+                    }
                 },
             },
             series: [{
@@ -209,6 +237,80 @@ export default class extends Controller {
         this.chart.reflow();
     }
 
+    // Bar chart générique pour les dossiers "Non reçu" (par programme ou par BOP),
+    // triés en amont par ordre décroissant.
+    barNonRecus(data, title, target) {
+        const options = {
+            chart: {
+                height: 600,
+                style: {
+                    fontFamily: "Marianne",
+                },
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'column',
+            },
+            colors: ["var(--artwork-minor-blue-france)"],
+            exporting: EXPORTING_CONFIG,
+            title: {
+                text: title,
+                style: {
+                    fontSize: '18px',
+                    fontWeight: "900",
+                    color: 'var(--text-title-grey)',
+                },
+            },
+            xAxis: {
+                type: 'category',
+                labels: {
+                    style: {
+                        color: 'var(--text-title-grey)',
+                    },
+                },
+            },
+            yAxis: {
+                min: 0,
+                allowDecimals: false,
+                title: {
+                    text: '',
+                },
+                gridLineColor: 'var(--text-inverted-grey)',
+            },
+            legend: {enabled: false},
+            tooltip: {
+                borderColor: 'transparent',
+                borderRadius: 16,
+                backgroundColor: "rgba(245, 245, 245, 1)",
+                formatter: function () {
+                    return '<b>' + this.point.name + ': </b>' + this.point.y
+                }
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.1,
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{y}',
+                        style: {
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            color: 'var(--text-title-grey)',
+                            textOutline: '1px #FFFFFF',
+                        }
+                    }
+                },
+            },
+            series: [{
+                name: 'Dossiers non reçus',
+                data: data,
+            }]
+        }
+        this.chart = Highcharts.chart(target, options);
+        this.chart.reflow();
+    }
+
     syntheseNotesBar() {
         const payload = JSON.parse(this.data.get("notesbar"));
         const categories = payload.categories;
@@ -222,7 +324,7 @@ export default class extends Controller {
         ];
         const options = {
             chart: {
-                height: 500,
+                height: 600,
                 style: {
                     fontFamily: "Marianne",
                 },
@@ -232,7 +334,7 @@ export default class extends Controller {
                 type: 'bar',
             },
             colors: colors,
-            exporting: {enabled: false},
+            exporting: EXPORTING_CONFIG,
             title: {
                 text: 'Indicateurs de soutenabilité des BOP',
                 style: {
@@ -282,6 +384,16 @@ export default class extends Controller {
                 series: {
                     stacking: 'normal',
                     pointWidth: 15,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{y}',
+                        style: {
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            color: 'var(--text-title-grey)',
+                            textOutline: '1px #FFFFFF',
+                        }
+                    }
                 },
             },
             series: [{

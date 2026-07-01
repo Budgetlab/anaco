@@ -222,6 +222,28 @@ module AvisHelper
     { categories: categories, series: [transmis, non_recu, non_renseigne] }
   end
 
+  # Nombre d'avis au statut "Non reçu" agrégé par programme, trié décroissant.
+  # Les programmes sans avis "Non reçu" sont exclus. Format Highcharts (name/y).
+  def avis_non_recus_par_programme(avis_remplis)
+    avis_remplis
+      .select { |a| a.statut == 'Non reçu' }
+      .group_by { |a| a.bop&.programme }
+      .reject { |programme, _| programme.nil? }
+      .map { |programme, avis| { name: "P#{programme.numero}", y: avis.size } }
+      .sort_by { |h| -h[:y] }
+  end
+
+  # Nombre d'avis au statut "Non reçu" agrégé par BOP, trié décroissant.
+  # Les BOP sans avis "Non reçu" sont exclus. Libellé = code du BOP. Format Highcharts.
+  def avis_non_recus_par_bop(avis_remplis)
+    avis_remplis
+      .select { |a| a.statut == 'Non reçu' }
+      .group_by(&:bop)
+      .reject { |bop, _| bop.nil? }
+      .map { |bop, avis| { name: bop.code, y: avis.size } }
+      .sort_by { |h| -h[:y] }
+  end
+
   # fonction pour calculer le nombre d'avis avec CRG1 prévu parmi la liste des avis remplis sur l'année
   def avis_crg1(avis)
     avis.count { |a| a.is_crg1 && a.phase == 'programmation initiale' }
@@ -230,6 +252,12 @@ module AvisHelper
   # fonction pour calculer le nombre d'avis données sans interruption du delai parmi la liste des avis remplis
   def avis_delai(avis)
     avis.count { |a| !a.is_delai && a.phase == 'programmation initiale' }
+  end
+
+  # Nombre d'avis ayant fait l'objet d'une interruption du délai (is_delai = true),
+  # uniquement en phase "programmation initiale" (champ présent dans form_debut).
+  def avis_delai_interrompu(avis)
+    avis.count { |a| a.is_delai && a.phase == 'programmation initiale' }
   end
 
   # fonction pour charger les avis renseignés dans l'année en cours (hors avis d'éxécution et brouillon)

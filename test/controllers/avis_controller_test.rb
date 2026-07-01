@@ -88,4 +88,38 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "select#q_user_statut_eq", count: 0
   end
+
+  test "restitutions : pour un CBR, Mon périmètre est coché par défaut" do
+    sign_in @cbr
+    get restitutions_path
+    assert_response :success
+    assert_select "input#perimetre-perimetre[checked]"
+    assert_select "input#perimetre-national[checked]", count: 0
+  end
+
+  test "restitutions : un CBR peut choisir explicitement le périmètre national" do
+    sign_in @cbr
+    get restitutions_path(perimetre: 'national')
+    assert_response :success
+    assert_select "input#perimetre-national[checked]"
+    assert_select "input#perimetre-perimetre[checked]", count: 0
+  end
+
+  test "restitutions : l'admin reste sur le périmètre national (pas de radios)" do
+    sign_in users(:one)
+    get restitutions_path
+    assert_response :success
+    assert_select "#perimetre-radios", count: 0
+  end
+
+  test "restitutions : tableaux de données affichés sous les graphes" do
+    sign_in users(:one)
+    get restitutions_path(q: { annee_eq: 2026 })
+    assert_response :success
+    # Accordéons "Tableau des données" présents (activité, calendrier, soutenabilité, répartitions)
+    assert_select "button.fr-accordion__btn", text: "Tableau des données", minimum: 3
+    assert_select "#accordion-activite-avis"
+    assert_select "#accordion-calendrier"
+    assert_select "#accordion-soutenabilite"
+  end
 end
