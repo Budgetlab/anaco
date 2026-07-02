@@ -62,6 +62,7 @@ Rails.application.routes.draw do
     resources :phases, only: [:index, :create, :update, :destroy]
 
     resources :avis, only: :show
+    get 'bop_avis/:id' => 'avis#bop_avis', as: :consultation_bop_avis
     get 'historique' => 'avis#index'
     get 'consultation' => 'avis#consultation'
     get 'remplissage_avis' => 'avis#remplissage_avis'

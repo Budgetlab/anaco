@@ -66,7 +66,7 @@
     <div class="fr-grid-row fr-grid-row--gutters fr-mb-6w">
       <div class="fr-col-12 fr-col-lg-12">
         <h2 class="fr-mb-3w">Historique des avis</h2>
-        <%= render 'avis/success' %>
+
         <%# Onglets : couvrent la période d'activité du BOP.
             - Borne basse : date_debut_activite.year (fallback 2023 si nil).
             - Borne haute : date_fin_activite.year si défini, plafonné à l'année courante
@@ -86,7 +86,9 @@
             <div id="tabpanel-<%= annee %>-panel" class="fr-tabs__panel <%= annee == derniere_annee ? 'fr-tabs__panel--selected' : '' %>" role="tabpanel" aria-labelledby="tabpanel-<%= annee %>" tabindex="0">
               <% liste_avis_annee = @bop_avis.order(created_at: :desc).select { |avis| avis.annee == annee } %>
               <% if liste_avis_annee.empty? %>
-                <p>Aucun avis</p>
+                <div class="fr-highlight">
+                  <p>Aucun avis renseigné</p>
+                </div>
               <% else %>
                 <div class="fr-table--lg fr-table fr-table--no-caption">
                   <div class="fr-table__wrapper">
@@ -116,27 +118,7 @@
                                 <p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p>
                               </td>
                               <td>
-                                <% if avis.etat == "Brouillon" && (avis.user == current_user || current_user.statut == 'admin') %>
-                                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn" do %>
-                                      Reprendre
-                                    <% end %>
-                                    <%= link_to bop_avi_path(bop_id: @bop.id, id: avis.id),
-                                          class: "fr-btn fr-btn--secondary fr-icon-delete-line",
-                                          title: "Supprimer le brouillon",
-                                          data: { turbo_method: :delete, turbo_confirm: "Supprimer ce brouillon ?" } do %>Supprimer<% end %>
-                                  </div>
-                                <% elsif avis.etat != "Brouillon" %>
-                                  <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn" data-fr-opened="false" aria-controls="modal-1">
-                                    Consulter
-                                  </a>
-
-                                  <% if current_user == avis.user %>
-                                    <%= link_to edit_bop_avi_path(bop_id: @bop.id, id: avis.id), class: "fr-btn fr-btn--secondary" do %>
-                                      Modifier
-                                    <% end %>
-                                  <% end %>
-                                <% end %>
+                                <%= link_to "Consulter", consultation_bop_avis_path(avis), class: 'fr-btn fr-btn--secondary' %>
                               </td>
 
                             </tr>

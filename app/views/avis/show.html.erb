@@ -17,7 +17,7 @@
                   n°<%= @avis.bop&.code %>
                 </h1>
                 <% if @avis.avis_recu == false %>
-                  <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
+                  <p class="fr-text--lg fr-text--bold fr-mb-3w">Statut de l'avis :
                     <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut.presence || 'Non renseigné' %></span>
                   </p>
                   <p class="fr-my-1w">
@@ -32,7 +32,7 @@
                 <% else %>
                   <% if @avis.phase == "services votés" %>
 
-                    <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
+                    <p class="fr-text--lg fr-text--bold fr-mb-3w">Statut de l'avis :
                       <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut.presence || 'Non renseigné' %></span>
                     </p>
                     <p class="fr-my-1w">
@@ -56,7 +56,7 @@
                     </div>
                   <% else %>
                     <% if @avis.phase == "programmation initiale" %>
-                      <p class="fr-text--lg fr-text--bold fr-mb-3w">Sens de l'avis :
+                      <p class="fr-text--lg fr-text--bold fr-mb-3w">Statut de l'avis :
                         <span class="<%= badge_class_for_statut(@avis.statut) %> fr-badge--no-icon"><%= @avis.statut.presence || 'Non renseigné' %></span>
                       </p>
 

@@ -84,7 +84,7 @@ class AvisController < ApplicationController
 
     if @avis.save
       message = @avis.etat == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-      redirect_to bop_path(@bop), notice: message
+      redirect_to consultation_bop_avis_path(@avis), notice: message
     else
       setup_form_context_from_avis
       flash.now[:alert] = @avis.errors.full_messages.to_sentence
@@ -121,7 +121,7 @@ class AvisController < ApplicationController
 
     if @avis.update(attrs)
       message = @avis.etat == 'Brouillon' ? 'Avis sauvegardé en tant que brouillon' : 'transmis'
-      redirect_to bop_path(@avis.bop), notice: message
+      redirect_to consultation_bop_avis_path(@avis), notice: message
     else
       setup_form_context_from_avis
       flash.now[:alert] = @avis.errors.full_messages.to_sentence
@@ -133,14 +133,30 @@ class AvisController < ApplicationController
     @avis = Avi.find(params[:id])
   end
 
+  # Page consolidée des avis d'un BOP pour une année (onglets par phase).
+  # :id est l'id de l'avis à ouvrir (onglet actif) ; on en déduit le BOP et l'année.
+  def bop_avis
+    @avis_actif = Avi.find(params[:id])
+    @bop = @avis_actif.bop
+    @annee = @avis_actif.annee
+
+    # Accès réservé à l'admin, au contrôleur du BOP et au DCB responsable.
+    autorise = current_user.statut == 'admin' ||
+               @bop.user_id == current_user.id ||
+               @bop.dcb_id == current_user.id
+    redirect_to remplissage_avis_path, alert: 'Action non autorisée' and return unless autorise
+
+    @avis_annee = @bop.avis.where(annee: @annee).order(:created_at)
+  end
+
   def destroy
     @avis = Avi.find(params[:id])
     bop = @avis.bop
     if @avis.etat == 'Brouillon' && (@avis.user == current_user || current_user.statut == 'admin')
       @avis.destroy
-      redirect_to bop_path(bop), notice: 'Brouillon supprimé'
+      redirect_to remplissage_avis_path, notice: 'Avis supprimé'
     else
-      redirect_to bop_path(bop), alert: 'Action non autorisée'
+      redirect_to consultation_bop_avis_path(@avis), alert: 'Action non autorisée'
     end
   end
 

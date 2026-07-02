@@ -1,0 +1,43 @@
+<% content_for :title do %>Avis/notes sur le BOP n°<%= @bop.code %> | ANACO
+<% end %>
+<div class="fr-container fr-mt-4w fr-mb-6w">
+  <div class="fr-grid-row">
+    <div class="fr-col-12">
+      <h1 class="fr-mb-3w">Avis/notes sur le BOP n°<%= @bop.code %> - <%= @annee %></h1>
+
+      <%= render 'avis/success' %>
+
+      <% if @avis_annee.empty? %>
+        <p>Aucun avis pour ce BOP sur l'année <%= @annee %>.</p>
+      <% else %>
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Avis du BOP par phase">
+            <% @avis_annee.each do |avis| %>
+              <% actif = avis.id == @avis_actif.id %>
+              <li role="presentation">
+                <button id="tab-avis-<%= avis.id %>"
+                        class="fr-tabs__tab"
+                        tabindex="<%= actif ? '0' : '-1' %>"
+                        role="tab"
+                        aria-selected="<%= actif ? 'true' : 'false' %>"
+                        aria-controls="tab-avis-<%= avis.id %>-panel">
+                  <%= avis.phase_periode&.libelle_avec_numero || avis.phase %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+          <% @avis_annee.each do |avis| %>
+            <% actif = avis.id == @avis_actif.id %>
+            <div id="tab-avis-<%= avis.id %>-panel"
+                 class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if actif %>"
+                 role="tabpanel"
+                 aria-labelledby="tab-avis-<%= avis.id %>"
+                 tabindex="0">
+              <%= render 'avis/consultation_avis', avis: avis, editable: current_user == avis.user %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

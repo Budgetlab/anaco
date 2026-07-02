@@ -4,7 +4,6 @@
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w">Historique des avis/notes</h1>
-      <%= render 'avis/success' %>
 
       <%= turbo_frame_tag :table, data: { turbo_action: 'advance' } do %>
         <div class="fr-container--grey fr-p-2w fr-mb-2w">
@@ -115,7 +114,6 @@
                         <div class="fr-capitalize"><%= avis.phase_periode&.libelle_avec_numero || avis.phase %></div>
                       </td>
                       <td><%= avis.annee %></td>
-
                       <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop&.code %>
                         <% end %></td>
                       <td>
@@ -123,28 +121,18 @@
                           <%= link_to "#{avis.bop.programme.numero} - #{avis.bop.programme.nom}", programme_path(avis.bop.programme), data: { turbo_frame: "_top" } %>
                         <% end %>
                       </td>
-                      <td><span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon fr-badge--sm"><%= avis.statut.presence || 'Non renseigné' %></span></td>
+                      <td>
+                        <span class="<%= badge_class_for_statut(avis.statut) %> fr-badge--no-icon fr-badge--sm"><%= avis.statut.presence || 'Non renseigné' %></span>
+                      </td>
                       <td>
                         <p class="<%= badge_class_for_etat(avis.etat) %> fr-badge--sm"><%= avis.etat %></p>
                       </td>
                       <td>
-                        <% if avis.etat == "Brouillon" %>
-                          <% if current_user.statut != "admin" %>
-                            <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), data: { turbo_frame: '_top' }, class: "fr-btn fr-btn--sm" do %>
-                              Reprendre
-                            <% end %>
-                          <% end %>
-                        <% else %>
-                          <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1">
-                            Consulter
-                          </a>
-                        <% end %>
+                        <%= link_to "Consulter", consultation_bop_avis_path(avis), data: { turbo_frame: '_top' }, class: "fr-btn fr-btn--sm fr-btn--secondary" %>
                       </td>
                     </tr>
                   <% end %>
-
                   </tbody>
-
                 </table>
               </div>
             </div>
@@ -165,10 +153,6 @@
           </div>
         </div>
       <% end %>
-
-      <dialog id="modal-1" class="fr-modal">
-        <%= turbo_frame_tag :modal, target: "_top" %>
-      </dialog>
     </div>
   </div>
 </div>

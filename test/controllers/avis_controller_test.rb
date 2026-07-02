@@ -122,4 +122,37 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_select "#accordion-calendrier"
     assert_select "#accordion-soutenabilite"
   end
+
+  # ---- bop_avis (page consolidée par BOP + année) ----
+
+  test "bop_avis : affiche un onglet par avis de l'année, actif sur l'avis ciblé" do
+    sign_in @cbr
+    get consultation_bop_avis_path(avis(:avis_non_recu))
+    assert_response :success
+    # bop_1 a 2 avis non-brouillon + 1 brouillon en 2026 → 3 onglets
+    assert_select "button[role=tab]", count: 3
+    # L'onglet ciblé est actif
+    assert_select "button#tab-avis-#{avis(:avis_non_recu).id}[aria-selected=true]"
+    assert_select "#tab-avis-#{avis(:avis_non_recu).id}-panel.fr-tabs__panel--selected"
+  end
+
+  test "bop_avis : bouton Modifier visible pour le propriétaire" do
+    sign_in @cbr # cbr_1 est le user des avis de bop_1
+    get consultation_bop_avis_path(avis(:avis_debut_lu))
+    assert_response :success
+    assert_select "a", text: "Modifier"
+  end
+
+  test "bop_avis : reprendre le brouillon proposé au propriétaire" do
+    sign_in @cbr
+    get consultation_bop_avis_path(avis(:avis_brouillon))
+    assert_response :success
+    assert_select "a", text: "Reprendre le brouillon"
+  end
+
+  test "bop_avis : accès refusé à un utilisateur non concerné" do
+    sign_in users(:two) # CBR Auvergne, ni contrôleur ni DCB de bop_1
+    get consultation_bop_avis_path(avis(:avis_debut_lu))
+    assert_redirected_to remplissage_avis_path
+  end
 end
