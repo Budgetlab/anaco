@@ -146,7 +146,12 @@ class AvisController < ApplicationController
                @bop.dcb_id == current_user.id
     redirect_to remplissage_avis_path, alert: 'Action non autorisée' and return unless autorise
 
-    @avis_annee = @bop.avis.where(annee: @annee).order(:created_at)
+    # Tri par ordre de phase (table phases : date_debut croissante),
+    # avec les avis sans phase liée en dernier, puis created_at en départage.
+    @avis_annee = @bop.avis
+                      .where(annee: @annee)
+                      .left_joins(:phase_periode)
+                      .order(Arel.sql('phases.date_debut ASC NULLS LAST'), :created_at)
   end
 
   def destroy

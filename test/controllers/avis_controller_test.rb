@@ -136,6 +136,17 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_select "#tab-avis-#{avis(:avis_non_recu).id}-panel.fr-tabs__panel--selected"
   end
 
+  test "bop_avis : onglets triés par ordre de phase (date_debut), pas par created_at" do
+    sign_in @cbr
+    get consultation_bop_avis_path(avis(:avis_debut_lu))
+    assert_response :success
+    # Ordre attendu 2026 : programmation initiale (02-20) → CRG1 (06-01) → CRG2 (09-01)
+    ids_dom = css_select("button[role=tab]").map { |btn| btn["id"] }
+    attendu = [avis(:avis_debut_lu).id, avis(:avis_brouillon).id, avis(:avis_non_recu).id]
+                .map { |id| "tab-avis-#{id}" }
+    assert_equal attendu, ids_dom
+  end
+
   test "bop_avis : bouton Modifier visible pour le propriétaire" do
     sign_in @cbr # cbr_1 est le user des avis de bop_1
     get consultation_bop_avis_path(avis(:avis_debut_lu))
