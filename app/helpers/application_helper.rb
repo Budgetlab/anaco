@@ -259,6 +259,17 @@ module ApplicationHelper
     Phase::NOMS_CONNUS.reverse.select { |nom| noms_existants.include?(nom) }
   end
 
+  # Instances de phase à afficher en onglets (une par phase existante), même règle
+  # de visibilité que display_phases mais sans regroupement par nom : plusieurs
+  # "services votés" dans l'année donnent plusieurs onglets (services votés 1, 2, …).
+  # Ordonnées phase la plus récente d'abord (cohérent avec display_phases).
+  def display_phase_instances(annee_a_afficher)
+    phases_annee = Phase.pour_annee(annee_a_afficher).to_a
+    visibles = annee_a_afficher < Date.today.year ? phases_annee
+                                                  : phases_annee.select { |p| p.date_debut <= Date.today }
+    visibles.sort_by(&:date_debut).reverse
+  end
+
   def bops_actifs(bops, annee)
     bops.actifs_en(annee)
   end

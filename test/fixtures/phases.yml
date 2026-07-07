@@ -27,3 +27,20 @@ sv2_2027:
   nom: "services votés"
   annee: 2027
   date_debut: 2027-06-15
+
+# Année passée avec deux instances de services votés (SV1/SV2) — utilisée par le
+# test de suivi_remplissage : un onglet par instance de phase.
+sv1_2023:
+  nom: "services votés"
+  annee: 2023
+  date_debut: 2023-01-01
+
+sv2_2023:
+  nom: "services votés"
+  annee: 2023
+  date_debut: 2023-06-15
+
+debut_2023:
+  nom: "programmation initiale"
+  annee: 2023
+  date_debut: 2023-02-20

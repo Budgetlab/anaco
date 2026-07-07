@@ -154,6 +154,47 @@ class User < ApplicationRecord
     end
   end
 
+  # ─── Variantes par INSTANCE de phase (objet Phase, filtre sur phase_id) ───────
+  # Pour la page suivi_remplissage : un onglet par phase existante (SV1, SV2, …).
+
+  def avis_a_remplir_phase_instance(annee, phase)
+    if phase.nom == 'CRG1'
+      self.avis.where(annee: annee, phase: 'programmation initiale', is_crg1: true).where.not(etat: 'Brouillon').count
+    else
+      bops_actifs(annee).count
+    end
+  end
+
+  def avis_remplis_instance(phase)
+    self.avis.where(phase_id: phase.id).where.not(etat: 'Brouillon').count
+  end
+
+  def avis_brouillon_instance(phase)
+    self.avis.where(phase_id: phase.id, etat: 'Brouillon').count
+  end
+
+  def taux_de_remplissage_instance(annee, phase)
+    a_remplir = avis_a_remplir_phase_instance(annee, phase)
+    return 100 if a_remplir.zero?
+
+    ((avis_remplis_instance(phase) * 100.0 / a_remplir).to_f).round
+  end
+
+  def avis_a_lire_recus_instance(phase)
+    bops_a_consulter.joins(:avis).where('avis.phase_id': phase.id).where.not('avis.etat': 'Brouillon').count
+  end
+
+  def avis_lus_instance(phase)
+    bops_a_consulter.joins(:avis).where('avis.etat': 'Lu', 'avis.phase_id': phase.id).count
+  end
+
+  def taux_de_lecture_instance(phase)
+    recus = avis_a_lire_recus_instance(phase)
+    return 100 if recus.zero?
+
+    ((avis_lus_instance(phase) * 100.0 / recus).to_f).round
+  end
+
   def programmes_access
     Programme.where(id: self.bops.pluck(:programme_id).uniq)
   end

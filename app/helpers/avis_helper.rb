@@ -312,4 +312,47 @@ module AvisHelper
     end
   end
 
+  # ─── Variantes par INSTANCE de phase (objet Phase, filtre sur phase_id) ───────
+  # Utilisées par la page suivi_remplissage pour un onglet par phase existante :
+  # distinguent SV1 / SV2 là où les variantes par nom regroupent toutes les instances.
+
+  def avis_remplis_phase_instance(avis, phase)
+    avis.select { |a| a.phase_id == phase.id && a.etat != 'Brouillon' }.count
+  end
+
+  def avis_brouillon_phase_instance(avis, phase)
+    avis.select { |a| a.phase_id == phase.id && a.etat == 'Brouillon' }.count
+  end
+
+  def avis_a_remplir_instance(avis, phase, annee)
+    if phase.nom == 'CRG1'
+      # CRG1 attendus = avis de programmation initiale finalisés avec is_crg1=true.
+      avis.select { |a| a.phase == 'programmation initiale' && a.is_crg1? && a.etat != 'Brouillon' }.count
+    else
+      Bop.actifs_en(annee).count
+    end
+  end
+
+  def taux_remplissage_avis_instance(avis, phase, annee)
+    a_remplir = avis_a_remplir_instance(avis, phase, annee)
+    return 100 if a_remplir.zero?
+
+    (avis_remplis_phase_instance(avis, phase) * 100.0 / a_remplir).to_f.round
+  end
+
+  def avis_lus_instance(avis, phase)
+    avis.joins(:user).where(users: { statut: 'CBR' }).select { |a| a.phase_id == phase.id && a.etat == 'Lu' }.count
+  end
+
+  def avis_recus_instance(avis, phase)
+    avis.joins(:user).where(users: { statut: 'CBR' }).select { |a| a.phase_id == phase.id && a.etat != 'Brouillon' }.count
+  end
+
+  def taux_lecture_avis_instance(avis, phase)
+    recus = avis_recus_instance(avis, phase)
+    return 100 if recus.zero?
+
+    (avis_lus_instance(avis, phase) * 100.0 / recus).to_f.round
+  end
+
 end

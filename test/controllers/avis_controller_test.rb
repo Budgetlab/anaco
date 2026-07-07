@@ -214,6 +214,19 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_equal avis(:avis_non_recu).motif_absence, sheet.cell(crg2_non_recu, 21) # motif rempli
   end
 
+  # ---- suivi_remplissage : un onglet par instance de phase ----
+
+  test "suivi_remplissage : un onglet par instance de phase (SV1, SV2)" do
+    sign_in users(:one) # admin
+    get suivi_remplissage_avis_path(date: 2023)
+    assert_response :success
+    # 2023 : SV1, SV2 et programmation initiale → 3 onglets
+    assert_select "button[role=tab]", count: 3
+    # Les deux services votés apparaissent distinctement
+    assert_select "button[role=tab] span", text: "services votés 1"
+    assert_select "button[role=tab] span", text: "services votés 2"
+  end
+
   # ---- export xlsx de la consultation DCB ----
 
   test "export consultation xlsx : design aligné et N/A selon phase/avis_recu" do
