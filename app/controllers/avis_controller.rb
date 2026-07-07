@@ -29,7 +29,9 @@ class AvisController < ApplicationController
     @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
 
     @q = avis_all.ransack(search_params)
-    @avis_all = @q.result.includes(bop: :programme, user: [])
+    # Préchargements alignés sur les associations lues dans les vues index (HTML + xlsx) :
+    # bop + programme (colonnes BOP/Programme), user (Contrôleur), phase_periode (colonne Phase).
+    @avis_all = @q.result.includes(:phase_periode, :user, bop: :programme)
     @filtres_count = count_active_filters(@q_params)
     respond_to do |format|
       format.html do

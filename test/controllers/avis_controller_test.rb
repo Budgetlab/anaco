@@ -166,4 +166,61 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     get consultation_bop_avis_path(avis(:avis_debut_lu))
     assert_redirected_to remplissage_avis_path
   end
+
+  # ---- export xlsx de l'historique ----
+
+  test "export xlsx : inclut les brouillons et affiche le libellé de phase" do
+    sign_in @cbr # cbr_1 : 3 avis en 2026 dont 1 brouillon
+    get historique_path(format: :xlsx, q: { annee_in: ["2026"] })
+    assert_response :success
+
+    sheet = parse_export_xlsx(response.body)
+
+    # Ligne 1 = en-tête, puis 1 ligne par avis. Les 3 avis 2026 de cbr_1 (dont brouillon) sont présents.
+    assert_equal 4, sheet.last_row, "les brouillons doivent être inclus (3 avis + en-tête)"
+
+    # Colonne Phase (A) : libellé via phase_periode
+    phases_exportees = (2..sheet.last_row).map { |r| sheet.cell(r, 1) }
+    assert_includes phases_exportees, avis(:avis_brouillon).phase_periode&.libelle_avec_numero || "CRG1"
+  end
+
+  test "export xlsx : N/A pour les colonnes sans objet selon phase et avis_recu" do
+    sign_in @cbr
+    get historique_path(format: :xlsx, q: { annee_in: ["2026"] })
+    assert_response :success
+
+    sheet = parse_export_xlsx(response.body)
+    # Index des lignes par phase (colonne A = libellé de phase)
+    ligne_par_phase = {}
+    (2..sheet.last_row).each { |r| ligne_par_phase[sheet.cell(r, 1)] = r }
+
+    # Colonnes (1-based) : H=8 date réception, K=11 CRG1 programmé, J=10 Delai, U=21 motif, V=22 commentaire
+    pi = ligne_par_phase[avis(:avis_debut_lu).phase_periode.libelle_avec_numero]     # programmation initiale, reçu
+    crg1 = ligne_par_phase[avis(:avis_brouillon).phase_periode.libelle_avec_numero]  # CRG1, reçu (brouillon)
+    crg2_non_recu = ligne_par_phase[avis(:avis_non_recu).phase_periode.libelle_avec_numero] # CRG2, non reçu
+
+    # PI reçu : motif d'absence = N/A ; CRG1 programmé rempli (oui/non)
+    assert_equal "N/A", sheet.cell(pi, 21)
+    assert_includes ["oui", "non"], sheet.cell(pi, 11)
+
+    # CRG1 reçu : date réception = N/A, CRG1 programmé = N/A, Delai = N/A
+    assert_equal "N/A", sheet.cell(crg1, 8)
+    assert_equal "N/A", sheet.cell(crg1, 11)
+    assert_equal "N/A", sheet.cell(crg1, 10)
+
+    # CRG2 non reçu : tout N/A à partir de date réception sauf le motif
+    assert_equal "N/A", sheet.cell(crg2_non_recu, 8)   # date réception
+    assert_equal "N/A", sheet.cell(crg2_non_recu, 22)  # commentaire
+    assert_equal avis(:avis_non_recu).motif_absence, sheet.cell(crg2_non_recu, 21) # motif rempli
+  end
+
+  private
+
+  def parse_export_xlsx(body)
+    require "roo"
+    @export_tmp = Tempfile.new(["export", ".xlsx"], binmode: true)
+    @export_tmp.write(body)
+    @export_tmp.rewind
+    Roo::Excelx.new(@export_tmp.path).sheet("Historique")
+  end
 end
