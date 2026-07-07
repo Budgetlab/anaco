@@ -50,7 +50,7 @@ class AvisController < ApplicationController
   #   - brouillon → bascule sur edit pour reprendre la saisie
   #   - finalisé  → retour à la fiche BOP avec un notice
   def new
-    @annee_a_afficher = annee_a_afficher
+    @annee_a_afficher = @annee
     redirect_to bop_path(@bop) and return unless @bop.actif_en?(@annee_a_afficher)
     redirect_to edit_bop_path(@bop) and return if @bop.dotation.blank?
 
@@ -158,7 +158,6 @@ class AvisController < ApplicationController
 
   def destroy
     @avis = Avi.find(params[:id])
-    bop = @avis.bop
     if @avis.etat == 'Brouillon' && (@avis.user == current_user || current_user.statut == 'admin')
       @avis.destroy
       redirect_to remplissage_avis_path, notice: 'Avis supprimé'
@@ -185,7 +184,7 @@ class AvisController < ApplicationController
     @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
 
     @q = avis_all.ransack(search_params)
-    @avis_all = @q.result.includes(:user, bop: :programme)
+    @avis_all = @q.result.includes(:phase_periode, :user, bop: :programme)
     @avis_en_attente = @avis_all.where(etat: 'En attente de lecture')
     @avis_lus = @avis_all.where(etat: 'Lu')
     @filtres_count = count_active_filters(@q_params)

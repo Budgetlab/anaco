@@ -214,13 +214,42 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_equal avis(:avis_non_recu).motif_absence, sheet.cell(crg2_non_recu, 21) # motif rempli
   end
 
+  # ---- export xlsx de la consultation DCB ----
+
+  test "export consultation xlsx : design aligné et N/A selon phase/avis_recu" do
+    sign_in users(:dcb_1) # DCB responsable de bop_1, consulte les avis Lu
+    get consultation_path(format: :xlsx, q: { annee_in: ["2026"] })
+    assert_response :success
+
+    sheet = parse_export_xlsx(response.body, "Avis lus")
+    ligne_par_phase = {}
+    (2..sheet.last_row).each { |r| ligne_par_phase[sheet.cell(r, 1)] = r }
+
+    # Colonnes (1-based, décalées de +1 vs index à cause de la colonne Etat) :
+    # G=7 Etat, I=9 date réception, L=12 CRG1 programmé, K=11 Delai, V=22 motif, W=23 commentaire
+    pi = ligne_par_phase[avis(:avis_debut_lu).phase_periode.libelle_avec_numero]           # PI, reçu
+    crg2_non_recu = ligne_par_phase[avis(:avis_non_recu).phase_periode.libelle_avec_numero] # CRG2, non reçu
+
+    # Colonne Etat présente et remplie
+    assert_equal "Lu", sheet.cell(pi, 7)
+
+    # PI reçu : motif = N/A, CRG1 programmé rempli
+    assert_equal "N/A", sheet.cell(pi, 22)
+    assert_includes ["oui", "non"], sheet.cell(pi, 12)
+
+    # CRG2 non reçu : N/A à partir de date réception sauf motif
+    assert_equal "N/A", sheet.cell(crg2_non_recu, 9)    # date réception
+    assert_equal "N/A", sheet.cell(crg2_non_recu, 23)   # commentaire
+    assert_equal avis(:avis_non_recu).motif_absence, sheet.cell(crg2_non_recu, 22) # motif rempli
+  end
+
   private
 
-  def parse_export_xlsx(body)
+  def parse_export_xlsx(body, sheet_name = "Historique")
     require "roo"
     @export_tmp = Tempfile.new(["export", ".xlsx"], binmode: true)
     @export_tmp.write(body)
     @export_tmp.rewind
-    Roo::Excelx.new(@export_tmp.path).sheet("Historique")
+    Roo::Excelx.new(@export_tmp.path).sheet(sheet_name)
   end
 end

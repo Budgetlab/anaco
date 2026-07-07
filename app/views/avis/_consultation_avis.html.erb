@@ -25,9 +25,10 @@
         <% end %>
       <% end %>
 
-      <%= link_to 'Retourner à la liste de travail', remplissage_avis_path, class: "fr-btn fr-btn--secondary" %>
+      <%= link_to 'Liste de travail', remplissage_avis_path, class: "fr-btn fr-btn--secondary" %>
     <% end %>
-    <%= link_to "Voir l'historique", historique_path, class: "fr-btn fr-btn--secondary" %>
+    <%= link_to "Historique des avis/notes", historique_path, class: "fr-btn fr-btn--secondary" %>
+    <%= link_to "Historique du BOP", bop_path(avis.bop), class: "fr-btn fr-btn--secondary" %>
   </div>
 </div>
 
@@ -177,4 +178,4 @@
     </div>
   </div>
 </div>
-<div><%= link_to "Consulter l'historique des avis/notes du BOP", bop_path(avis.bop), class: "fr-btn fr-btn--tertiary" %></div>
+
