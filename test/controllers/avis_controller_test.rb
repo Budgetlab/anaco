@@ -147,6 +147,17 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     assert_equal attendu, ids_dom
   end
 
+  test "bop_avis : bouton export PDF et zone de contenu par onglet" do
+    sign_in @cbr
+    get consultation_bop_avis_path(avis(:avis_debut_lu))
+    assert_response :success
+    # Un bouton d'export et une zone content par avis affiché (3 avis 2026 sur bop_1)
+    assert_select "button[data-action='pdf-export#export']", count: 3
+    assert_select "[data-pdf-export-target='content']", count: 3
+    # La zone content commence bien au bloc "Informations"
+    assert_select "[data-pdf-export-target='content'] h4", text: /Informations/
+  end
+
   test "bop_avis : bouton Modifier visible pour le propriétaire" do
     sign_in @cbr # cbr_1 est le user des avis de bop_1
     get consultation_bop_avis_path(avis(:avis_debut_lu))

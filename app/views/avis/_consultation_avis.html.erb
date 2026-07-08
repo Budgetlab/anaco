@@ -7,34 +7,43 @@
 <% is_avis = avis.phase == 'programmation initiale' || avis.phase == 'services votés' %>
 <% brouillon = avis.etat == 'Brouillon' %>
 
-<div class="fr-callout fr-callout--brown-cafe-creme fr-mb-4w">
-  <h3 class="fr-callout__title"><%= brouillon ? 'Brouillon en cours' : "#{is_avis ? 'Avis' : 'Note'}"%> <%= avis.phase_periode&.libelle_avec_numero || avis.phase %> <%= avis.annee %></h3>
-  <div class="fr-btns-group fr-btns-group--inline">
-    <% if editable %>
-      <% if brouillon %>
-        <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), class: "fr-btn" do %>
-          Reprendre le brouillon
+<div data-controller="pdf-export">
+  <div class="fr-callout fr-callout--brown-cafe-creme fr-mb-4w">
+    <h3 class="fr-callout__title"><%= brouillon ? 'Brouillon en cours' : "#{is_avis ? 'Avis' : 'Note'}"%> <%= avis.phase_periode&.libelle_avec_numero || avis.phase %> <%= avis.annee %></h3>
+    <div class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left">
+      <% if editable %>
+        <% if brouillon %>
+          <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), class: "fr-btn" do %>
+            Reprendre le brouillon
+          <% end %>
+          <%= link_to bop_avi_path(bop_id: avis.bop_id, id: avis.id),
+                      class: "fr-btn fr-btn--secondary",
+                      title: "Supprimer le brouillon",
+                      data: { turbo_method: :delete, turbo_confirm: "Supprimer ce brouillon ?" } do %>Supprimer<% end %>
+        <% else %>
+          <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), class: "fr-btn" do %>
+            Modifier
+          <% end %>
         <% end %>
-        <%= link_to bop_avi_path(bop_id: avis.bop_id, id: avis.id),
-                    class: "fr-btn fr-btn--secondary",
-                    title: "Supprimer le brouillon",
-                    data: { turbo_method: :delete, turbo_confirm: "Supprimer ce brouillon ?" } do %>Supprimer<% end %>
-      <% else %>
-        <%= link_to edit_bop_avi_path(bop_id: avis.bop_id, id: avis.id), class: "fr-btn" do %>
-          Modifier
-        <% end %>
+
+        <%= link_to 'Liste de travail', remplissage_avis_path, class: "fr-btn fr-btn--secondary" %>
       <% end %>
-
-      <%= link_to 'Liste de travail', remplissage_avis_path, class: "fr-btn fr-btn--secondary" %>
-    <% end %>
-    <%= link_to "Historique des avis/notes", historique_path, class: "fr-btn fr-btn--secondary" %>
-    <%= link_to "Historique du BOP", bop_path(avis.bop), class: "fr-btn fr-btn--secondary" %>
+      <%= link_to "Historique des avis/notes", historique_path, class: "fr-btn fr-btn--secondary" %>
+      <%= link_to "Historique du BOP", bop_path(avis.bop), class: "fr-btn fr-btn--secondary" %>
+      <button type="button"
+              class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
+              data-action="pdf-export#export"
+              data-pdf-export-target="button"
+              data-pdf-export-title="Avis_<%= avis.phase_periode&.libelle_avec_numero || avis.phase %>_<%= avis.annee %>_BOP_<%= avis.bop&.code %>.pdf">
+        Exporter au format PDF
+      </button>
+    </div>
   </div>
-</div>
 
-<h4 class="fr-mb-2w">
-  Informations
-</h4>
+  <div data-pdf-export-target="content">
+    <h4 class="fr-mb-2w">
+      <%= is_avis ? 'Avis' : 'Note' %> <%= avis.phase_periode&.libelle_avec_numero || avis.phase %> <%= avis.annee %> du BOP <%= avis.bop&.code %>
+    </h4>
 
 <% if avis.avis_recu == false %>
   <div class="fr-table fr-table--no-caption fr-mb-3w">
@@ -141,7 +150,7 @@
 
 <% end %>
 
-<h5 class="fr-mt-4w fr-mb-2w">Informations générales sur le BOP</h5>
+<h5 class="fr-mt-4w fr-mb-2w">Informations générales sur le BOP <%= @bop.code %></h5>
 <div class="fr-table fr-table--no-caption fr-mb-2w">
   <div class="fr-table__wrapper">
     <div class="fr-table__container">
@@ -176,6 +185,8 @@
         </table>
       </div>
     </div>
+  </div>
+</div>
   </div>
 </div>
 
