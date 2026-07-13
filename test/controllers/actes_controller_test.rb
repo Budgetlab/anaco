@@ -86,19 +86,21 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:three) # statut: DCB
     get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
     assert_response :success
-    assert_select "select#nature option", text: "Fongibilité asymétrique"
-    assert_select "select#nature option", text: "ISP"
-    assert_select "select#nature option", text: "Annexe financière"
-    assert_select "select#nature option", text: "Référentiel"
+    # On teste la valeur canonique de l'option : le libellé affiché est enrichi
+    # (ex. "ISP (cabinet ministériel)") mais la value reste la nature brute.
+    assert_select "select#nature option[value='Fongibilité asymétrique']"
+    assert_select "select#nature option[value='ISP']"
+    assert_select "select#nature option[value='Annexe financière']"
+    assert_select "select#nature option[value='Référentiel']"
   end
 
   test "new T2 organisme user does not get ISP in nature list" do
     sign_in users(:three) # statut: DCB, but organisme excludes ISP regardless
     get new_acte_path, params: { titre: 'T2', perimetre: 'organisme' }
     assert_response :success
-    assert_select "select#nature option", text: "Fongibilité asymétrique"
-    assert_select "select#nature option", text: "Annexe financière"
-    assert_select "select#nature option", { count: 0, text: "ISP" }
+    assert_select "select#nature option[value='Fongibilité asymétrique']"
+    assert_select "select#nature option[value='Annexe financière']"
+    assert_select "select#nature option[value='ISP']", count: 0
   end
 
   test "new HT2 still uses original nature list (no regression)" do
@@ -1794,9 +1796,10 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     )
     get acte_path(acte)
     assert_response :success
-    # The T2 partial renders a "Détails <nature>" section header (specific to _acte_details_t2)
-    # and does NOT render the HT2 column "Montant de l'acte (AE)".
-    assert_select "div.fr-h6", text: /Détails Marché/
+    # La sous-section T2 par nature (t2_sections/_show_marche) rend une table
+    # légendée "Marché (PSC)" — spécifique à _acte_details_t2 — et ne rend PAS
+    # la colonne HT2 "Montant de l'acte (AE)".
+    assert_select "table caption", text: "Marché (PSC)"
     assert_select "th", text: "Montant de l'acte (AE)", count: 0
   end
 
@@ -1954,9 +1957,9 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     assert_nil acte.t2_detail
     get acte_path(acte)
     assert_response :success
-    # The Marché section still renders its header even when t2_detail is absent
-    # (the Marché sub-partial does not access td.* fields).
-    assert_select "div.fr-h6", text: /Détails Marché/
+    # La section Marché rend toujours sa table légendée même sans t2_detail
+    # (la sous-partial Marché n'accède pas aux champs td.*).
+    assert_select "table caption", text: "Marché (PSC)"
   end
 
   # Story 3.1 — Colonne Titre (badge HT2/T2) sur index et historique
@@ -2349,10 +2352,20 @@ class ActesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:three)
     get new_acte_path, params: { titre: 'T2', perimetre: 'etat' }
     assert_response :success
-    # 7 natures T2 état (DCB statut "three" → toutes les natures T2)
-    %w[Annexe\ financière Enveloppe\ limitative Fongibilité\ asymétrique ISP Marché Mesure\ transversale Référentiel].each do |nature|
-      assert_select "select#nature option[value='#{nature}']", text: nature,
-        message: "La nature '#{nature}' doit apparaître avec une valeur ET un texte identique (pas de tuple)"
+    # 7 natures T2 état (DCB statut "three" → toutes les natures T2).
+    # La value reste la nature brute (string), le texte affiché est le libellé enrichi.
+    expected_labels = {
+      'Annexe financière'       => 'Annexe financière (concours)',
+      'Enveloppe limitative'    => 'Enveloppe limitative (revalorisation…)',
+      'Fongibilité asymétrique' => 'Fongibilité asymétrique',
+      'ISP'                     => 'ISP (cabinet ministériel)',
+      'Marché'                  => 'Marché (PSC)',
+      'Mesure transversale'     => 'Mesure transversale (autres actes)',
+      'Référentiel'             => 'Référentiel (cadre de gestion)'
+    }
+    expected_labels.each do |nature, label|
+      assert_select "select#nature option[value='#{nature}']", text: label,
+        message: "La nature '#{nature}' doit avoir une value string (pas de tuple) et son libellé enrichi"
     end
   end
 

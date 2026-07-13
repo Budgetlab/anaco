@@ -154,8 +154,9 @@ class AvisControllerTest < ActionDispatch::IntegrationTest
     # Un bouton d'export et une zone content par avis affiché (3 avis 2026 sur bop_1)
     assert_select "button[data-action='pdf-export#export']", count: 3
     assert_select "[data-pdf-export-target='content']", count: 3
-    # La zone content commence bien au bloc "Informations"
-    assert_select "[data-pdf-export-target='content'] h4", text: /Informations/
+    # La zone content (scopée pour l'export PDF) démarre au titre de l'avis (h4)
+    # et contient le bloc "Informations générales" (h5).
+    assert_select "[data-pdf-export-target='content'] h5", text: /Informations générales/
   end
 
   test "bop_avis : bouton Modifier visible pour le propriétaire" do
