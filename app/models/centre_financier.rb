@@ -1,10 +1,10 @@
 class CentreFinancier < ApplicationRecord
-  has_and_belongs_to_many :ht2_actes
+  has_and_belongs_to_many :actes
   belongs_to :programme, optional: true
   belongs_to :bop, optional: true
   # Via le champ direct
-  has_many :ht2_actes_principaux,
-           class_name: 'Ht2Acte',
+  has_many :actes_principaux,
+           class_name: 'Acte',
            foreign_key: :centre_financier_code,
            primary_key: :code
 
@@ -12,7 +12,7 @@ class CentreFinancier < ApplicationRecord
   scope :actif, -> { where(statut: 'Actif') }
 
   def self.ransackable_associations(auth_object = nil)
-    ["bop", "ht2_actes", "ht2_actes_principaux", "programme"]
+    ["bop", "actes", "actes_principaux", "programme"]
   end
   def self.ransackable_attributes(auth_object = nil)
     ["bop_id", "code", "created_at", "deconcentre", "id", "id_value", "programme_id", "statut", "updated_at"]

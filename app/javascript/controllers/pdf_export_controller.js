@@ -4,7 +4,7 @@ import html2canvas from 'html2canvas';
 import { Canvg } from 'canvg';
 
 export default class extends Controller {
-    static targets = ["button"]
+    static targets = ["button", "content"]
     connect() {
 
     }
@@ -21,7 +21,10 @@ export default class extends Controller {
         this._toggleVisibility(printElements, false);
         this._toggleVisibility(noprintElements, true);
 
-        const element = document.getElementById('containPDF');
+        // Cible scopée (data-pdf-export-target="content") si présente — permet
+        // plusieurs zones exportables sur une même page (ex: un onglet par avis).
+        // Sinon, fallback sur l'id global #containPDF (usage historique avis/show).
+        const element = this.hasContentTarget ? this.contentTarget : document.getElementById('containPDF');
         element.classList.add('fr-container');
         this._hideIconsOnLinks()
         this._captureAndExport(element, printElements, noprintElements);
@@ -29,9 +32,29 @@ export default class extends Controller {
     }
 
     _captureAndExport(element, printElements, noprintElements) {
-        html2canvas(element, { useCORS: true, scale: 2 }).then((canvas) => {
+        html2canvas(element, {
+            useCORS: true,
+            scale: 2,
+            // Prépare le clone utilisé pour le rendu :
+            //  1. on retire les onglets inactifs et les éléments no-print (masqués → taille 0) ;
+            //  2. on neutralise les background-image restants dans la zone capturée : les
+            //     dégradés/masques DSFR appliqués sur un nœud 0×0 font planter html2canvas
+            //     (createPattern sur un canvas 0×0). Le texte, les bordures et les couleurs
+            //     de fond unies restent intacts.
+            onclone: (clonedDoc, clonedElement) => {
+                clonedDoc
+                    .querySelectorAll('.fr-tabs__panel:not(.fr-tabs__panel--selected), .no-print')
+                    .forEach((el) => el.remove());
+                clonedElement
+                    .querySelectorAll('*')
+                    .forEach((el) => { el.style.backgroundImage = 'none'; });
+            }
+        }).then((canvas) => {
             this.generatePDF(canvas);
-            this._resetExportState(printElements,noprintElements, element);
+            this._resetExportState(printElements, noprintElements, element);
+        }).catch((error) => {
+            console.error('Export PDF échoué :', error);
+            this._resetExportState(printElements, noprintElements, element);
         });
     }
 

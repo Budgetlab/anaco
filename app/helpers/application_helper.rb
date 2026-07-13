@@ -88,6 +88,32 @@ module ApplicationHelper
     value.presence || default
   end
 
+  # Calcule l'effet de l'enveloppe (%) : ratio montant_ae / impact_maximal_sans_enveloppe.
+  # Retourne un entier arrondi (Integer) ou nil si le calcul n'est pas possible.
+  # Réutilisé dans la vue _show_enveloppe_limitative et dans export.xlsx.axlsx.
+  def effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe)
+    impact = impact_maximal_sans_enveloppe.to_f
+    return nil if impact <= 0
+    ((montant_ae.to_f / impact) * 100).round
+  end
+
+  # Variante formatée pour affichage : "12 %" ou "—" si non calculable.
+  def format_effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe, placeholder: "—")
+    pct = effet_enveloppe_pct(montant_ae, impact_maximal_sans_enveloppe)
+    pct.nil? ? placeholder : "#{pct} %"
+  end
+
+  # Pour afficher les effectifs (float) au format français : 11.0 → "11", 26363.3 → "26 363,3"
+  def format_effectif(value, default = "Non renseigné")
+    return default if value.nil?
+    f = value.to_f
+    if f % 1 == 0
+      number_with_delimiter(f.to_i, delimiter: " ")
+    else
+      number_with_precision(f, precision: 10, strip_insignificant_zeros: true, delimiter: " ", separator: ',')
+    end
+  end
+
   # Pour assurer que les images et pièces jointes sont correctement affichées dans les PDFs
   def format_for_pdf(content)
     return content unless content.present?
@@ -201,7 +227,7 @@ module ApplicationHelper
   def sum_chiffres_avis(avis, phase)
     avis_phase = case phase
                  when 'CRG1'
-                   avis.select { |avi| avi.phase == phase || (avi.phase == 'début de gestion' && !avi.is_crg1) }
+                   avis.select { |avi| avi.phase == phase || (avi.phase == 'programmation initiale' && !avi.is_crg1) }
                  else
                    avis.select { |avi| avi.phase == phase }
                  end
@@ -215,20 +241,37 @@ module ApplicationHelper
     # avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
   end
 
-  def display_phases(annee_a_afficher, annee, date_crg1, date_crg2, date_debut)
-    if annee_a_afficher < annee || Date.today >= date_crg2
-      ['CRG2', 'CRG1', 'début de gestion']
-    elsif Date.today >= date_crg1
-      ['CRG1', 'début de gestion']
-    elsif Date.today >= date_debut
-      ['début de gestion', 'services votés']
-    else
-      ['services votés']
-    end
+  # Liste des noms de phases à afficher en onglets de suivi_remplissage / show_avis,
+  # ordonnés du plus récent au plus ancien (le 1er sert d'onglet sélectionné par défaut).
+  #
+  # - Année passée → toutes les phases connues pour cette année (saisie clôturée,
+  #   on présente l'historique complet).
+  # - Année courante → seulement les phases dont date_debut est passée (les autres
+  #   ne sont pas encore ouvertes à la saisie, rien à montrer).
+  #
+  # Source de vérité : la table Phase (les arguments supplémentaires sont conservés
+  # pour rétro-compat des callsites — ils ne sont plus utilisés).
+  def display_phases(annee_a_afficher, *_legacy_args)
+    phases_annee = Phase.pour_annee(annee_a_afficher).to_a
+    visibles = annee_a_afficher < Date.today.year ? phases_annee
+                                                  : phases_annee.select { |p| p.date_debut <= Date.today }
+    noms_existants = visibles.map(&:nom).uniq
+    Phase::NOMS_CONNUS.reverse.select { |nom| noms_existants.include?(nom) }
+  end
+
+  # Instances de phase à afficher en onglets (une par phase existante), même règle
+  # de visibilité que display_phases mais sans regroupement par nom : plusieurs
+  # "services votés" dans l'année donnent plusieurs onglets (services votés 1, 2, …).
+  # Ordonnées phase la plus récente d'abord (cohérent avec display_phases).
+  def display_phase_instances(annee_a_afficher)
+    phases_annee = Phase.pour_annee(annee_a_afficher).to_a
+    visibles = annee_a_afficher < Date.today.year ? phases_annee
+                                                  : phases_annee.select { |p| p.date_debut <= Date.today }
+    visibles.sort_by(&:date_debut).reverse
   end
 
   def bops_actifs(bops, annee)
-    bops.where('created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
+    bops.actifs_en(annee)
   end
 
   def colorful_card_css_class(amount)

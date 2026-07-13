@@ -2,17 +2,21 @@ ActiveAdmin.register Avi do
 
   permit_params :phase, :date_reception, :date_envoi, :is_delai, :is_crg1,
                 :ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f,
-                :statut, :etat, :commentaire, :bop_id, :user_id, :annee, :duree_prevision
+                :statut, :etat, :commentaire, :bop_id, :user_id, :annee, :duree_prevision,
+                :avis_recu, :motif_absence
 
   index do
     selectable_column
     id_column
-    column(:bop) { |a| a.bop_id }
-    column(:user) { |a| a.user_id }
+    column(:bop) { |a| a.bop&.code }
+    column(:user) { |a| a.user&.nom }
     column :phase
+    column("Phase liée") { |a| link_to(a.phase_periode.libelle_avec_numero, admin_phase_path(a.phase_periode)) if a.phase_periode }
     column :annee
     column :statut
     column :etat
+    column :avis_recu
+    column :motif_absence
     column :date_reception
     column :date_envoi
     column :created_at
@@ -22,12 +26,15 @@ ActiveAdmin.register Avi do
   show do
     attributes_table do
       row :id
-      row(:bop) { |a| a.bop_id }
-      row(:user) { |a| a.user_id }
+      row(:bop) { |a| a.bop&.code }
+      row(:user) { |a| a.user&.nom }
       row :phase
+      row("Phase liée") { |a| link_to(a.phase_periode.libelle_avec_numero, admin_phase_path(a.phase_periode)) if a.phase_periode }
       row :annee
       row :statut
       row :etat
+      row :avis_recu
+      row :motif_absence
       row :is_delai
       row :is_crg1
       row :duree_prevision
@@ -51,10 +58,17 @@ ActiveAdmin.register Avi do
     f.inputs do
       f.input :bop, as: :select, collection: Bop.order(:code).map { |b| [b.code, b.id] }
       f.input :user, as: :select, collection: User.order(:nom).map { |u| [u.nom, u.id] }
-      f.input :phase, as: :select, collection: ["début de gestion", "services votés", "fin de gestion"]
+      f.input :phase, as: :select,
+              collection: ['programmation initiale', 'services votés', 'CRG1', 'CRG2']
       f.input :annee, as: :number
-      f.input :statut
-      f.input :etat
+      f.input :statut, as: :select, collection: Avi::TOUS_LES_STATUTS, include_blank: true
+      f.input :etat, as: :select,
+              collection: ['Brouillon', 'En attente de lecture', 'Lu'],
+              include_blank: true
+      f.input :avis_recu, as: :boolean
+      f.input :motif_absence, as: :select, collection: Avi::MOTIFS_ABSENCE,
+              include_blank: true,
+              hint: "Renseigner uniquement si avis_recu = false."
       f.input :is_delai, as: :boolean
       f.input :is_crg1, as: :boolean
       f.input :duree_prevision, as: :number

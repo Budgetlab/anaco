@@ -1,0 +1,183 @@
+<% content_for :title do %>Consultation de l'acte
+  <% @acte.titre %> | ANACO
+<% end %>
+<main role="main" class="containtAll">
+  <div class="fr-container">
+    <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+      <button class="fr-breadcrumb__button " aria-expanded="false" aria-controls="breadcrumb-1" title="voir le fil d'ariane">
+        Voir le fil d’Ariane
+      </button>
+      <div class="fr-collapse" id="breadcrumb-1">
+        <ol class="fr-breadcrumb__list">
+          <li>
+            <%= link_to root_path, class: "fr-breadcrumb__link" do %> Accueil
+            <% end %>
+          </li>
+          <li>
+            <% if current_user.statut == "admin" %>
+              <%= link_to actes_historique_path, class: "fr-breadcrumb__link" do %> Historique des actes
+              <% end %>
+            <% else %>
+              <%= link_to actes_path, class: "fr-breadcrumb__link" do %> Liste de travail
+              <% end %>
+            <% end %>
+          </li>
+          <li>
+            <a class="fr-breadcrumb__link" aria-current="page">Consultation <%= @acte.type_acte %> <%= @acte.titre %></a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <%= render 'actes/flash_message' %>
+    <dialog id="modal-acte" class="fr-modal" aria-labelledby="modal-acte-title" data-fr-concealing-backdrop="true">
+      <%= turbo_frame_tag :modal %>
+    </dialog>
+    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+      <div class="fr-col-12 fr-col-lg-12">
+        <h1 class="title-btn">
+          <span class="fr-capitalize">Acte
+            <% if @acte.titre == "T2" %>
+              de personnel n°<%= @acte.numero_formate %>
+            <% else %>
+              <%= @acte.titre %>
+              <% if @acte.perimetre == 'organisme' %>
+                <% if @acte.numero_chorus.present? %>n°<%= @acte.numero_chorus %> - <%= @acte.nom_organisme %>
+                <% else %>n°<%= @acte.numero_formate %> - <%= @acte.nom_organisme %>
+                <% end %>
+              <% else %>
+
+                <% if @acte.numero_chorus.present? %>CHORUS n°<%= @acte.numero_chorus %>
+                <% else %>n°<%= @acte.numero_formate %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </span>
+        </h1>
+        <% if current_user.statut == "admin" %>
+          <h2><%= @acte.user&.nom %></h2>
+        <% end %>
+
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist" aria-label="Actes associés">
+            <% @actes_groupe.each_with_index do |acte, index| %>
+              <li role="presentation">
+                <button type="button" id="tabpanel-<%= acte.id %>" class="fr-tabs__tab" tabindex="<%= acte == @acte_courant ? 0 : -1 %>" role="tab" aria-selected="<%= acte == @acte_courant ? 'true' : 'false' %>" aria-controls="tabpanel-<%= acte.id %>-panel">
+                  Saisine <%= index +1 %>
+                </button>
+              </li>
+            <% end %>
+          </ul>
+          <% @actes_groupe.each do |acte| %>
+            <div id="tabpanel-<%= acte.id %>-panel" class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if acte == @acte_courant %>" role="tabpanel" aria-labelledby="tabpanel-<%= acte.id %>" tabindex="0">
+              <div class="fr-mb-1w title-btn ">
+
+                <div class="fr-mb-1w">
+                  <p class="fr-badge <%= badge_class_for_type(acte.type_acte) %>"><%= acte.type_acte %>
+                    n°<%= acte.numero_formate %></p>
+                  <% if acte.perimetre == 'organisme' %><%= badge_categorie_organisme(acte) %>
+                  <% end %>
+                  <span class="fr-text--italic">créé le <%= l(acte.created_at, format: "%e/%m/%y") %>
+                    <% if acte.etat == "clôturé" || acte.etat == "clôturé en pré-instruction" %>
+                      , <%= acte.etat %><%= " le #{l(acte.date_cloture, format: '%e/%m/%y')}" if acte.date_cloture.present? %>
+                    <% end %>
+                  </span>
+
+                </div>
+                <div>
+                  <% if ['clôturé', 'clôturé en pré-instruction'].include?(acte.etat) && ['DCB', 'CBR'].include?(current_user.statut) && acte.titre == "HT2" %>
+                    <%= link_to new_acte_path(parent_id: acte.id), class: 'fr-btn fr-btn--icon-left fr-icon-file-add-line' do %>
+                      Nouvelle saisine
+                    <% end %>
+                  <% end %>
+                  <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left" aria-controls="modal-telecharger-acte-<%= acte.id %>" data-fr-opened="false" type="button">
+                    Télécharger
+                  </button>
+                </div>
+              </div>
+              <% if acte.titre == 'T2' %>
+                <%= render 'acte_details_t2', acte: acte %>
+              <% elsif acte.perimetre == 'organisme' %>
+                <%= render 'acte_details_organisme', acte: acte %>
+              <% else %>
+                <%= render 'acte_details', acte: acte %>
+              <% end %>
+
+              <% if acte.etat == 'clôturé' && current_user.statut == "admin" %>
+                <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left  fr-mt-2w">
+                  <li>
+                    <%= form_with(model: acte, method: :patch, data: { turbo_frame: "_top" }) do |f| %>
+                      <%= hidden_field_tag :etape, 8 %>
+                      <%= f.hidden_field :etat, value: "en cours d'instruction" %>
+                      <%= f.button "Renvoyer l'acte en instruction", class: 'fr-btn fr-btn--secondary fr-icon-arrow-go-back-line fr-btn--icon-left', data: { turbo_confirm: 'Confirmer?' } %>
+                    <% end %>
+                  </li>
+                </ul>
+              <% end %>
+
+              <!-- Modal de téléchargement pour cet acte -->
+              <dialog id="modal-telecharger-acte-<%= acte.id %>" class="fr-modal" aria-labelledby="modal-telecharger-acte-title-<%= acte.id %>">
+                <div class="fr-container fr-container--fluid fr-container-md">
+                  <div class="fr-grid-row fr-grid-row--center">
+                    <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+                      <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                          <button class="fr-btn--close fr-btn" title="Fermer" aria-controls="modal-telecharger-acte-<%= acte.id %>" type="button">
+                            Fermer
+                          </button>
+                        </div>
+                        <div class="fr-modal__content">
+                          <h1 id="modal-telecharger-acte-title-<%= acte.id %>" class="fr-modal__title">
+                            Télécharger
+                          </h1>
+                          <div class="fr-btns-group fr-btns-group--icon-left">
+                            <%= link_to export_acte_path(acte, format: :xlsx), class: 'fr-btn fr-btn--secondary fr-icon-download-line' do %>
+                              Télécharger la fiche (Excel)
+                            <% end %>
+
+                            <% if acte.pdf_attached? && acte.pdf_generation_status == 'completed' && acte.pdf_files.last.present? %>
+                              <%= link_to rails_storage_redirect_path(acte.pdf_files.last, disposition: "attachment"),
+                                          class: "fr-btn fr-btn--secondary fr-icon-download-line",
+                                          target: "_blank" do %>
+                                Télécharger le PDF
+                              <% end %>
+                            <% elsif acte.pdf_generation_status == 'generating' %>
+                              <div class="fr-alert fr-alert--success fr-mb-2w fr-mx-2v">
+                                <h3 class="fr-alert__title">Le PDF est en cours de création. </h3>
+                                <p>Veuillez recharger la page régulièrement en cliquant sur Actualiser jusqu'à ce
+                                  que le document soit accessible.</p>
+                                <div class="fr-mt-2v"><%= link_to acte_path(acte), class: "fr-m-0 fr-btn fr-icon-refresh-line" do %>
+                                    Actualiser
+                                  <% end %></div>
+                              </div>
+                            <% elsif ENV["SERVICE_NAME"] == "anaco" %>
+                              <%= link_to generate_pdf_acte_path(acte),
+                                          method: :post,
+                                          data: { turbo_method: :post },
+                                          class: "fr-btn fr-btn--secondary fr-icon-download-line" do %>
+                                Créer le PDF
+                              <% end %>
+                            <% end %>
+
+                            <% if rich_text_has_images?(acte.commentaire_disponibilite_credits) %>
+                              <%= link_to download_attachments_acte_path(acte),
+                                          class: 'fr-btn fr-btn--secondary fr-icon-download-line',
+                                          data: { turbo: false } do %>
+                                Télécharger les PJ
+                                (<%= count_images_in_rich_text(acte.commentaire_disponibilite_credits) %>)
+                              <% end %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </dialog>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

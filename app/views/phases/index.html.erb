@@ -1,0 +1,154 @@
+<% content_for :title do %>Calendrier des phases | ANACO<% end %>
+
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12">
+      <h1 class="fr-mt-6w fr-mb-2w">Calendrier des phases de saisie</h1>
+      <p class="fr-text--lg">
+        Définit pour chaque année les phases de saisie d'avis et leur date d'ouverture.
+        Plusieurs phases du même nom dans une année sont autorisées (ex : SV1, SV2) — elles
+        sont numérotées automatiquement par ordre chronologique.
+      </p>
+
+      <%= render 'avis/success' rescue nil %>
+      <% if flash[:notice] %>
+        <div class="fr-alert fr-alert--success fr-mb-2w">
+          <p><%= flash[:notice] %></p>
+        </div>
+      <% end %>
+      <% if flash[:alert] %>
+        <div class="fr-alert fr-alert--error fr-mb-2w">
+          <p><%= flash[:alert] %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="fr-tabs">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Calendrier par année">
+      <% @annees_dispos.each do |annee| %>
+        <li role="presentation">
+          <button id="tab-phase-<%= annee %>" class="fr-tabs__tab"
+                  tabindex="<%= annee == @annee_active ? '0' : '-1' %>"
+                  role="tab"
+                  aria-selected="<%= annee == @annee_active ? 'true' : 'false' %>"
+                  aria-controls="panel-phase-<%= annee %>">
+            <%= annee %>
+          </button>
+        </li>
+      <% end %>
+    </ul>
+
+    <% @annees_dispos.each do |annee| %>
+      <div id="panel-phase-<%= annee %>"
+           class="fr-tabs__panel <%= 'fr-tabs__panel--selected' if annee == @annee_active %>"
+           role="tabpanel" aria-labelledby="tab-phase-<%= annee %>" tabindex="0">
+
+        <% phases_annee = (@phases_par_annee[annee] || []).sort_by(&:date_debut) %>
+
+        <h2 class="fr-h4 fr-mb-2w">Phases définies pour <%= annee %></h2>
+
+        <% if phases_annee.empty? %>
+          <p class="fr-text--sm fr-mb-2w">Aucune phase définie pour cette année. Utilisez le formulaire ci-dessous pour en ajouter.</p>
+        <% else %>
+          <div class="fr-table fr-table--bordered fr-mb-3w">
+            <div class="fr-table__wrapper">
+              <div class="fr-table__container">
+                <div class="fr-table__content">
+                  <table>
+                    <caption class="fr-sr-only">Phases de l'année <%= annee %></caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Libellé affiché</th>
+                        <th scope="col">Date de début</th>
+                        <th scope="col">Nb avis liés</th>
+                        <th scope="col"><span class="fr-sr-only">Action</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% phases_annee.each do |phase| %>
+                        <% nb_avis = phase.avis.count %>
+                        <tr>
+                          <td><%= phase.nom %></td>
+                          <td><strong><%= phase.libelle_avec_numero %></strong></td>
+                          <td>
+                            <% if annee == Date.today.year %>
+                              <%= form_with model: phase, url: phase_path(phase), method: :patch, local: true,
+                                            class: "fr-grid-row fr-grid-row--gutters fr-grid-row--middle",
+                                            id: "form-edit-#{phase.id}" do |f| %>
+                                <div class="fr-col-auto">
+                                  <%= f.date_field :date_debut, value: phase.date_debut, required: true,
+                                                   class: "fr-input fr-input--sm",
+                                                   style: "min-width: 160px;" %>
+                                </div>
+                                <div class="fr-col-auto">
+                                  <button type="submit" class="fr-btn fr-btn--sm fr-btn--secondary">
+                                    Mettre à jour
+                                  </button>
+                                </div>
+                              <% end %>
+                            <% else %>
+                              <%= l(phase.date_debut, format: "%d/%m/%Y") %>
+                            <% end %>
+                          </td>
+                          <td><%= nb_avis %></td>
+                          <td>
+                            <% if annee != Date.today.year %>
+                              <span class="fr-hint-text" title="Année passée, suppression désactivée.">—</span>
+                            <% elsif nb_avis.zero? %>
+                              <%= button_to "Supprimer", phase_path(phase), method: :delete,
+                                            class: "fr-btn fr-btn--sm fr-btn--tertiary fr-icon-delete-line fr-btn--icon-left",
+                                            data: { turbo_confirm: "Supprimer définitivement la phase « #{phase.libelle_avec_numero} » ?" } %>
+                            <% else %>
+                              <span class="fr-hint-text" title="Cette phase est référencée par <%= nb_avis %> avis et ne peut pas être supprimée.">—</span>
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if annee == Date.today.year %>
+          <h3 class="fr-h5 fr-mb-2w fr-mt-4w">Ajouter une phase pour <%= annee %></h3>
+          <%= form_with model: Phase.new, url: phases_path, method: :post, local: true,
+                        class: "fr-grid-row fr-grid-row--gutters fr-mb-6w" do |f| %>
+            <%= f.hidden_field :annee, value: annee %>
+            <div class="fr-col-12 fr-col-md-4">
+              <div class="fr-select-group">
+                <label class="fr-label" for="phase_nom_<%= annee %>">Nom de la phase*</label>
+                <%= f.select :nom, Phase::NOMS_CONNUS, { include_blank: '- sélectionner -' },
+                             { id: "phase_nom_#{annee}", class: 'fr-select', required: true } %>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-md-4">
+              <div class="fr-input-group">
+                <label class="fr-label" for="phase_date_debut_<%= annee %>">
+                  Date de début*
+                </label>
+                <%= f.date_field :date_debut, id: "phase_date_debut_#{annee}",
+                                 class: "fr-input", required: true,
+                                 value: Date.new(annee, 1, 1),
+                                 min: Date.new(annee, 1, 1), max: Date.new(annee, 12, 31) %>
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-md-4" style="display: flex; align-items: flex-end;">
+              <%= f.submit "Ajouter la phase", class: "fr-btn fr-icon-add-line fr-btn--icon-left" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="fr-hint-text fr-mt-4w fr-mb-6w">
+            <span class="fr-icon-information-line fr-icon--sm" aria-hidden="true"></span>
+            Année passée en lecture seule. L'ajout, la modification et la suppression
+            de phases sont réservés à l'année en cours (<%= Date.today.year %>).
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -61,6 +61,23 @@ export default class extends Controller {
     this.formTarget.requestSubmit();
   }
 
+  // Avant soumission : si toutes les checkboxes d'un groupe (titre/perimetre)
+  // sont décochées, on les recoche toutes pour conserver l'état visuel "tout".
+  // Ainsi la logique d'auto-coche n'a plus besoin du re-rendu serveur du form.
+  ensureGroupChecked(event) {
+    const checkbox = event.currentTarget;
+    const group = checkbox.dataset.filterGroup;
+    if (group) {
+      const groupBoxes = this.element.querySelectorAll(`input[data-filter-group="${group}"]`);
+      const anyChecked = Array.from(groupBoxes).some(c => c.checked);
+      if (!anyChecked) {
+        groupBoxes.forEach(c => c.checked = true);
+      }
+    }
+    this.updateActiveTab();
+    this.element.requestSubmit();
+  }
+
   Dropdown(e){
     e.preventDefault();
   }

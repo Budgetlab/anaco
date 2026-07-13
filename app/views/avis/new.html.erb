@@ -13,7 +13,7 @@
               <% end %>
             </li>
             <li>
-              <%= link_to remplissage_avis_path, class: "fr-breadcrumb__link" do %> Remplissage des avis/notes
+              <%= link_to remplissage_avis_path, class: "fr-breadcrumb__link" do %> Liste de travail avis/notes
               <% end %>
             </li>
             <li>
@@ -25,12 +25,15 @@
       <div class="fr-grid-row fr-grid-row--gutters">
         <div class="fr-col-12 fr-col-lg-12">
           <h1>Formulaire <%= @phase_form %> <%= @annee_a_afficher %></h1>
-          <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code %></div>
+          <div class="title-btn">
+            <div class="fr-h3 fr-mb-0">BOP n°<%= @bop.code %></div>
+            <button aria-controls="modal-quitter" data-fr-opened="false" type="button" class="fr-link fr-icon-close-line fr-link--icon-right">Quitter le formulaire</button>
+          </div>
           <div>
             <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">
               BOP doté en <%= @bop.dotation %>
             </p>
-            <% if @phase_form == 'début de gestion' || @phase_form == 'services votés' %>
+            <% if @phase_form == 'programmation initiale' || @phase_form == 'services votés' %>
               <%= link_to edit_bop_path(@bop), class: "fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-edit-line" do %>
                 Modifier
               <% end %>
@@ -38,6 +41,41 @@
           </div>
         </div>
       </div>
+
+      <dialog id="modal-quitter" class="fr-modal" aria-labelledby="modal-quitter-title" data-fr-concealing-backdrop="true">
+        <div class="fr-container fr-container--fluid fr-container-md">
+          <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+              <div class="fr-modal__body">
+                <div class="fr-modal__header">
+                  <button aria-controls="modal-quitter" title="Fermer" type="button" class="fr-btn--close fr-btn">Fermer</button>
+                </div>
+                <div class="fr-modal__content">
+                  <h2 id="modal-quitter-title" class="fr-modal__title">
+                    Quitter le formulaire
+                  </h2>
+                  <div class="fr-alert fr-alert--warning fr-mb-4w">
+                    <h3 class="fr-alert__title">Vous êtes sur la point de quitter le formulaire.</h3>
+                    <p>Les données modifiées ne seront pas sauvegardées. Êtes-vous sûrs de vouloir continuer ?</p>
+                  </div>
+                  <ul class="fr-btns-group fr-btns-group--inline">
+                    <li>
+                      <%= link_to remplissage_avis_path, class: "fr-btn" do %>
+                        Quitter le formulaire
+                      <% end %>
+                    </li>
+                    <li>
+                      <button class="fr-btn fr-btn--secondary" aria-controls="modal-quitter">
+                        Annuler
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
 
       <% if @annee_a_afficher != @annee %>
         <div class="fr-alert fr-alert--warning fr-my-4w">
@@ -49,7 +87,7 @@
       <% if @phase_form == "CRG1" && !@avis_debut.is_crg1 %>
         <div class="fr-alert fr-alert--error">
           <h3 class="fr-alert__title">Pas de CRG1 programmé pour ce BOP</h3>
-          <p>L'avis de début de gestion indique que le CRG1 n'est pas programmé pour ce BOP.</p>
+          <p>L'avis de programmation initiale indique que le CRG1 n'est pas programmé pour ce BOP.</p>
         </div>
         <%= link_to bop_path(@bop), class: "fr-btn fr-btn--secondary fr-mb-6w" do %>
           Consulter ce BOP et les avis transmis
@@ -58,7 +96,7 @@
         <div class="cwarning">Tous les champs comportant un astérisque (*) sont à remplir obligatoirement.</div>
         <% if @phase_form == "services votés" %>
           <%= render 'form_services_votes' %>
-        <% elsif @phase_form == "début de gestion" %>
+        <% elsif @phase_form == "programmation initiale" %>
           <%= render 'form_debut' %>
         <% elsif @phase_form == "CRG1" %>
           <%= render 'form_crg1' %>

@@ -1,30 +1,77 @@
 wb = xlsx_package.workbook
-s = wb.styles
+
+# Styles alignés sur l'export actes (actes/index.xlsx.axlsx) :
+# en-tête bleu clair, bordure fine, wrap_text ; cellules bordure fine sans fond ;
+# montants en euros ; format texte pour préserver les chaînes.
 header_style = wb.styles.add_style(
-  bg_color: 'dae1f2', fg_color: '161616',font_name: 'Calibri', sz: 13, b: true, alignment: { horizontal: :center, vertical: :center }, border: { style: :thick, color: "00" }
+  bg_color: 'dae1f2', fg_color: '161616', b: true,
+  alignment: { horizontal: :center, wrap_text: true },
+  border: { style: :thin, color: '000000' },
+  font_name: 'Calibri'
 )
 cell_style = wb.styles.add_style(
-                  bg_color: 'fff', fg_color: '161616',font_name: 'Calibri', sz: 13, alignment: {vertical: :center }, border: { style: :thin, color: '161616' }
-                )
+  border: { style: :thin, color: '000000' },
+  fg_color: '161616',
+  font_name: 'Calibri'
+)
+number_style = wb.styles.add_style(
+  format_code: '#,##0.00 €',
+  border: { style: :thin, color: '000000' },
+  fg_color: '161616',
+  font_name: 'Calibri'
+)
 sheet_col = Array.new(30, 14)
  wb.add_worksheet(name: "Historique") do |sheet|
-    sheet.add_row %W{ Phase Annee Controleur Programme BOP Date\ de\ création Statut/Risque Date\ reception\ BOP Date\ avis/note Delai CRG1\ programmé Temporalité AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev commentaire}, style: header_style, height: 50
-    sheet.auto_filter = "A1:T1"
-    @avis_all&.where.not(etat: "Brouillon")&.each do |avis|
-        is_delai = ""
-        is_crg1 = ""
-        if avis.phase == "début de gestion"
-         is_delai = avis.is_delai == true ? "oui" : "non"
-         is_crg1 = avis.is_crg1 == true ? "oui" : "non"
-        end
-        if avis.phase == "services votés"
-            is_delai = avis.is_delai == true ? "oui" : "non"
+    sheet.add_row %W{ Phase Annee Controleur Programme BOP Date\ de\ création Statut/Risque Date\ reception\ BOP Date\ avis/note Delai CRG1\ programmé Temporalité AE\ HT2\ alloué CP\ HT2\ alloué AE/CP\ T2\ alloué ETPT\ alloué AE\ HT2\ prev CP\ HT2\ prev AE/CP\ T2\ prev ETPT\ prev Motif\ d'absence commentaire}, style: header_style
+    sheet.auto_filter = "A1:V1"
+    na = "N/A"
+    @avis_all&.each do |avis|
+        phase_sv = avis.phase == "services votés"
+        phase_pi = avis.phase == "programmation initiale"
+        non_recu = avis.avis_recu == false
+
+        if non_recu
+            # Avis non reçu : toutes les colonnes de "Date reception" à "commentaire"
+            # sont sans objet (N/A), sauf le motif d'absence.
+            date_reception = na
+            date_envoi     = na
+            is_delai       = na
+            is_crg1        = na
+            temporalite    = na
+            ae_i = cp_i = t2_i = etpt_i = na
+            ae_f = cp_f = t2_f = etpt_f = na
+            motif       = avis.motif_absence
+            commentaire = na
+        else
+            # Date de réception : PI (réception du BOP) et SV (prévision des dépenses) ; N/A ailleurs.
+            date_reception = (phase_pi || phase_sv) ? format_date(avis.date_reception) : na
+            date_envoi     = format_date(avis.date_envoi)
+            # Suspension du délai : uniquement PI et SV ; N/A en CRG1/CRG2.
+            is_delai       = (phase_pi || phase_sv) ? (avis.is_delai == true ? "oui" : "non") : na
+            # CRG1 programmé : uniquement en programmation initiale.
+            is_crg1        = phase_pi ? (avis.is_crg1 == true ? "oui" : "non") : na
+            # Temporalité de la prévision : propre aux services votés.
+            temporalite    = phase_sv ? (avis.duree_prevision ? "#{avis.duree_prevision} mois" : "") : na
+            ae_i, cp_i, t2_i, etpt_i = avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i
+            ae_f, cp_f, t2_f, etpt_f = avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f
+            # Motif d'absence : sans objet quand l'avis a été reçu.
+            motif       = na
+            commentaire = avis.commentaire
         end
 
-        sheet.add_row [avis.phase, avis.annee, avis.user.nom, avis.bop.programme.numero, avis.bop.code,
-        format_date(avis.created_at), avis.statut, avis.phase =='début de gestion' ? format_date(avis.date_reception) : "", format_date(avis.date_envoi), is_delai, is_crg1,
-        "#{avis.duree_prevision} mois",avis.ae_i, avis.cp_i, avis.t2_i, avis.etpt_i, avis.ae_f, avis.cp_f, avis.t2_f, avis.etpt_f, avis.commentaire
-        ], style: cell_style
+        row_data = [avis.phase_periode&.libelle_avec_numero || avis.phase, avis.annee, avis.user&.nom, avis.bop&.programme&.numero, avis.bop&.code,
+        format_date(avis.created_at), avis.statut, date_reception, date_envoi, is_delai, is_crg1,
+        temporalite, ae_i, cp_i, t2_i, etpt_i, ae_f, cp_f, t2_f, etpt_f, motif, commentaire]
+
+        # Montants en euros : AE/CP/T2 alloué (12,13,14) et prev (16,17,18).
+        # ETPT (15,19) reste au style standard (ce n'est pas un montant).
+        # Le format € ne s'applique qu'aux valeurs numériques (les "N/A" gardent le style texte).
+        styles = Array.new(row_data.length, cell_style)
+        [12, 13, 14, 16, 17, 18].each do |i|
+          styles[i] = number_style if row_data[i].is_a?(Numeric)
+        end
+
+        sheet.add_row row_data, style: styles
         sheet.column_widths(*sheet_col)
     end
 end

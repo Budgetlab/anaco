@@ -1,0 +1,47 @@
+<div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-select-group">
+        <label for="date_suspension" class="fr-label">Date début <%= type_suspension %>*</label>
+        <% min_date_suspension = @acte.last_suspension_date_reprise.presence || @acte.date_saisine %>
+        <%= f.text_field :date_suspension, class: "fr-select", data: {
+          controller: "flatpickr",
+          flatpickr_min_date: format_date(min_date_suspension),
+          action: "change->acte-form#checkDateSuspension change->acte-form#checkDateSuspensionFuture input->acte-form#checkDateSuspension input->acte-form#checkDateSuspensionFuture",
+          "acte-form-target": "dateSuspension",
+          "min-date-suspension": format_date(min_date_suspension)
+        }, value: format_date(f.object.date_suspension), id: "date_suspension", placeholder: "- sélectionner -", required: required %>
+        <p class="fr-error-text fr-hidden fr-mt-0" id="error-date-suspension">La date de <%= type_suspension %> ne peut pas être antérieure au <%= format_date(min_date_suspension) %>.</p>
+        <p class="fr-message cwarning fr-text--small fr-hidden" id="warning-date-suspension-future">La date de <%= type_suspension %> est postérieure à la date du jour.</p>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-6">
+      <div data-controller="multi-select">
+        <div class="fr-select-group">
+          <label for="motif_select" class="fr-label">Motif(s) <%= type_suspension %>*
+          </label>
+          <%= select_tag "motif_select", options_for_select([["- sélectionner -", ""]] + @liste_motifs_suspension.map { |m| [m, m] }),
+              id: "motif_select_#{f.object.object_id}", class: "fr-select",
+              data: { action: "change->multi-select#add", multi_select_target: "select" } %>
+        </div>
+        <ul class="fr-tags-group" data-multi-select-target="container">
+          <% Array(f.object.motif).each do |m| %>
+            <li data-action="click->multi-select#remove" data-value="<%= m %>">
+              <button class="fr-tag fr-tag--dismiss" type="button" aria-label="Retirer <%= m %>"><%= m %></button>
+            </li>
+          <% end %>
+        </ul>
+        <%= f.hidden_field :motif, value: Array(f.object.motif).join(","), id: "hidden_motif_#{f.object.object_id}", data: { multi_select_target: "hidden" } %>
+      </div>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div class="fr-input-group">
+        <label class="fr-label">Observations</label>
+        <%= f.text_area :observations, class: 'fr-input', rows: 3 %>
+      </div>
+    </div>
+  </div>
+  <hr class="fr-hr fr-my-2w">
+</div>

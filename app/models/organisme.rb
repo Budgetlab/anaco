@@ -1,6 +1,6 @@
 class Organisme < ApplicationRecord
   belongs_to :user
-  has_and_belongs_to_many :ht2_actes
+  has_and_belongs_to_many :actes
 
   validates :nom, presence: true
   validates :id_opera, uniqueness: true, allow_nil: true
@@ -9,7 +9,7 @@ class Organisme < ApplicationRecord
   scope :inactif, -> { where(statut: 'inactif') }
 
   def self.ransackable_associations(auth_object = nil)
-    ["ht2_actes", "user"]
+    ["actes", "user"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

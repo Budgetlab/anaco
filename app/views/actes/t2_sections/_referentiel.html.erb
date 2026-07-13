@@ -1,0 +1,250 @@
+<%# locals: (f:, td:, acte:) %>
+<% is_organisme = acte.perimetre == 'organisme' %>
+
+<%# Row 1: Date d'effet | Origine de financement (état only) %>
+<div class="fr-grid-row fr-grid-row--gutters">
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_date_effet_acte" class="fr-label">Date d'effet de l'acte</label>
+      <%= td.text_field :date_effet_acte, id: "ref_date_effet_acte", class: "fr-input", value: td.object.date_effet_acte %>
+    </div>
+  </div>
+
+  <% unless is_organisme %>
+    <%# Origine de financement — État seulement %>
+    <% of_values = td.object.origine_financement || [] %>
+    <div class="fr-col-12 fr-col-lg-4" style="position: relative;"
+         data-controller="checkbox-dropdown">
+      <label class="fr-label">Origine de financement</label>
+      <%= td.hidden_field :origine_financement, id: "ref_origine_financement_hidden",
+                          data: { checkbox_dropdown_target: "hidden" },
+                          value: of_values.join(",") %>
+      <button type="button" class="fr-select text-left w-100 fr-mt-1w"
+              style="text-align: left; cursor: pointer;"
+              data-action="click->checkbox-dropdown#toggle"
+              aria-haspopup="listbox" aria-expanded="false">
+        <span data-checkbox-dropdown-target="label"
+              data-placeholder="Sélectionner une option">
+          <%= of_values.any? ? of_values.join(", ") : "Sélectionner une option" %>
+        </span>
+      </button>
+      <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
+           data-checkbox-dropdown-target="menu">
+        <% ['Enveloppe catégorielle', 'Financement interministériel', 'Reventilation sous plafond'].each do |val| %>
+          <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
+            <input type="checkbox" id="ref_origine_financement_<%= val.parameterize %>"
+                   value="<%= val %>"
+                   data-checkbox-dropdown-target="checkbox"
+                   data-action="change->checkbox-dropdown#change"
+                   <%= "checked" if of_values.include?(val) %>>
+            <label class="fr-label" for="ref_origine_financement_<%= val.parameterize %>"><%= val %></label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% pm_values = td.object.perimetre_mesure || [] %>
+  <div class="fr-col-12 fr-col-lg-4" style="position: relative;"
+       data-controller="checkbox-dropdown">
+    <label class="fr-label">Périmètre de la mesure</label>
+    <%= td.hidden_field :perimetre_mesure, id: "ref_perimetre_mesure_hidden",
+                        data: { checkbox_dropdown_target: "hidden" },
+                        value: pm_values.join(",") %>
+    <button type="button" class="fr-select text-left w-100 fr-mt-1w"
+            style="text-align: left; cursor: pointer;"
+            data-action="click->checkbox-dropdown#toggle"
+            aria-haspopup="listbox" aria-expanded="false">
+      <span data-checkbox-dropdown-target="label"
+            data-placeholder="Sélectionner une option">
+        <%= pm_values.any? ? pm_values.join(", ") : "Sélectionner une option" %>
+      </span>
+    </button>
+    <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
+         data-checkbox-dropdown-target="menu">
+      <% ['Application au stock', 'Application au flux', 'Reclassement'].each do |val| %>
+        <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
+          <input type="checkbox" id="ref_perimetre_mesure_<%= val.parameterize %>"
+                 value="<%= val %>"
+                 data-checkbox-dropdown-target="checkbox"
+                 data-action="change->checkbox-dropdown#change"
+                 <%= "checked" if pm_values.include?(val) %>>
+          <label class="fr-label" for="ref_perimetre_mesure_<%= val.parameterize %>"><%= val %></label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Catégorie (grade) %>
+  <% grade_values = td.object.grade || [] %>
+  <div class="fr-col-12 fr-col-lg-4" style="position: relative;"
+       data-controller="checkbox-dropdown">
+    <label class="fr-label">Catégorie</label>
+    <%= td.hidden_field :grade, id: "ref_grade_hidden",
+                        data: { checkbox_dropdown_target: "hidden" },
+                        value: grade_values.join(",") %>
+    <button type="button" class="fr-select text-left w-100 fr-mt-1w"
+            style="text-align: left; cursor: pointer;"
+            data-action="click->checkbox-dropdown#toggle"
+            aria-haspopup="listbox" aria-expanded="false">
+      <span data-checkbox-dropdown-target="label"
+            data-placeholder="Sélectionner une option">
+        <%= grade_values.any? ? grade_values.join(", ") : "Sélectionner une option" %>
+      </span>
+    </button>
+    <div class="fr-hidden" style="border: 1px solid #ddd; border-top: none; background: white; padding: 0.5rem 0; position: absolute; z-index: 100; min-width: 100%;"
+         data-checkbox-dropdown-target="menu">
+      <% [['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C']].each do |label, value| %>
+        <div class="fr-checkbox-group" style="padding: 0.25rem 1rem;">
+          <input type="checkbox" id="ref_grade_<%= value.downcase.gsub('+', 'plus') %>"
+                 value="<%= value %>"
+                 data-checkbox-dropdown-target="checkbox"
+                 data-action="change->checkbox-dropdown#change"
+                 <%= "checked" if grade_values.include?(value) %>>
+          <label class="fr-label" for="ref_grade_<%= value.downcase.gsub('+', 'plus') %>"><%= label %></label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_corps" class="fr-label">Corps</label>
+      <%= td.text_field :corps, id: "ref_corps", class: "fr-input", value: td.object.corps %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_effectifs" class="fr-label">Effectifs (année N)</label>
+      <%= td.text_field :effectifs, id: "ref_effectifs", class: "fr-input", value: td.object.effectifs, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true }  %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_effectifs_complementaire" class="fr-label">Effectifs (année N+1)</label>
+      <%= td.text_field :effectifs_complementaire, id: "ref_effectifs_complementaire", class: "fr-input", value: td.object.effectifs_complementaire, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true }  %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_montant_ae" class="fr-label">Montant de la mesure</label>
+      <%= f.text_field :montant_ae, value: acte.montant_ae, id: "ref_montant_ae", class: "fr-input",
+                         data: { action: "input->acte-form#changeNumber", acte_form_number_field: true } %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <div class="fr-input-group">
+      <label for="ref_impact_financier_n1" class="fr-label">Impact financier N+1</label>
+      <%= td.text_field :impact_financier_n1, id: "ref_impact_financier_n1", class: "fr-input", value: td.object.impact_financier_n1, data: { action: "input->acte-form#changeNumber", acte_form_number_field: true }  %>
+    </div>
+  </div>
+
+  <div class="fr-col-12 fr-col-lg-4">
+    <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="referentiel-type-legend">
+      <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="referentiel-type-legend">
+        <%= is_organisme ? "Déclinaison autre référentiel" : "Déclinaison référentiel interministériel" %>
+      </legend>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :referentiel_type, true, id: "ref_referentiel_type_oui" %>
+          <label class="fr-label" for="ref_referentiel_type_oui">Oui</label>
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-fieldset__element--inline">
+        <div class="fr-radio-group">
+          <%= td.radio_button :referentiel_type, false, id: "ref_referentiel_type_non" %>
+          <label class="fr-label" for="ref_referentiel_type_non">Non</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <% if is_organisme %>
+    <div class="fr-col-12 fr-col-lg-4">
+      <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="budget-executoire-ref-legend">
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="budget-executoire-ref-legend">
+          Budget exécutoire*
+        </legend>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :budget_executoire, true, id: "budget_executoire_ref_oui",
+                               checked: acte.budget_executoire == true || acte.budget_executoire.nil? %>
+            <label class="fr-label" for="budget_executoire_ref_oui">Oui</label>
+          </div>
+        </div>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :budget_executoire, false, id: "budget_executoire_ref_non" %>
+            <label class="fr-label" for="budget_executoire_ref_non">Non</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fr-select-group">
+        <label for="ref_operation_budgetaire" class="fr-label">Opération budgétaire</label>
+        <%= f.select :operation_budgetaire,
+                     options_for_select(
+                       [['Globalisée', 'Globalisée'], ['Fléchée', 'Fléchée']],
+                       acte.operation_budgetaire
+                     ),
+                     { prompt: 'Sélectionner une option' },
+                     { id: "ref_operation_budgetaire", class: "fr-select" } %>
+      </div>
+    </div>
+  <% end %>
+</div>
+<% if is_organisme %>
+  <div class="fr-grid-row fr-grid-row--gutters" data-controller="conditional-field">
+    <div class="fr-col-12 fr-col-lg-4">
+      <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="deliberation-ca-ref-legend">
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="deliberation-ca-ref-legend">
+          Délibération en CA nécessaire
+        </legend>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :deliberation_ca, true, id: "deliberation_ca_ref_oui",
+                data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+            <label class="fr-label" for="deliberation_ca_ref_oui">Oui</label>
+          </div>
+        </div>
+        <div class="fr-fieldset__element fr-fieldset__element--inline">
+          <div class="fr-radio-group">
+            <%= f.radio_button :deliberation_ca, false, id: "deliberation_ca_ref_non",
+                               checked: acte.deliberation_ca == false || acte.deliberation_ca.nil?,
+                               data: { action: "change->conditional-field#toggle", conditional_field_target: "checkbox" } %>
+            <label class="fr-label" for="deliberation_ca_ref_non">Non</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-input-group">
+        <label for="numero_deliberation_ca_ref" class="fr-label">N° de délibération</label>
+        <%= f.text_field :numero_deliberation_ca, id: "numero_deliberation_ca_ref", class: "fr-input", value: acte.numero_deliberation_ca %>
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-select-group">
+        <label for="date_deliberation_ca_ref" class="fr-label">Date de délibération</label>
+        <%= f.text_field :date_deliberation_ca, class: "fr-select",
+            data: { controller: "flatpickr", flatpickr_default_date: format_date(acte.date_deliberation_ca) },
+            value: format_date(acte.date_deliberation_ca), id: "date_deliberation_ca_ref", placeholder: "Sélectionner une option" %>
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-12 <%= 'fr-hidden' unless acte.deliberation_ca %>" data-conditional-field-target="field">
+      <div class="fr-input-group">
+        <label for="observations_deliberation_ca_ref" class="fr-label">Observations sur la délibération</label>
+        <%= f.text_area :observations_deliberation_ca, id: "observations_deliberation_ca_ref", class: "fr-input" %>
+      </div>
+    </div>
+  </div>
+<% end %>

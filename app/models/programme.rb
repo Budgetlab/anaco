@@ -7,7 +7,7 @@ class Programme < ApplicationRecord
   has_many :gestion_schemas, dependent: :destroy
   has_many :schemas, dependent: :destroy
   has_many :centre_financiers
-  has_many :ht2_actes, through: :centre_financiers
+  has_many :actes, through: :centre_financiers
 
   scope :active, -> { where(statut: 'Actif') }
   scope :accessible, -> { where(statut: 'Actif').or(where(statut: 'Inactif')) }
@@ -64,11 +64,11 @@ class Programme < ApplicationRecord
   end
 
   def avis_remplis_annee(annee)
-    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon')
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
+    self.bops.actifs_en(annee)
   end
 
   def self.ransackable_associations(auth_object = nil)

@@ -23,11 +23,11 @@ class OrganismesController < ApplicationController
   end
 
   def new
-    @organismes = Organisme.includes(:ht2_actes).order(nom: :asc)
+    @organismes = Organisme.includes(:actes).order(nom: :asc)
   end
 
   def export
-    @organismes = Organisme.includes(:ht2_actes, :user).order(nom: :asc)
+    @organismes = Organisme.includes(:actes, :user).order(nom: :asc)
     respond_to do |format|
       format.xlsx do
         response.headers['Content-Disposition'] = "attachment; filename=\"organismes_#{Date.today}.xlsx\""

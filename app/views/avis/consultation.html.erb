@@ -122,20 +122,21 @@
                       <tbody>
                       <% @avis_en_attente_page&.each do |avis| %>
                         <tr>
-                          <td><%= avis.user.nom %></td>
+                          <td><%= avis.user&.nom %></td>
                           <td>
-                            <div class="fr-capitalize"><%= avis.phase %></div>
-                            <% if avis.phase == 'services votés' %>
-                              n°<%= numero_avis_services_votes(avis, @avis_en_attente_page) %>
-                            <% end %></td>
+                            <div class="fr-capitalize"><%= avis.phase_periode&.libelle_avec_numero || avis.phase %></div></td>
                           <td><%= avis.annee %></td>
-                          <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
+                          <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop&.code %>
                             <% end %></td>
-                          <td><%= avis.bop.programme.numero %> - <%= avis.bop.programme.nom %> </td>
-                          <td><%= avis.statut %></td>
+                          <td>
+                            <% if avis.bop&.programme %>
+                              <%= link_to "#{avis.bop.programme.numero} - #{avis.bop.programme.nom}", programme_path(avis.bop.programme), data: { turbo_frame: "_top" } %>
+                            <% end %>
+                          </td>
+                          <td><%= avis.statut.presence || 'Non renseigné' %></td>
                           <td><p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p></td>
                           <td>
-                            <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm" data-fr-opened="false" aria-controls="modal-1">
+                            <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm fr-btn--secondary" data-fr-opened="false" aria-controls="modal-1">
                               Consulter
                             </a>
                           </td>
@@ -203,17 +204,18 @@
                       <tbody>
                       <% @avis_lus_page&.each do |avis| %>
                         <tr>
-                          <td><%= avis.user.nom %></td>
+                          <td><%= avis.user&.nom %></td>
                           <td>
-                            <div class="fr-capitalize"><%= avis.phase %></div>
-                            <% if avis.phase == 'services votés' %>
-                              n°<%= numero_avis_services_votes(avis, @avis_lus_page) %>
-                            <% end %></td>
+                            <div class="fr-capitalize"><%= avis.phase_periode&.libelle_avec_numero || avis.phase %></div></td>
                           <td><%= avis.annee %></td>
-                          <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop.code %>
+                          <td><%= link_to bop_path(avis.bop_id), data: { turbo_frame: "_top" } do %><%= avis.bop&.code %>
                             <% end %></td>
-                          <td><%= avis.bop.programme.numero %> - <%= avis.bop.programme.nom %> </td>
-                          <td><%= avis.statut %></td>
+                          <td>
+                            <% if avis.bop&.programme %>
+                              <%= link_to "#{avis.bop.programme.numero} - #{avis.bop.programme.nom}", programme_path(avis.bop.programme), data: { turbo_frame: "_top" } %>
+                            <% end %>
+                          </td>
+                          <td><%= avis.statut.presence || 'Non renseigné' %></td>
                           <td><p class="<%= badge_class_for_etat(avis.etat) %>"><%= avis.etat %></p></td>
                           <td>
                             <a href="<%= avi_path(avis) %>" data-turbo-frame="modal" class="fr-btn fr-btn--sm" data-fr-opened="false" aria-controls="modal-1">
@@ -280,7 +282,7 @@
                     <span class="fr-label fr-text--bold">Phase</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array((@q_params || {})[:phase_in]) %>
-                      <% ["services votés", "début de gestion", "CRG1", "CRG2"].each do |t| %>
+                      <% ["services votés", "programmation initiale", "CRG1", "CRG2"].each do |t| %>
                         <li>
                           <label class="fr-tag tag-selectable"
                                  data-controller="tag-select"
@@ -345,7 +347,7 @@
                     <span class="fr-label fr-text--bold">Statut/Risque</span>
                     <ul class="fr-tags-group fr-mt-1w">
                       <% selected_types = Array((@q_params || {})[:statut_in]) %>
-                      <% ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs"].each do |t| %>
+                      <% ["Favorable", "Favorable avec réserve", "Défavorable", "Aucun risque", "Risques éventuels ou modérés", "Risques certains ou significatifs", "Non reçu"].each do |t| %>
                         <li>
                           <label class="fr-tag tag-selectable"
                                  data-controller="tag-select"

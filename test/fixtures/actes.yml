@@ -1,0 +1,8 @@
+one:
+  user: one
+  annee: 2026
+  type_acte: avis
+  etat: "en cours d'instruction"
+  perimetre: etat
+  titre: HT2
+  pdf_generation_status: none

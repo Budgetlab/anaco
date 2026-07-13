@@ -1,123 +1,390 @@
-<% content_for :title do %>Restitutions | ANACO
+<% content_for :title do %>Tableau de bors avis/notes | ANACO
 <% end %>
-<main>
+<% titre_programmes = @perimetre == 'perimetre' ? "Liste des programmes associés à mes BOP [#{@programmes.length}]" : "Les programmes [#{@programmes.length}]" %>
+<div class="fr-container-blue">
   <div class="fr-container">
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-12">
-        <h1 class="fr-my-6w">
-          Restitutions nationales
-        </h1>
+        <h1 class="fr-my-6w">Tableau de bord avis/notes</h1>
 
-        <div class="fr-mb-2w title-btn">
-          <ul class="fr-tags-group">
-            <% (2023..Date.today.year).to_a.each do |annee| %>
-              <li>
-                <%= link_to restitutions_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
-                  <%= annee %>
-                <% end %>
-              </li>
-            <% end %>
-          </ul>
-          <div data-controller="pdf-export">
-            <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-download-line"
-                    data-action="pdf-export#export" data-pdf-export-target="button"
-                    data-pdf-export-title="Restitutions_<%= @annee_a_afficher %>.pdf">
-              Exporter au format PDF
+        <div class="fr-container--grey fr-p-2w fr-mb-2w">
+          <% if ['CBR', 'DCB'].include?(@statut_user) %>
+            <fieldset class="fr-fieldset" id="perimetre-radios">
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag :perimetre, 'perimetre', @perimetre == 'perimetre',
+                                       id: 'perimetre-perimetre',
+                                       onchange: "window.location.href='#{restitutions_path(perimetre: 'perimetre', q: @q_params)}'" %>
+                  <label class="fr-label" for="perimetre-perimetre">Mon périmètre</label>
+                </div>
+              </div>
+              <div class="fr-fieldset__element fr-fieldset__element--inline">
+                <div class="fr-radio-group fr-radio-rich">
+                  <%= radio_button_tag :perimetre, 'national', @perimetre == 'national',
+                                       id: 'perimetre-national',
+                                       onchange: "window.location.href='#{restitutions_path(perimetre: 'national', q: @q_params)}'" %>
+                  <label class="fr-label" for="perimetre-national">Périmètre national</label>
+                </div>
+              </div>
+            </fieldset>
+          <% end %>
+
+          <div class="fr-mb-2w">
+            <button class="fr-btn fr-icon-filter-line fr-btn--icon-left" aria-controls="modal-btn-filtrer" data-fr-opened="false" type="button">
+              Filtrer les résultats
             </button>
           </div>
+
+          <% has_filters = @q_params[:user_statut_eq].present? || @q_params[:user_nom_in].present? || @q_params[:bop_code_cont].present? || @q_params[:annee_eq].to_i != Date.today.year %>
+          <% controleurs_count = Array(@q_params[:user_nom_in]).reject(&:blank?).count %>
+          <% filter_count = 1 + [@q_params[:user_statut_eq], @q_params[:bop_code_cont]].compact.reject(&:blank?).count + controleurs_count %>
+          <div>
+            <h6 class="fr-mb-1w">Filtres appliqués (<%= filter_count %>)</h6>
+            <ul class="fr-tags-group">
+              <li>
+                <p class="fr-tag fr-tag--filtres"><%= @q_params[:annee_eq] %></p>
+              </li>
+              <% if @q_params[:user_statut_eq].present? %>
+                <li>
+                  <p class="fr-tag fr-tag--filtres"><%= @q_params[:user_statut_eq] %></p>
+                </li>
+              <% end %>
+              <% Array(@q_params[:user_nom_in]).reject(&:blank?).each do |nom| %>
+                <li>
+                  <p class="fr-tag fr-tag--filtres"><%= nom %></p>
+                </li>
+              <% end %>
+              <% if @q_params[:bop_code_cont].present? %>
+                <li>
+                  <p class="fr-tag fr-tag--filtres">BOP : <%= @q_params[:bop_code_cont] %></p>
+                </li>
+              <% end %>
+              <% if has_filters %>
+                <li>
+                  <%= link_to restitutions_path(perimetre: @perimetre), class: "fr-tag fr-tag--dismiss" do %>
+                    Réinitialiser les filtres
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
         </div>
+
       </div>
     </div>
-    <% phase_avis = @phase == 'services votés' ? 'services votés' : 'début de gestion' %>
-    <div id="containPDF">
-      <h1 class="fr-my-6w fr-hidden print">Restitutions <%= @annee_a_afficher %> [<%= @avis_total %> BOP]</h1>
-      <div class="fr-mb-4w" data-controller="highcharts" data-highcharts-avis="<%= avis_repartition(@avis_remplis, @avis_total, 'début de gestion') %>"
-           data-highcharts-avisdate="<%= avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'début de gestion') %>"
-           data-highcharts-notesbar="<%= statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>"
-           data-highcharts-notes1="<%= notes_repartition(@avis_remplis, avis_crg1(@avis_remplis), 'CRG1') %>"
-           data-highcharts-notes2="<%= notes_repartition(@avis_remplis, @avis_total, 'CRG2') %>">
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-12 fr-col-lg-4">
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12 fr-col-lg-6">
-                <div class="fr-text--center">
-                  <%= image_tag "artwork/pictograms/document/contract.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+
+    <% repartitions = statuts_repartition_par_phase(@avis_remplis, @avis_total, @annee_a_afficher) %>
+
+    <div class="fr-grid-row" data-controller="tab-nav">
+      <div class="fr-col-12 fr-col-lg-3">
+        <nav class="fr-sidemenu fr-sidemenu--sticky-full-height" aria-labelledby="fr-sidemenu-title">
+          <div class="fr-sidemenu__inner fr-backgroud--grey">
+            <button class="fr-sidemenu__btn" hidden aria-controls="fr-sidemenu-wrapper" aria-expanded="false">
+              Dans cette rubrique
+            </button>
+            <div class="fr-collapse" id="fr-sidemenu-wrapper">
+              <ul class="fr-sidemenu__list">
+                <li class="fr-sidemenu__item">
+                  <a href="#activite" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="activite" data-action="tab-nav#select">
+                    Activité globale
+                  </a>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <a href="#statut" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="statut" data-action="tab-nav#select">
+                    Statut des avis/notes
+                  </a>
+                </li>
+                <li class="fr-sidemenu__item">
+                  <a href="#programmes" class="fr-sidemenu__link" data-tab-nav-target="link" data-tab="programmes" data-action="tab-nav#select">
+                    Programmes
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="fr-col-12 fr-col-lg-9">
+
+        <%# --- Activité globale --- %>
+        <section data-tab-nav-target="panel" data-tab="activite">
+          <h2 class="fr-my-3w">Activité globale</h2>
+          <% non_recus_par_programme = @perimetre == 'national' ? avis_non_recus_par_programme(@avis_remplis) : [] %>
+          <% non_recus_par_bop = @perimetre == 'perimetre' ? avis_non_recus_par_bop(@avis_remplis) : [] %>
+          <% activite = activite_avis_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>
+          <% calendrier = avis_date_repartition(@avis_remplis, @avis_total, @annee_a_afficher, 'programmation initiale') %>
+          <% soutenabilite = statut_bop_repartition(@avis_remplis, @avis_total, @annee_a_afficher) %>
+          <div class="fr-mb-4w" data-controller="highcharts"
+               data-highcharts-avisdate="<%= calendrier %>"
+               data-highcharts-notesbar="<%= soutenabilite.to_json %>"
+               data-highcharts-activiteavis="<%= activite.to_json %>"
+               data-highcharts-nonrecusprogramme="<%= non_recus_par_programme.to_json %>"
+               data-highcharts-nonrecusbop="<%= non_recus_par_bop.to_json %>">
+
+            <div class="fr-grid-row">
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
                     <div class="fr-cart__body">
-                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %> </p>
-                      <p class="fr-text--lg fr-mb-0 text_center">BOP Actifs</p>
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= @avis_total %></p>
+                      <p class="fr-text--lg fr-mb-0 text_center">BOP actifs</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="fr-col-12 fr-col-lg-6">
-                <div class="fr-text--center">
-                  <%= image_tag "artwork/pictograms/digital/calendar.svg", class: "fr-responsive-img image-icone", alt: "" %>
-                  <div class="fr-card fr-card--blue fr-p-2w fr-card--no-border">
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
                     <div class="fr-cart__body">
-                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %> </p>
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_crg1(@avis_remplis) %></p>
                       <p class="fr-text--lg fr-mb-0 text_center">CRG1 prévus</p>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-text--center fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div class="fr-cart__body">
+                      <p class="fr-text--lg fr-mb-0 text_center fr-text--bold"><%= avis_delai_interrompu(@avis_remplis) %></p>
+                      <p class="fr-text--lg fr-mb-0 text_center">Interruptions du délai</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasActiviteAvis"></div>
+                    <% transmis, non_recu, non_renseigne = activite[:series] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-activite-avis',
+                               caption: "Activité liée aux avis/notes",
+                               headers: ['Phase', 'Avis transmis', 'Non reçu', 'Non renseigné'],
+                               rows: activite[:categories].each_with_index.map { |cat, i| [cat, transmis[i], non_recu[i], non_renseigne[i]] } %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasAvisDate"></div>
+                    <% calendrier_labels = ['Reçus avant le 1er mars', 'Reçus entre le 1er et le 15 mars', 'Reçus entre le 15 et le 31 mars', 'Reçus après le 1er avril', 'Non reçu', 'Non renseigné'] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-calendrier',
+                               caption: "Calendrier de réception des programmations initiales",
+                               headers: ['Catégorie', 'Nombre'],
+                               rows: calendrier_labels.each_with_index.map { |label, i| [label, calendrier[i]] },
+                               total_row: ['Total', @avis_total] %>
+                  </div>
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-highcharts-target="canvasNotesBar"></div>
+                    <% sout_cap, sout_conso, sout_besoin, sout_nr, sout_vide = soutenabilite[:series] %>
+                    <%= render 'data_table_accordion',
+                               id: 'accordion-soutenabilite',
+                               caption: "Indicateurs de soutenabilité des BOP",
+                               headers: ['Phase', 'Capacité contributive', 'Consommation à la ressource', 'Besoin de financement', 'Non reçu', 'Non renseigné'],
+                               rows: soutenabilite[:categories].each_with_index.map { |cat, i| [cat, sout_cap[i], sout_conso[i], sout_besoin[i], sout_nr[i], sout_vide[i]] } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% if @perimetre == 'national' && non_recus_par_programme.any? %>
+              <div class="fr-grid-row">
+                <div class="fr-col-12">
+                  <div class="fr-p-2v">
+                    <div class="fr-card fr-p-2w">
+                      <div data-highcharts-target="canvasNonRecusProgramme"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if @perimetre == 'perimetre' && non_recus_par_bop.any? %>
+              <div class="fr-grid-row">
+                <div class="fr-col-12">
+                  <div class="fr-p-2v">
+                    <div class="fr-card fr-p-2w">
+                      <div data-highcharts-target="canvasNonRecusBop"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvisDate"></div>
+        </section>
+
+        <%# --- Statut des avis/notes --- %>
+        <section data-tab-nav-target="panel" data-tab="statut" hidden>
+          <h2 class="fr-my-3w">Statut des avis/notes</h2>
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <% repartitions.each_with_index do |rep, idx| %>
+              <% rep_total = rep[:data].sum { |d| d[:y] } %>
+              <div class="fr-col-12 fr-col-lg-6">
+                <div class="fr-p-2v">
+                  <div class="fr-card fr-p-2w">
+                    <div data-controller="statut-pie"
+                         data-statut-pie-title-value="<%= "Répartition - #{rep[:libelle]}" %>"
+                         data-statut-pie-data-value="<%= rep[:data].to_json %>"></div>
+                    <%= render 'data_table_accordion',
+                               id: "accordion-repartition-#{idx}",
+                               caption: "Répartition - #{rep[:libelle]}",
+                               headers: ['Statut', 'Nombre'],
+                               rows: rep[:data].map { |d| [d[:name], d[:y]] },
+                               total_row: ['Total', rep_total] %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotesBar"></div>
+        </section>
+
+        <%# --- Programmes --- %>
+        <section data-tab-nav-target="panel" data-tab="programmes" hidden>
+          <h2 class="fr-my-3w"><%= titre_programmes %></h2>
+          <div class="fr-grid-row fr-grid-row--gutters fr-pb-4w">
+            <% @programmes.each do |programme| %>
+              <div class="fr-col-12 fr-col-lg-4">
+                <div class="fr-card">
+                  <div class="fr-card__body">
+                    <div class="fr-card__content">
+                      <div class="fr-card__start">
+                        <ul class="fr-badges-group">
+                          <li>
+                            <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(programme.avis_remplis_annee(@annee_a_afficher).count, 'avis/note rempli', plural: 'avis/notes remplis') %> </p>
+                          </li>
+                        </ul>
+                        <p class="fr-card__detail fr-icon-arrow-right-line"><%= programme.bops_actifs(@annee_a_afficher).count %>
+                          BOP actifs</p>
+                      </div>
+                      <h3 class="fr-card__title">Programme n°<%= programme.numero %> </h3>
+                      <div class="fr-card__desc"> <%= programme.nom %></div>
+                    </div>
+                    <div class="fr-card__footer">
+                      <ul class="fr-links-group">
+                        <li>
+                          <%= link_to programme_path(programme), class: "fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
+                            Afficher
+                          <% end %>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
-        </div>
-        <div class="fr-grid-row fr-grid-row--gutters">
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasAvis"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<dialog id="modal-btn-filtrer" class="fr-modal fr-modal--top fr-modal--custom" aria-labelledby="modal-btn-filtrer-title" data-fr-concealing-backdrop="true">
+  <div class="fr-container--fluid">
+    <div class="fr-modal-custom__row--left">
+      <div class="fr-col-12">
+        <div class="fr-modal-custom__body">
+          <div class="fr-modal__header">
+            <button aria-controls="modal-btn-filtrer" title="Fermer" type="button" id="button-close-filtrer" class="fr-btn--close fr-btn">Fermer</button>
           </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotes1"></div>
-          </div>
-          <div class="fr-col-12 fr-col-lg-4">
-            <div data-highcharts-target="canvasNotes2"></div>
-          </div>
+          <%= form_with url: restitutions_path, method: :get, data: { turbo_action: 'advance' } do |f| %>
+            <%= hidden_field_tag :perimetre, @perimetre %>
+            <div class="fr-modal__content">
+              <h2 id="modal-btn-filtrer-title" class="fr-modal__title">
+                Filtrer les résultats
+              </h2>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold" for="q_annee_eq">Exercice</label>
+                  <% years_options = (2023..Date.today.year).to_a.reverse %>
+                  <%= select_tag 'q[annee_eq]',
+                                 options_for_select(years_options, @q_params[:annee_eq]),
+                                 id: "q_annee_eq",
+                                 class: "fr-select" %>
+                </div>
+              </div>
+              <% if @statut_user == 'admin' %>
+                <div class="fr-grid-row fr-grid-row--gutters" data-controller="controleur-filter">
+                  <div class="fr-col-12">
+                    <label class="fr-label fr-text--bold" for="q_user_statut_eq">Profil</label>
+                    <%= select_tag 'q[user_statut_eq]',
+                                   options_for_select([['Tous', ''], ['DCB', 'DCB'], ['CBR', 'CBR']], @q_params[:user_statut_eq]),
+                                   id: "q_user_statut_eq",
+                                   class: "fr-select",
+                                   data: {
+                                     controleur_filter_target: "profilSelect",
+                                     action: "change->controleur-filter#filterByProfil"
+                                   } %>
+                  </div>
+                  <div class="fr-col-12 fr-pt-0">
+                    <label class="fr-label fr-text--bold">Contrôleur</label>
+                    <div class="fr-select-group fr-mt-1w" style="position: relative;">
+                      <button type="button"
+                              data-controleur-filter-target="button"
+                              data-action="click->controleur-filter#toggleDropdown"
+                              class="fr-select"
+                              style="text-align: left; cursor: pointer; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3e%3cpath fill=%27%23161616%27 d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.5rem;">
+                        <% users_by_statut = User.where(statut: ['DCB', 'CBR']).select(:nom, :statut).distinct.order(nom: :asc) %>
+                        <% selected_noms = Array(@q_params[:user_nom_in]).reject(&:blank?) %>
+                        Sélectionner des contrôleurs<%= " (#{selected_noms.length})" if selected_noms.length > 0 %>
+                      </button>
+                      <div data-controleur-filter-target="dropdown" style="display: none; position: absolute; z-index: 3300; background: white; border: 1px solid #ddd; width: 100%; max-height: 300px; overflow-y: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                        <div style="padding: 0.5rem;">
+                          <% users_by_statut.each do |user| %>
+                            <div class="fr-checkbox-group"
+                                 data-controleur-filter-target="item"
+                                 data-statut="<%= user.statut %>"
+                                 style="margin-bottom: 0.5rem;">
+                              <%= check_box_tag 'q[user_nom_in][]',
+                                                user.nom,
+                                                selected_noms.include?(user.nom),
+                                                id: "user_nom_#{user.nom.parameterize}",
+                                                class: "fr-checkbox",
+                                                multiple: true,
+                                                data: {
+                                                  controleur_filter_target: "checkbox",
+                                                  action: "change->controleur-filter#updateCount"
+                                                } %>
+                              <%= label_tag "user_nom_#{user.nom.parameterize}", user.nom, class: "fr-label" %>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                  <label class="fr-label fr-text--bold" for="q_bop_code_cont">BOP/Programme</label>
+                  <%= search_field_tag 'q[bop_code_cont]', @q_params[:bop_code_cont], id: "q_bop_code_cont", class: "fr-input", placeholder: 'Rechercher sur un programme/BOP' %>
+                </div>
+              </div>
+            </div>
+            <div class="fr-modal__footer">
+              <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                <li>
+                  <%= submit_tag 'Valider', class: "fr-btn fr-icon-checkbox-circle-line fr-btn--icon-left", 'aria-controls': "modal-btn-filtrer" %>
+                </li>
+                <li>
+                  <%= link_to restitutions_path(perimetre: @perimetre), class: "fr-btn fr-icon-close-circle-line fr-btn--icon-left fr-btn--secondary" do %>
+                    Réinitialiser
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
-
-
-    <h2 class="fr-mt-6w fr-mb-2w">Les programmes [<%= @programmes.length %>]</h2>
-
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
-      <% @programmes.each do |programme| %>
-        <div class="fr-col-12 fr-col-lg-3">
-          <div class="fr-card">
-            <div class="fr-card__body">
-              <div class="fr-card__content">
-                <div class="fr-card__start">
-                  <ul class="fr-badges-group">
-                    <li>
-                      <p class="fr-badge fr-badge--purple-glycine"><%= pluralize(programme.avis_remplis_annee(@annee_a_afficher).count, 'avis/note rempli', plural: 'avis/notes remplis') %> </p>
-                    </li>
-                  </ul>
-                  <p class="fr-card__detail fr-icon-arrow-right-line"><%= programme.bops_actifs(@annee_a_afficher).count %>
-                    BOP actifs</p>
-                </div>
-                <h3 class="fr-card__title">Programme n°<%= programme.numero %> </h3>
-                <div class="fr-card__desc"> <%= programme.nom %></div>
-              </div>
-              <div class="fr-card__footer">
-                <ul class="fr-links-group">
-                  <li>
-                    <%= link_to programme_path(programme), class: "fr-link fr-icon-arrow-right-line fr-link--icon-right" do %>
-                      Afficher
-                    <% end %>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      <% end %>
-    </div>
   </div>
-</main>
+</dialog>

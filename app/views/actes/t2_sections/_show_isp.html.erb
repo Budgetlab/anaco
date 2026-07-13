@@ -1,0 +1,79 @@
+<%# locals: (acte:, td:) %>
+<div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+  <div class="fr-col-12 fr-col-lg-4">
+    <div>Date d'effet de l'acte</div>
+    <div class="fr-text--bold"><%= format_value(td.date_effet_acte) %></div>
+  </div>
+</div>
+
+<% if td.isp_cercle1 == true %>
+  <div class="fr-h6 fr-my-2w">Cercle 1</div>
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>Cercle 1</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+
+              <th>Nature(s) des ISP</th>
+              <th>Montant de la mesure (€)</th>
+              <th>Enveloppe SGG (€)</th>
+              <th>Consommation à date (€)</th>
+              <th>Reste à consommer (€)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td><%= Array(td.isp_cercle1_natures).join(', ').presence || 'Non renseigné' %></td>
+              <td><%= number_to_currency(td.isp_cercle1_montant, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(td.isp_cercle1_enveloppe_sgg, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(td.isp_cercle1_consommation, unit: "€", format: "%n %u") %></td>
+              <td>
+                <% reste1 = (td.isp_cercle1_enveloppe_sgg.to_f - td.isp_cercle1_consommation.to_f).round(2) %>
+                <%= number_to_currency(reste1, unit: "€", format: "%n %u") %>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+<% if td.isp_cercle2 == true %>
+  <div class="fr-h6 fr-my-2w">Cercle 2</div>
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>Cercle 2</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Nature(s) des ISP</th>
+              <th>Montant de la mesure (€)</th>
+              <th>Enveloppe SGG (€)</th>
+              <th>Consommation à date (€)</th>
+              <th>Reste à consommer (€)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td><%= Array(td.isp_cercle2_natures).join(', ').presence || 'Non renseigné' %></td>
+              <td><%= number_to_currency(td.isp_cercle2_montant, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(td.isp_cercle2_enveloppe_sgg, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(td.isp_cercle2_consommation, unit: "€", format: "%n %u") %></td>
+              <td>
+                <% reste2 = (td.isp_cercle2_enveloppe_sgg.to_f - td.isp_cercle2_consommation.to_f).round(2) %>
+                <%= number_to_currency(reste2, unit: "€", format: "%n %u") %>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

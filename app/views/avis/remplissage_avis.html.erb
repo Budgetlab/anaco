@@ -1,27 +1,14 @@
-<% content_for :title do %>Remplissage des avis/notes | ANACO
+<% content_for :title do %>Liste de travail avis/notes | ANACO
 <% end %>
 
 <div class="fr-container">
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-lg-12">
       <h1 class="fr-mt-6w fr-mb-2w title-btn">
-        Remplissage des avis/notes
+        Liste de travail avis/notes <%= @annee_a_afficher %>
       </h1>
-      <div class="fr-mb-2w">
-        <ul class="fr-tags-group">
-          <% (Date.today.year - 1..Date.today.year).to_a.each do |annee| %>
-            <li>
-              <%= link_to remplissage_avis_path(date: annee), class: "fr-tag", 'aria-pressed' => (@annee_a_afficher == annee ? 'true' : 'false') do %>
-                <%= annee %>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
 
-      <% if @annee_a_afficher == @annee %>
-        <h2 class='fr-h3'>Nous sommes en phase de <%= @phase %> <%= @annee %></h2>
-      <% end %>
+      <h2 class='fr-h3'>Nous sommes en phase de <%= @phase_courante %></h2>
 
       <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
         <div class="fr-col-lg-1 fr-col-2"><%= image_tag "artwork/pictograms/document/document-download.svg", alt: "" %></div>
@@ -34,15 +21,9 @@
       </div>
     </div>
   </div>
-  <% if current_user.avis_a_remplir(@annee - 1, 'CRG2') > 0 %>
-    <div class="fr-alert fr-alert--warning fr-mb-6w">
-      <h3 class="fr-alert__title">Vous n’avez pas rempli toutes les notes de <%= @annee - 1 %>.</h3>
-      <p>Vous pouvez renseigner les avis et notes
-        de <%= @annee - 1 %> <%= link_to remplissage_avis_path(date: @annee - 1) do %>ici
-        <% end %></p>
-    </div>
-  <% end %>
+
   <%= render partial: 'bops/notice' %>
+  <%= render 'avis/success' %>
 
   <div class="fr-tabs fr-mb-2w">
     <ul class="fr-tabs__list" role="tablist" aria-label="Onglets BOP actifs et archivés">
@@ -58,54 +39,90 @@
       </li>
     </ul>
     <div id="tabpanel-1177-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-1177" tabindex="0">
-      <p class="fr-h3">Il vous reste
-        <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher, @annee_a_afficher == @annee ? @phase : 'CRG2'), 'avis/note', plural: 'avis/notes') %>
-        à rédiger</p>
-
-      <div class="fr-notice fr-notice--info fr-mb-2w">
+      <div class="fr-notice fr-notice--warning fr-mb-2w">
         <div class="fr-container">
           <div class="fr-notice__body">
             <p>
-              <span class="fr-notice__title">Si vous souhaitez modifier ou consulter un avis validé, cliquez sur le BOP pour y accéder.</span>
+              <span class="fr-notice__title">Il reste <%= pluralize(current_user.avis_a_remplir(@annee_a_afficher), 'avis/note', plural: 'avis/notes') %>
+                à rédiger</span>
             </p>
           </div>
         </div>
       </div>
 
-      <% @bops_actifs&.each do |bop| %>
-        <%= render 'bop_actif_row',
-              bop: bop,
-              avis_par_bop: @avis_par_bop,
-              annee_affichee: @annee_a_afficher,
-              annee: @annee,
-              phase_courante: @phase,
-              date_debut: @date_debut,
-              date_crg1: @date_crg1,
-              date_crg2: @date_crg2 %>
-      <% end %>
+      <div class="fr-table">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption class="fr-sr-only">Avancement du remplissage des avis par BOP et par phase</caption>
+                <thead>
+                <tr>
+                  <th scope="col">BOP</th>
+                  <% noms_phases_pour_annee(@annee_a_afficher).each do |nom| %>
+                    <th scope="col"><%= Phase.libelle_colonne(nom) %></th>
+                  <% end %>
+                  <th scope="col"><span class="fr-sr-only">Rédiger</span></th>
+                  <th scope="col"><span class="fr-sr-only">Consulter</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <% @bops_actifs&.each do |bop| %>
+                  <%= render 'bop_actif_row',
+                             bop: bop,
+                             avis_par_bop: @avis_par_bop,
+                             annee_affichee: @annee_a_afficher %>
+                <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div id="tabpanel-1178-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-1178" tabindex="0">
-      <p class="fr-h3">BOP inactifs (<%= @bops_inactifs.count %>)</p>
-      <% @bops_inactifs&.each do |bop| %>
-        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--middle">
-          <div class="fr-col-lg-2 fr-col-6">
-            <ul>
-              <li>
-                <%= link_to bop_path(bop) do %>
-                  BOP <%= bop.code %>
+      <div class="fr-table fr-table--no-scroll">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <caption class="fr-sr-only">BOP inactifs</caption>
+                <thead>
+                <tr>
+                  <th scope="col">BOP</th>
+                  <th scope="col">Programme</th>
+                  <th scope="col">Statut</th>
+                  <% if @annee_a_afficher == @annee %>
+                    <th scope="col"></th>
+                  <% end %>
+                  <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <% @bops_inactifs&.each do |bop| %>
+                  <tr>
+                    <td><%= link_to bop_path(bop) do %><%= bop.code %>
+                      <% end %></td>
+                    <td><%= link_to "#{bop.programme.numero} - #{bop.programme.nom}", programme_path(bop.programme) %></td>
+                    <td><p class="fr-badge">Inactif</p></td>
+                    <% if @annee_a_afficher == @annee %>
+                      <td>
+                        <%= link_to edit_bop_path(bop), class: "fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>
+                          Modifier la dotation
+                        <% end %>
+                      </td>
+                    <% end %>
+                    <td><%= link_to bop_path(bop), class: "fr-btn " do %>
+                        Consulter
+                      <% end %></td>
+                  </tr>
                 <% end %>
-              </li>
-            </ul>
-          </div>
-          <% if @annee_a_afficher == @annee %>
-            <div class="fr-col-lg-3 fr-col-6">
-              <%= link_to edit_bop_path(bop), class: "fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-edit-line" do %>
-                Modifier la dotation
-              <% end %>
+                </tbody>
+              </table>
             </div>
-          <% end %>
+          </div>
         </div>
-      <% end %>
+      </div>
     </div>
   </div>
 

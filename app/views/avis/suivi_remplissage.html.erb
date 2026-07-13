@@ -17,13 +17,13 @@
         </ul>
       </div>
 
-      <% phases = display_phases(@annee_a_afficher, @annee, @date_crg1, @date_crg2, @date_debut) %>
+      <% phases = display_phase_instances(@annee_a_afficher) %>
       <div class="fr-tabs fr-mb-4w">
         <ul class="fr-tabs__list" role="tablist" aria-label="Données budgétaires">
           <% phases.each_with_index do |phase, index| %>
             <li role="presentation">
               <button id="tabpanel-<%= index %>" class="fr-tabs__tab" tabindex="<%= index == 0 ? "0" : "-1" %>" role="tab" aria-selected="<%= index == 0 %>" aria-controls="tabpanel-<%= index %>-panel">
-                <span class="fr-capitalize"><%= phase %></span>
+                <span class="fr-capitalize"><%= phase.libelle_avec_numero %></span>
               </button>
             </li>
           <% end %>
@@ -35,7 +35,7 @@
                 <div class="fr-table__container">
                   <div class="fr-table__content">
                     <table class="fr-cell--multiline">
-                      <caption>Suivi du remplissage des avis/notes de <%= phase %> <%= @annee_a_afficher %></caption>
+                      <caption>Suivi du remplissage des avis/notes de <%= phase.libelle_avec_numero %> <%= @annee_a_afficher %></caption>
                       <thead>
                       <tr>
                         <th scope="col">CBR/DCB</th>
@@ -48,18 +48,18 @@
                       <tbody>
                       <tr class="fr-table--total">
                         <th class="fr-cell--fixed" scope="row">Total</th>
-                        <td class="fr-cell--right"><%= taux_remplissage_avis(@avis, phase, @annee_a_afficher) %> %</td>
-                        <td class="fr-cell--right"><%= avis_a_remplir(@avis, phase, @annee_a_afficher) %></td>
-                        <td class="fr-cell--right"><%= avis_remplis_phase(@avis, phase) %></td>
-                        <td class="fr-cell--right"><%= avis_brouillon_phase(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= taux_remplissage_avis_instance(@avis, phase, @annee_a_afficher) %> %</td>
+                        <td class="fr-cell--right"><%= avis_a_remplir_instance(@avis, phase, @annee_a_afficher) %></td>
+                        <td class="fr-cell--right"><%= avis_remplis_phase_instance(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= avis_brouillon_phase_instance(@avis, phase) %></td>
                       </tr>
-                      <% @controleurs.sort_by { |user| [-user.taux_de_remplissage(@annee_a_afficher, phase), user.nom] }.each do |user| %>
+                      <% @controleurs.sort_by { |user| [-user.taux_de_remplissage_instance(@annee_a_afficher, phase), user.nom] }.each do |user| %>
                         <tr>
                           <th class="fr-cell--fixed" scope="row"><%= user.nom %></th>
-                          <td class="fr-cell--right"><%= user.taux_de_remplissage(@annee_a_afficher, phase) %> %</td>
-                          <td class="fr-cell--right"><%= user.avis_a_remplir_phase(@annee_a_afficher, phase) %></td>
-                          <td class="fr-cell--right"><%= user.avis_remplis(@annee_a_afficher, phase) %></td>
-                          <td class="fr-cell--right"><%= user.avis_brouillon(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.taux_de_remplissage_instance(@annee_a_afficher, phase) %> %</td>
+                          <td class="fr-cell--right"><%= user.avis_a_remplir_phase_instance(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_remplis_instance(phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_brouillon_instance(phase) %></td>
                         </tr>
                       <% end %>
                       </tbody>
@@ -74,7 +74,7 @@
                 <div class="fr-table__container">
                   <div class="fr-table__content">
                     <table class="fr-cell--multiline">
-                      <caption>Suivi de lecture des avis/notes de <%= phase %> <%= @annee_a_afficher %> par les DCB
+                      <caption>Suivi de lecture des avis/notes de <%= phase.libelle_avec_numero %> <%= @annee_a_afficher %> par les DCB
                       </caption>
                       <thead>
                       <tr>
@@ -87,16 +87,16 @@
                       <tbody>
                       <tr class="fr-table--total">
                         <th class="fr-cell--fixed" scope="row">Total</th>
-                        <td class="fr-cell--right"><%= taux_lecture_avis(@avis, phase) %> %</td>
-                        <td class="fr-cell--right"><%= avis_recus(@avis, phase) %></td>
-                        <td class="fr-cell--right"><%= avis_lus(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= taux_lecture_avis_instance(@avis, phase) %> %</td>
+                        <td class="fr-cell--right"><%= avis_recus_instance(@avis, phase) %></td>
+                        <td class="fr-cell--right"><%= avis_lus_instance(@avis, phase) %></td>
                       </tr>
-                      <% @dcb.sort_by { |user| [-user.taux_de_lecture(@annee_a_afficher, phase), user.nom] }.each do |user| %>
+                      <% @dcb.sort_by { |user| [-user.taux_de_lecture_instance(phase), user.nom] }.each do |user| %>
                         <tr>
                           <th class="fr-cell--fixed" scope="row"><%= user.nom %></th>
-                          <td class="fr-cell--right"><%= user.taux_de_lecture(@annee_a_afficher, phase) %> %</td>
-                          <td class="fr-cell--right"><%= user.avis_a_lire_recus(@annee_a_afficher, phase) %></td>
-                          <td class="fr-cell--right"><%= user.avis_lus(@annee_a_afficher, phase) %></td>
+                          <td class="fr-cell--right"><%= user.taux_de_lecture_instance(phase) %> %</td>
+                          <td class="fr-cell--right"><%= user.avis_a_lire_recus_instance(phase) %></td>
+                          <td class="fr-cell--right"><%= user.avis_lus_instance(phase) %></td>
                         </tr>
                       <% end %>
                       </tbody>

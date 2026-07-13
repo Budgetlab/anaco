@@ -10,7 +10,7 @@ class User < ApplicationRecord
   has_many :programmes
   has_many :gestion_schemas
   has_many :schemas
-  has_many :ht2_actes
+  has_many :actes
   has_many :organismes
 
   # fonction d'import des utilisateurs dans la bdd
@@ -36,7 +36,7 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avis", "bops", "consulted_bops", "gestion_schemas", "ht2_actes", "organismes", "programmes", "schemas"]
+    ["actes", "avis", "bops", "consulted_bops", "gestion_schemas", "organismes", "programmes", "schemas"]
   end
 
   def self.ransackable_attributes(auth_object = nil)
@@ -52,32 +52,57 @@ class User < ApplicationRecord
   end
 
   def bops_with_crg1(annee)
-    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'], phase: 'début de gestion', is_crg1: true }).count
+    self.bops.left_outer_joins(:avis).where(avis: { annee: annee, etat: ['Lu', 'En attente de lecture'], phase: 'programmation initiale', is_crg1: true }).count
   end
 
   def bops_actifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'actif')
+    self.bops.actifs_en(annee)
   end
 
   def bops_inactifs(annee)
-    self.bops.where('bops.created_at <= ?', Date.new(annee, 12, 31)).where(statut: 'inactif')
+    self.bops.inactifs_en(annee)
   end
 
-  def avis_a_remplir(annee, phase)
-    case phase
-    when 'début de gestion'
-      bops_actifs(annee).count - bops_with_avis(annee, phase)
-    when 'CRG1'
-      avis_a_remplir(annee, 'début de gestion') + bops_with_crg1(annee) - bops_with_avis(annee, phase)
-    when 'CRG2'
-      avis_a_remplir(annee, 'début de gestion') + avis_a_remplir(annee, 'CRG1') + bops_actifs(annee).count - bops_with_avis(annee, phase)
+  # Nombre total d'avis à produire pour l'année : tag "À rédiger" (pas d'avis) + "Brouillon",
+  # toutes phases confondues, en cohérence avec les badges du tableau remplissage_avis.
+  # Le calendrier est lu depuis la table phases : si une phase n'existe pas dans
+  # l'année (ex: SV en 2024), elle n'est pas comptée. Si elle existe mais date_debut
+  # est dans le futur, elle est non ouverte et n'est pas comptée non plus.
+  # - SV    : 1 par BOP si dernier avis SV manquant ou en brouillon (et phase ouverte)
+  # - Début : 1 par BOP si avis début manquant ou en brouillon (et phase ouverte)
+  # - CRG1  : 1 par BOP si avis CRG1 manquant ou en brouillon, sauf si début.is_crg1 == false
+  #           (cas N/A : le CRG1 n'est pas programmé). Quand début est nil, on compte.
+  # - CRG2  : 1 par BOP si avis CRG2 manquant ou en brouillon (et phase ouverte)
+  def avis_a_remplir(annee, reference_date = Date.today)
+    # Une phase nommée X est ouverte pour l'année si au moins une de ses instances
+    # a une date_debut <= reference_date.
+    phases_ouvertes_noms = Phase.pour_annee(annee)
+                                .where('date_debut <= ?', reference_date)
+                                .pluck(:nom).uniq.to_set
+
+    bops_ids     = bops_actifs(annee).pluck(:id)
+    avis_par_bop = self.avis.where(annee: annee, bop_id: bops_ids).group_by(&:bop_id)
+
+    bops_ids.sum do |bop_id|
+      avis_bop = avis_par_bop[bop_id] || []
+      sv    = avis_bop.select { |a| a.phase == 'services votés' }.max_by(&:created_at)
+      debut = avis_bop.find { |a| a.phase == 'programmation initiale' }
+      crg1  = avis_bop.find { |a| a.phase == 'CRG1' }
+      crg2  = avis_bop.find { |a| a.phase == 'CRG2' }
+
+      count = 0
+      count += 1 if phases_ouvertes_noms.include?('services votés')   && (sv.nil?    || sv.etat    == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('programmation initiale') && (debut.nil? || debut.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('CRG1')             && debut&.is_crg1 != false && (crg1.nil? || crg1.etat == 'Brouillon')
+      count += 1 if phases_ouvertes_noms.include?('CRG2')             && (crg2.nil?  || crg2.etat  == 'Brouillon')
+      count
     end
   end
 
   def avis_a_remplir_phase(annee, phase)
     case phase
     when 'CRG1'
-      self.avis.where(annee: annee, phase: 'début de gestion', is_crg1: true).where.not(etat: 'Brouillon').count
+      self.avis.where(annee: annee, phase: 'programmation initiale', is_crg1: true).where.not(etat: 'Brouillon').count
     else
       bops_actifs(annee).count
     end
@@ -88,7 +113,7 @@ class User < ApplicationRecord
   end
 
   def avis_remplis_annee(annee)
-    self.avis.where(annee: annee).where.not(etat: 'Brouillon').where.not(phase: 'execution')
+    self.avis.where(annee: annee).where.not(etat: 'Brouillon')
   end
 
   def avis_brouillon(annee, phase)
@@ -103,16 +128,22 @@ class User < ApplicationRecord
     end
   end
 
+  # BOPs que l'utilisateur consulte (en tant que DCB) en excluant ceux dont il est lui-même CBR.
+  # Sert de périmètre pour la page de consultation et update_etat (autorisation).
+  def bops_a_consulter
+    consulted_bops.where.not(user_id: id)
+  end
+
   def avis_a_lire_recus(annee, phase)
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': 'Brouillon').count
+    bops_a_consulter.joins(:avis).where('avis.phase': phase, 'avis.annee': annee).where.not('avis.etat': 'Brouillon').count
   end
 
   def avis_a_lire
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'En attente de lecture').count
+    bops_a_consulter.joins(:avis).where('avis.etat': 'En attente de lecture').count
   end
 
   def avis_lus(annee, phase)
-    self.consulted_bops.where.not(user_id: self.id).joins(:avis).where('avis.etat': 'Lu', 'avis.phase': phase, 'avis.annee': annee).count
+    bops_a_consulter.joins(:avis).where('avis.etat': 'Lu', 'avis.phase': phase, 'avis.annee': annee).count
   end
 
   def taux_de_lecture(annee, phase)
@@ -121,6 +152,47 @@ class User < ApplicationRecord
     else
       ((avis_lus(annee, phase)*100.0/avis_a_lire_recus(annee, phase)).to_f).round
     end
+  end
+
+  # ─── Variantes par INSTANCE de phase (objet Phase, filtre sur phase_id) ───────
+  # Pour la page suivi_remplissage : un onglet par phase existante (SV1, SV2, …).
+
+  def avis_a_remplir_phase_instance(annee, phase)
+    if phase.nom == 'CRG1'
+      self.avis.where(annee: annee, phase: 'programmation initiale', is_crg1: true).where.not(etat: 'Brouillon').count
+    else
+      bops_actifs(annee).count
+    end
+  end
+
+  def avis_remplis_instance(phase)
+    self.avis.where(phase_id: phase.id).where.not(etat: 'Brouillon').count
+  end
+
+  def avis_brouillon_instance(phase)
+    self.avis.where(phase_id: phase.id, etat: 'Brouillon').count
+  end
+
+  def taux_de_remplissage_instance(annee, phase)
+    a_remplir = avis_a_remplir_phase_instance(annee, phase)
+    return 100 if a_remplir.zero?
+
+    ((avis_remplis_instance(phase) * 100.0 / a_remplir).to_f).round
+  end
+
+  def avis_a_lire_recus_instance(phase)
+    bops_a_consulter.joins(:avis).where('avis.phase_id': phase.id).where.not('avis.etat': 'Brouillon').count
+  end
+
+  def avis_lus_instance(phase)
+    bops_a_consulter.joins(:avis).where('avis.etat': 'Lu', 'avis.phase_id': phase.id).count
+  end
+
+  def taux_de_lecture_instance(phase)
+    recus = avis_a_lire_recus_instance(phase)
+    return 100 if recus.zero?
+
+    ((avis_lus_instance(phase) * 100.0 / recus).to_f).round
   end
 
   def programmes_access

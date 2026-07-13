@@ -1,0 +1,282 @@
+<% frame_id = dom_id(acte, :bloc) %>
+
+<% if acte.user == current_user %>
+  <%= turbo_frame_tag frame_id,
+                      src: acte_actions_path(acte, frame_id: frame_id) %>
+<% else %>
+  <p class="<%= badge_class_for_etat_actes(acte.etat) %> fr-mb-2w">
+    <%= acte.etat %>
+  </p>
+<% end %>
+
+<div id="containPDF">
+
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-p-2v" style="height: 100%;">
+        <div class='fr-card fr-p-2w' style="height: 100%;">
+          <div class="fr-h6">Décision de contrôle</div>
+          <div class="fr-h6 fr-mb-1w">Instructeur</div>
+          <div>
+            <span class="<%= badge_class_for_decision(acte.proposition_decision) %>"><%= format_value(acte.proposition_decision) %></span>
+            <span class="fr-tag"><span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span> <%= acte.instructeur %>
+            </span>
+          </div>
+          <div class="fr-h6 fr-my-1w">Valideur</div>
+          <div>
+            <span class="<%= badge_class_for_decision(acte.decision_finale) %>"><%= format_value(acte.decision_finale) %></span>
+            <span class="fr-tag"><span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span> <%= format_value(acte.valideur) %>
+            </span>
+          </div>
+
+          <div class="fr-text--bold fr-mt-2w">Commentaire interne sur la décision de contrôle</div>
+          <div class=""><%= auto_link(simple_format(format_for_pdf(format_value(acte.commentaire_proposition_decision))), :html => { :target => '_blank' }) %></div>
+        </div>
+      </div>
+    </div>
+    <div class="fr-col-12 fr-col-lg-6">
+      <div class="fr-p-2v" style="height: 100%;">
+        <div class="fr-card fr-card--blue fr-p-2w" style="height: 100%;">
+          <div class="fr-h6">Observations à l'ordonnateur</div>
+          <div><%= auto_link(simple_format(format_for_pdf(format_value(acte.observations))), :html => { :target => '_blank' }) %></div>
+
+          <% if acte.type_observations.present? %>
+            <div class="fr-h6 fr-my-1w">Type d'observations</div>
+
+            <% acte.type_observations&.each do |observation| %>
+              <p class="fr-tag fr-my-1v"><%= observation %></p>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fr-h6">Informations sur l'acte</div>
+  <% if acte.pre_instruction == true %>
+    <p class="fr-badge fr-badge--blue-ecume">Préinstruction : Oui</p>
+  <% end %>
+
+  <div class="fr-table fr-table--no-caption">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <caption>Informations</caption>
+            <thead>
+            <tr class="fr-cell--multiline">
+              <th>Nature de l'acte</th>
+              <% if acte.perimetre == 'organisme' %>
+                <th>Organisme</th>
+              <% else %>
+                <th>Centre financier</th>
+              <% end %>
+              <th>Exercice</th>
+              <th>Date de saisine</th>
+              <th>Délai de traitement</th>
+              <th>Ordonnateur</th>
+              <th>Objet</th>
+              <th> Services votés</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fr-cell--multiline">
+              <td><%= acte.nature %></td>
+              <% if acte.perimetre == 'organisme' %>
+                <td><%= format_value(acte.nom_organisme) %></td>
+              <% else %>
+                <td><%= format_value(acte.centre_financier_code) %></td>
+              <% end %>
+              <td><%= acte.annee %></td>
+              <td><%= format_date_text(acte.date_saisine) %></td>
+              <td>
+                <% if ['clôturé', 'clôturé en pré-instruction'].include?(acte.etat) %>
+                  <span class="<%= 'cwarning' if acte.delai_traitement.to_i > 15 %>"><%= pluralize(acte.delai_traitement, 'jour', plural: 'jours') %></span>
+                <% else %>
+                  <%= etat_acte(acte) %>
+                <% end %>
+              </td>
+              <td><%= format_value(acte.ordonnateur) %></td>
+              <td><%= format_value(acte.objet) %></td>
+              <td><%= acte.services_votes == true ? 'Oui' : 'Non' %></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# — T2 nature-specific details section — %>
+  <% td = acte.t2_detail %>
+
+  <% case acte.nature %>
+  <% when 'Annexe financière' %>
+    <%= render 'actes/t2_sections/show_annexe_financiere', acte: acte, td: td %>
+  <% when 'ISP' %>
+    <%= render 'actes/t2_sections/show_isp', acte: acte, td: td %>
+  <% when 'Fongibilité asymétrique' %>
+    <%= render 'actes/t2_sections/show_fongibilite_asymetrique', acte: acte, td: td %>
+  <% when 'Marché' %>
+    <%= render 'actes/t2_sections/show_marche', acte: acte, td: td %>
+  <% when 'Mesure transversale' %>
+    <%= render 'actes/t2_sections/show_mesure_transversale', acte: acte, td: td %>
+  <% when 'Enveloppe limitative' %>
+    <%= render 'actes/t2_sections/show_enveloppe_limitative', acte: acte, td: td %>
+  <% when 'Référentiel' %>
+    <%= render 'actes/t2_sections/show_referentiel', acte: acte, td: td %>
+  <% end %>
+
+
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-12">
+      <div>Précisions sur l'acte</div>
+      <div class="fr-text--bold"><%= auto_link(simple_format(format_for_pdf(format_value(acte.precisions_acte))), :html => { :target => '_blank' }) %></div>
+    </div>
+  </div>
+  <%# — Critères de contrôle T2 — %>
+  <%
+    t2_nature = acte.nature
+    t2_perimetre = acte.perimetre
+    icone_resultat = ->(val) {
+      val ? content_tag(:span, '', class: 'fr-icon-checkbox-circle-fill fr-icon--sm cgreen fr-ml-1w', aria: { hidden: true })
+        : content_tag(:span, '', class: 'fr-icon-error-fill fr-icon--sm crouge fr-ml-1w', aria: { hidden: true })
+    }
+
+    show_programmation_compat = !acte.services_votes &&
+                                !(t2_nature == 'ISP') &&
+                                !(t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme') &&
+                                (t2_perimetre == 'etat' ? acte.avis_programmation != false : acte.budget_executoire != false)
+
+    criteres = []
+    if t2_nature != 'ISP' && t2_perimetre == 'etat' && acte.services_votes == false
+      criteres << ["Programmation initiale transmise", acte.avis_programmation]
+    end
+    unless t2_nature == 'ISP' || (t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'organisme')
+      criteres << ["Acte programmé", acte.programmation_prevue]
+    end
+    if !['ISP', 'Fongibilité asymétrique'].include?(t2_nature) && t2_perimetre == 'organisme' && acte.budget_executoire == false
+      criteres << ["Opération autorisée par les autorités de tutelle", acte.autorisation_tutelle]
+    end
+    if show_programmation_compat
+      criteres << ["Compatibilité avec la programmation annuelle et pluriannuelle", acte.programmation]
+    end
+    if t2_nature != 'Annexe financière'
+      criteres << ["Soutenabilité des crédits", acte.soutenabilite]
+    end
+    if td && t2_perimetre == 'etat' && ['Annexe financière', 'Mesure transversale', 'Référentiel'].include?(t2_nature)
+      inscription_pap_label = t2_nature == 'Annexe financière' ? "Inscription au PAP / Plan de recrutement" : "Inscription au PAP"
+      criteres << [inscription_pap_label, td.inscription_pap]
+    end
+    if td && t2_nature == 'Annexe financière'
+      criteres << ["Respect du plafond d'emplois", td.respect_plafond_emplois]
+    end
+    if td && t2_nature == 'Annexe financière' && td.impact_schema_emplois == true
+      criteres << ["Respect du schéma d'emplois", td.respect_schema_emplois]
+    end
+    if ['Fongibilité asymétrique', 'Marché', 'Mesure transversale'].include?(t2_nature)
+      criteres << ["Exactitude de l'évaluation budgétaire", acte.consommation_credits]
+    end
+    if td && t2_nature == 'Fongibilité asymétrique' && t2_perimetre == 'etat' && acte.user.statut == 'DCB'
+      criteres << ["Contrôle des modalités de mise en œuvre", td.controle_modalites]
+    end
+    if td && t2_nature == 'ISP'
+      criteres << ["Respect de l'enveloppe notifiée", td.respect_enveloppe]
+    end
+    if td && ['Mesure transversale', 'Référentiel'].include?(t2_nature)
+      criteres << ["Risque d'effet reconventionnel", td.risque_reconventionnel]
+    end
+    if acte.services_votes == true
+      criteres << ["Acte éligible à la gestion des services votés", acte.programmation]
+    end
+  %>
+  <% if criteres.any? %>
+    <div class="fr-h6 fr-my-3w">Critères de contrôle</div>
+    <div class="fr-table fr-table--no-caption fr-table--bordered fr-table--no-scroll">
+      <div class="fr-table__wrapper">
+        <div class="fr-table__container">
+          <div class="fr-table__content">
+            <table>
+              <caption>Critères T2</caption>
+              <thead>
+              <tr class="fr-cell--multiline">
+                <% criteres.each do |libelle, _| %>
+                  <th><%= libelle %></th>
+                <% end %>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="fr-cell--multiline">
+                <% criteres.each do |_, valeur| %>
+                  <td><%= icone_resultat.call(valeur) %></td>
+                <% end %>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# — Tableur — %>
+  <%
+    raw = acte.sheet_data
+    parsed =
+      begin
+        x = raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
+        x = JSON.parse(x) if x.is_a?(String)
+        x
+      rescue JSON::ParserError
+        {}
+      end
+
+    blank = ->(v) { v.nil? || v.to_s.strip == "" }
+
+    matrices =
+      if parsed.is_a?(Hash) && parsed["worksheets"].is_a?(Array)
+        parsed["worksheets"].map { |ws| ws["data"] }.compact
+      else
+        [parsed["data"]]
+      end
+
+    has_cells =
+      matrices.any? do |rows|
+        Array(rows).any? { |row| Array(row).any? { |cell| !blank.call(cell) } }
+      end
+  %>
+  <% if has_cells %>
+    <div class="fr-mt-2w">Tableur</div>
+    <div class="sheet-scroll">
+      <div data-controller="sheet-readonly" data-sheet-readonly-initial-value='<%= acte.sheet_data.to_json %>'></div>
+    </div>
+  <% end %>
+
+  <div class="fr-mt-2w">Observations</div>
+  <div class="fr-text--bold"><%= format_value(acte.commentaire_disponibilite_credits) %></div>
+
+  <% if acte.suspensions.present? %>
+    <% type_suspension = type_suspension(acte) %>
+    <div class="fr-h6 fr-my-3w fr-capitalize"><%= type_suspension + 's' %></div>
+    <% acte.suspensions.order(created_at: :asc).each_with_index do |suspension, index| %>
+      <div class="fr-citation fr-mb-2w">
+        <h6><%= type_suspension %> n°<%= index + 1 %></h6>
+        <p class="fr-tag">
+          <% if suspension.date_reprise.nil? %>Suspendu depuis le <%= format_date_text(suspension.date_suspension) %>
+          <% else %>Du <%= format_date_text(suspension.date_suspension) %>
+            au <%= format_date_text(suspension.date_reprise) %>
+          <% end %></p>
+        <div class="fr-mt-2w"><span class="fr-text--bold">Motif : </span>
+          <% Array(suspension.motif).each do |m| %>
+            <p class="fr-badge fr-badge--info fr-badge--no-icon"><%= m %></p>
+          <% end %></div>
+        <div class="fr-text--bold fr-mt-3w">Observations</div>
+        <div><%= format_value(suspension.observations) %></div>
+        <% if suspension.date_reprise.present? %>
+          <div class="fr-text--bold fr-mt-3w">Commentaire sur la reprise</div>
+          <div><%= format_value(suspension.commentaire_reprise) %></div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

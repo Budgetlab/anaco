@@ -1,0 +1,1586 @@
+class ActesController < ApplicationController
+  include ActesHelper
+  include GcsBackupConcern
+
+  before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
+  before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :destroy, :acte_actions]
+  before_action :set_acte, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
+  before_action :authorize_show!, only: [:show]
+  before_action :set_variables_form, only: [:edit, :validate_acte]
+  before_action :set_variables_filtres, only: [:index, :historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
+  before_action :set_actes_user, only: [:historique, :tableau_de_bord, :synthese_temporelle, :synthese_anomalies, :synthese_suspensions]
+  before_action :set_parent_for_clone, only: :new
+  before_action :check_edit_conditions, only: :edit
+  require 'axlsx'
+
+  def index
+    @selected_tab = params[:tab] || 'validation'
+
+    # actes année en cours
+    base_scope = current_user.actes.actifs_annee_courante.includes(:suspensions).order(updated_at: :desc)
+
+    # Tous les actes avec filtres unifiés
+    @actes = base_scope
+
+    # On duplique pour ne pas modifier params directement
+    search_params_current = (params[:q_current] || {}).dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values = Array(search_params_current.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values.include?('oui') && !hors_delai_values.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params_current[:delai_traitement_gt] = 15
+    elsif hors_delai_values.include?('non') && !hors_delai_values.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params_current[:delai_traitement_lteq] = 15
+    end
+
+    search_params_current[:created_at_lteq] = search_params_current[:created_at_lteq].to_date.end_of_day if search_params_current[:created_at_lteq].present?
+    search_params_current[:updated_at_lteq] = search_params_current[:updated_at_lteq].to_date.end_of_day if search_params_current[:updated_at_lteq].present?
+
+    # Gestion du filtre "Avec observations"
+    avec_observations_values = Array(search_params_current.delete(:avec_observations_in))
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values = Array(search_params_current.delete(:type_observations_array_in))
+
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values = Array(search_params_current.delete(:suspensions_count_in))
+
+    @q_current = @actes.ransack(search_params_current, search_key: :q_current)
+    @actes_filtered = @q_current.result(distinct: true)
+
+    # Appliquer le filtre "Avec observations"
+    if avec_observations_values.include?('oui') && !avec_observations_values.include?('non')
+      @actes_filtered = @actes_filtered.where.not(type_observations: [])
+    elsif avec_observations_values.include?('non') && !avec_observations_values.include?('oui')
+      @actes_filtered = @actes_filtered.where(type_observations: [])
+    end
+
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values.present?
+      @actes_filtered = @actes_filtered.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values.present?
+      acte_ids = []
+
+      if suspensions_count_values.include?('aucune')
+        # Actes sans suspension
+        acte_ids += @actes_filtered.left_joins(:suspensions)
+                                   .where(suspensions: { id: nil })
+                                   .reorder('')
+                                   .pluck('actes.id')
+      end
+
+      if suspensions_count_values.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids += @actes_filtered.joins(:suspensions)
+                                   .group('actes.id')
+                                   .having('COUNT(suspensions.id) = 1')
+                                   .reorder('')
+                                   .pluck('actes.id')
+      end
+
+      if suspensions_count_values.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids += @actes_filtered.joins(:suspensions)
+                                   .group('actes.id')
+                                   .having('COUNT(suspensions.id) >= 2')
+                                   .reorder('')
+                                   .pluck('actes.id')
+      end
+
+      @actes_filtered = @actes_filtered.where(id: acte_ids.uniq)
+    end
+    # Instances par onglet (comptes/rows mis à jour uniquement par q_current)
+    # Tri avec Ransack pour actes en pré-instruction
+    @q_pre_instruction = @actes_filtered.en_pre_instruction.ransack(params[:q_pre_instruction], search_key: :q_pre_instruction)
+    @actes_pre_instruction_all      = @q_pre_instruction.result(distinct: true)
+
+    # Tri avec Ransack pour actes en cours d'instruction
+    @q_instruction = @actes_filtered.en_cours_instruction.ransack(params[:q_instruction], search_key: :q_instruction)
+    @actes_instruction_all          = @q_instruction.result(distinct: true)
+
+    # Tri avec Ransack pour actes suspendus
+    @q_suspendu = @actes_filtered.suspendus.ransack(params[:q_suspendu], search_key: :q_suspendu)
+    @actes_suspendu_all             = @q_suspendu.result(distinct: true)
+
+    # Tri avec Ransack pour actes à valider
+    @q_validation = @actes_filtered.en_attente_validation.ransack(params[:q_validation], search_key: :q_validation)
+    @actes_validation_all           = @q_validation.result(distinct: true)
+
+    # Tri avec Ransack pour actes à clôturer
+    @q_validation_chorus = @actes_filtered.a_cloturer.ransack(params[:q_validation_chorus], search_key: :q_validation_chorus)
+    @actes_validation_chorus_all    = @q_validation_chorus.result(distinct: true)
+
+    @pagy_pre_instruction,     @actes_pre_instruction     = pagy(@actes_pre_instruction_all,     page_param: :page_pre_instruction,     limit: 15)
+    @pagy_instruction,         @actes_instruction         = pagy(@actes_instruction_all,         page_param: :page_instruction,         limit: 15)
+    @pagy_suspendu,            @actes_suspendu            = pagy(@actes_suspendu_all,            page_param: :page_suspendu,            limit: 15)
+    @pagy_validation,          @actes_validation          = pagy(@actes_validation_all,          page_param: :page_validation,          limit: 10)
+    @pagy_validation_chorus,   @actes_validation_chorus   = pagy(@actes_validation_chorus_all,   page_param: :page_validation_chorus,   limit: 15)
+
+    # actes clotures (utilise maintenant @actes_filtered avec les mêmes filtres que les autres onglets)
+    # Tri avec Ransack pour actes clôturés
+    @q_cloture = @actes_filtered.clotures.ransack(params[:q_cloture], search_key: :q_cloture)
+    @actes_cloture_all = @q_cloture.result(distinct: true).includes(:user, :suspensions, centre_financier_principal: :programme)
+    @pagy_cloture, @actes_cloture = pagy(@actes_cloture_all, page_param: :page_cloture, limit: 15)
+    @filtres_count = count_active_filters(params[:q_current])
+    respond_to do |format|
+      format.html
+      format.xlsx do
+        # Story 3.3 — applique les filtres Ransack (q_current) à l'export en s'appuyant
+        # sur @actes_filtered au lieu de @actes (scope non filtré). Permet à q_current[titre_in]
+        # et autres prédicats Ransack de fonctionner pour les téléchargements xlsx.
+        scope = params[:scope].presence || 'current'
+        @actes = case scope
+                 when 'closed'
+                   @actes_filtered.clotures.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
+                 when 'non_closed'
+                   @actes_filtered.non_clotures.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
+                 when 'all'
+                   @actes_filtered.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
+                 else
+                   @actes_filtered.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme)
+                 end
+      end
+    end
+  end
+
+  def historique
+    # On duplique pour ne pas modifier params directement
+    search_params = (params[:q] || {}).dup
+
+    # Par défaut, filtrer sur l'année en cours si aucun filtre n'est spécifié
+    # On exclut la clé :s (tri) du test car cliquer sur un en-tête de colonne
+    # transmet q[s]=... sans pour autant constituer un filtre utilisateur.
+    raw_q = params[:q] || {}
+    q_without_sort = (raw_q.respond_to?(:to_unsafe_h) ? raw_q.to_unsafe_h : raw_q).except("s")
+    if q_without_sort.blank?
+      search_params[:annee_in] = [Date.today.year.to_s]
+    end
+
+    # Exposer les params pour l'affichage des filtres dans la vue
+    @q_params = search_params.respond_to?(:to_unsafe_h) ? search_params.to_unsafe_h.deep_dup : search_params.deep_dup
+
+    # Gestion du filtre "Acte clôturé hors délai"
+    hors_delai_values = Array(search_params.delete(:delai_traitement_hors_delai_in))
+
+    if hors_delai_values.include?('oui') && !hors_delai_values.include?('non')
+      # uniquement "Oui" → délai > 15 jours
+      search_params[:delai_traitement_gt] = 15
+    elsif hors_delai_values.include?('non') && !hors_delai_values.include?('oui')
+      # uniquement "Non" → délai <= 15 jours
+      search_params[:delai_traitement_lteq] = 15
+    end
+    # si les deux ou aucun sont cochés → pas de condition particulière
+
+    # Gestion du filtre "Avec observations"
+    avec_observations_values = Array(search_params.delete(:avec_observations_in))
+
+    # Gestion du filtre "Type d'observation"
+    type_observations_values = Array(search_params.delete(:type_observations_array_in))
+
+    # Gestion du filtre "Suspensions"
+    suspensions_count_values = Array(search_params.delete(:suspensions_count_in))
+
+    search_params[:created_at_lteq] = search_params[:created_at_lteq].to_date.end_of_day if search_params[:created_at_lteq].present?
+    search_params[:updated_at_lteq] = search_params[:updated_at_lteq].to_date.end_of_day if search_params[:updated_at_lteq].present?
+
+    @q = @actes.ransack(search_params)
+    # Gestion du tri
+    sort_order = params.dig(:q, :s) || 'updated_at desc'
+    @actes_all = @q.result.includes(:user, :suspensions, :t2_detail, centre_financier_principal: :programme).order(sort_order)
+
+    # Appliquer le filtre "Avec observations"
+    if avec_observations_values.include?('oui') && !avec_observations_values.include?('non')
+      @actes_all = @actes_all.where.not(type_observations: [])
+    elsif avec_observations_values.include?('non') && !avec_observations_values.include?('oui')
+      @actes_all = @actes_all.where(type_observations: [])
+    end
+
+    # Appliquer le filtre type_observations si présent
+    if type_observations_values.present?
+      @actes_all = @actes_all.where("type_observations && ARRAY[?]::varchar[]", type_observations_values)
+    end
+
+    # Appliquer le filtre suspensions si présent
+    if suspensions_count_values.present?
+      acte_ids = []
+
+      if suspensions_count_values.include?('aucune')
+        # Actes sans suspension
+        acte_ids += @actes_all.left_joins(:suspensions)
+                              .where(suspensions: { id: nil })
+                              .reorder('')
+                              .pluck('actes.id')
+      end
+
+      if suspensions_count_values.include?('1')
+        # Actes avec exactement 1 suspension
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('actes.id')
+                              .having('COUNT(suspensions.id) = 1')
+                              .reorder('')
+                              .pluck('actes.id')
+      end
+
+      if suspensions_count_values.include?('2_ou_plus')
+        # Actes avec 2 suspensions ou plus
+        acte_ids += @actes_all.joins(:suspensions)
+                              .group('actes.id')
+                              .having('COUNT(suspensions.id) >= 2')
+                              .reorder('')
+                              .pluck('actes.id')
+      end
+
+      @actes_all = @actes_all.where(id: acte_ids.uniq)
+    end
+
+    @filtres_count = count_active_filters(params[:q])
+
+    respond_to do |format|
+      format.html do
+        @pagy, @actes = pagy(@actes_all, limit: 20)
+      end
+      format.xlsx do
+        # @actes_all contient déjà tous les résultats filtrés
+        # Pas besoin de pagination pour l'export
+      end
+    end
+  end
+
+  def new
+    if params[:id].present? # nouveau modèle
+      @acte = current_user.actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'numero_chorus', 'etat', 'montant_ae', 'montant_global', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
+      @acte.etat = @acte_parent.etat == "en pré-instruction" ? @acte_parent.etat : "en cours d'instruction"
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'acte_id', 'montant'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'acte_id'))
+      end
+    elsif params[:parent_id].present? # nouvelle saisine avec même numéro chorus
+      @acte = current_user.actes.new(@acte_parent.attributes.except('id', 'created_at', 'updated_at', 'instructeur', 'date_saisine', 'etat','montant_ae', 'montant_global', 'type_engagement', 'annee', 'numero_utilisateur', 'numero_formate', 'date_limite', 'decision_finale', 'delai_traitement', 'valideur', 'date_cloture', 'user_id', 'gestion_anticipee'))
+      @acte.etat = "en cours d'instruction"
+      @acte.annee = Date.today.year
+      @saisine = true
+
+      # Duplication des poste_lignes
+      @acte_parent.poste_lignes.each do |poste_ligne|
+        @acte.poste_lignes.build(poste_ligne.attributes.except('id', 'created_at', 'updated_at', 'acte_id', 'montant'))
+      end
+
+      # Duplication des écheanciers
+      @acte_parent.echeanciers.each do |echeancier|
+        @acte.echeanciers.build(echeancier.attributes.except('id', 'created_at', 'updated_at', 'acte_id'))
+      end
+    else
+      titre = params[:titre].present? && %w[HT2 T2].include?(params[:titre]) ? params[:titre] : 'HT2'
+      type_acte = params[:type_acte].present? && ['avis', 'visa', 'TF'].include?(params[:type_acte]) ? params[:type_acte] : 'visa'
+      etat = params[:etat].present? && ['en pré-instruction', "en cours d'instruction"].include?(params[:etat]) ? params[:etat] : "en cours d'instruction"
+      type_engagement = type_acte == "TF" ? 'Affectation initiale' : 'Engagement initial'
+      pre_instruction = params[:pre_instruction] == 'true'
+      perimetre = params[:perimetre].present? && ['etat', 'organisme'].include?(params[:perimetre]) ? params[:perimetre] : 'etat'
+      categorie_organisme = params[:categorie_organisme].present? && ['depense', 'recette'].include?(params[:categorie_organisme]) ? params[:categorie_organisme] : nil
+      categorie_t2 = titre == 'T2' ? 'hors contrat' : nil
+      @acte = current_user.actes.new(titre: titre, type_acte: type_acte, etat: etat, type_engagement: type_engagement, pre_instruction: pre_instruction, perimetre: perimetre, categorie_organisme: categorie_organisme, categorie_t2: categorie_t2)
+      @acte.build_t2_detail if titre == 'T2'
+    end
+    set_variables_form
+    @acte.nature = @liste_natures.first if @acte.titre == 'T2' && @acte.nature.blank? && @liste_natures&.size == 1
+  end
+
+  def create
+    @acte = current_user.actes.new(acte_params)
+    @acte.nature = "TF" if @acte.type_acte == "TF"
+    if @acte.save
+      clear_irrelevant_t2_detail_fields(@acte)
+      # Association du centre financier dans model after save
+      redirect_to edit_acte_path(@acte, etape: 2)
+    else
+      render :new
+    end
+  end
+
+  def edit
+    @acte.build_t2_detail if @acte.titre == 'T2' && @acte.t2_detail.nil?
+  end
+
+  def update
+    @etape = params[:etape].to_i || 1
+    if @acte.update(acte_params) && clear_irrelevant_t2_detail_fields(@acte)
+      # after save : Mise à jour du centre financier si nécessaire + Calcul des délais de traitement
+      if @etape <= 3 && ["en cours d'instruction", "suspendu", "en pré-instruction", "à suspendre"].include?(@acte.etat)
+        redirect_to edit_acte_path(@acte, etape: @etape)
+      else
+        notice = update_acte_notice(@acte.etat, @etape, @acte.type_acte)
+        redirect_to acte_path(@acte), notice: notice
+      end
+    else
+      render :edit
+    end
+  end
+
+  def bulk_cloture
+    ids = params[:acte_ids].flat_map { |id| id.to_s.split(',') }.map(&:strip).map(&:to_i)
+    date = params[:date_cloture]
+    redirect_to actes_path and return if date.nil?
+
+    Acte.where(id: ids).find_each do |acte|
+      acte.update(date_cloture: date, etat: "clôturé")
+    end
+
+    redirect_to actes_path(tab: 'clotures'), notice: "Actes clôturés avec succès."
+  end
+
+  def show
+    @actes_groupe = @acte.numero_chorus.present? ? @acte.tous_actes_meme_chorus.includes(:suspensions, :echeanciers, :poste_lignes, :t2_detail).order(annee: :asc, created_at: :asc) : [@acte]
+    @acte_courant = @acte
+  end
+
+  def new_modal; end
+
+  def show_modal; end
+
+  def modal_delete; end
+
+  def modal_cloture_preinstruction; end
+
+  def modal_pre_instruction; end
+
+  def cloture_pre_instruction
+    @acte.update(etat: "clôturé en pré-instruction")
+    notice = update_acte_notice(@acte.etat, 0, @acte.type_acte)
+    redirect_to acte_path(@acte), notice: notice
+  end
+
+  def renvoie_instruction
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
+  def validate_acte
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
+  def modal_renvoie_validation; end
+  def acte_actions
+    @frame_id = params[:frame_id] || view_context.dom_id(@acte, :bloc)
+  end
+
+  # export fiche excel d'un acte
+  def export
+    @acte = Acte.includes(:t2_detail).find(params[:id])
+    respond_to do |format|
+      format.html
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"acte_#{@acte.numero_formate}_#{Date.current.strftime('%Y%m%d')}.xlsx\""
+      end
+      format.pdf do
+        begin
+          render pdf: "acte_ht2_#{@acte.numero_utilisateur}",
+                 template: 'actes/export_pdf',
+                 layout: 'pdf',
+                 formats: [:html],
+                 disposition: 'inline',
+                 show_as_html: params[:debug].present?,
+                 javascript_delay: 2000,
+                 window_status: 'ready',
+                 enable_javascript: true,
+                 enable_local_file_access: true,
+                 orientation: 'Portrait',
+                 page_size: 'A4',
+                 margin: { top: 15, bottom: 15, left: 10, right: 10 },
+                 no_stop_slow_scripts: true,
+                 timeout: 60 # Increase timeout to 60 seconds
+        rescue => e
+          Rails.logger.error("PDF generation error in export_pdf action: #{e.message}")
+          Rails.logger.error(e.backtrace.join("\n"))
+          flash[:error] = "Une erreur est survenue lors de la génération du PDF. Veuillez réessayer plus tard."
+          redirect_to acte_path(@acte)
+        end
+      end
+    end
+  end
+
+  def destroy
+    @acte&.destroy
+    redirect_to actes_path, notice: "Acte supprimé avec succès."
+  end
+
+  def check_chorus_number
+    numero_chorus = params[:numero_chorus]
+    acte_id = params[:acte_id]
+    if numero_chorus.present?
+      actes_meme_chorus = current_user.actes.where(numero_chorus: numero_chorus)
+      actes_meme_chorus = actes_meme_chorus.where.not(id: acte_id) if acte_id.present?
+      actes_meme_chorus_count = actes_meme_chorus.count
+    else
+      actes_meme_chorus_count = 0
+    end
+    render json: { exists: actes_meme_chorus_count.positive? }
+  end
+
+  def tableau_de_bord
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
+    end
+
+    @selected_type_cloture = @q_params[:type_cloture].presence
+
+    @q = @actes.clotures.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true)
+    @actes_cloture = case @selected_type_cloture
+                     when 'cloture_seule' then @actes_filtered.clotures_seuls
+                     when 'cloture_apres_pre_instruction' then @actes_filtered.clotures_apres_pre_instruction
+                     else @actes_filtered.clotures
+                     end
+    @total_actes = @actes_cloture.count
+
+    # Données pour le graphique pie
+    @type_actes = @actes_cloture.group_by(&:type_acte).transform_values(&:count).map { |type, count| { name: type || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
+    @perimetre_data = @actes_cloture.group_by(&:perimetre).transform_values(&:count).map { |perimetre, count| { name: perimetre&.capitalize || 'Non renseigné', y: count } }.sort_by { |h| h[:name].to_s.downcase }
+    @decisions_data = @actes_cloture.group_by(&:decision_finale).transform_values(&:count).map { |decision, count| { name: decision.presence || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    @natures_data = @actes_cloture.group_by(&:nature).transform_values(&:count).map { |nature, count| { name: nature || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    @ordonnateurs_data = @actes_cloture.group_by(&:ordonnateur).transform_values(&:count).map { |ordonnateur, count| { name: ordonnateur || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] }
+    # Données pour le graphique des programmes
+    @programmes_data = @actes_cloture.includes(centre_financier_principal: :programme)
+                                      .group_by(&:programme_principal)
+                                      .transform_values(&:count)
+                                      .map { |programme, count| { name: programme&.numero || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
+    # Données pour le graphique des organismes
+    @organismes_data = @actes_cloture.group_by(&:nom_organisme)
+                                      .transform_values(&:count)
+                                      .map { |organisme, count| { name: organisme || 'Non renseigné', y: count } }.sort_by { |h| -h[:y] } # Tri du plus grand au plus petit
+    # Répartition état/pré-instruction (SIMPLE)
+    @preinstruction_data = [
+      { name: "Clôturé sans pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: false).count },
+      { name: "Clôturé avec pré-instruction", y: @actes_filtered.where(etat: "clôturé", pre_instruction: true).count },
+      { name: "Clôturé en pré-instruction", y: @actes_filtered.where(etat: "clôturé en pré-instruction").count }
+    ]
+
+    # Répartition des actes programmés
+    @programmation_data = [
+      { name: "Oui", y: @actes_cloture.where(programmation_prevue: true).count },
+      { name: "Non", y: @actes_cloture.where(programmation_prevue: [false, nil]).count }
+    ]
+
+    year = @q_params[:annee_eq].to_i
+    start_date = Date.new(year, 1, 1)
+    end_date   = start_date.end_of_year
+
+    # 1) Comptages bruts par mois
+    recus_raw = @actes_cloture
+                  .where(date_saisine: start_date..end_date)
+                  .group("EXTRACT(MONTH FROM date_saisine)")
+                  .count
+    recus_by_month = recus_raw.transform_keys(&:to_i)
+
+    clotures_raw = @actes_cloture
+                     .where(date_cloture: start_date..end_date)
+                     .group("EXTRACT(MONTH FROM date_cloture)")
+                     .count
+    clotures_by_month = clotures_raw.transform_keys(&:to_i)
+
+    # ---- 3. Construire les tableaux 12 valeurs (janvier..décembre)
+    recus_array = (1..12).map { |m| recus_by_month[m] || 0 }
+    clotures_array = (1..12).map { |m| clotures_by_month[m] || 0 }
+
+    @actes_par_mois = {
+      categories: I18n.t('date.month_names')[1..12], # ["janvier", ..., "décembre"]
+      series: [
+        { name: "Actes reçus",    y: recus_array },    # 12 valeurs
+        { name: "Actes clôturés", y: clotures_array }  # 12 valeurs
+      ]
+    }
+
+    # Créer un scope pour @evolution_par_annee sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    evolution_scope = case @selected_type_cloture
+                      when 'cloture_seule' then @actes.clotures_seuls
+                      when 'cloture_apres_pre_instruction' then @actes.clotures_apres_pre_instruction
+                      else @actes.clotures
+                      end
+    @q_evolution = evolution_scope.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
+    # Regrouper par année et type_acte
+    @counts = actes_for_evolution.group(:annee, :type_acte).count
+    # => { [2022, "avis"] => 813, [2023, "avis"] => 623, ... }
+
+    @years = (2024..Date.today.year).to_a
+    types = @counts.keys.map(&:last).uniq.sort
+
+    @evolution_par_annee = {
+      categories: @years,
+      series: types.map do |type|
+        {
+          name: type || 'Non renseigné',
+          y: @years.map { |year| @counts[[year, type]] || 0 }
+        }
+      end
+    }
+  end
+
+  def synthese_temporelle
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
+    end
+
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @actes.clotures_apres_pre_instruction
+                    else @actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true)
+
+    year = @q_params[:annee_eq].to_i
+
+    # Construire les séries en fonction des périmètres sélectionnés (Story 3.2 : array `perimetre_in`)
+    selected_perimetres = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    perimetre_mode = if selected_perimetres.empty? || selected_perimetres.sort == %w[etat organisme]
+                       :consolide
+                     elsif selected_perimetres == ['etat']
+                       :etat
+                     elsif selected_perimetres == ['organisme']
+                       :organisme
+                     end
+
+    series = []
+
+    if perimetre_mode == :consolide
+      # Vue consolidée : afficher les 3 courbes
+
+      # Délai moyen pour périmètre État
+      delais_etat = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          perimetre: 'etat',
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      # Délai moyen pour périmètre Organisme
+      delais_organisme = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          perimetre: 'organisme',
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      # Délai moyen global (tous les actes)
+      delais_global = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen État", y: delais_etat },
+        { name: "Délai moyen Organisme", y: delais_organisme },
+        { name: "Délai moyen consolidé", y: delais_global }
+      ]
+
+    elsif perimetre_mode == :etat
+      # Vue État : afficher uniquement la courbe État
+      delais_etat = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen de traitement (jours)", y: delais_etat }
+      ]
+
+    elsif perimetre_mode == :organisme
+      # Vue Organisme : afficher uniquement la courbe Organisme
+      delais_organisme = (1..12).map do |month|
+        actes_du_mois = @actes_filtered.where(
+          date_cloture: Date.new(year, month, 1)..Date.new(year, month, -1)
+        )
+        actes_du_mois.any? ? (actes_du_mois.average(:delai_traitement).to_f).round(1) : 0
+      end
+
+      series = [
+        { name: "Délai moyen de traitement (jours)", y: delais_organisme }
+      ]
+    end
+
+    @delais_dataset = {
+      categories: I18n.t("date.month_names")[1..12], # ["janvier", ..., "décembre"]
+      series: series
+    }
+
+    # Calcul du délai moyen de traitement par programme
+    delais_par_programme = @actes_filtered
+      .includes(centre_financier_principal: :programme)
+      .group('programmes.numero')
+      .average(:delai_traitement)
+      .reject { |k, v| k.nil? || v.nil? } # Filtrer les programmes null et valeurs null
+      .transform_values { |v| v.to_f.round(1) } # Convertir explicitement en float
+      .sort_by { |_k, v| -v }
+      .to_h
+
+    @delais_par_programme_dataset = {
+      categories: delais_par_programme.keys,
+      series: [
+        {
+          name: "Délai moyen (jours)",
+          y: delais_par_programme.values # Les valeurs sont maintenant des float
+        }
+      ]
+    }
+
+    # Calcul du délai moyen de traitement par organisme
+    delais_par_organisme = @actes_filtered
+      .group(:nom_organisme)
+      .average(:delai_traitement)
+      .reject { |k, v| k.nil? || v.nil? } # Filtrer les organismes null et valeurs null
+      .transform_values { |v| v.to_f.round(1) } # Convertir explicitement en float
+      .sort_by { |_k, v| -v }
+      .to_h
+
+    @delais_par_organisme_dataset = {
+      categories: delais_par_organisme.keys,
+      series: [
+        {
+          name: "Délai moyen (jours)",
+          y: delais_par_organisme.values
+        }
+      ]
+    }
+  end
+
+  def synthese_suspensions
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
+    end
+
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @actes.clotures_apres_pre_instruction
+                    else @actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true).includes(:suspensions)
+    @suspensions_all = @actes_filtered.map(&:suspensions).flatten.uniq
+    @suspensions_all_count = @suspensions_all.count
+    @suspensions_data = @suspensions_all.flat_map { |s| Array(s.motif) }.tally.map { |motif, count| { name: motif, y: count } }.sort_by { |h| -h[:y] }
+    @suspensions_motifs_count = @suspensions_data.sum { |h| h[:y] }
+    # Calcul du nombre de suspensions par programme
+    suspensions_par_programme = @actes_filtered
+                                  .joins(:suspensions)
+                                  .joins(centre_financier_principal: :programme)
+                                  .group('programmes.numero')
+                                  .order('COUNT(suspensions.id) DESC')
+                                  .pluck('programmes.numero', 'COUNT(suspensions.id)')
+                                  .to_h
+
+    @suspensions_par_programme_dataset = {
+      categories: suspensions_par_programme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre de suspensions par organisme
+    suspensions_par_organisme = @actes_filtered
+                                  .joins(:suspensions)
+                                  .group(:nom_organisme)
+                                  .order('COUNT(suspensions.id) DESC')
+                                  .pluck(:nom_organisme, 'COUNT(suspensions.id)')
+                                  .to_h
+
+    @suspensions_par_organisme_dataset = {
+      categories: suspensions_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_par_organisme.values
+        }
+      ]
+    }
+
+    # Calcul de l'évolution pluriannuelle des suspensions
+    # Créer un scope pour @evolution_suspensions_dataset sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    @q_evolution = cloture_scope.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
+    years = (2024..Date.today.year).to_a
+    suspensions_par_annee = actes_for_evolution
+                              .joins(:suspensions)
+                              .where(annee: years)
+                              .group(:annee)
+                              .order(:annee)
+                              .count('suspensions.id')
+
+    # S'assurer que toutes les années sont présentes, même avec 0 suspension
+    suspensions_values = years.map { |year| suspensions_par_annee[year] || 0 }
+
+    @evolution_suspensions_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre de suspensions",
+          y: suspensions_values
+        }
+      ]
+    }
+
+    actes_suspendus_par_annee = actes_for_evolution
+                                  .joins(:suspensions)
+                                  .where(annee: years)
+                                  .group(:annee)
+                                  .order(:annee)
+                                  .count('DISTINCT actes.id')
+
+    actes_suspendus_values = years.map { |year| actes_suspendus_par_annee[year] || 0 }
+
+    @evolution_actes_suspendus_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre d'actes suspendus",
+          y: actes_suspendus_values
+        }
+      ]
+    }
+  end
+
+  def synthese_anomalies
+    # Initialiser les paramètres de recherche avec l'année en cours par défaut
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    # Supprimer les paramètres vides
+    @q_params.reject! { |_, v| v.blank? }
+    # Si aucun filtre d'année n'est spécifié, utiliser l'année en cours
+    if @q_params[:annee_eq].blank?
+      @q_params[:annee_eq] = Date.today.year
+    end
+
+    @selected_type_cloture = @q_params[:type_cloture].presence
+    cloture_scope = case @selected_type_cloture
+                    when 'cloture_seule' then @actes.clotures_seuls
+                    when 'cloture_apres_pre_instruction' then @actes.clotures_apres_pre_instruction
+                    else @actes.clotures
+                    end
+
+    @q = cloture_scope.ransack(@q_params)
+    @actes_filtered = @q.result(distinct: true)
+
+    # Données pour les observations - Utilise unnest de PostgreSQL
+    all_observations =
+      @actes_filtered
+        .pluck(:id, :type_observations).map { |_, v| v }
+        .compact
+        .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
+        .map { |s| s.to_s.strip }
+        .reject(&:blank?)
+
+    @observations_data = all_observations
+                                 .tally
+                                 .map { |name, count| { name: name, y: count } }
+                                 .sort_by { |h| -h[:y] }
+
+    @total_observations = all_observations.size
+
+    # Calcul de l'évolution pluriannuelle des observations
+    # Créer un scope pour @evolution_observations_dataset sans les filtres annee_eq et dates de clôture
+    q_params_evolution = @q_params.except(:annee_eq, :date_cloture_gteq, :date_cloture_lteq)
+    @q_evolution = cloture_scope.ransack(q_params_evolution)
+    actes_for_evolution = @q_evolution.result(distinct: true)
+
+    years = (2024..Date.today.year).to_a
+    observations_par_annee = {}
+
+    years.each do |year|
+      actes_annee = actes_for_evolution.where(annee: year)
+      observations_count = actes_annee
+        .pluck(:id, :type_observations).map { |_, v| v }
+        .compact
+        .flat_map { |v| v.is_a?(String) ? (v.strip.start_with?('[') ? JSON.parse(v) : [v]) : Array(v) }
+        .reject(&:blank?)
+        .size
+      observations_par_annee[year] = observations_count
+    end
+
+    # S'assurer que toutes les années sont présentes
+    observations_values = years.map { |year| observations_par_annee[year] || 0 }
+
+    @evolution_observations_dataset = {
+      categories: years,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'observations par programme
+    observations_par_programme = {}
+
+    @actes_filtered.includes(centre_financier_principal: :programme).each do |acte|
+      programme_numero = acte.centre_financier_principal&.programme&.numero
+      next unless programme_numero
+
+      # Compter les observations de cet acte
+      observations_count = if acte.type_observations.present?
+        obs = acte.type_observations
+        if obs.is_a?(String)
+          obs.strip.start_with?('[') ? JSON.parse(obs).size : 1
+        elsif obs.is_a?(Array)
+          obs.reject(&:blank?).size
+        else
+          0
+        end
+      else
+        0
+      end
+
+      observations_par_programme[programme_numero] ||= 0
+      observations_par_programme[programme_numero] += observations_count
+    end
+
+    # Retirer les programmes avec 0 observations et trier par nombre décroissant
+    observations_par_programme = observations_par_programme.reject { |_k, v| v == 0 }.sort_by { |_k, v| -v }.to_h
+
+    @observations_par_programme_dataset = {
+      categories: observations_par_programme.keys,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'actes non programmés par programme
+    actes_non_programmes_par_programme = @actes_filtered
+                                          .where(programmation_prevue: false)
+                                          .includes(centre_financier_principal: :programme)
+                                          .group('programmes.numero')
+                                          .order('COUNT(actes.id) DESC')
+                                          .pluck('programmes.numero', 'COUNT(actes.id)')
+                                          .to_h
+
+    @actes_non_programmes_par_programme_dataset = {
+      categories: actes_non_programmes_par_programme.keys,
+      series: [
+        {
+          name: "Nombre d'actes non programmés",
+          y: actes_non_programmes_par_programme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'actes non programmés par organisme
+    actes_non_programmes_par_organisme = @actes_filtered
+                                          .where(programmation_prevue: false)
+                                          .group(:nom_organisme)
+                                          .order('COUNT(actes.id) DESC')
+                                          .pluck(:nom_organisme, 'COUNT(actes.id)')
+                                          .to_h
+
+    @actes_non_programmes_par_organisme_dataset = {
+      categories: actes_non_programmes_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre d'actes non programmés",
+          y: actes_non_programmes_par_organisme.values
+        }
+      ]
+    }
+
+    # Calcul du nombre d'observations par organisme
+    observations_par_organisme = {}
+
+    @actes_filtered.each do |acte|
+      organisme_nom = acte.nom_organisme
+      next unless organisme_nom.present?
+
+      # Compter les observations de cet acte
+      observations_count = if acte.type_observations.present?
+        obs = acte.type_observations
+        if obs.is_a?(String)
+          obs.strip.start_with?('[') ? JSON.parse(obs).size : 1
+        elsif obs.is_a?(Array)
+          obs.reject(&:blank?).size
+        else
+          0
+        end
+      else
+        0
+      end
+
+      observations_par_organisme[organisme_nom] ||= 0
+      observations_par_organisme[organisme_nom] += observations_count
+    end
+
+    # Retirer les organismes avec 0 observations et trier par nombre décroissant
+    observations_par_organisme = observations_par_organisme.reject { |_k, v| v == 0 }.sort_by { |_k, v| -v }.to_h
+
+    @observations_par_organisme_dataset = {
+      categories: observations_par_organisme.keys,
+      series: [
+        {
+          name: "Nombre d'observations",
+          y: observations_par_organisme.values
+        }
+      ]
+    }
+  end
+  def synthese_utilisateurs
+    q = params[:q] || {}
+    @q_params = (q.respond_to?(:to_unsafe_h) ? q.to_unsafe_h : q).deep_dup
+    @q_params.reject! { |_, v| v.blank? }
+
+    @selected_year = @q_params[:annee_eq].present? ? @q_params[:annee_eq].to_i : Date.today.year
+    @q_params[:annee_eq] = @selected_year
+
+    @users_cbr = User.where(statut: 'CBR').order(nom: :asc)
+    @users_dcb = User.where(statut: 'DCB').order(nom: :asc)
+
+    # `perimetre_in` (array) remplace `perimetre_eq` (scalaire).
+    # Si vue consolidée (rien ou tout coché), on passe `nil` au helper pour skipper la clause `where`.
+    # Sinon, on passe l'array — `where(perimetre: array)` génère un `IN (...)` SQL.
+    selected_perimetres_array = Array(@q_params[:perimetre_in]).reject(&:blank?)
+    @selected_perimetres = (selected_perimetres_array.empty? || selected_perimetres_array.sort == %w[etat organisme]) ? nil : selected_perimetres_array
+
+    # Même sémantique pour `titre_in` : vue consolidée si rien ou tout coché → `nil`.
+    selected_titres_array = Array(@q_params[:titre_in]).reject(&:blank?)
+    @selected_titres = (selected_titres_array.empty? || selected_titres_array.sort == %w[HT2 T2]) ? nil : selected_titres_array
+
+    @selected_type_actes = Array(@q_params[:type_acte_in]).reject(&:blank?)
+    @selected_type_cloture = @q_params[:type_cloture].presence
+
+    @stats_cbr = user_ht2_stats(@users_cbr, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture, @selected_titres)
+    @stats_dcb = user_ht2_stats(@users_dcb, @selected_year, @q_params[:date_cloture_gteq], @q_params[:date_cloture_lteq], @selected_perimetres, @selected_type_actes, @q_params[:updated_at_gteq], @q_params[:updated_at_lteq], @q_params[:created_at_gteq], @q_params[:created_at_lteq], @selected_type_cloture, @selected_titres)
+  end
+
+  def download_attachments
+    @acte = Acte.find(params[:id])
+
+    # Extraire les attachments du rich text
+    attachments = extract_attachments_from_rich_text(@acte.commentaire_disponibilite_credits)
+
+    if attachments.empty?
+      redirect_back(fallback_location: acte_path(@acte), alert: "Aucune image trouvée dans les observations.")
+      return
+    end
+
+    # Si une seule image, télécharger directement
+    if attachments.size == 1
+      attachment = attachments.first
+      send_data attachment.download,
+                filename: attachment.filename.to_s,
+                type: attachment.content_type,
+                disposition: 'attachment'
+      return
+    end
+
+    # Si plusieurs images, créer un ZIP
+    zip_data = create_zip_with_attachments(attachments, @acte.id)
+
+    send_data zip_data,
+              filename: "acte_#{@acte.id}_images_#{Date.current.strftime('%Y%m%d')}.zip",
+              type: 'application/zip',
+              disposition: 'attachment'
+
+  end
+
+  def ajout_actes
+    @users_stats = User.all.order(:nom).map do |user|
+      actes_2024_count = user.actes.where(annee: 2024).count
+      actes_2025_count = user.actes.where(annee: 2025).count
+      actes_2026_count = user.actes.where(annee: 2026).count
+      {
+        user: user,
+        actes_2024_count: actes_2024_count,
+        actes_2025_count: actes_2025_count,
+        actes_2026_count: actes_2026_count
+      }
+    end.select { |stat| stat[:actes_2024_count] > 0 || stat[:actes_2025_count] > 0 || stat[:actes_2026_count] > 0 }
+  end
+
+  def delete_user_actes_year
+    user = User.find(params[:user_id])
+    year = params[:year].to_i
+
+    actes_count = user.actes.where(annee: year).count
+    user.actes.where(annee: year).destroy_all
+
+    redirect_to ajout_actes_path, notice: "#{actes_count} actes de l'année #{year} pour #{user.nom} ont été supprimés."
+  end
+
+  def import
+    Acte.import(params[:file])
+    respond_to do |format|
+      format.turbo_stream { redirect_to ajout_actes_path }
+    end
+  end
+
+  def import_actes_organismes
+    if params[:file].blank?
+      return redirect_to ajout_actes_path, alert: "Veuillez sélectionner un fichier."
+    end
+
+    begin
+      count = Acte.import_actes_organismes(params[:file])
+      redirect_to ajout_actes_path, notice: "Import organismes terminé : #{count} acte(s) importé(s)."
+    rescue => e
+      Rails.logger.error "[import_actes_organismes] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      redirect_to ajout_actes_path, alert: "Erreur lors de l'import : #{e.message}"
+    end
+  end
+
+  def pdf_en_cours
+    @actes_pdf = Acte.where(pdf_generation_status: ['generating', 'failed'])
+                        .includes(:user)
+                        .order(updated_at: :desc)
+    @pagy, @actes_pdf = pagy(@actes_pdf, limit: 20)
+  end
+
+  def admin_backup
+    @backups = BackupExport.order(created_at: :desc).limit(10)
+  end
+
+  def export_organisme_2026
+    @actes = Acte.where(perimetre: 'organisme', annee: 2026)
+                    .includes(:user, :suspensions, :echeanciers, :poste_lignes)
+                    .order(:id)
+    respond_to do |format|
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"actes_organisme_2026_#{Date.current.strftime('%Y%m%d')}.xlsx\""
+      end
+    end
+  end
+
+  def import_from_backup
+    if params[:backup_file].blank?
+      return redirect_to admin_backup_path, alert: "Veuillez sélectionner un fichier."
+    end
+
+    begin
+      id_map = Acte.import_from_backup(params[:backup_file].tempfile)
+      redirect_to admin_backup_path, notice: "Import terminé : #{id_map.size} acte(s) importé(s)."
+    rescue => e
+      Rails.logger.error "[import_from_backup] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      redirect_to admin_backup_path, alert: "Erreur lors de l'import : #{e.message}"
+    end
+  end
+
+  def generate_backup
+    backup = BackupExport.create!(status: 'generating')
+    GenerateBackupJob.perform_later(backup.id)
+    redirect_to admin_backup_path, notice: "La sauvegarde est en cours de génération. Rechargez la page dans quelques instants."
+  end
+
+  def download_backup
+    backup = BackupExport.find(params[:id])
+    file = gcs_bucket.file(backup.gcs_path)
+    signed_url = file.signed_url(method: 'GET', expires: 300, query: { 'response-content-disposition' => "attachment; filename=\"#{backup.filename}\"" })
+    redirect_to signed_url, allow_other_host: true
+  end
+
+  def destroy_backup
+    backup = BackupExport.find(params[:id])
+    if backup.gcs_path.present?
+      file = gcs_bucket.file(backup.gcs_path)
+      file&.delete
+    end
+    backup.destroy!
+    redirect_to admin_backup_path, notice: "Sauvegarde supprimée."
+  end
+
+  def generate_pdf
+    # Définir le statut comme "en cours de génération"
+    @acte.update(pdf_generation_status: 'generating')
+
+    # Lancer la génération du PDF avec notification au centre une fois terminé
+    GenerateActePdfJob.perform_later(@acte.id)
+
+    redirect_to acte_path(@acte),
+                notice: "Le PDF est en cours de création. #{view_context.link_to('Réactualisez la page', acte_path(@acte))} dans quelques instants pour pouvoir télécharger le document.".html_safe
+  end
+
+  private
+
+  def authorize_show!
+    unless current_user.statut == 'admin' || @acte.user_id == current_user.id
+      redirect_to actes_path, alert: "Vous n'êtes pas autorisé à accéder à cet acte."
+    end
+  end
+
+  T2_DETAIL_FIELDS_BY_NATURE = {
+    'Annexe financière' => %i[
+      type_acte_t2 effectifs effectifs_complementaire corps grade
+      date_arrete_concours date_effet_acte impact_schema_emplois impact_autre_cbcm
+    ],
+    'ISP' => %i[
+      date_effet_acte
+      isp_cercle1 isp_cercle1_natures isp_cercle1_montant isp_cercle1_enveloppe_sgg isp_cercle1_consommation
+      isp_cercle2 isp_cercle2_natures isp_cercle2_montant isp_cercle2_enveloppe_sgg isp_cercle2_consommation
+    ],
+    'Enveloppe limitative'    => %i[perimetre_mesure grade corps effectifs effectifs_complementaire statut_agents montant_enveloppe_n1 impact_maximal_sans_enveloppe origine_financement date_effet_acte],
+    'Fongibilité asymétrique' => %i[fa_technique accord_rffim sollicitation_db avis_cbcm enveloppe_abondee],
+    'Marché'                  => [],
+    'Mesure transversale'     => %i[perimetre_mesure grade corps effectifs effectifs_complementaire statut_agents impact_financier_n1 origine_financement date_effet_acte],
+    'Référentiel'             => %i[perimetre_mesure grade corps effectifs effectifs_complementaire impact_financier_n1 referentiel_type origine_financement date_effet_acte]
+  }.freeze
+
+  ALL_T2_DETAIL_NATURE_FIELDS = T2_DETAIL_FIELDS_BY_NATURE.values.flatten.uniq.freeze
+
+  # Step-2 criteria fields — not nature-dependent, must not be wiped on step-1 saves
+  T2_CRITERIA_FIELDS = %i[
+    inscription_pap respect_plafond_emplois respect_schema_emplois
+    controle_modalites respect_enveloppe risque_reconventionnel
+  ].freeze
+
+  def clear_irrelevant_t2_detail_fields(acte)
+    return true unless acte.titre == 'T2' && acte.t2_detail.present?
+
+    allowed = T2_DETAIL_FIELDS_BY_NATURE.fetch(acte.nature, [])
+    fields_to_nil = ALL_T2_DETAIL_NATURE_FIELDS - allowed - T2_CRITERIA_FIELDS
+
+    return true if fields_to_nil.empty?
+
+    updates = fields_to_nil.each_with_object({}) do |field, h|
+      default = acte.t2_detail.class.columns_hash[field.to_s]&.default
+      h[field] = default.nil? ? nil : default
+    end
+
+    acte.t2_detail.update_columns(updates)
+  end
+
+  def acte_params
+    params[:acte][:type_observations] = params[:acte][:type_observations]&.split(',') if params[:acte][:type_observations].is_a?(String)
+
+    params[:acte][:suspensions_attributes]&.each_value do |susp|
+      susp[:motif] = susp[:motif].split(',') if susp[:motif].is_a?(String)
+    end
+
+    t2 = params.dig(:acte, :t2_detail_attributes)
+    if t2
+      t2[:grade] = t2[:grade].split(',').map(&:strip).reject(&:blank?) if t2[:grade].is_a?(String)
+      t2[:isp_cercle1_natures] = t2[:isp_cercle1_natures].split(',').map(&:strip).reject(&:blank?) if t2[:isp_cercle1_natures].is_a?(String)
+      t2[:isp_cercle2_natures] = t2[:isp_cercle2_natures].split(',').map(&:strip).reject(&:blank?) if t2[:isp_cercle2_natures].is_a?(String)
+      t2[:perimetre_mesure] = t2[:perimetre_mesure].split(',').map(&:strip).reject(&:blank?) if t2[:perimetre_mesure].is_a?(String)
+      t2[:origine_financement] = t2[:origine_financement].split(',').map(&:strip).reject(&:blank?) if t2[:origine_financement].is_a?(String)
+    end
+
+    params.require(:acte).permit(:titre, :categorie_t2, :type_acte, :etat, :instructeur, :nature, :montant_ae, :montant_global, :centre_financier_code,
+                                 :date_saisine, :numero_chorus, :beneficiaire, :objet, :ordonnateur, :precisions_acte,
+                                 :pre_instruction, :action, :activite, :numero_tf, :date_limite,
+                                 :disponibilite_credits, :imputation_depense, :consommation_credits, :programmation,
+                                 :proposition_decision, :commentaire_proposition_decision, :observations,
+                                 :user_id, :commentaire_disponibilite_credits, :valideur, :date_cloture, :annee,
+                                 :decision_finale, :numero_utilisateur, :numero_formate, :delai_traitement, :sheet_data,
+                                 :categorie, :numero_marche, :services_votes, :liste_actes, :nombre_actes, :type_engagement, :programmation_prevue, :avis_programmation, :gestion_anticipee,
+                                 :groupe_marchandises,:renvoie_instruction,:pdf_generation_status, :perimetre, :categorie_organisme, :nom_organisme,
+                                 :type_montant, :operation_compte_tiers, :operation_budgetaire, :nature_categorie_organisme, :budget_executoire,
+                                 :deliberation_ca, :numero_deliberation_ca, :date_deliberation_ca, :observations_deliberation_ca, :destination, :nomenclature, :flux,
+                                 :soutenabilite, :conformite, :concordance_recettes_tiers, :autorisation_tutelle, type_observations: [],
+                                 suspensions_attributes: [:id, :_destroy, :date_suspension, :observations, motif: []],
+                                 echeanciers_attributes: [:id, :_destroy, :annee, :montant_ae, :montant_cp],
+                                 poste_lignes_attributes: [:id, :_destroy, :numero, :centre_financier_code, :montant, :domaine_fonctionnel, :fonds, :compte_budgetaire, :code_activite, :axe_ministeriel, :flux, :groupe_marchandises, :numero_tf],
+                                 t2_detail_attributes: [:id,
+                                                        :type_acte_t2, :effectifs, :effectifs_complementaire, :corps, :date_arrete_concours,
+                                                        :date_effet_acte, :impact_schema_emplois, :impact_autre_cbcm,
+                                                        :isp_cercle1, :isp_cercle1_montant, :isp_cercle1_enveloppe_sgg, :isp_cercle1_consommation,
+                                                        :isp_cercle2, :isp_cercle2_montant, :isp_cercle2_enveloppe_sgg, :isp_cercle2_consommation,
+                                                        :fa_technique, :accord_rffim, :sollicitation_db, :avis_cbcm, :enveloppe_abondee,
+                                                        :statut_agents, :impact_financier_n1,
+                                                        :montant_enveloppe_n1, :impact_maximal_sans_enveloppe, :referentiel_type,
+                                                        :inscription_pap, :respect_plafond_emplois, :respect_schema_emplois,
+                                                        :controle_modalites, :respect_enveloppe, :risque_reconventionnel,
+                                                        grade: [], isp_cercle1_natures: [], isp_cercle2_natures: [],
+                                                        perimetre_mesure: [], origine_financement: []])
+  end
+
+  def set_acte
+    @acte = Acte.find(params[:id])
+  end
+
+  def set_variables_form
+    # Gestion spécifique pour le périmètre organisme
+    perimetre = params[:perimetre] || @acte&.perimetre
+    categorie_organisme = params[:categorie_organisme] || @acte&.categorie_organisme
+    type_acte = params[:type_acte] || @acte&.type_acte
+    titre = @acte&.titre || params[:titre]
+
+    if titre == 'T2'
+      perimetre_t2 = @acte&.perimetre || params[:perimetre]
+      if perimetre_t2 == 'etat'
+        if current_user.statut == 'DCB'
+          @liste_natures = ['Annexe financière', 'Enveloppe limitative', 'Fongibilité asymétrique', 'ISP', 'Marché', 'Mesure transversale', 'Référentiel']
+        else
+          @liste_natures = ['Fongibilité asymétrique']
+        end
+      else
+        @liste_natures = ['Annexe financière', 'Enveloppe limitative', 'Fongibilité asymétrique', 'Marché', 'Mesure transversale', 'Référentiel']
+      end
+
+      @liste_types_observations = [
+        "Acte déjà signé par l'ordonnateur",
+        "Compatibilité avec la programmation",
+        "Evaluation de la consommation des crédits",
+        "Fondement juridique",
+        "Fongibilité asymétrique de faible montant",
+        "Hors périmètre du CBR/DCB",
+        "Incohérence avec le cadre de gestion",
+        "Pièce(s) manquante(s)",
+        "Risque au titre de la RGP",
+        "Saisine a posteriori",
+        "Saisine en dessous du seuil de soumission au contrôle",
+        "Autre"
+      ]
+
+      @liste_decisions = liste_decisions_for(type_acte)
+
+      @liste_motifs_suspension = [
+        "Demande de précision",
+        "Pièce(s) manquante(s)",
+        "Problématique de compatibilité avec la programmation",
+        "Problématique de soutenabilité",
+        "Saisine a posteriori",
+        "Autre"
+      ]
+
+      @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
+      return
+    end
+
+    if perimetre == 'organisme' && categorie_organisme == 'depense'
+      @liste_natures = [
+        "Accord cadre à bons de commande",
+        "Acquisition d'œuvres",
+        "Acquisition immobilière",
+        "Attribution de garanties",
+        "Autre contrat",
+        "Bail",
+        "Bon de commande",
+        "Conseil",
+        "Convention",
+        "Décision diverse",
+        "Intervention",
+        "Mandat",
+        "Marché à tranches",
+        "Marché mixte",
+        "Marché subséquent à bons de commande",
+        "Marché unique",
+        "MAPA à tranches",
+        "MAPA mixte",
+        "MAPA unique",
+        "Participation et apport à toute entité",
+        "Prêt ou avance",
+        "Remboursement de mise à disposition T3",
+        "Subvention",
+        "Transaction",
+        "Autre"
+      ]
+      # Pour organisme dépense, @liste_engagements dépend du type_acte
+      @liste_engagements = ["Engagement initial","Engagement initial prévisionnel", "Engagement complémentaire","Engagement complémentaire prévisionnel", "Retrait d'engagement"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+    elsif perimetre == 'organisme' && categorie_organisme == 'recette'
+      @liste_natures = [
+        "Aliénation immobilière",
+        "Cession de participation et retrait d’apport à toute entité",
+        "Convention et contrat en recette",
+        "Emprunt",
+        "Autre"
+      ]
+      # Pour organisme recette, pas de @liste_engagements
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Fondement juridique", "Hors périmètre du CBR/DCB", "Impact à prendre en compte dans le prochain budget", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'avis') || @acte&.type_acte == 'avis'
+      @liste_natures = ["Accord cadre à bons de commande", "Accord cadre à marchés subséquents", "Autre contrat", "Convention", "Marché subséquent à bons de commande", "MAPA à bons de commande", "Transaction", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Engagement initial prévisionnel", "Engagement complémentaire prévisionnel"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'visa') || @acte&.type_acte == 'visa'
+      @liste_natures = ["Autre contrat", "Bail", "Bon de commande", "Convention", "Décision diverse", "Dotation en fonds propres", "Marché unique", "Marché à tranches", "Marché mixte", "MAPA unique", "MAPA à tranches", "MAPA mixte", "Prêt ou avance", "Remboursement de mise à disposition T3", "Subvention", "Subvention pour charges d'investissement", "Subvention pour charges de service public", "Transaction", "Transfert", "Autre"]
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Construction de l'EJ", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Non-conformité du bon de commande avec les prix du BPU ou du marché", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Engagement initial", "Engagement complémentaire", "Retrait d'engagement"]
+    elsif (params[:type_acte].present? && params[:type_acte] == 'TF') || @acte&.type_acte == 'TF'
+      @liste_types_observations = ["Acte non soumis au contrôle", "Alerte contrôle interne", "Compatibilité avec la programmation", "Disponibilité des crédits", "Évaluation de la consommation des crédits", "Fondement juridique", "Hors périmètre du CBR/DCB", "Imputation", "Pièce(s) manquante(s)", "Problème dans la rédaction de l'acte", "Risque au titre de la RGP", "Saisine a posteriori", "Saisine en dessous du seuil de soumission au contrôle", "Autre"]
+      @liste_engagements = ["Affectation initiale", "Affectation complémentaire", "Retrait"]
+    end
+
+    @liste_decisions = liste_decisions_for(type_acte)
+
+    # @liste_motifs_suspension définie en fonction du périmètre
+    if perimetre == 'organisme' && categorie_organisme == 'depense'
+      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Mauvaise évaluation de la consommation des crédits", "Non conformité des pièces", "Pièce(s) manquante(s)", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
+    elsif perimetre == 'organisme' && categorie_organisme == 'recette'
+      @liste_motifs_suspension = ["Demande de précisions", "Erreur d'imputation", "Non conformité des pièces", "Pièce(s) manquante(s)", "Saisine a posteriori", "Autre"]
+    else
+      # Liste pour périmètre état (liste par défaut)
+      @liste_motifs_suspension = ["Défaut du circuit d'approbation Chorus", "Demande d'éléments complémentaires", "Demande de mise en cohérence EJ /PJ", "Erreur d'imputation", "Erreur dans la construction de l'EJ", "Mauvaise évaluation de la consommation des crédits", "Pièce(s) manquante(s)", "Non conformité des pièces", "Problématique de compatibilité avec la programmation", "Problématique de disponibilité des crédits", "Problématique de soutenabilité", "Saisine a posteriori", "Autre"]
+    end
+    @categories = ['23','3','31','32','4','41','42','43','5','51','52','53','6','61','62','63','64','65','7','71','72','73']
+  end
+
+  def liste_decisions_for(type_acte)
+    if type_acte == 'avis'
+      ["Favorable", "Favorable avec observations", "Défavorable", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    else
+      ["Visa accordé", "Visa accordé avec observations", "Refus de visa", "Retour sans décision (sans suite)", "Saisine a posteriori"]
+    end
+  end
+
+  def set_variables_filtres
+    # Liste des natures pour le filtre (Story 3.2) : HT2 + 7 natures T2.
+    # Format `[label, value]` pour permettre `Marché (PSC)` → valeur stockée `Marché` (T2)
+    # tout en restant distinct des natures HT2 `Marché unique` / `Marché à tranches`.
+    natures_ht2 = [
+      "Accord cadre à bons de commande",
+      "Accord cadre à marchés subséquents",
+      "Acquisition d'œuvres",
+      "Acquisition immobilière",
+      "Aliénation immobilière",
+      "Attribution de garanties",
+      "Autre",
+      "Autre contrat",
+      "Bail",
+      "Bon de commande",
+      "Cession de participation et retrait d'apport à toute entité",
+      "Conseil",
+      "Convention",
+      "Convention et contrat en recette",
+      "Décision diverse",
+      "Dotation en fonds propres",
+      "Emprunt",
+      "Intervention",
+      "Mandat",
+      "MAPA à bons de commande",
+      "MAPA à tranches",
+      "MAPA mixte",
+      "MAPA unique",
+      "Marché à tranches",
+      "Marché mixte",
+      "Marché subséquent à bons de commande",
+      "Marché unique",
+      "Participation et apport à toute entité",
+      "Prêt ou avance",
+      "Remboursement de mise à disposition T3",
+      "Subvention",
+      "Subvention pour charges d'investissement",
+      "Subvention pour charges de service public",
+      "Transaction",
+      "Transfert"
+    ].map { |n| [n, n] }
+
+    natures_t2 = [
+      ["Annexe financière", "Annexe financière"],
+      ["Enveloppe limitative", "Enveloppe limitative"],
+      ["Fongibilité asymétrique", "Fongibilité asymétrique"],
+      ["ISP", "ISP"],
+      ["Marché (PSC)", "Marché"],
+      ["Mesure transversale", "Mesure transversale"],
+      ["Référentiel", "Référentiel"]
+    ]
+
+    @liste_natures = (natures_ht2 + natures_t2).sort_by { |label, _| label }
+  end
+
+  def set_actes_user
+    @statut_user = current_user.statut
+    # chargement des actes en fonction du profil
+    @actes = @statut_user == 'admin' ? Acte : current_user.actes
+  end
+
+  def check_edit_conditions
+    redirect_to actes_path and return unless ["en cours d'instruction", "suspendu", "en pré-instruction", "à suspendre"].include?(@acte.etat)
+
+    @etape = params[:etape].present? && [1, 2, 3].include?(params[:etape].to_i) ? params[:etape].to_i : 1
+
+    # Vérifier que l'étape 2 est complète avant de passer à l'étape 3
+    if @etape == 3
+      redirect_to edit_acte_path(@acte, etape: 2) and return unless etape2_complete?(@acte)
+    end
+  end
+
+  def user_ht2_stats(users, year = nil, date_cloture_from = nil, date_cloture_to = nil, perimetre = nil, type_actes = [], updated_at_from = nil, updated_at_to = nil, created_at_from = nil, created_at_to = nil, type_cloture = nil, titre = nil)
+    users.includes(:actes).map do |user|
+      actes_user = year ? user.actes.where(annee: year) : user.actes.annee_courante
+      actes_user = actes_user.where(perimetre: perimetre) if perimetre.present?
+      actes_user = actes_user.where(titre: titre) if titre.present?
+      actes_user = actes_user.where(type_acte: type_actes) if type_actes.present?
+      actes_user = actes_user.where('created_at >= ?', created_at_from.to_date.beginning_of_day) if created_at_from.present?
+      actes_user = actes_user.where('created_at <= ?', created_at_to.to_date.end_of_day) if created_at_to.present?
+      actes_user = actes_user.where('updated_at >= ?', updated_at_from.to_date.beginning_of_day) if updated_at_from.present?
+      actes_user = actes_user.where('updated_at <= ?', updated_at_to.to_date.end_of_day) if updated_at_to.present?
+
+      actes_clotures = case type_cloture
+                       when 'cloture_seule' then actes_user.clotures_seuls
+                       when 'cloture_apres_pre_instruction' then actes_user.clotures_apres_pre_instruction
+                       else actes_user.clotures
+                       end
+      actes_clotures = actes_clotures.where('date_cloture >= ?', date_cloture_from) if date_cloture_from.present?
+      actes_clotures = actes_clotures.where('date_cloture <= ?', date_cloture_to) if date_cloture_to.present?
+      actes_non_clotures = actes_user.non_clotures
+
+      actes_avec_suspension_ids = Suspension.where(acte_id: actes_clotures.pluck(:id)).pluck(:acte_id).uniq
+      actes_avec_suspensions_count = actes_avec_suspension_ids.size
+
+      #suspensions_count = Suspension.where(acte_id: actes_clotures.pluck(:id)).count
+      actes_avec_observations_count = actes_clotures.where(decision_finale: ['Favorable avec observations', 'Visa accordé avec observations']).count
+      {
+        user: user,
+        actes_clotures_count: actes_clotures.count,
+        actes_non_clotures_count: actes_non_clotures.count,
+        actes_avec_suspensions_count: actes_avec_suspensions_count,
+        actes_avec_observations_count: actes_avec_observations_count,
+        delai_moyen: actes_clotures.delai_moyen_traitement,
+      }
+    end
+  end
+
+  # Méthode pour extraire les attachments d'un rich text
+  def extract_attachments_from_rich_text(rich_text_content)
+    return [] if rich_text_content.blank?
+
+    attachments = []
+
+    # Méthode 1: Utiliser les associations directes d'ActionText (le plus fiable)
+    if rich_text_content.respond_to?(:embeds)
+      Rails.logger.debug "Utilisation des embeds ActionText"
+      attachments = rich_text_content.embeds.select(&:image?)
+      Rails.logger.debug "Attachments trouvés via embeds: #{attachments.count}"
+      return attachments unless attachments.empty?
+    end
+    attachments
+  end
+
+  # Méthode pour créer un ZIP avec les attachments
+  def create_zip_with_attachments(attachments, acte_id)
+    require 'zip'
+
+    zip_data = Zip::OutputStream.write_buffer do |zip|
+      attachments.each_with_index do |attachment, index|
+        begin
+          # Nom du fichier dans le ZIP
+          filename = attachment.respond_to?(:filename) ? attachment.filename.to_s : "image_#{index + 1}"
+
+          # Ajouter l'extension si elle manque
+          unless filename.include?('.')
+            extension = attachment.respond_to?(:content_type) ?
+                          Marcel::MimeType.for(attachment.content_type).split('/').last : 'png'
+            filename = "#{filename}.#{extension}"
+          end
+
+          # Télécharger et ajouter au ZIP
+          file_data = attachment.respond_to?(:download) ? attachment.download : attachment.blob.download
+          zip.put_next_entry("#{index + 1}_acte_#{acte_id}_#{filename}")
+          zip.write(file_data)
+
+        rescue => e
+          Rails.logger.error "Erreur lors de l'ajout de #{attachment} au ZIP: #{e.message}"
+        end
+      end
+    end
+
+    zip_data.string
+  end
+
+  def count_active_filters(q_params)
+    return 0 if q_params.blank?
+
+    # On récupère un vrai hash
+    q = q_params.respond_to?(:to_unsafe_h) ? q_params.to_unsafe_h : q_params
+    q = q.deep_dup
+
+    # On récupère les filtres "hors délai" puis on les retire du hash,
+    # pour ne pas les compter deux fois comme filtres "classiques"
+    delay_gt   = q.delete("delai_traitement_gt")   || q.delete(:delai_traitement_gt)
+    delay_lteq = q.delete("delai_traitement_lteq") || q.delete(:delai_traitement_lteq)
+
+    # On récupère le filtre "avec observations" puis on le retire du hash
+    avec_observations = q.delete("avec_observations_in") || q.delete(:avec_observations_in)
+
+    # On récupère le filtre "type d'observation" puis on le retire du hash
+    type_observations = q.delete("type_observations_array_in") || q.delete(:type_observations_array_in)
+
+    # On récupère le filtre "suspensions" puis on le retire du hash
+    suspensions_count = q.delete("suspensions_count_in") || q.delete(:suspensions_count_in)
+
+    # On ne considère pas le tri comme un filtre
+    q.delete("s")
+    q.delete(:s)
+
+    # On ne compte pas les filtres de titre, périmètre et de recherche (qui sont dans la barre principale)
+    q.delete("titre_in")
+    q.delete(:titre_in)
+    q.delete("perimetre_in")
+    q.delete(:perimetre_in)
+    q.delete("numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont")
+    q.delete(:numero_formate_or_numero_chorus_or_centre_financier_code_or_instructeur_or_valideur_or_beneficiaire_or_activite_cont)
+
+    # Compte des filtres "classiques"
+    count = q.count do |_k, v|
+      case v
+      when Array
+        v.reject(&:blank?).any?
+      else
+        v.present?
+      end
+    end
+
+    # Ajout de 1 si le filtre "hors délai" est activé
+    count += 1 if delay_gt.present? || delay_lteq.present?
+
+    # Ajout de 1 si le filtre "avec observations" est activé
+    count += 1 if avec_observations.is_a?(Array) && avec_observations.reject(&:blank?).any?
+
+    # Ajout de 1 si le filtre "type d'observation" est activé
+    count += 1 if type_observations.is_a?(Array) && type_observations.reject(&:blank?).any?
+
+    # Ajout de 1 si le filtre "suspensions" est activé
+    count += 1 if suspensions_count.is_a?(Array) && suspensions_count.reject(&:blank?).any?
+
+    count
+  end
+
+  def set_parent_for_clone
+    key = params[:id].presence || params[:parent_id].presence
+    return unless key
+    # utilise find_by! si tu ne veux pas borner à l'utilisateur:
+    @acte_parent = current_user.actes.find(key)
+  end
+end

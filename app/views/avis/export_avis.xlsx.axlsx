@@ -35,14 +35,15 @@ wb.add_worksheet(name: "Avis #{@annee}") do |sheet|
     'CP HT2 prev',
     'AE/CP T2 prev',
     'ETPT prev',
+    "Motif d'absence",
     'commentaire'
   ], style: header_style, height: 30
 
   @avis.each do |avis|
     sheet.add_row [
       avis.annee,
-      avis.bop.code,
-      avis.user.nom,
+      avis.bop&.code,
+      avis.user&.nom,
       avis.phase,
       avis.etat,
       avis.statut,
@@ -60,9 +61,10 @@ wb.add_worksheet(name: "Avis #{@annee}") do |sheet|
       avis.cp_f,
       avis.t2_f,
       avis.etpt_f,
+      avis.motif_absence,
       avis.commentaire
     ], style: cell_style
   end
 
-  sheet.column_widths 8, 12, 25, 18, 12, 15, 18, 15, 15, 8, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 30
+  sheet.column_widths 8, 12, 25, 18, 12, 15, 18, 15, 15, 8, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 25, 30
 end

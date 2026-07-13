@@ -15,37 +15,6 @@
       </div>
     </div>
 
-    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w" data-controller="search">
-      <div class="fr-col-12 fr-col-lg-12">
-        <% label = "Rechercher un programme, un ministère, une mission, un BOP" %>
-        <%= form_with url: global_search_path, data: { turbo_frame: 'global_search' }, method: :get do |form| %>
-          <div class="fr-search-bar" id="header-search" role="search">
-            <label class="fr-label" for="search-784-input">
-              <%= label %>
-            </label>
-            <%= form.text_field :query, value: params[:query], autofocus: true, class: 'fr-input', id: "search-784-input", placeholder: label, oninput: 'this.form.requestSubmit()', data: { action: "keyup->search#collapse" } %>
-            <button class="fr-btn" title="Rechercher" aria-controls="modal-autocomplete" aria-expanded="false" data-search-target="button">
-              <%= label %>
-            </button>
-          </div>
-        <% end %>
-
-        <div id="modal-autocomplete" class="fr-collapse shadow">
-          <div class="fr-container fr-p-0">
-            <div class="fr-grid-row">
-              <div class="fr-col-12">
-                <div class="fr-modal__body fr-modal--body-search">
-                  <div class="fr-modal__content fr-mb-4w">
-                    <%= turbo_frame_tag :global_search, target: "_top" %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-lg-6">
         <div class="fr-card fr-card--shadow">
@@ -56,7 +25,7 @@
               </h3>
               <div class="fr-card__desc">
                 <div>
-                  <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">Phase en cours : <%= @phase %></p>
+                  <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">Phase en cours : <%= @phase_courante %></p>
                   <p class="fr-card__detail fr-icon-arrow-right-line">Du <%= I18n.localize(@date_ouverture, format: "%e %B") %>
                     au <%= I18n.localize(@date_fermeture, format: "%e %B %Y") %></p>
                 </div>
@@ -66,7 +35,7 @@
                       <ul class="fr-btns-group fr-btns-group--icon-left  fr-mt-2w">
                         <li>
                           <%= link_to remplissage_avis_path, class: "fr-btn fr-icon-add-line" do %>
-                            Donner un avis ou une note sur la programmation
+                            Rédiger un avis ou une note sur la programmation
                           <% end %>
                         </li>
                       </ul>
@@ -79,7 +48,7 @@
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
                               <%= link_to remplissage_avis_path do %>
-                                <%= pluralize(current_user.avis_a_remplir(Date.today.year, @phase), 'avis/note', plural: 'avis/notes') %>
+                                <%= pluralize(current_user.avis_a_remplir(Date.today.year), 'avis/note', plural: 'avis/notes') %>
                               <% end %>
                             </h3>
                             <p class="fr-tile__detail">
@@ -144,7 +113,7 @@
                                 Accéder au tableau de bord
                               <% end %>
                             <% else %>
-                              <%= link_to restitutions_perimetre_path do %>
+                              <%= link_to restitutions_path(perimetre: 'perimetre') do %>
                                 Accéder au tableau de bord
                               <% end %>
                             <% end %>
@@ -168,7 +137,7 @@
               <h3 class="fr-card__title title-btn">Instruction des actes
                 <p class="fr-badge fr-badge--sm fr-badge--green-emeraude fr-ml-1v">BETA</p></h3>
               <div class="fr-card__desc">
-                <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">HT2</p>
+                <p class="fr-badge fr-badge--purple-glycine fr-mb-1w">HT2 et T2</p>
                 <% if @statut_user == "DCB" || @statut_user == "CBR" %>
                   <div class="fr-grid-row fr-grid-row--gutters">
                     <div class="fr-col-12">
@@ -188,7 +157,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'validation') do %>
+                              <%= link_to actes_path(tab: 'validation') do %>
                                 <%= pluralize(@ht2_en_attente_validation, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -207,7 +176,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'preinstruction') do %>
+                              <%= link_to actes_path(tab: 'preinstruction') do %>
                                 <%= pluralize(@ht2_pre_instruction, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -223,7 +192,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'instruction') do %>
+                              <%= link_to actes_path(tab: 'instruction') do %>
                                 <%= pluralize(@ht2_en_cours, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -239,7 +208,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'suspendu') do %>
+                              <%= link_to actes_path(tab: 'suspendu') do %>
                                 <%= pluralize(@ht2_suspendu, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -255,7 +224,7 @@
                         <div class="fr-tile__body">
                           <div class="fr-tile__content">
                             <h3 class="fr-tile__title">
-                              <%= link_to ht2_actes_path(tab: 'cloture') do %>
+                              <%= link_to actes_path(tab: 'cloture') do %>
                                 <%= pluralize(@ht2_cloture, 'Acte', plural: 'Actes') %>
                               <% end %>
                             </h3>
@@ -296,7 +265,7 @@
                       <div class="fr-tile__body">
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
-                            <%= link_to historique_ht2_path do %>
+                            <%= link_to actes_historique_path do %>
                               Accéder à l'historique
                             <% end %>
                           </h3>
@@ -310,7 +279,7 @@
                       <div class="fr-tile__body">
                         <div class="fr-tile__content">
                           <h3 class="fr-tile__title">
-                            <%= link_to tableau_de_bord_ht2_actes_path do %>
+                            <%= link_to tableau_de_bord_actes_path do %>
                               Accéder au tableau de bord
                             <% end %>
                           </h3>

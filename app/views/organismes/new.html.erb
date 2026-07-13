@@ -71,7 +71,7 @@
                   <th>Nature de contrôle</th>
                   <th>Utilisateur</th>
                   <th>ID Opera</th>
-                  <th>Nb actes HT2</th>
+                  <th>Nb actes</th>
                 </tr>
               </thead>
               <tbody>
@@ -83,7 +83,7 @@
                     <td><%= organisme.nature_controle %></td>
                     <td><%= organisme.user.nom if organisme.user %></td>
                     <td><%= organisme.id_opera %></td>
-                    <td><%= organisme.ht2_actes.size %></td>
+                    <td><%= organisme.actes.size %></td>
                   </tr>
                 <% end %>
               </tbody>

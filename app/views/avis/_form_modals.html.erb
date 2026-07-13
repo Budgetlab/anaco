@@ -1,0 +1,41 @@
+<%# Modale DSFR de confirmation d'enregistrement en brouillon, partagée par tous les
+    formulaires d'avis. La validation finale "Valider" est désormais un f.submit direct
+    qui s'appuie sur la validation HTML5 native (attribut required) — plus de modale
+    de confirmation pour la transmission définitive.
+%>
+
+<dialog id="modal-1123" class="fr-modal" aria-labelledby="modal-1123-title">
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" aria-controls="modal-1123" title="Fermer" data-action="click->form#save">
+              Fermer
+            </button>
+          </div>
+          <div class="fr-modal__content">
+            <h1 id="modal-1123-title" class="fr-modal__title">
+              <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+              Enregistrer le brouillon
+            </h1>
+            <p>Vous êtes sur le point d'enregistrer vos modifications. Attention vous devrez revenir sur cette
+              page pour compléter et valider votre avis afin qu'il soit transmis définitivement au DCB.</p>
+            <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--right">
+              <li>
+                <button class="fr-btn fr-btn--secondary" aria-controls="modal-1123" title="Fermer" data-action="click->form#save">
+                  Annuler
+                </button>
+              </li>
+              <li>
+                <button data-action="click->form#changeTextToFloat" data-form-target="Btnsave" class="fr-btn" title="Enregistrer">
+                  Enregistrer
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>

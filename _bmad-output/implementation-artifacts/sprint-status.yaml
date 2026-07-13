@@ -1,0 +1,75 @@
+# generated: 2026-05-12
+# project: avisbop
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-05-12
+project: avisbop
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-renommer-la-table-ht2-actes-en-actes: done
+  1-2-creer-la-table-t2-details: done
+  1-3-mettre-a-jour-le-modele-acte-renomme-depuis-ht2-acte: done
+  1-4-mettre-a-jour-le-controller-les-routes-et-les-vues: done
+  epic-1-retrospective: optional
+
+  epic-2: in-progress
+  2-1-etendre-le-modal-nouvel-acte-avec-le-selecteur-t2: done
+  2-2-formulaire-t2-etape-1-champs-communs: done
+  2-3-section-specifique-nature-annexe-financiere: done
+  2-4-section-specifique-nature-isp: done
+  2-5-section-specifique-nature-fongibilite-asymetrique: done
+  2-6-section-specifique-nature-marche-psc: done
+  2-7-section-specifique-nature-mesure-transversale: done
+  2-8-sections-specifiques-natures-enveloppe-limitative-et-referentiel: done
+  2-9-formulaire-t2-etape-2-criteres-de-controle: done
+  2-10-formulaire-t2-etape-3-decision: done
+  2-11-suspension-et-reprise-d-un-acte-t2: done
+  2-12-affichage-details-acte-t2-en-mode-consultation: done
+  epic-2-retrospective: optional
+
+  epic-3: in-progress
+  3-1-affichage-actes-t2-pages-historique-et-index: done
+  3-2-filtres-de-recherche-incluant-t2: done
+  3-3-export-excel-incluant-les-actes-t2: done
+  3-4-gestion-des-actes-t2-dans-activeadmin: done
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-import-excel-des-actes-t2: backlog
+  4-2-generation-pdf-pour-les-actes-t2: backlog
+  epic-4-retrospective: optional
