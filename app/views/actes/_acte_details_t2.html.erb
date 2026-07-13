@@ -108,7 +108,10 @@
   </div>
 
   <%# — T2 nature-specific details section — %>
-  <% td = acte.t2_detail %>
+  <%# Un acte T2 peut ne pas avoir de t2_detail persisté (import, ancien acte…).
+      On construit un détail vide en mémoire (non persisté) pour que les partials
+      puissent lire td.<attribut> sans planter. Même approche que _form_criteres_t2. %>
+  <% td = acte.t2_detail || acte.build_t2_detail %>
 
   <% case acte.nature %>
   <% when 'Annexe financière' %>
