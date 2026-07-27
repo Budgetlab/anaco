@@ -43,6 +43,29 @@ class Phase < ApplicationRecord
     pour_annee(annee).where('date_debut <= ?', reference_date).last
   end
 
+  # Phase courante, ou une phase fictive par défaut si la table est vide pour
+  # l'année (aucune phase en base) : une "programmation initiale" non persistée
+  # démarrant au 1er janvier. Sert de socle générique à l'affichage de la
+  # fenêtre d'ouverture sur la page d'accueil.
+  def self.courante_ou_defaut(annee, reference_date = Date.today)
+    courante_pour(annee, reference_date) ||
+      new(nom: 'programmation initiale', annee: annee, date_debut: Date.new(annee, 1, 1))
+  end
+
+  # Phase suivante dans l'ordre chronologique parmi les phases de la même année.
+  # Renvoie nil s'il n'y en a pas (phase la plus tardive de l'année).
+  def phase_suivante
+    return nil if date_debut.blank?
+    Phase.where(annee: annee).where('date_debut > ?', date_debut).order(:date_debut).first
+  end
+
+  # Date de fermeture de la fenêtre couverte par cette phase : la veille du début
+  # de la phase suivante, ou le 31 décembre de l'année s'il n'y a pas de suivante.
+  def date_fermeture
+    suivante = phase_suivante
+    suivante ? suivante.date_debut.prev_day : Date.new(annee, 12, 31)
+  end
+
   # Numéro d'ordre de cette phase parmi les phases de même nom dans la même année.
   # Sert à distinguer SV1 / SV2 quand plusieurs services votés existent dans l'année.
   # Renvoie nil si la phase n'est pas persistée.

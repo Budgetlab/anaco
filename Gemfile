@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '4.0.5'
+ruby '4.0.6'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 8.1.3'
@@ -89,6 +89,7 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
+  # selenium-webdriver >= 4.11 gère nativement les drivers via Selenium Manager,
+  # rendant la gem `webdrivers` inutile (et qui bloquait les versions < 4.11).
   gem 'selenium-webdriver'
-  gem 'webdrivers'
 end

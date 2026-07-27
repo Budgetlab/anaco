@@ -72,6 +72,42 @@ class PhaseTest < ActiveSupport::TestCase
     assert_nil Phase.courante_pour(2026, Date.new(2025, 12, 31))
   end
 
+  # ---- phase_suivante + date_fermeture ----
+
+  test "phase_suivante : phase chronologiquement suivante de l'année" do
+    assert_equal phases(:debut_2026), phases(:sv_2026).phase_suivante
+    assert_equal phases(:crg1_2026), phases(:debut_2026).phase_suivante
+    assert_equal phases(:crg2_2026), phases(:crg1_2026).phase_suivante
+  end
+
+  test "phase_suivante : nil pour la dernière phase de l'année" do
+    assert_nil phases(:crg2_2026).phase_suivante
+  end
+
+  test "date_fermeture : veille du début de la phase suivante" do
+    assert_equal Date.new(2026, 2, 19), phases(:sv_2026).date_fermeture
+    assert_equal Date.new(2026, 5, 31), phases(:debut_2026).date_fermeture
+    assert_equal Date.new(2026, 8, 31), phases(:crg1_2026).date_fermeture
+  end
+
+  test "date_fermeture : 31 décembre pour la dernière phase de l'année" do
+    assert_equal Date.new(2026, 12, 31), phases(:crg2_2026).date_fermeture
+  end
+
+  # ---- courante_ou_defaut ----
+
+  test "courante_ou_defaut : retourne la phase courante quand elle existe" do
+    assert_equal phases(:crg1_2026), Phase.courante_ou_defaut(2026, Date.new(2026, 6, 1))
+  end
+
+  test "courante_ou_defaut : phase par défaut (programmation initiale au 1er janvier) si aucune phase ouverte" do
+    defaut = Phase.courante_ou_defaut(2099, Date.new(2099, 6, 1))
+    refute defaut.persisted?
+    assert_equal 'programmation initiale', defaut.nom
+    assert_equal Date.new(2099, 1, 1), defaut.date_debut
+    assert_equal Date.new(2099, 12, 31), defaut.date_fermeture
+  end
+
   # ---- Association avis ----
 
   test "has_many :avis via foreign_key phase_id" do

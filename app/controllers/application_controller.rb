@@ -43,25 +43,13 @@ class ApplicationController < ActionController::Base
   # (`@phase` est utilisé par ResourceController pour mémoïser la Phase trouvée).
   def set_global_variable
     @annee = Date.today.year
-    phases_annee = Phase.pour_annee(@annee).to_a
 
-    @date_debut = phases_annee.find { |p| p.nom == 'programmation initiale' }&.date_debut || Date.new(@annee, 2, 20)
-    @date_crg1  = phases_annee.find { |p| p.nom == 'CRG1' }&.date_debut             || Date.new(@annee, 6, 1)
-    @date_crg2  = phases_annee.find { |p| p.nom == 'CRG2' }&.date_debut             || Date.new(@annee, 9, 1)
-
-    # Phase courante : la plus récente dont date_debut est passée.
-    # Fallback sur la logique date-pivot si la table ne renvoie rien (cas d'année
-    # totalement vide en base ; rare avec les seeds en place).
+    # Objet Phase courant (ou phase par défaut si table vide), utilisé pour
+    # dériver la fenêtre d'ouverture/fermeture de façon générique. `@phase_courante`
+    # reste le nom (String) car consommé tel quel par plusieurs vues.
+    @phase_courante_record = Phase.courante_ou_defaut(@annee, Date.today)
     @phase_courante = Phase.courante_pour(@annee, Date.today)&.nom
-    @phase_courante ||= if Date.today < @date_debut
-                          'services votés'
-                        elsif Date.today < @date_crg1
-                          'programmation initiale'
-                        elsif Date.today < @date_crg2
-                          'CRG1'
-                        else
-                          'CRG2'
-                        end
+    @phase_courante ||= 'programmation initiale'
   end
 
 
