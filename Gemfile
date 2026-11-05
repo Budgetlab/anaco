@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '4.0.5'
+ruby '4.0.9'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 8.1.3'
+gem 'rails', '~> 8.1.4.1'
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem 'sprockets-rails'
@@ -58,7 +58,7 @@ gem 'pagy', '~> 43.2'
 gem 'rails_autolink'
 gem 'rails-i18n'
 gem 'ransack'
-gem 'roo', '~> 2.8.0'
+gem 'roo', '~> 3.0'
 gem 'ferrum'
 gem 'google-cloud-storage'
 gem 'groupdate'
@@ -90,5 +90,4 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
   gem 'selenium-webdriver'
-  gem 'webdrivers'
 end

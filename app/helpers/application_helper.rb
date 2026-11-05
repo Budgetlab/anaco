@@ -231,38 +231,40 @@ module ApplicationHelper
                  else
                    avis.select { |avi| avi.phase == phase }
                  end
-    if avis_phase.empty?
-      [0, 0, 0, 0, 0, 0, 0, 0]
-    else
-      [:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f].map do |attribute|
-        avis_phase.map { |avis| avis.send(attribute) || 0 }.sum
-      end
-    end
-    # avis_phase.empty? ? [0, 0, 0, 0, 0, 0, 0, 0] : avis_phase.pluck(:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f).transpose.map(&:sum)
+    somme_chiffres_avis(avis_phase)
   end
 
-  # Liste des noms de phases à afficher en onglets de suivi_remplissage / show_avis,
-  # ordonnés du plus récent au plus ancien (le 1er sert d'onglet sélectionné par défaut).
+  # Variante par instance de phase : agrège les chiffres des avis rattachés à
+  # CETTE ligne Phase (via phase_id) plutôt que par nom. Permet un onglet distinct
+  # par instance (ex. services votés 1 vs services votés 2) sur la page programme.
+  # La règle métier CRG1 est conservée : une instance CRG1 inclut aussi les avis
+  # de programmation initiale finalisés sans CRG1 (is_crg1 == false).
+  def sum_chiffres_avis_instance(avis, phase)
+    avis_phase = avis.select { |avi| avi.phase_id == phase.id }
+    if phase.nom == 'CRG1'
+      avis_phase += avis.select { |avi| avi.phase == 'programmation initiale' && !avi.is_crg1 }
+    end
+    somme_chiffres_avis(avis_phase)
+  end
+
+  # Somme des 8 agrégats budgétaires (initiaux + prévisionnels) sur une liste d'avis.
+  def somme_chiffres_avis(avis_phase)
+    return [0, 0, 0, 0, 0, 0, 0, 0] if avis_phase.empty?
+
+    [:ae_i, :cp_i, :t2_i, :etpt_i, :ae_f, :cp_f, :t2_f, :etpt_f].map do |attribute|
+      avis_phase.map { |avis| avis.send(attribute) || 0 }.sum
+    end
+  end
+
+  # Instances de phase à afficher en onglets de suivi_remplissage / show_avis (une
+  # par phase existante, sans regroupement par nom : plusieurs "services votés" dans
+  # l'année donnent plusieurs onglets — services votés 1, 2, …). Ordonnées phase la
+  # plus récente d'abord (le 1er sert d'onglet sélectionné par défaut).
   #
   # - Année passée → toutes les phases connues pour cette année (saisie clôturée,
   #   on présente l'historique complet).
   # - Année courante → seulement les phases dont date_debut est passée (les autres
   #   ne sont pas encore ouvertes à la saisie, rien à montrer).
-  #
-  # Source de vérité : la table Phase (les arguments supplémentaires sont conservés
-  # pour rétro-compat des callsites — ils ne sont plus utilisés).
-  def display_phases(annee_a_afficher, *_legacy_args)
-    phases_annee = Phase.pour_annee(annee_a_afficher).to_a
-    visibles = annee_a_afficher < Date.today.year ? phases_annee
-                                                  : phases_annee.select { |p| p.date_debut <= Date.today }
-    noms_existants = visibles.map(&:nom).uniq
-    Phase::NOMS_CONNUS.reverse.select { |nom| noms_existants.include?(nom) }
-  end
-
-  # Instances de phase à afficher en onglets (une par phase existante), même règle
-  # de visibilité que display_phases mais sans regroupement par nom : plusieurs
-  # "services votés" dans l'année donnent plusieurs onglets (services votés 1, 2, …).
-  # Ordonnées phase la plus récente d'abord (cohérent avec display_phases).
   def display_phase_instances(annee_a_afficher)
     phases_annee = Phase.pour_annee(annee_a_afficher).to_a
     visibles = annee_a_afficher < Date.today.year ? phases_annee

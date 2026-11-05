@@ -12,19 +12,11 @@ class PagesController < ApplicationController
     @statut_user = current_user.statut
     # chargement des avis
     @bops_actifs = @statut_user == 'admin' ? bops_actifs(Bop.all, @annee).count : current_user.bops_actifs(@annee).count
-    if @phase_courante == "programmation initiale"
-      @date_ouverture = @date_debut
-      @date_fermeture = @date_crg1.prev_day
-    elsif @phase_courante == "CRG1"
-      @date_ouverture = @date_crg1
-      @date_fermeture = @date_crg2.prev_day
-    elsif @phase_courante == "CRG2"
-      @date_ouverture = @date_crg2
-      @date_fermeture = Date.new(@annee, 12, 31)
-    elsif @phase_courante == "services votés"
-      @date_ouverture = Date.new(@annee, 1, 1)
-      @date_fermeture = @date_debut.prev_day
-    end
+    # Fenêtre d'ouverture de la phase courante, dérivée directement de la table
+    # Phase : ouverture = date_debut de la phase, fermeture = veille de la phase
+    # suivante (ou 31/12 si elle est la dernière de l'année).
+    @date_ouverture = @phase_courante_record.date_debut
+    @date_fermeture = @phase_courante_record.date_fermeture
 
     @actes = @statut_user == 'admin' ? Acte.all : current_user.actes
     counts = @actes.group(:etat).count

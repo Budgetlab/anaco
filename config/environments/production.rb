@@ -27,6 +27,15 @@ Rails.application.configure do
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   # config.assume_ssl = true
 
+  # Trust the Google Cloud load balancer so ActionDispatch::RemoteIp resolves the real client IP.
+  # Without this, the LB IP appended to X-Forwarded-For doesn't match the Forwarded header
+  # and Rails raises IpSpoofAttackError (HTTP 500).
+  config.action_dispatch.trusted_proxies = ActionDispatch::RemoteIp::TRUSTED_PROXIES + [
+    IPAddr.new("34.160.240.188"), # External HTTPS load balancer (budgetlab.finances.gouv.fr)
+    IPAddr.new("35.191.0.0/16"),  # Google Front End ranges
+    IPAddr.new("130.211.0.0/22")
+  ]
+
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
 

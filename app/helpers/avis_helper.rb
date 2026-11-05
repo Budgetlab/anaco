@@ -143,12 +143,6 @@ module AvisHelper
     end
   end
 
-  def get_avis_for_bop(phases, bop, avis)
-    phases.map do |phase|
-      avis.find { |a| a.bop_id == bop.id && a.phase == phase }
-    end
-  end
-
   # fonction pour afficher la répartition des dates de réception pour les avis programmation initiale de l'année sélectionnée
   def avis_date_repartition(avis, avis_total, annee, phase)
     avis = avis.where(phase: phase).select('DISTINCT ON (bop_id) avis.*').order('bop_id, avis.created_at DESC') if phase == 'services votés'
