@@ -581,6 +581,351 @@ class Acte < ApplicationRecord
     count
   end
 
+  # Réimport d'une sélection d'actes depuis un export "actes_historique"
+  # (onglets HT2 et T2, libellés FR — cf. app/views/actes/historique.xlsx.axlsx).
+  #
+  # - Dédoublonnage : un acte est ignoré si un acte identique existe déjà
+  #   (même utilisateur + exercice + n° Chorus + nature + montant).
+  # - Associations : centre_financier_code (état) et nom_organisme (organisme)
+  #   déclenchent les auto-associations du modèle. Les codes CF / organismes
+  #   introuvables dans le référentiel de prod sont importés quand même mais listés
+  #   dans le rapport retourné.
+  #
+  # Retourne un Hash rapport : { created:, skipped:, errors:[], missing_users:[],
+  #   unmatched_cf:[], unmatched_organismes:[] }
+  def self.import_historique(file)
+    data = Roo::Spreadsheet.open(file.path)
+
+    report = {
+      created: 0, skipped: 0, errors: [],
+      missing_users: [], unmatched_cf: [], unmatched_organismes: []
+    }
+
+    # ── Helpers de conversion ────────────────────────────────────────────────
+    clean = ->(v) {
+      s = v.is_a?(String) ? v.strip : v
+      return nil if s.nil? || s == '' || s == 'N/A'
+      s
+    }
+    bool_fr = ->(v) {
+      s = clean.(v)
+      return nil if s.nil?
+      case s.to_s.downcase
+      when 'oui', 'true', '1', 't' then true
+      when 'non', 'false', '0', 'f' then false
+      end
+    }
+    parse_date = ->(v) {
+      s = clean.(v)
+      return nil if s.nil?
+      return s.to_date if s.is_a?(Date) || s.is_a?(Time)
+      (Date.strptime(s.to_s.strip, '%d/%m/%Y') rescue nil)
+    }
+    parse_num = ->(v) {
+      s = clean.(v)
+      return nil if s.nil?
+      return s if s.is_a?(Numeric)
+      str = s.to_s.gsub(/\s| |€/, '').tr(',', '.').gsub(/[^\d.\-]/, '')
+      str.empty? ? nil : str.to_f
+    }
+    parse_arr = ->(v) {
+      s = clean.(v)
+      return [] if s.nil?
+      s.to_s.split(',').map(&:strip).reject(&:blank?)
+    }
+    reverse_etat = ->(e) {
+      case e
+      when 'interrompu'    then 'suspendu'
+      when 'à interrompre' then 'à suspendre'
+      else e
+      end
+    }
+    cat_org = ->(v) {
+      s = clean.(v)
+      return nil if s.nil?
+      case s.to_s.downcase
+      when 'dépense', 'depense' then 'depense'
+      when 'recette'           then 'recette'
+      else s.to_s.downcase
+      end
+    }
+    perimetre_rev = ->(v) {
+      s = clean.(v)
+      return nil if s.nil?
+      s.to_s.downcase.start_with?('org') ? 'organisme' : 'etat'
+    }
+
+    # Clé d'unicité pour le dédoublonnage.
+    already_present = ->(acte) {
+      Acte.where(user_id: acte.user_id, annee: acte.annee, nature: acte.nature,
+                 montant_ae: acte.montant_ae)
+          .where("COALESCE(numero_chorus, '') = ?", acte.numero_chorus.to_s)
+          .exists?
+    }
+
+    # Persiste l'acte (après contrôle doublon + report associations). Retourne l'acte
+    # sauvegardé ou nil.
+    persist = ->(acte, label, check_dup = true) {
+      perimetre = acte.perimetre
+      cf_code   = acte.centre_financier_code
+      org_nom   = acte.nom_organisme
+
+      if perimetre == 'etat' && cf_code.present? && CentreFinancier.find_by(code: cf_code.to_s.strip.upcase).nil?
+        report[:unmatched_cf] << "#{label} — code '#{cf_code}'"
+      end
+      if perimetre == 'organisme' && org_nom.present?
+        nom_rech = org_nom.include?(' - ') ? org_nom.split(' - ', 2).last.strip : org_nom
+        report[:unmatched_organismes] << "#{label} — '#{org_nom}'" if Organisme.find_by(nom: nom_rech).nil?
+      end
+
+      # Dédoublonnage désactivé pour les T2 (aucun doublon possible côté T2).
+      if check_dup && already_present.(acte)
+        report[:skipped] += 1
+        return nil
+      end
+
+      if acte.save
+        report[:created] += 1
+        acte
+      else
+        report[:errors] << "#{label} : #{acte.errors.full_messages.join(', ')}"
+        nil
+      end
+    }
+
+    # Crée l'unique suspension exportée (l'export ne conserve que la dernière).
+    add_suspension = ->(acte, r) {
+      return unless bool_fr.(r['Suspension'])
+      date_susp = parse_date.(r['Date de suspension'])
+      return unless date_susp.present?
+      motif = parse_arr.(r['Motif suspension'])
+      motif = ['Autre'] if motif.empty?
+      acte.suspensions.create(
+        date_suspension: date_susp,
+        date_reprise:    parse_date.(r['Date fin de suspension']),
+        motif:           motif
+      )
+      acte.recalculate_delai_traitement! if acte.respond_to?(:recalculate_delai_traitement!)
+    }
+
+    # Résout l'utilisateur depuis la colonne "Controleur" (présente si export admin).
+    find_user = ->(r, label) {
+      nom = clean.(r['Controleur'])
+      if nom.blank?
+        report[:errors] << "#{label} : colonne 'Controleur' absente ou vide (export non-admin ?)"
+        return nil
+      end
+      user = User.find_by(nom: nom.to_s.strip)
+      if user.nil?
+        report[:missing_users] << nom.to_s.strip
+        report[:errors] << "#{label} : utilisateur '#{nom}' introuvable"
+      end
+      user
+    }
+
+    # ── Onglet HT2 ───────────────────────────────────────────────────────────
+    if data.sheets.include?('HT2')
+      sheet = data.sheet('HT2')
+      if sheet.last_row && sheet.last_row >= 2
+        headers = sheet.row(1).map { |h| h.to_s.strip }
+        (2..sheet.last_row).each do |i|
+          r = Hash[headers.zip(sheet.row(i))]
+          label = "HT2 ligne #{i} (#{clean.(r['Numéro Acte'])})"
+          begin
+            user = find_user.(r, label)
+            next unless user
+
+            prog_compat = bool_fr.(r['Compatibilité avec programmation'])
+            prog_sv     = bool_fr.(r['Engagement éligible à la gestion des SV'])
+            nb_actes    = clean.(r["Nombre d'actes"]).to_i
+
+            acte = Acte.new(
+              user:                             user,
+              titre:                            'HT2',
+              perimetre:                        perimetre_rev.(r['Périmètre']),
+              type_acte:                        clean.(r['Type Acte']),
+              annee:                            clean.(r['Exercice'])&.to_i,
+              etat:                             reverse_etat.(clean.(r['Etat'])),
+              pre_instruction:                  bool_fr.(r['Pré-instruction']),
+              categorie_organisme:              cat_org.(r['Catégorie']),
+              nom_organisme:                    clean.(r['Nom organisme']),
+              centre_financier_code:            clean.(r['Centre financier']),
+              instructeur:                      clean.(r['Instructeur']),
+              nature:                           clean.(r['Nature']),
+              type_engagement:                  clean.(r["Type d'engagement"]),
+              ordonnateur:                      clean.(r['Ordonnateur / Service ordonnateur']),
+              numero_chorus:                    clean.(r['Numéro Chorus / N° acte interne']).to_s,
+              objet:                            clean.(r['Objet']),
+              beneficiaire:                     clean.(r['Bénéficiaire']),
+              nombre_actes:                     nb_actes.positive? ? nb_actes : 1,
+              liste_actes:                      nb_actes > 1,
+              montant_ae:                       parse_num.(r['Montant de la mesure']),
+              type_montant:                     clean.(r['Type de montant']),
+              montant_global:                   parse_num.(r['Montant total']),
+              categorie:                        clean.(r['Titre/Catégorie']),
+              action:                           clean.(r['Action/Sous-action']),
+              activite:                         clean.(r['Code activité']),
+              numero_marche:                    clean.(r['Numéro Marché']).to_s,
+              numero_tf:                        clean.(r['Numéro TF / Affectation']).to_s,
+              groupe_marchandises:              clean.(r['Groupe de marchandises']),
+              operation_compte_tiers:           bool_fr.(r['Opération compte tiers']),
+              operation_budgetaire:             clean.(r['Opération budgétaire']),
+              nature_categorie_organisme:       clean.(r['Nature dépense / Affectation recette']),
+              budget_executoire:                bool_fr.(r['Budget exécutoire']),
+              deliberation_ca:                  bool_fr.(r['Délibération CA']),
+              numero_deliberation_ca:           clean.(r['N° délibération']),
+              date_deliberation_ca:             parse_date.(r['Date délibération']),
+              observations_deliberation_ca:     clean.(r['Observations délibération']),
+              destination:                      clean.(r['Destination']),
+              nomenclature:                     clean.(r['Nomenclature']),
+              flux:                             clean.(r['Flux']),
+              date_saisine:                     parse_date.(r['Date de saisine']),
+              date_limite:                      parse_date.(r['Date limite de réponse']),
+              proposition_decision:             clean.(r['Proposition décision']),
+              decision_finale:                  clean.(r['Décision finale']),
+              valideur:                         clean.(r['Valideur']),
+              date_cloture:                     parse_date.(r['Date clôture']),
+              type_observations:                parse_arr.(r['Type observations']),
+              observations:                     clean.(r['Observations']),
+              commentaire_proposition_decision: clean.(r['Commentaire interne']),
+              gestion_anticipee:                bool_fr.(r['Gestion anticipée']),
+              services_votes:                   bool_fr.(r['Services votés']),
+              programmation_prevue:             bool_fr.(r['Acte programmé']),
+              avis_programmation:               bool_fr.(r['Programmation initiale transmise']),
+              programmation:                    prog_compat.nil? ? prog_sv : prog_compat,
+              autorisation_tutelle:             bool_fr.(r['Autorisation tutelle']),
+              disponibilite_credits:            bool_fr.(r['Disponibilité crédits / fonds']),
+              imputation_depense:               bool_fr.(r['Imputation dépense / recette']),
+              consommation_credits:             bool_fr.(r['Consommation crédits']),
+              soutenabilite:                    bool_fr.(r['Soutenabilité']),
+              conformite:                       bool_fr.(r['Conformité au seuil de contrôle']),
+              concordance_recettes_tiers:       bool_fr.(r['Concordance recette/tiers']),
+              pdf_generation_status:            'none'
+            )
+            created_at = parse_date.(r['Date création'])
+            acte.created_at = created_at if created_at
+
+            saved = persist.(acte, label)
+            add_suspension.(saved, r) if saved
+          rescue => e
+            report[:errors] << "#{label} : #{e.class} - #{e.message}"
+          end
+        end
+      end
+    end
+
+    # ── Onglet T2 ────────────────────────────────────────────────────────────
+    if data.sheets.include?('T2')
+      sheet = data.sheet('T2')
+      if sheet.last_row && sheet.last_row >= 2
+        headers = sheet.row(1).map { |h| h.to_s.strip }
+        (2..sheet.last_row).each do |i|
+          r = Hash[headers.zip(sheet.row(i))]
+          label = "T2 ligne #{i} (#{clean.(r['Numéro Acte'])})"
+          begin
+            user = find_user.(r, label)
+            next unless user
+
+            prog_compat = bool_fr.(r['Compatibilité programmation'])
+            prog_sv     = bool_fr.(r['Engagement éligible à la gestion des SV'])
+
+            acte = Acte.new(
+              user:                             user,
+              titre:                            'T2',
+              perimetre:                        perimetre_rev.(r['Périmètre']),
+              type_acte:                        clean.(r['Type Acte']),
+              annee:                            clean.(r['Exercice'])&.to_i,
+              etat:                             reverse_etat.(clean.(r['Etat'])),
+              pre_instruction:                  bool_fr.(r['Pré-instruction']),
+              categorie_t2:                     clean.(r['Catégorie T2'])&.downcase,
+              nom_organisme:                    clean.(r['Nom organisme']),
+              centre_financier_code:            clean.(r['Centre financier']),
+              instructeur:                      clean.(r['Instructeur']),
+              nature:                           clean.(r['Nature']),
+              ordonnateur:                      clean.(r['Ordonnateur']),
+              objet:                            clean.(r['Objet']),
+              beneficiaire:                     clean.(r['Bénéficiaire']),
+              montant_ae:                       parse_num.(r['Montant de la mesure']),
+              operation_budgetaire:             clean.(r['Opération budgétaire']),
+              budget_executoire:                bool_fr.(r['Budget exécutoire']),
+              deliberation_ca:                  bool_fr.(r['Délibération CA']),
+              numero_deliberation_ca:           clean.(r['N° délibération']),
+              date_deliberation_ca:             parse_date.(r['Date délibération']),
+              observations_deliberation_ca:     clean.(r['Observations délibération']),
+              date_saisine:                     parse_date.(r['Date de saisine']),
+              date_limite:                      parse_date.(r['Date limite de réponse']),
+              proposition_decision:             clean.(r['Proposition décision']),
+              decision_finale:                  clean.(r['Décision finale']),
+              valideur:                         clean.(r['Valideur']),
+              date_cloture:                     parse_date.(r['Date clôture']),
+              type_observations:                parse_arr.(r['Type observations']),
+              observations:                     clean.(r['Observations']),
+              commentaire_proposition_decision: clean.(r['Commentaire interne']),
+              services_votes:                   bool_fr.(r['Services votés']),
+              programmation_prevue:             bool_fr.(r['Acte programmé']),
+              avis_programmation:               bool_fr.(r['Programmation initiale transmise']),
+              programmation:                    prog_compat.nil? ? prog_sv : prog_compat,
+              autorisation_tutelle:             bool_fr.(r['Autorisation tutelle']),
+              soutenabilite:                    bool_fr.(r['Soutenabilité / Disponibilité des crédits']),
+              consommation_credits:             bool_fr.(r["Exactitude de l'évaluation budgétaire"]),
+              pdf_generation_status:            'none'
+            )
+            created_at = parse_date.(r['Date création'])
+            acte.created_at = created_at if created_at
+
+            acte.build_t2_detail(
+              inscription_pap:            bool_fr.(r['Inscription PAP']),
+              respect_plafond_emplois:    bool_fr.(r['Respect plafond emplois']),
+              respect_schema_emplois:     bool_fr.(r['Respect schéma emplois']),
+              controle_modalites:         bool_fr.(r['Contrôle modalités']),
+              respect_enveloppe:          bool_fr.(r['Respect enveloppe']),
+              risque_reconventionnel:     bool_fr.(r['Risque réconventionnel']),
+              effectifs:                  parse_num.(r['Effectifs']),
+              effectifs_complementaire:   parse_num.(r['Effectifs complémentaires']),
+              corps:                      clean.(r['Corps']),
+              grade:                      parse_arr.(r['Catégorie']),
+              date_arrete_concours:       parse_date.(r['Date arrêté concours']),
+              date_effet_acte:            clean.(r["Date d'effet de l'acte"])&.to_s,
+              impact_schema_emplois:      bool_fr.(r['Impact schéma emplois']),
+              impact_autre_cbcm:          bool_fr.(r['Impact autre CBCM/CBR']),
+              isp_cercle1:                bool_fr.(r['ISP Cercle 1 présent']),
+              isp_cercle1_natures:        parse_arr.(r['ISP C1 natures']),
+              isp_cercle1_montant:        parse_num.(r['ISP C1 montant']),
+              isp_cercle1_enveloppe_sgg:  parse_num.(r['ISP C1 enveloppe SGG']),
+              isp_cercle1_consommation:   parse_num.(r['ISP C1 consommation']),
+              isp_cercle2:                bool_fr.(r['ISP Cercle 2 présent']),
+              isp_cercle2_natures:        parse_arr.(r['ISP C2 natures']),
+              isp_cercle2_montant:        parse_num.(r['ISP C2 montant']),
+              isp_cercle2_enveloppe_sgg:  parse_num.(r['ISP C2 enveloppe SGG']),
+              isp_cercle2_consommation:   parse_num.(r['ISP C2 consommation']),
+              fa_technique:               bool_fr.(r['FA technique']),
+              enveloppe_abondee:          clean.(r['Enveloppe abondée'])&.to_s,
+              accord_rffim:               bool_fr.(r['Accord RFFIM']),
+              sollicitation_db:           clean.(r['Sollicitation DB'])&.to_s,
+              avis_cbcm:                  clean.(r['Avis CBCM'])&.to_s,
+              perimetre_mesure:           parse_arr.(r['Périmètre de la mesure']),
+              statut_agents:              clean.(r['Statut agents'])&.to_s,
+              impact_financier_n1:        parse_num.(r['Impact financier N+1']),
+              origine_financement:        parse_arr.(r['Origine financement']),
+              montant_enveloppe_n1:       parse_num.(r['Montant enveloppe N-1']),
+              impact_maximal_sans_enveloppe: parse_num.(r['Impact maximal sans enveloppe']),
+              referentiel_type:           bool_fr.(r['Déclinaison référentiel']) || false
+            )
+
+            # T2 : on importe toutes les lignes (pas de contrôle de doublon).
+            saved = persist.(acte, label, false)
+            add_suspension.(saved, r) if saved
+          rescue => e
+            report[:errors] << "#{label} : #{e.class} - #{e.message}"
+          end
+        end
+      end
+    end
+
+    report[:missing_users].uniq!
+    report
+  end
+
   private
 
   def no_t2_detail_for_ht2
