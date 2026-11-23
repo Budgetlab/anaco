@@ -46,7 +46,14 @@ class GenerateActePdfJob < ApplicationJob
     # Charger les associations nécessaires pour éviter N+1
     acte = Acte.find(acte.id)
 
-    partial_name = acte.perimetre == 'organisme' ? 'actes/acte_organisme_pdf_content' : 'actes/acte_pdf_content'
+    partial_name =
+      if acte.titre == 'T2'
+        'actes/acte_t2_pdf_content'
+      elsif acte.perimetre == 'organisme'
+        'actes/acte_organisme_pdf_content'
+      else
+        'actes/acte_pdf_content'
+      end
 
     # Rendu du partial (contenu uniquement)
     partial_content = ApplicationController.render(
