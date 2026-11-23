@@ -44,3 +44,9 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# OS files
+.DS_Store
+
+# JetBrains / RubyMine IDE config
+/.idea/
+
