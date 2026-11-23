@@ -98,8 +98,14 @@ export default class extends Controller {
                 let parsedInteger = parseFloat(integerPart.replace(',', '.'));
                 if (isNaN(parsedInteger)) parsedInteger = 0;
 
+                // Préserver le signe négatif perdu quand la partie entière vaut -0 (ex: -0,55)
+                let integerString = parsedInteger.toString();
+                if (integerPart.trim().startsWith("-") && !integerString.startsWith("-")) {
+                    integerString = "-" + integerString;
+                }
+
                 // Reconstruire la valeur pour la soumission (format avec point décimal)
-                field.value = parsedInteger + "." + decimalPart;
+                field.value = integerString + "." + decimalPart;
             } else {
                 const parsedValue = this.numberFormat(field.value);
                 if (!isNaN(parsedValue)) {
@@ -138,7 +144,11 @@ export default class extends Controller {
             // Traiter la partie entière avec le formatage
             let parsedInteger = this.numberFormat(integerPart);
             if (isNaN(parsedInteger)) parsedInteger = 0;
-            const formattedInteger = parsedInteger.toLocaleString("fr-FR");
+            let formattedInteger = parsedInteger.toLocaleString("fr-FR");
+            // Préserver le signe négatif perdu quand la partie entière vaut -0 (ex: -0,55)
+            if (integerPart.trim().startsWith("-") && !formattedInteger.startsWith("-")) {
+                formattedInteger = "-" + formattedInteger;
+            }
 
             // Reconstruire la valeur avec la partie décimale préservée et limitée
             if (lastLetter == "," || lastLetter == ".") {
