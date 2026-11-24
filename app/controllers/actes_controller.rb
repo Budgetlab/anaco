@@ -3,7 +3,7 @@ class ActesController < ApplicationController
   include GcsBackupConcern
 
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup]
+  before_action :authenticate_admin!, only: [:synthese_utilisateurs, :ajout_actes, :import, :import_actes_organismes, :pdf_en_cours, :admin_backup, :generate_backup, :download_backup, :destroy_backup, :export_organisme_2026, :import_from_backup, :import_historique]
   before_action :authenticate_dcb_or_cbr, only: [:index, :new, :create, :edit, :destroy, :acte_actions]
   before_action :set_acte, only: [:edit, :update, :show, :destroy, :show_modal, :modal_delete,:modal_cloture_preinstruction, :cloture_pre_instruction, :modal_pre_instruction, :renvoie_instruction, :validate_acte, :modal_renvoie_validation, :acte_actions, :generate_pdf]
   before_action :authorize_show!, only: [:show]
@@ -1103,6 +1103,35 @@ class ActesController < ApplicationController
       redirect_to admin_backup_path, notice: "Import terminé : #{id_map.size} acte(s) importé(s)."
     rescue => e
       Rails.logger.error "[import_from_backup] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      redirect_to admin_backup_path, alert: "Erreur lors de l'import : #{e.message}"
+    end
+  end
+
+  def import_historique
+    if params[:historique_file].blank?
+      return redirect_to admin_backup_path, alert: "Veuillez sélectionner un fichier."
+    end
+
+    begin
+      report = Acte.import_historique(params[:historique_file].tempfile)
+
+      notice = "Import terminé : #{report[:created]} acte(s) créé(s), #{report[:skipped]} doublon(s) ignoré(s)."
+
+      details = []
+      details << "#{report[:errors].size} ligne(s) en erreur" if report[:errors].any?
+      details << "centres financiers introuvables : #{report[:unmatched_cf].size}" if report[:unmatched_cf].any?
+      details << "organismes introuvables : #{report[:unmatched_organismes].size}" if report[:unmatched_organismes].any?
+      details << "utilisateurs introuvables : #{report[:missing_users].join(', ')}" if report[:missing_users].any?
+      notice += " — À vérifier : #{details.join(' ; ')}." if details.any?
+
+      # Log détaillé pour diagnostic (non affiché à l'écran).
+      if report[:errors].any? || report[:unmatched_cf].any? || report[:unmatched_organismes].any?
+        Rails.logger.warn "[import_historique] Rapport : #{report.except(:created, :skipped).to_json}"
+      end
+
+      redirect_to admin_backup_path, notice: notice
+    rescue => e
+      Rails.logger.error "[import_historique] #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
       redirect_to admin_backup_path, alert: "Erreur lors de l'import : #{e.message}"
     end
   end

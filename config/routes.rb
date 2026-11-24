@@ -111,6 +111,7 @@ Rails.application.routes.draw do
     delete 'admin_backup/:id', to: 'actes#destroy_backup', as: 'destroy_backup'
     get 'admin_backup/export_organisme_2026', to: 'actes#export_organisme_2026', as: 'export_organisme_2026'
     post 'admin_backup/import_from_backup', to: 'actes#import_from_backup', as: 'import_from_backup'
+    post 'admin_backup/import_historique', to: 'actes#import_historique', as: 'import_historique'
     get 'actes_historique', to: 'actes#historique'
     get 'ajout_actes', to: 'actes#ajout_actes'
     post 'import_actes', to: 'actes#import'

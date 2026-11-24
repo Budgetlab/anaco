@@ -36,6 +36,17 @@
           <%= f.submit "Lancer l'import", class: "fr-btn fr-icon-upload-line fr-btn--icon-left",
                        data: { turbo_confirm: "Importer ce fichier ? Les actes seront ajoutés à la base de données." } %>
         <% end %>
+
+        <h2 class="fr-h4 fr-mt-2w">Importer depuis un export historique</h2>
+        <p class="fr-text--sm fr-mb-3w">Réimporte une sélection d'actes depuis un fichier « actes_historique » (onglets HT2 et T2). Les doublons (même utilisateur, exercice, n° Chorus, nature et montant) sont ignorés. Les centres financiers et organismes introuvables sont signalés dans le message de retour.</p>
+        <%= form_with url: import_historique_path, method: :post, multipart: true, data: { turbo: false } do |f| %>
+          <div class="fr-upload-group fr-mb-2w">
+            <%= f.label :historique_file, "Fichier xlsx (export historique)", class: "fr-label" %>
+            <%= f.file_field :historique_file, class: "fr-upload", accept: ".xlsx" %>
+          </div>
+          <%= f.submit "Lancer l'import", class: "fr-btn fr-icon-upload-line fr-btn--icon-left",
+                       data: { turbo_confirm: "Importer ce fichier ? Les actes de la sélection seront ajoutés à la base de données." } %>
+        <% end %>
       </div>
     </div>
   </div>
